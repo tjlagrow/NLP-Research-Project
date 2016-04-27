@@ -41,6 +41,6 @@ def convert_pdf_to_txt(path):
     	f.write(text)
 
 if __name__ == '__main__':
-    convert_pdf_to_txt("example.pdf") #the path needed for the file
+    convert_pdf_to_txt("oe-24-9-9660.pdf") #the path needed for the file
 
 
