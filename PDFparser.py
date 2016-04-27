@@ -1,15 +1,46 @@
-import pyPdf
+"""
+PDFparser.py
+Author: Theodore LaGrow
+Source: http://stackoverflow.com/questions/26494211/extracting-text-from-a-pdf-file-using-pdfminer-in-python
+Language: Python 2.7x
+Packages Needed: pdfminer
+Description: 
 
-def getPDFContent(path):
-    content = ""
-    # Load PDF into pyPDF
-    pdf = pyPdf.PdfFileReader(file(path, "rb"))
-    # Iterate pages
-    for i in range(0, pdf.getNumPages()):
-        # Extract text from page and add to content
-        content += pdf.getPage(i).extractText() + "\n"
-    # Collapse whitespace
-    content = " ".join(content.replace(u"\xa0", " ").strip().split())
-    return content
 
-print(getPDFContent("test.pdf").encode("ascii", "ignore"))
+"""
+
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
+from cStringIO import StringIO
+
+def convert_pdf_to_txt(path):
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    fp = file(path, 'rb')
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    password = ""
+    maxpages = 0
+    caching = True
+    pagenos=set()
+
+    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):
+        interpreter.process_page(page)
+
+    text = retstr.getvalue()
+
+    fp.close()
+    device.close()
+    retstr.close()
+    
+    with open("pdfout.txt", "w") as f:
+    	f.write(text)
+
+if __name__ == '__main__':
+    convert_pdf_to_txt("example.pdf") #the path needed for the file
+
+
