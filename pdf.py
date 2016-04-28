@@ -11,6 +11,9 @@ Description:
 
 
 import pyPdf
-pdf = pyPdf.PdfFileReader(open("test.pdf", "rb"))
+pdf = pyPdf.PdfFileReader(open("doc1.pdf", "rb"))
 for page in pdf.pages:
-    print page.extractText()
+    text = page.extractText()
+
+with open("pdfout.txt", "w") as f:
+    	f.write(text)

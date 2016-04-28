@@ -19,14 +19,17 @@ This is free software.  Feel free to do what you want
 with it, but please play nice with the arXiv API!
 """
 
+import sys
 import urllib
 import feedparser
+
+links_file = open('links_for_pdfs.txt', 'w')
 
 # Base api query url
 base_url = 'http://export.arxiv.org/api/query?';
 
 # Search parameters
-search_query = 'all:electron' # search for electron in all fields
+search_query = 'galaxy+evolution&in=grp_physics' # search for electron in all fields
 start = 0                     # retreive the first 5 results
 max_results = 5
 
@@ -89,6 +92,7 @@ for entry in feed.entries:
         if link.rel == 'alternate':
             print 'abs page link: %s' % link.href
         elif link.title == 'pdf':
+            links_file.write("{}{}".format(link.href, "\n")) #to get our pdf links
             print 'pdf link: %s' % link.href
     
     # The journal reference, comments and primary_category sections live under 
@@ -119,3 +123,5 @@ for entry in feed.entries:
     
     # The abstract is in the <summary> element
     print 'Abstract: %s' %  entry.summary
+
+links_file.close()
