@@ -9,13 +9,19 @@ Description:
 
 """
 
+
+
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 from cStringIO import StringIO
 
-def convert_pdf_to_txt(path):
+NUM_OF_PDF = 10
+
+
+
+def convert_pdf_to_txt(path, outputfile):
     rsrcmgr = PDFResourceManager()
     retstr = StringIO()
     codec = 'utf-8'
@@ -37,10 +43,26 @@ def convert_pdf_to_txt(path):
     device.close()
     retstr.close()
     
-    with open("pdfout.txt", "w") as f:
-    	f.write(text)
+
+    filename = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/Text_Docs/"+outputfile
+    txtFile = open(filename, "a")
+    with open(filename, "a") as f:
+        f.write(text)
+
+
+def iterate():
+    i = 1
+    while i <= NUM_OF_PDF:
+        name = "{}{}{}".format("doc", i, ".pdf")
+        outputfile = "{}{}{}".format("doc", i, ".txt")
+        convert_pdf_to_txt("PDFs/"+name, outputfile) #the path needed for the file and the output file name
+        print "{}{}{}{}".format(name, " has be parsed and ", outputfile, " has been created.")
+        i += 1
+
 
 if __name__ == '__main__':
-    convert_pdf_to_txt("doc1.pdf") #the path needed for the file
+	iterate()
+
+	
 
 

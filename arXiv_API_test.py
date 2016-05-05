@@ -31,7 +31,7 @@ base_url = 'http://export.arxiv.org/api/query?';
 # Search parameters
 search_query = 'galaxy+evolution&in=grp_physics' # search for electron in all fields
 start = 0                     # retreive the first 5 results
-max_results = 5
+max_results = 364
 
 query = 'search_query=%s&start=%i&max_results=%i' % (search_query,
                                                      start,

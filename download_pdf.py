@@ -8,26 +8,27 @@ Description:
 
 """
 
-import wget
 import sys
 import urllib2
+import os
+
 i = 1
 
 
 links = open("links_for_pdfs.txt", "r")
+path = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/PDFs"
 
 for link in links:
 
-	#file_name = wget.download(link)
-
 	name = str("{}{}{}".format("doc", i, ".pdf"))
+	fullpath = os.path.join(path, name)
 
-	with open(name,'wb') as f:
+	with open(fullpath,'wb') as f:
 		f.write(urllib2.urlopen(link).read())
 		f.close()
-		print "Download Complete!"
+		print "{}{}".format("Download Complete! ", i)
 
 	i += 1
 
-print "\n"
+print "DONE DONE DONE! \n"
 links.close()
