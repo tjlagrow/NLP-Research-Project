@@ -17,6 +17,8 @@ Author: Julius B. Lucks
 
 This is free software.  Feel free to do what you want
 with it, but please play nice with the arXiv API!
+
+Language: Python 2.7x
 """
 
 import sys
