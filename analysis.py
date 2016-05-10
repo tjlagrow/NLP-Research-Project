@@ -23,7 +23,7 @@ interesting_words = ["simulation", "simulations", "software", "code", "analysis"
 
 
 def setupDatabase():
-    database = SqliteDatabase("nlp.db", threadlocals=True)
+    database = peewee.SqliteDatabase("nlp.db", threadlocals=True)
     database.connect()
 
     # Create base database
@@ -32,12 +32,22 @@ def setupDatabase():
             database = database
 
     class Document(BaseModel):
-        words =
+        words = peewee.CharField(null=True)
+        body = peewee.TextField(null=True)
+        title = peewee.TextField(null=True)
+        abstract = peewee.TextField(null=True)
 
+    class Word(BaseModel):
+        document = peewee.ForeignKeyField(Document, null=True)
+        pos = peewee.CharField(null=True)
+        word = peewee.CharField(null=True)
+        context = peewee.TextField(null=True)
 
     Document.create_table(True)
+    Word.create_table(True)
 
     database.close()
+
 
 def searching():
     for filename in os.listdir(os.path.join("Text_Docs")):
@@ -57,11 +67,13 @@ def searching():
 
             tag_fd = nltk.FreqDist(tag for (word, tag) in text)
             fd = nltk.FreqDist(word for (word, tag) in text)
-            print(tag_fd.tabulate())
+            #print(tag_fd.tabulate())
             print("\n\n")
-            print(fd.tabulate())
+            #print(fd.tabulate())
             # print(text[1024:1062])
 
 
 if __name__ == '__main__':
+    if not os.path.join("nlp.db"):
+        setupDatabase()
     searching()
