@@ -1,6 +1,5 @@
-# TJ and Jacob's Super Awesome PDF Parser
-The bestest PDF parser there is. 
+# NLP Reseach Project
+Theodore LaGrow and Jacob Bieker
+Advisor: Dr. Boyana Norris
 
-The articles we want are at NSF public access repository hosted by the Department of Energy (DOE)
-site: http://par.nsf.gov/
-(this site is in beta and each search should be in quotes)
+(description)
