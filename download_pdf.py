@@ -2,7 +2,7 @@
 download_pdf.py
 Author: Theodore LaGrow
 Language: Python 2.7x
-Packages Needed: wget
+Packages Needed: sys, urllib2, os
 Description: 
 
 
