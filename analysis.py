@@ -60,10 +60,19 @@ def searching():
             # print(tokens[:10])
 
             text = nltk.Text(tokens)
+            for word in interesting_words:
+                print(word)
+                print(text.concordance(word))
+                print()
+                print("Common Context")
+                print(text.similar(word))
+
+
             print(text.collocations())
 
             # Add Position in Sentence tags, making it a list of tuples
             text = nltk.pos_tag(text)
+
 
             tag_fd = nltk.FreqDist(tag for (word, tag) in text)
             fd = nltk.FreqDist(word for (word, tag) in text)
