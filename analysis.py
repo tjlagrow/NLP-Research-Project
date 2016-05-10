@@ -19,7 +19,7 @@ import nltk
 
 
 def searching():
-	name = "{}{}{}".format("doc", 1, ".txt")
+	name = "{}{}{}".format("doc", 3, ".txt")
 	filename = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/Text_Docs/"+name
 
 	f = open(filename)
