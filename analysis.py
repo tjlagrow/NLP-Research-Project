@@ -10,31 +10,39 @@ Packages needed: os, sys, nltk
 
 import os, sys
 import nltk
-
+from glob import glob
 ################################################################
 """ Uncomment string to download the required NLTK packages """
-#nltk.download()
-################################################################
 
+
+# nltk.download()
+################################################################
 
 
 def searching():
-	name = "{}{}{}".format("doc", 1, ".txt")
-	filename = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/Text_Docs/"+name
+    for filename in os.listdir(os.path.join("Text_Docs")):
+        with open(os.path.join("Text_Docs", filename)) as text:
+            print(filename)
+            raw = text.read()
 
-	f = open(filename)
-	raw = f.read()
-	
-	tokens = nltk.word_tokenize(raw)
-	#print(len(tokens))
-	#print(tokens[:10])
+            tokens = nltk.word_tokenize(raw)
+            # print(len(tokens))
+            # print(tokens[:10])
 
-	text = nltk.Text(tokens)
+            text = nltk.Text(tokens)
+            print(text.collocations())
 
-	#print(text[1024:1062])
+            # Add Position in Sentence tags, making it a list of tuples
+            text = nltk.pos_tag(text)
 
-	print(text.collocations())
+            tag_fd = nltk.FreqDist(tag for (word, tag) in text)
+            fd = nltk.FreqDist(word for (word, tag) in text)
+            print(tag_fd.tabulate())
+            print("\n\n")
+            print(fd.tabulate())
+            # print(text[1024:1062])
+
 
 
 if __name__ == '__main__':
-	searching()
+    searching()
