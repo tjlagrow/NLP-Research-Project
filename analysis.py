@@ -10,7 +10,8 @@ Packages needed: os, sys, nltk
 
 import os, sys
 import nltk
-from glob import glob
+import peewee
+
 ################################################################
 """ Uncomment string to download the required NLTK packages """
 
@@ -18,6 +19,25 @@ from glob import glob
 # nltk.download()
 ################################################################
 
+interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate"]
+
+
+def setupDatabase():
+    database = SqliteDatabase("nlp.db", threadlocals=True)
+    database.connect()
+
+    # Create base database
+    class BaseModel(peewee.Model):
+        class Meta:
+            database = database
+
+    class Document(BaseModel):
+        words =
+
+
+    Document.create_table(True)
+
+    database.close()
 
 def searching():
     for filename in os.listdir(os.path.join("Text_Docs")):
@@ -41,7 +61,6 @@ def searching():
             print("\n\n")
             print(fd.tabulate())
             # print(text[1024:1062])
-
 
 
 if __name__ == '__main__':
