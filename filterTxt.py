@@ -4,7 +4,7 @@ Author: Theodore LaGrow
 Language: Python 2.7x
 
 """
-
+import os
 NUM_OF_PDF = 10
 
 def filterText():
@@ -12,7 +12,7 @@ def filterText():
 	i = 1
 	while i <= NUM_OF_PDF:
 		name = "{}{}{}".format("doc", i, ".txt")
-		filename = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/Text_Docs/"+name
+		filename = os.path.join(os.path.abspath("Text_Docs"), name)
 
 
 		f = open(filename,"r")

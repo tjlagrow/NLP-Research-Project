@@ -16,6 +16,7 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 from cStringIO import StringIO
+import os
 
 NUM_OF_PDF = 10
 
@@ -44,7 +45,7 @@ def convert_pdf_to_txt(path, outputfile):
     retstr.close()
     
 
-    filename = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/Text_Docs/"+outputfile
+    filename = os.path.join(os.path.abspath("Text_Docs"), outputfile)
     txtFile = open(filename, "a")
     with open(filename, "a") as f:
         f.write(text)
@@ -55,7 +56,7 @@ def iterate():
     while i <= NUM_OF_PDF:
         name = "{}{}{}".format("doc", i, ".pdf")
         outputfile = "{}{}{}".format("doc", i, ".txt")
-        convert_pdf_to_txt("PDFs/"+name, outputfile) #the path needed for the file and the output file name
+        convert_pdf_to_txt(os.path.join("PDFs",name), outputfile) #the path needed for the file and the output file name
         print "{}{}{}{}".format(name, " has be parsed and ", outputfile, " has been created.")
         i += 1
 
