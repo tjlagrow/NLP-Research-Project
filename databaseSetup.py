@@ -1,4 +1,13 @@
-__author__ = 'jacob'
+"""
+databaseSetup.py
+Author: Jacob Bieker
+Language: Python 3.X
+Packages Needed: peewee
+Description:
+Creates the database for the rest of the application to store
+information in
+
+"""
 
 import peewee
 
