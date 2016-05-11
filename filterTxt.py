@@ -1,6 +1,6 @@
 """
 filterTxt.py
-Author: Theodore LaGrow
+Author: Theodore LaGrow and Jacob Bieker
 Language: Python 2.7x
 
 """

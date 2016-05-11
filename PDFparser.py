@@ -1,6 +1,6 @@
 """
 PDFparser.py
-Author: Theodore LaGrow
+Author: Theodore LaGrow and Jacob Bieker
 Source: http://stackoverflow.com/questions/26494211/extracting-text-from-a-pdf-file-using-pdfminer-in-python
 Language: Python 2.7x
 Packages Needed: pdfminer
