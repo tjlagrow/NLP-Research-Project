@@ -11,7 +11,8 @@ information in
 
 import peewee
 
-def setupDatabase():
+
+def setup_database():
     database = peewee.SqliteDatabase("nlp.db", threadlocals=True)
     database.connect()
 
@@ -25,14 +26,16 @@ def setupDatabase():
         body = peewee.TextField(null=True)
         title = peewee.TextField(null=True)
         author = peewee.TextField(null=True)
-
+        discipline = peewee.CharField(null=True)
         abstract = peewee.TextField(null=True)
+        tags = peewee.TextField(null=True)
 
     class Word(BaseModel):
         document = peewee.ForeignKeyField(Document, null=True)
         pos = peewee.CharField(null=True)
         word = peewee.CharField(null=True)
         context = peewee.TextField(null=True)
+        occurrences = peewee.IntegerField(null=True)
 
     Document.create_table(True)
     Word.create_table(True)

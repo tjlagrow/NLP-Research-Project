@@ -10,7 +10,7 @@ Packages needed: os, sys, nltk
 
 import os, sys
 import nltk
-from databaseSetup import setupDatabase
+from databaseSetup import setup_database
 
 ################################################################
 """ Uncomment string to download the required NLTK packages """
@@ -56,5 +56,5 @@ def searching():
 
 if __name__ == '__main__':
     if not os.path.join("nlp.db"):
-        setupDatabase()
+        setup_database()
     searching()
