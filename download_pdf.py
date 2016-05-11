@@ -1,6 +1,6 @@
 """
 download_pdf.py
-Author: Theodore LaGrow
+Author: Theodore LaGrow and Jacob Bieker
 Language: Python 2.7x
 Packages Needed: sys, urllib2, os
 Description: 
@@ -16,7 +16,7 @@ i = 1
 
 
 links = open("links_for_pdfs.txt", "r")
-path = "/Users/tjlagrow/Documents/Desktop 3:3:2016/CompSci Code/Classes/CIS Classes/CIS 401/NLP-Research-Project/PDFs"
+path = os.path.abspath("PDFs")
 
 for link in links:
 
