@@ -29,6 +29,7 @@ def setup_database():
         discipline = peewee.CharField(null=True)
         abstract = peewee.TextField(null=True)
         tags = peewee.TextField(null=True)
+        collocations = peewee.TextField(null=True)
 
     class Word(BaseModel):
         document = peewee.ForeignKeyField(Document, null=True)
