@@ -9,8 +9,9 @@ Packages needed: os, sys, nltk
 """
 
 import os, sys
+from io import StringIO
 import nltk
-from databaseSetup import setup_database
+from databaseSetup import setup_database, Document, Word
 
 ################################################################
 """ Uncomment string to download the required NLTK packages """
@@ -19,13 +20,28 @@ from databaseSetup import setup_database
 # nltk.download()
 ################################################################
 
+s = StringIO()
+
+sys.stdout = s
 interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate"]
+
 
 def searching():
     for filename in os.listdir(os.path.join("Text_Docs")):
         with open(os.path.join("Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
+
+            ####################################
+            #
+            #  Example of adding to the database
+            #
+            ####################################
+
+            Document.insert({'words': raw,
+                             'discipline': 'astrophysics',
+                            }).execute()
+            ### End Example #####
 
             tokens = nltk.word_tokenize(raw)
             # print(len(tokens))
