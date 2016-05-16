@@ -22,7 +22,11 @@ from databaseSetup import setup_database, Document, Word
 
 s = StringIO()
 
-sys.stdout = s
+#sys.stdout = s
+
+# Use redirected sys.stdout to get value of output and put into database
+
+
 interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate"]
 
 
@@ -31,7 +35,11 @@ def searching():
         with open(os.path.join("Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
+            tokens = nltk.word_tokenize(raw)
+            # print(len(tokens))
+            # print(tokens[:10])
 
+            text = nltk.Text(tokens)
             ####################################
             #
             #  Example of adding to the database
@@ -43,18 +51,13 @@ def searching():
                             }).execute()
             ### End Example #####
 
+            bigram_measures = nltk.collocations.BigramAssocMeasures()
             trigram_measures = nltk.collocations.TrigramAssocMeasures()
-            finder = nltk.collocations.TrigramCollocationFinder.from_words(raw)
-            finder.apply_freq_filter(3)
-            matches1 = finder.nbest(trigram_measures.pmi, 20)
-            print(matches1)
+            finder = nltk.TrigramCollocationFinder.from_words(text)
+            results = finder.nbest(trigram_measures.pmi, 10)
+            print("Trigrams")
+            print(results)
 
-
-            tokens = nltk.word_tokenize(raw)
-            # print(len(tokens))
-            # print(tokens[:10])
-
-            text = nltk.Text(tokens)
             for word in interesting_words:
                 print(word)
                 print(text.concordance(word))
