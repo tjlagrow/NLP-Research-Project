@@ -43,6 +43,13 @@ def searching():
                             }).execute()
             ### End Example #####
 
+            trigram_measures = nltk.collocations.TrigramAssocMeasures()
+            finder = nltk.collocations.TrigramCollocationFinder.from_words(raw)
+            finder.apply_freq_filter(3)
+            matches1 = finder.nbest(trigram_measures.pmi, 20)
+            print(matches1)
+
+
             tokens = nltk.word_tokenize(raw)
             # print(len(tokens))
             # print(tokens[:10])

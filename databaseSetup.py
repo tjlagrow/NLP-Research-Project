@@ -19,7 +19,7 @@ def setup_database():
     # Create base database
     class BaseModel(peewee.Model):
         class Meta:
-            database = database
+            database = peewee.SqliteDatabase("nlp.db", threadlocals=True)
 
     class Document(BaseModel):
         words = peewee.CharField(null=True)
