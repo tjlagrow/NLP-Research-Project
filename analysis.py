@@ -14,7 +14,10 @@ from databaseSetup import setup_database, Document, Word
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from collections import Counter
-
+from wordcloud import WordCloud
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
 ################################################################
 """ Uncomment string to download the required NLTK packages """
 
@@ -32,6 +35,24 @@ s = StringIO()
 interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate", "using", "we used", "program", "analyzed", "simulated", "scripted", "automated", "descrip", "implements", "function", "modifies", "operated", "pipeline", "helps", "allows", "manipulate", "processed"]
 
 stopwords = nltk.corpus.stopwords.words('english')
+
+def wordcloud_make(text, discipline, image_name):
+    alice_mask = np.array(Image.open(os.path.join(image_name)))
+    wc = WordCloud(background_color="white", max_words=2000, mask=alice_mask)
+
+    # generate word cloud
+    wc.generate(text)
+
+    # store to file
+    wc.to_file(os.path.join(str(discipline + ".png")))
+
+    # show
+    plt.imshow(wc)
+    plt.axis("off")
+    plt.figure()
+    plt.imshow(alice_mask, cmap=plt.cm.gray)
+    plt.axis("off")
+    plt.show()
 
 def searching():
     for filename in os.listdir(os.path.join("Text_Docs")):
