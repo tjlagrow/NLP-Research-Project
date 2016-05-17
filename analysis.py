@@ -12,7 +12,7 @@ import os, sys
 from io import StringIO
 import nltk
 from databaseSetup import setup_database, Document, Word
-
+from nltk.corpus import stopwords
 ################################################################
 """ Uncomment string to download the required NLTK packages """
 
@@ -29,6 +29,7 @@ s = StringIO()
 
 interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate"]
 
+stopwords = nltk.corpus.stopwords.words('english')
 
 def searching():
     for filename in os.listdir(os.path.join("Text_Docs")):
@@ -53,9 +54,18 @@ def searching():
 
             trigrams = nltk.trigrams(text)
             fdist = nltk.FreqDist(trigrams)
+            keys = fdist.keys()
+            stopwords = nltk.corpus.stopwords.words('english')
+            clean = []
 
+            for bigram in keys:
+                if bigram[0] not in stopwords:
+                    if bigram[1] not in stopwords:
+                        clean.append(bigram)
+
+            clean = clean[:20]
             print("Trigrams")
-            print(fdist.most_common(10))
+            print(clean)
 
             for word in interesting_words:
                 print(word)
