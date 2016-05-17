@@ -5,7 +5,7 @@ Language: Python 2.7x
 
 """
 import os
-NUM_OF_PDF = 10
+NUM_OF_PDF = 365
 
 def filterText():
 
@@ -42,7 +42,7 @@ def removeWhitespace():
 		raw = f.read()
 		mod_raw = []
 		for character in raw:
-			if character.isalnum() or character == " " or character == "\n":
+			if character.isalnum() or character == " " or character == "\n" or character == "-":
 				mod_raw.append(character)
 
 		new_raw = ""

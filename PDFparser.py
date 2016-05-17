@@ -18,7 +18,7 @@ from pdfminer.pdfpage import PDFPage
 from cStringIO import StringIO
 import os
 
-NUM_OF_PDF = 10
+NUM_OF_PDF = 365
 
 
 

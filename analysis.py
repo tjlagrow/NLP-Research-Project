@@ -13,6 +13,7 @@ import nltk
 from databaseSetup import setup_database, Document, Word
 from nltk.corpus import stopwords
 from textblob import TextBlob
+from collections import Counter
 
 ################################################################
 """ Uncomment string to download the required NLTK packages """
@@ -28,7 +29,7 @@ s = StringIO()
 # Use redirected sys.stdout to get value of output and put into database
 
 
-interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate", "using", "we used", "program", "analyzed", "simulated", "scripted", "automated", "descrip", "implements", "function"]
+interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate", "using", "we used", "program", "analyzed", "simulated", "scripted", "automated", "descrip", "implements", "function", "modifies", "operated", "pipeline", "helps", "allows", "manipulate", "processed"]
 
 stopwords = nltk.corpus.stopwords.words('english')
 
@@ -75,6 +76,7 @@ def searching():
             with open("ngram-intermediate.txt", "a") as outputty:
                 outputty.write('\n'.join('{} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14]) for x in clean))
 
+
             for word in interesting_words:
                 print(word)
                 print(text.concordance(word))
@@ -96,14 +98,26 @@ def searching():
             #print(fd.tabulate())
             # print(text[1024:1062])
 
-def noun_parsing(dictonary):
-    
-    ngramOutput = "".join(dictionary)
-    for np in ngramOutput.noun_phrases:
-        print(np)
+def noun_parsing():
+    nouns = []
+
+    with open("ngram-intermediate.txt") as text:
+        text = text.read()
+        text = TextBlob(text)
+        for np in text.noun_phrases:
+            nouns.append(np)
+
+            #print(np)
+            with open("nounsFinal.txt", "a") as nounFile:
+                nounFile.write("{}{}".format(np, "\n"))
+        nounsDic = Counter(nouns)
+        print(nounsDic)
+        with open("Final.txt", "a") as file:
+                file.write("{}{}".format(nounsDic, "\n"))
 
 
 if __name__ == '__main__':
-    if not os.path.join("nlp.db"):
-        setup_database()
-    searching()
+    #if not os.path.join("nlp.db"):
+        #setup_database()
+    #searching()
+    noun_parsing()
