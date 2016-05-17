@@ -1,1776 +1,1702 @@
-Language understanding as a step towards human level intelligence - automatizing
-the construction of the initial dictionary from example sentences
-School of Computing Informatics and DSE
-School of Computing Informatics and DSE
-Chitta Baral
-Arizona State University
-chittaasuedu
-Juraj Dzifcak
-Arizona State University
-jurajdzifcakasuedu
-Abstract
-For a system to understand natural language it needs to be
-able to take natural language text and answer questions given
-in natural language with respect to that text it also needs to
-be able to follow instructions given in natural language To
-achieve this a system must be able to process natural lan-
-guage and be able to capture the knowledge within that text
-Thus it needs to be able to translate natural language text
-into a formal language We discuss our approach to do this
-where the translation is achieved by composing the mean-
-ing of words in a sentence Our initial approach uses an in-
-verse lambda method that we developed and other methods
-to learn meaning of words from meaning of sentences and an
-initial lexicon We then present an improved method where
-the initial lexicon is also learned by analyzing the training
-sentence and meaning pairs We evaluate our methods and
-compare them with other existing methods on a corpora of
-database querying and robot command and control
-Introduction and Motivation
-We consider natural language understanding as an important
-aspect of human level intelligence But what do we mean by
-language understanding In our view a system that under-
-stands language can among other attributes i take natural
-language text and then answer questions given in natural lan-
-guage with respect to that text and ii take natural language
-instructions and execute those instructions as a human would
-A system that can do the above must have several func-
-tional capabilities such as a It must be able to process lan-
-guage b It must be able to capture knowledge expressed
-in the text c It must be able to reason plan and in gen-
-eral do problem solving and for that it may need to do ef-
-cient searching of solutions d It must be able to do high
-level execution and control as per given directives and e
-To scale it must be able to learn new language aspects for
-eg new words These functional capabilities are often
-compartmentalized to different AI research topics How-
-ever good progress in each of these areas over the last few
-decades provides an opportunity to use results and systems
-from them and build up on that to develop a natural language
-understanding system
-Copyright ccid13 2011 Association for the Advancement of Articial
-Intelligence wwwaaaiorg All rights reserved
-Over the last two decades our group has been focusing
-in the research of developing suitable knowledge represen-
-tation languages The research by a broader community has
-led to KR languages and systems that allow us to represent
-various kinds of knowledge and the KR systems allow us to
-reason plan and do declarative problem solving using them
-Various search techniques are embedded in some of these
-systems and one such system from Potsdam CLASP1 has
-been doing very well in SAT competitions2 Similarly var-
-ious languages and systems have been developed that can
-take directives in a formal language and use it in high level
-execution and control These cover the aspects c and d
-mentioned above
-In our current research we use the existing results on c
-and d and develop an overall architecture that addresses
-the aspects a b and e to lead to a natural language un-
-derstanding framework
-The rst key aspect of our approach and our language un-
-derstanding framework is to translate natural language to
-appropriate formal languages Once that is achieved we
-achieve b and then together with the c and d compo-
-nents we achieve a The second key aspect of our ap-
-proach and our language understanding framework is that
-we can reason and learn about how to translate new words
-and phrases This allows our overall system to scale up to
-larger vocabularies and thus we achieve e
-In this paper we rst give a brief presentation of our sys-
-tem and framework which was reported in an earlier limited
-audience conferenceworkshop We then present some orig-
-inal work to enhance what was done then
-Translating English to Formal languages
-Our approach to translate English to formal languages is in-
-spired by Montagues path-breaking thesis Montague 1974
-of viewing English as a formal language We consider each
-word to be characterized by one or more -calculus for-
-mulas and the translation to be obtained by composing ap-
-propriate -calculus formulas of the words as dictated by a
-PCCG Probabilistic Combinatorial Categorial Grammars
-The big challenge in this approach is to be able to come up
-with the right -calculus formulas for various words Our
-1httpwwwcsuni-potsdamdeclasp
-2httpwwwsatcompetitionorg
-approach initially presented in Baral et al 2011 utilizes
-inverse -calculus operators and generalization to obtain se-
-mantic representations of words and learning techniques to
-distinguish in between them The system architecture of our
-approach is given in gure 1 The left block shows an overall
-system to translate a sentence into a target formal language
-using the PCCG grammar and the lexicon while the right
-block shows the learning module to learn the meaning of
-new words via Inverse  and generalization methods and
-assigning weights to multiple meaning of words We now
-elaborate on some important parts of the system
-Inverse  computation
-The composition semantics of -calculus basically com-
-putes the meaning of a phrase a b by  or  depend-
-ing on the CCG parse Now suppose we know the meaning
-a b to be  and also know the meaning of a as  By
-inverse  we refer to the obtaining of  given  and  De-
-pending on whether  is  or  we have two inverse
-operators InverseR and InverseL We now give a quick
-glimpse of InverseR as given in Baral et al 2011 Further
-details are given in Gonzalez 2010
- Let G H represent
-J 1J 2J n represent
-w represent variables and 1n represent
-atomic terms
-formulas
-typed terms v1 to vn v and
- Let f  represent a typed atomic formula Atomic formu-
-las may have a different arity than the one specied and
-still satisfy the conditions of the algorithm if they contain
-the necessary typed atomic terms
- Typed terms that are sub terms of a typed term J are de-
- If the formulas we are processing within the algorithm
-do not satisfy any of the if conditions then the algorithm
-returns null
-typed -calculus
-noted as Ji
-Denition 1 Consider two lists of typed -elements A and
-B ai  an and bj  bn respectively and a formula H
-The result of the operation HA  B is obtained by replac-
-ing ai by bi for each appearance of A in H
-Denition 2 The function InverseRH G is dened as
-Given G and H
-1 If G is vvJ set F  InverseLH J
-2 If J is a sub term of H and G is vHJ  v then F  J
-3 G is not vvJ J is a sub term of H and G is
-wHJJ1  Jm  wJp  Jq with 1  pqs 
-m then F  v1  vsJJ1  Jm  vp  vq
-To illustrate InverseR assume that in the example given
-in table 2 the semantics of the word in is not known
-We can use the Inverse operators to obtain it as follows
-Using the semantic representation of the whole sentence
-answerriverloc2stateidcid48arkansascid48
-semantics of the word Name xanswerx we can
-use the respective operators to obtain the semantics of the
-rivers in Arkansas as riverloc2stateidcid48arkansascid48
-Repeating
-recursively
-process
-yyloc2stateidcid48arkansascid48 as
-the representation
-of in Arkansas and xyyloc2x as the desired
-meaning of in 3
-Generalization and trivial solution
-Using IN V ERSE L and IN V ERSE R we are able to
-obtain new semantic representations of particular words in
-the training sentences To go beyond that we use a no-
-tion of generalization that we developed For example con-
-sider the non-transitive verb y who category as per a
-CCG4 Steedman 2000 is SN P  Lets assume we ob-
-tain a new semantic expression for y as xf lyx using
-IN V ERSE L and IN V ERSE R Generalization looks
-up all the words of the same syntactic category SN P  It
-then identies the part of the semantic expression in which
-y is involved In our particular case its the subexpres-
-sion f ly We can then assign the expression xwx to the
-words w of the same category For example for the verb
-swim we could add xswimx to the dictionary This
-process can be performed en masse by going through the
-dictionary and expanding the entries of as many words as
-possible or on demand by looking up the words of the
-same categories when a semantic representation of a word in
-a sentence is required Even with generalization we might
-still be missing large amounts of semantics information to be
-able to use IN V ERSEL and IN V ERSER To make up
-for this we allow trivial solutions where words or phrases
-are assigned the meaning xx xyyx or similarly
-simple representations which basically mean that this word
-may be ignored The trivial solutions are used as a last resort
-approach if neither inverse nor generalization are sufcient
-Translation and the Overall Learning Algorithm
-Earlier we mentioned that a sentence is translated to a rep-
-resentation in a formal language by composing the meaning
-of the words in that sentences as dictated by a CCG How-
-ever in presence of multiple meaning of words probabilistic
-CCG is used where the probabilities of a particular transla-
-tion is computed using weights associated with each word
-and meaning pair For a given sentence the translation that
-has the higher probability is picked This raises the question
-of how does one obtain the weights The weights are ob-
-tained using standard parameter estimation approaches with
-the goal that the weights should be such that they maximize
-the overall probability of translating each of the sentences
-3A very brief review of the  representation is as follows The
-formula xanswerx basically means that x is an input and
-when that input is given then it replaces x in the rest of the for-
-mula This application of a given input in expressed via the symbol
- Thus xanswerxa reduces to answera
-4In a combinatorial categorial grammar CCG words are asso-
-ciated with categories The meaning of the category SN P is that
-if a word of category N P comes from the left then by combining
-it with a word of category SN P we get a phrase of category S
-For example if the word a has a category SN P and the word
-b has category NP then the two words can be combined to the
-phrase b a which will have the category S Similarly the cate-
-gory SN P means that a word of category N P has to come from
-the right for us to be able to combine
-Figure 1 Overall system architecture
-in the training set of sentences and their desired meaning
-to their desired meaning We now present our overall learn-
-ing algorithm that combines inverse  generalization and
-parameter estimation
- Input A set of training sentences with their corresponding desired representations S 
-Si Li  i  1n where Si are sentences and Li are desired expressions Weights
-are given an initial value of 01 An initial feature vector 0
- Output An updated lexicon LT 1 An updated feature vector T 1
- Algorithm
- Set L0  IN IT IAL DICT ION ARY S
- For t  1    T
- Step 1 Lexical generation
- For i  1n
- For j  1n
- Parse sentence Sj to obtain Tj
- Traverse Tj
- apply IN V ERSE L IN V ERSE R and GEN ERALIZED to nd new
--calculus expressions of words and phrases 
- Set Lt1  Lt  
- Step 2 Parameter Estimation
- Set t1  U P DAT Et Lt15
- return GEN ERALIZELT  LT  T 
-Automatic generation of initial dictionary
-In tables 6 and 7 we compare the performance of our sys-
-tems INVERSE INVERSE and INVERSEi with other
-systems that have similar goals However although other
-systems had other issues we were not happy that our sys-
-tems required a manually created initial dictionary consist-
-ing of -calculus representations of a set of words In the
-rest of the paper we present an approach to overcome that by
-automatically coming up with candidates for the initial dic-
-tionary and letting the parameter estimation module gure
-out the correct meaning In particular we present methods
-to automatically come up with possible -calculus represen-
-tation of nouns and various other words that are part of the
-initial vocabulary in Baral et al 2011 Unlike Baral et
-al 2011 where each of the word in the initial vocabulary is
-given a unique -calculus representation our approach does
-not necessarily come up with a single -calculus representa-
-tion of the words that are in the initial vocabulary in Baral
-5For details on  computation please see Zettlemoyer and
-Collins 2005
-et al 2011 but sometimes may come up with multiple pos-
-sibilities
-We will now illustrate our approach in obtaining the initial
-dictionary and the use of CCG and -calculus in obtaining
-semantic representations of sentences on the Geoquery cor-
-pus at httpwwwcsutexaseduusersmlgeohtml Table 1
-shows several examples of sentences with their desired rep-
-resentations while table 2 shows a sample CCG parse with
-its corresponding semantic derivation
-To be able to automatically create the entries in the ini-
-tial dictionary as given by Baral et al 2011 we need to
-answer the following two questions How do we nd the ex-
-pression xanswerx and how do we assign it to the word
-Name The word answer isnt given anywhere by the
-sentence Similarly How do we know that the semantic ex-
-pression for Arkansas should be stateidcid48arkansascid48
-The rst question can be answered by looking at several
-possible semantic representations as given in table 1 They
-share one common aspect which is that they all contain
-the predicate answer as the outermost expression Thus
-we can assume that xanswerx should be part of any
-derivation as given by table 2 In general using the grammar
-derivations for the meaning representations we can compare
-various representations and look for common parts which
-we will refer to as common structures We identify these
-common parts and assign them to certain relevant words
-in the sentence such as assigning the common expression
-xanswerx to the word Name To answer the sec-
-ond question we again look at the grammar derivations for
-nouns and analyze them to be able to obtain the semantic
-expression for Arkansas as stateidcid48arkansascid48
-Table 2 shows an example syntactic and semantic deriva-
-tion for the sentence Name the rivers in Arkansas The
-syntactic categories for each are given by the upper part
-of the table
-These are then combined using combi-
-natorial rules Steedman 2000 to obtain the rest of the
-syntactic categories For example the word Arkansas
-of category N is combined with the word in of cate-
-gory N PN N to obtain the syntactic category of in
-Arkansas N PN The lower portion of the table lists the
-Sentence
-Name the rivers in Arkansas
-How many people are there in New York
-How high is Mount McKinley
-Name all the lakes of US
-Name the states which have no surrounding states
-Representation
-answerriverloc2stateidcid48arkansascid48
-answerpopulation1stateidcid48newyorkcid48
-answerelevation1placeidcid48mountmckinleycid48
-answerlakeloc2countryidcid48usacid48
-answerexcludestateall nextto2stateall
-Table 1 Example translations
-N PN P
-N PN P
-N PN P
-riverloc2stateidcid48arkansascid48
-N PN N
-Arkansas
-xriverx
-xriverx
-xyyloc2x
-yyloc2stateidcid48arkansascid48
-riverloc2stateidcid48arkansascid48
-Arkansas
-stateidcid48arkansascid48
-xanswerx
-xanswerx
-xanswerx
-xanswerx
-answerriverloc2stateidcid48arkansascid48
-Table 2 CCG and -calculus derivation for Name the rivers in Arkansas
-semantic representations of each words using -calculus
-These are combined by applying the formulas one to an-
-other following the syntactic parse tree For example
-the semantics of Arkansas stateidcid48arkansascid48 is ap-
-plied onto the semantics of in xyyloc2x yielding
-yyloc2stateidcid48arkansascid48
-Let us rst discuss the common structures of a logical
-form For example for the Geoquery corpus as shown in
-table 1 many queries are of the form answerX where X
-is a structure corresponding to the actual query Similarly by
-analyzing the Robocup corpus we realize that all the queries
-are of the form A doB  def iner C B or def inec
-C B where C is an identier and A and B are some other
-constructs in the given language The main attribute of these
-expressions is that they dene the structures of the desired
-meaning representation
-The second component of the dictionaries were the se-
-mantic representations of nouns Unlike the common struc-
-tures these need to be generated for as many nouns as possi-
-ble to ensure that the system is capable to learn the missing
-semantic representations For example in GeoQuery a noun
-Arkansas is represented as stateidcid48arkansascid48 6 For
-Robocup a compound noun player 5 can be represented
-as player our 5
-Thus our task in being able to automatically obtain these
-is two fold We rst need to identify the common structures
-and nd the appropriate -calculus formulas and pick the
-words to which we will assign them The second part of our
-goal is to nd the corresponding -calculus expressions for
-nouns and compound nouns
-We will assume this process is done on the training data
-and full syntactic parse of the sentences as well as the parse
-of the desired formal representation are given
-Common structures
-In order to look for the common
-structures we will compare the derivation structures of var-
-ious formulas and look for common structures in them To
-6We are using the funql representation although the same ap-
-proach is applicable for the prolog one
-limit the potential search and with respect to our previous
-experience we will only look for the common parts at top
-parts of the derivation Also in order to be more precise and
-keep the computation within reasonable bounds instead of
-looking at the whole grammar for meaning representations
-we will look at the derivations of the meaning representa-
-tions of the training data This is a reasonable assumption
-as in general the amount of structures in the target language
-can be assumed to be less than the amount of training data
-as in the case of Geoquery and CLANG
-Denition 3 Given a context free grammar G with an initial
-symbol S a set of non-terminals N a set of terminals T  a
-set of production rules P and a string w  x1  xn where
-xis are terminal or non-terminal symbols a production d is
-a transformation x1  xn  x1  xi1 A xi1  xn
-such that xi  A is in P  We will say that xi  A corre-
-sponds to d
-Given a sequence of productions d  d1  dn a deriva-
-tion tree t corresponding to d is given as
-- If n  1 let X  X1 X2  Xn be the rule corre-
-sponding to d1 Then t is a tree with X as the root node
-which has n children in order left to right X1 X2  Xn
-- If tcid48 is a derivation tree corresponding to d1  dn1
-and X  X1 X2  Xn is the rule corresponding to dn
-then t is given as tcid48 with n children added in order left to
-right X1 X2  Xn to the left most leaf X of tcid48
-A  tree is a pair V t where V is a list of  bound
-variables and t is a tree where each interior node of t is
-a non terminal symbol from N and each leaf node of t is a
-terminal symbol from T or a variable from V 
-Given two sequences of productions d1 and d2 with their
-corresponding derivation trees t1 and t2 a  tree V tc is a
-common template of t1 and t2 iff there exists two sequences
-of applications s1  X1  Xn and s2  Y1  Yn such
-that when we apply each Xi to each vi i  1  n in tc we
-obtain a subtree of t1 and when we apply each Yi to each vi
-i  1  n in tc we obtain a subtree of t2
-cid46
-cid46
-cid46
-cid38
-cid38
-cid38
-answer
-ST AT E
-cid46
-cid46
-cid46
-answer
-COU N T RY
-cid38
-cid38
-cid38
-cid46
-cid46
-cid46
-ST AT E
-stateid
-ST AT EN AM E
-cid38
-cid38
-cid38
-Table 3 Sample derivation trees
-cid48virginiacid48
-Example derivation trees and a common template are
-given in tables 3 and 4
-cid46  cid38
-answer
-the initial
-Table 4 Sample common template
-Thus based on the above denitions
-the following parts of
-to look for
-the common structures in the desired meaning repre-
-look for common trees between
-sentations we will
-symbol
-derivations which are rooted at
-As an example consider
-derivation obtained directly from the Geoquery cor-
-pus for answerriverloc2stateidcid48arkansascid48 and
-answerlakeloc2countryidcid48usacid48
- S 1a answerRIV ER
- 2a answerriverRIV ER
- 3a answerriverloc2ST AT E
- S 1b answerP LACE
- 2b answerlakeP LACE
- 3b answerlakeloc2COU N T RY 
-Starting from the initial non-terminal S we can see that
-the rules 1a and 1b are already different They share a
-common part in having the terminal symbols answer and
- Thus if we replace all the non-terminals in the common
-parts of the derivation with  bound variables we obtain the
-common part of the derivations as vanswerv where v
-is the new  bound variable
-In general having a derivation we start at the initial sym-
-bol and follow the derivation tree level by level while com-
-paring the nodes in the derivation tree We then collect all
-the common terminals from this subtree and replace all the
-different non-terminals with  bound variables Note that
-there might be multiple such structures as in the case of
-Robocup corpus In that case we would store and use all of
-them and the learning part of the system would take care of
-picking the proper ones
-After nding the common structures between the deriva-
-tions we need to nd the words to which we assign them
-to Since the structures are supposed to dene the common
-structures of the desired representations it is reasonable to
-try to assign them to words which in a sense dene the
-sentences In our case we look for words that are usually
-last to combine in the CCG derivation The reasoning is that
-when looking for the common structures we looked at the
-top parts of the derivation of meaning representations Thus
-it is reasonable to try to assign them to words which are in
-the top parts of the derivation in the syntactic parse of the
-sentence Note that these words might not be the ones with
-most complex categories In practice such words are usu-
-ally verbs wh-words or some adverbs
-Denition 4 Given a CCG parse tree T of a sentence s and
-a word w from s a word w is a top word if there is no other
-word wcid48 from s such that levelwcid48  levelw
-Given a set of training pairs Si Li i  1  k where
-Si is a sentence and Li is the corresponding desired logical
-form together with a syntactic parse of Si and the derivation
-of Li we can obtain the candidate common structures using
-the following algorithm denoted as IN IT IALC
- Input
-A set of training sentences with their corresponding desired representations S  Si Li 
-i  1n where Si are sentences and Li are desired expressions A CCG grammar G for
-sentences Si A CFG grammar G for representations Li
- Output
-An initial lexicon L0
- Algorithm
- Step 1 Word selection
- For i  1n
- Parse Si using the CCG grammar G to obtain parse tree ti Find all the top words of ti
-and store them in Wi
-Ti and Tj 
- Step 2 -expression generation
- For i  1n
- For j  1n
- Parse derivations Li and Lj using the CFG grammar G to obtain the derivation trees
- Starting from roots compare Ti and Tj and nd the largest common template V T 
- Concatenate all the leafs of T together to form a -expression  For each v  V  add
- Add  as semantic expression to each of the words in Wi and Wj 7
- Set L0  iWi
- return L0
-such that T that is rooted at the initial symbol of the grammar S
-v in front of 
-In order to derive potential -expression candi-
-dates for nouns instead of looking at the top of the deriva-
-tion trees and nding words we match the nouns with the
-terminals in the leafs of the derivation tree and then look
-7This step exhaustively assigns the new semantics to all the top
-words While not optimal the learning part of the overall algorithm
-takes care of guring out the proper assignment
-for non-terminals which can produce it As we traverse up-
-wards towards the root we look for other terminals which
-are produced by the non-terminals we encounter At each
-encountered non-terminal we generate potential candidate
--expressions by analyzing the current subtree and store
-them As in the previous case we leave it to the parame-
-ter learning part of the overall algorithm to gure out the
-proper ones Our approach can be illustrated as follows
-cityloc2stateidcid48virginiacid48
-Give me the cities in Virginia also given by table 3
- CIT Y 1f cityCIT Y 
- CIT Y 2f loc2ST AT E
- ST AT E 3f stateidST AT EN AM E
- ST AT EN AM E 4f
-rules deriving
-sentence
-an example of
-from the
-cid48virginiacid48
-look at
-Let us assume that the noun we are interested in is Vir-
-ginia First we will attempt to match it to a terminal in
-the derivation which in this case is cid48virginiacid48 We will
-then traverse the tree upwards In this case we rst reach
-the non-terminal ST AT EN AM E Since cid48virginiacid48 is the
-only child we add cid48virginiacid48 as the potential candidate rep-
-resentation of Virginia Continuing recursively we arrive
-at the non-terminal ST AT E It has additional terminal sym-
-bols as children stateid and  We try to match these with
-the sentence and after being unsuccessful we concatenate
-on the leafs of the current subtree to generate another poten-
-tial candidate which yields stateidcid48virginiacid48 Continu-
-ing to traverse we arrive at the non-terminal CIT Y in the
-rule 2f  As in the previous case it has terminal symbols
-loc2 and  as children and we are unable to match them
-onto the sentence Thus we again concatenate at the leaves
-leading to loc2stateidcid48virginiacid48 as a potential represen-
-tation candidate for the word Virginia Continuing up-
-wards in the tree we reach the non-terminal symbol CIT Y
-given by the rule 1f  In this case we can match one of its
-children the terminal city with some words in the sentence
-and we stop This approach produces three possible repre-
-sentations for Virginia cid48virginiacid48 stateidcid48virginiacid48
-loc2stateidcid48virginiacid48 However during the training
-process the rst one does not yield any new semantic data
-using the inverse lambda operators while the third one is too
-specic and can only be used in very few sentences Con-
-sequently their weights are very low and they are not used
-leaving stateidcid48virginiacid48 as the relevant representation
-We will now dene an algorithm to obtain the candi-
-date noun expressions from the training set denoted by
-IN IT IALN  For our experiments maxlevel was set to
-2 and accuracy was set to 07
- Input A set of training sentences with their corresponding desired representations S 
-Si Li  i  1n where Si are sentences and Li are desired expressions A CCG
-grammar G for sentences Si A CFG grammar G for representations Li
-F N t - given a CCG parse tree t returns all the nouns in t nM AT CHw - returns a
-set of terminal symbols partially matching the string w with accuracy a Returns a single non
-terminal if w is a single word The accuracy for nM AT CHw is given by the partial string
-matching given as the percentage of similar parts in between the strings M CY KX - given
-a set of terminal and non terminal symbols nds the non-terminal symbol which can yield all of
-them using a modied CYK algorithm
-maxlevel M - maximum number of levels allowed to traverse in the derivation trees
- Output An initial lexicon Lcid48
- Algorithm
- Step 1 -expression generation
- For i  1n
- Parse Si using the CCG grammar to obtain ti
- Parse Li using the CFG grammar to obtain Ti
- Set W  F N ti
- For each wj  W 
- Set X  nM AT CHw
- Repeat a maximum of M times
- Set N  M CY KX
- Set T to be a subtree of Ti rooted at the N
- For each leaf node n of T which is a match of some word wcid48 of the sentence Si if
-the path from n to N contains a non-terminal symbol replace n with a new  bound
-variable v and add v to 
- Concatenate all the leaf nodes of T to form cid48
- Set    cid48 where  represents string concatenation
- Add wj   to Lcid48
- Set N  M CY KN 
-If N has two or more non-terminal children break
-If N has a child which terminal symbol can be matched to any word of Si but wj 
- return Lcid48
-The algorithm stops when it encounters other terminals
-because we are looking for the representations of specic
-words We assume each word is represented as a lambda cal-
-culus formula Once we encounter a terminal corresponding
-to some other word of the sentence we assume that word
-has its own representation which we do not want to add to
-the representation of the current noun we are investigating
-The algorithm produces results such as x answerx for
-the words list name what and stateidcid48virginiacid48 for the
-word V irginia In case of CLANG corpus some of the re-
-sults are xyxdo y xydef iner cid48xcid48 y for each of
-the words call let if
-Combining the output of both algorithms yields an initial
-lexicon which can be used by the system Some of the results
-obtained by the algorithms are given in table 5
-Virgina
-Mississippi
-player 5
-mideld
-Obtained representations
-stateidcid48virginiacid48
-x answerx
-stateidcid48mississippicid48 riveridcid48mississippicid48
-x answerx
-xyxdo y
-xydef iner cid48xcid48 y
-xyxdo y
-xydef iner cid48xcid48 y
-player our 5
-xx midf ield
-Table 5 Examples of learned initial representa-
-Evaluation
-Similarly to Zettlemoyer and Collins 2009 we used the
-standard GEOQUERY and CLANG corpora for evalua-
-tionThe GEOQUERY corpus contained 880 English sen-
-tences with their respective database queries in f unql lan-
-guage The CLANG corpus contained 300 entries specify-
-ing rules conditions and denitions in CLANG
-In all the experiments we used the CC parser of Clark
-and Curran 2007 to obtain syntactic parses for sentences
-In case of CLANG most compound nouns including num-
-bers were pre-processed We used the standard 10 fold cross
-validation and proceeded as follows A set of training and
-testing examples was generated from the respective corpus
-These were parsed using the CC parser to obtain the syn-
-tactic tree structure Next the syntactic parses plus the
-grammar derivations of the desired representations for the
-training data were used to create a corresponding initial dic-
-tionary These together with the training sets containing the
-training sentences with their corresponding semantic repre-
-sentations SRs were used to train a new dictionary with
-corresponding parameters Note that it is possible that many
-of the words were still missing their SRs however note that
-our generalization approach was also applied when comput-
-ing the meanings of the test data This dictionary was then
-used to parse the test sentences and the highest scoring parse
-was used to determine precision and recall Since many
-words might have been missing their SRs the system might
-not have returned a proper complete semantic parse To mea-
-sure precision and recall we adopted the measures given by
-Wong and Mooney 2007 and Ge and Mooney 2009 Pre-
-cision denotes the percentage of of returned SRs that were
-correct while Recall denotes the percentage of test examples
-with pre-specied SRs returned F-measure is the standard
-harmonic mean of precision and recall For database query-
-ing a SR was correct if it retrieved the same answer as the
-standard query For CLANG an SR was correct if it was an
-exact match of the desired SR except for argument ordering
-of conjunctions and other commutative predicates
-To evaluate our system a comparison with the perfor-
-mance results of several alternative systems with available
-data is given
-In many cases the performance data given
-by Ge and Mooney 2009 are used We compared our
-system with the following ones The SYN0 SYN20 and
-GOLDSYN systems by Ge and Mooney 2009 the system
-SCISSOR by Ge and Mooney 2005 an SVM based system
-KRIPS by Kate and Mooney 2006 a synchronous gram-
-mar based system WASP by Wong and Mooney 2007 the
-CCG based system by Zettlemoyer and Collins 2007 the
-work by Lu et al 2008 and the INVERSE and INVERSE
-systems given by Baral et al 2011 The results for differ-
-ent copora if available are given by the tables 6 and 78 The
-work by Percy Michael and Dan 2011 reports a 911 re-
-call on geoquery corpus but uses a 600 to 280 split
-A-INVERSE
-INVERSE
-INVERSE
-GOLDSYN
-SCISSOR
-Lu at al
-Precision
-F-measure
-Table 6 Performance on GEOQUERY
-A-INVERSE
-INVERSEi
-INVERSE
-GOLDSYN
-SCISSOR
-Lu at al
-Precision
-F-measure
-Table 7 Performance on CLANG
-8 The IN V ERSE  i and A  IN V ERSE  i denotes
-evaluation where denec and dener at the start of SRs were
-treated as being equal
-The results of our experiments indicate that our approach
-outperforms the existing parsers in F-measure and illustrate
-that our approach scales well and is applicable for sentences
-with various lengths In particular it is even capable of out-
-performing the manually created initial dictionaries given by
-Baral et al 2011 The main reason seems to be that unlike
-in Wong and Mooney 2007 our approach actually benets
-from a more simplied nature of funql compared to PRO-
-LOG The resulting -calculus expressions are often sim-
-pler as they do not have to account for variables and mul-
-tiple predicates The increase in accuracy mainly resulted
-from the decrease of number of possible semantic expres-
-sions of words As we understand the work by Baral et al
-2011 would sometimes include many meanings of words
-Our approach reduces this number A decrease was caused
-by not being able to automatically generate some expres-
-sions that were manually added in Baral et al 2011 The
-automatically obtained dictionary contained around 32 of
-the semantic data of the manually created one
-Most of the failures of our system can be attributed to the
-lack of data in the training set In particular new syntactic
-categories or semantic constructs rarely seen in the training
-set usually result in complete inability to parse those sen-
-tences In addition given the syntactic parses a complex
-semantic representations in lambda calculus are produced
-which are then often propagated via generalization and can
-produce bad translation and interfere with learning Addi-
-tionally many of the words will have several possible rep-
-resentations and the training set distribution might not prop-
-erly represent the desired one The CC parser that we used
-was primarily trained on news paper text Clark and Curran
-2007 and thus did have some problems with these differ-
-ent domains and in some cases resulted in complex semantic
-representations of words This could be improved by using
-a different parser or by simply adjusting some of the parse
-In the previous paragraphs we compared our system with
-similar systems in terms of performance We now give a
-qualitative comparison of our approach with other learning
-based approaches that can potentially translate natural lan-
-guage text to formal representation languages Zettlemoyer
-and Collins 2005 Kate and Mooney 2006 Wong and
-Mooney 2006 Wong and Mooney 2007 Lu et al 2008
-Zettlemoyer and Collins 2007 Ge and Mooney 2009
-Kwiatkowski et al 2010 Kwiatkowski et al 2011
-Percy Michael and Dan 2011 Zettlemoyer and Collins
-2005 uses a set of hand crafted rules to learn syntactic cat-
-egories and semantic representations of words using combi-
-natorial categorial grammar CCG Steedman 2000 and
--calculus formulas Gamut 1991 The same approach
-is adopted in Zettlemoyer and Collins 2007 Kanazawa
-2001 Kanazawa 2003 and Kanazawa 2006 focuses on
-computing the missing -expressions but do not provide a
-complete system In Ge and Mooney 2009 a word align-
-ment approach is adopted to obtain the semantic lexicon and
-rules which allow semantic composition are learned Com-
-pared to Ge and Mooney 2009 we do not generate word
-alignments for the sentences and their semantic representa-
-tions We only use a limited form of pattern matching to
-initialize our approach with several basic semantic represen-
-tations We focus on the simplest cases the top and bottom
-of the trees rather than performing a complete analysis of
-the trees We assign each word a -calculus formula as its
-semantics and use the native -calculus application  to
-combine them rather than computed composition rules The
-learning process then gures out which of the candidate se-
-mantics to use We use a different syntactic parser which
-dictates the direction of the semantic composition Both ap-
-proaches use a similar learning model based on Zettlemoyer
-and Collins 2005 The work by Kwiatkowski et al 2010
-uses higher-order unication Instead of using inverse they
-perform a split operation which can break a  expression
-into two However this approach is not capable of learn-
-ing more complex  calculus formulas and lacks general-
-ization Percy Michael and Dan 2011 uses dependency-
-based compositional semanticsDCS with lexical triggers
-which loosely correspond to our initial dictionaries
-Conclusion and Discussion
-In this work we presented an approach to translate natural
-language sentences into semantic representations Using a
-training set of sentences with their desired semantic repre-
-sentations our system is capable of learning the meaning
-representations of words
-It uses the parse of desired se-
-mantic representations under an unambiguous grammar to
-obtain an initial dictionary inverse  operators and gener-
-alization techniques to automatically compute the semantic
-representations based on the syntactic structure of the syn-
-tactic parse tree and known semantic representations without
-any human supervision Statistical learning approaches are
-used to distinguish the various potential semantic represen-
-tations of words and prefer the most promising one In this
-work we are able to overcome some of the deciencies of
-our initial work in Baral et al 2011 Our approach here is
-fully automatic and it generates a set of potential candidate
-words for each noun based solely on the context free gram-
-mar of the target language and the training data The result-
-ing method is capable of outperforming many of the existing
-systems on the standard copora of Geoquery and CLANG
-There are many possible extensions to our work One of
-the possible direction is to experiment with additional cor-
-pora which uses temporal logic as a target language Other
-directions include the improvements in inverse lambda com-
-putation and application of other learning methods such as
-sparse learning
-References
-Baral et al 2011 Baral C Gonzalez M Dzifcak J and
-Zhou J 2011 Using inverse  and generalization to trans-
-late english to formal languages In Proceedings of the Inter-
-national Conference on Computational Semantics Oxford
-England January 2011
-Clark and Curran 2007 Clark S and Curran J R 2007
-Wide-coverage efcient statistical parsing with ccg and log-
-linear models Computational Linguistics 33
-Gamut 1991 Gamut L 1991 Logic Language and Mean-
-ing The University of Chicago Press
-Ge and Mooney 2005 Ge R and Mooney R J 2005 A
-statistical semantic parser that integrates syntax and seman-
-tics In Proceedings of CoNLL 916
-Ge and Mooney 2009 Ge R and Mooney R J 2009
-Learning a compositional semantic parser using an existing
-syntactic parser In Proceedings of ACL-IJCNLP 611619
-Gonzalez 2010 Gonzalez M A 2010 An inverse lambda
-calculus algorithm for natural language processing Masters
-thesis Arizona State University
-Kanazawa 2001 Kanazawa M 2001 Learning word-to-
-meaning mappings in logical semantics In Proceedings of
-the Thirteenth Amsterdam Colloquium 126131
-Kanazawa 2003 Kanazawa M 2003 Computing word
-meanings by interpolation In Proceedings of the Fourteenth
-Amsterdam Colloquium 157162
-Kanazawa 2006 Kanazawa M 2006 Computing inter-
-polants in implicational logics Ann Pure Appl Logic
-1421-3125201
-Kate and Mooney 2006 Kate R J and Mooney R J
-2006 Using string-kernels for learning semantic parsers
-In Proceedings of COLING 439446
-Kwiatkowski et al 2010 Kwiatkowski T Zettlemoyer L
-Goldwater S and Steedman M 2010
-Inducing proba-
-bilistic ccg grammars from logical form with higher-order
-unication In In Proceedings of EMNLP
-Kwiatkowski et al 2011 Kwiatkowski T Zettlemoyer L
-Goldwater S and Steedman M 2011 Lexical generaliza-
-tion in ccg grammar induction for semantic parsing In In
-Proceedings of EMNLP
-Lu et al 2008 Lu W Ng H T Lee W S and Zettle-
-moyer L S 2008 A generative model for parsing natu-
-ral language to meaning representations In Proceedings of
-EMNLP-08
-1974 Formal Philoso-
-Montague 1974 Montague R
-phy Selected Papers of Richard Montague Yale University
-Percy Michael and Dan 2011 Percy L Michael J and
-Dan K 2011 Learning dependency-based compositional
-semantics In Proceedings of ACL-HLT 590599
-Steedman 2000 Steedman M 2000 The syntactic process
-MIT Press
-Wong and Mooney 2006 Wong Y W and Mooney R J
-2006 Learning for semantic parsing with statistical machine
-translation In Proceedings of HLTNAACL 439446
-Wong and Mooney 2007 Wong Y W and Mooney R J
-2007 Learning synchronous grammars for semantic parsing
-with lambda calculus In Proceedings of ACL 960967
-Zettlemoyer and Collins 2005 Zettlemoyer
-Collins M 2005 Learning to map sentences to logical
-form Structured classication with probabilistic categorial
-grammars In AAAI 658666
-Zettlemoyer and Collins 2007 Zettlemoyer
-Collins M 2007 Online learning of relaxed ccg gram-
-In Proceedings of
-mars for parsing to logical form
-EMNLP-CoNLL 678687
-Zettlemoyer and Collins 2009 Zettlemoyer
-Collins M 2009 Learning context-dependent mappings
-from sentences to logical form In ACL
-Language understanding as a step towards human level intelligence - automatizing
-the construction of the initial dictionary from example sentences
-School of Computing Informatics and DSE
-School of Computing Informatics and DSE
-Chitta Baral
-Arizona State University
-chittaasuedu
-Juraj Dzifcak
-Arizona State University
-jurajdzifcakasuedu
-Abstract
-For a system to understand natural language it needs to be
-able to take natural language text and answer questions given
-in natural language with respect to that text it also needs to
-be able to follow instructions given in natural language To
-achieve this a system must be able to process natural lan-
-guage and be able to capture the knowledge within that text
-Thus it needs to be able to translate natural language text
-into a formal language We discuss our approach to do this
-where the translation is achieved by composing the mean-
-ing of words in a sentence Our initial approach uses an in-
-verse lambda method that we developed and other methods
-to learn meaning of words from meaning of sentences and an
-initial lexicon We then present an improved method where
-the initial lexicon is also learned by analyzing the training
-sentence and meaning pairs We evaluate our methods and
-compare them with other existing methods on a corpora of
-database querying and robot command and control
-Introduction and Motivation
-We consider natural language understanding as an important
-aspect of human level intelligence But what do we mean by
-language understanding In our view a system that under-
-stands language can among other attributes i take natural
-language text and then answer questions given in natural lan-
-guage with respect to that text and ii take natural language
-instructions and execute those instructions as a human would
-A system that can do the above must have several func-
-tional capabilities such as a It must be able to process lan-
-guage b It must be able to capture knowledge expressed
-in the text c It must be able to reason plan and in gen-
-eral do problem solving and for that it may need to do ef-
-cient searching of solutions d It must be able to do high
-level execution and control as per given directives and e
-To scale it must be able to learn new language aspects for
-eg new words These functional capabilities are often
-compartmentalized to different AI research topics How-
-ever good progress in each of these areas over the last few
-decades provides an opportunity to use results and systems
-from them and build up on that to develop a natural language
-understanding system
-Copyright ccid13 2011 Association for the Advancement of Articial
-Intelligence wwwaaaiorg All rights reserved
-Over the last two decades our group has been focusing
-in the research of developing suitable knowledge represen-
-tation languages The research by a broader community has
-led to KR languages and systems that allow us to represent
-various kinds of knowledge and the KR systems allow us to
-reason plan and do declarative problem solving using them
-Various search techniques are embedded in some of these
-systems and one such system from Potsdam CLASP1 has
-been doing very well in SAT competitions2 Similarly var-
-ious languages and systems have been developed that can
-take directives in a formal language and use it in high level
-execution and control These cover the aspects c and d
-mentioned above
-In our current research we use the existing results on c
-and d and develop an overall architecture that addresses
-the aspects a b and e to lead to a natural language un-
-derstanding framework
-The rst key aspect of our approach and our language un-
-derstanding framework is to translate natural language to
-appropriate formal languages Once that is achieved we
-achieve b and then together with the c and d compo-
-nents we achieve a The second key aspect of our ap-
-proach and our language understanding framework is that
-we can reason and learn about how to translate new words
-and phrases This allows our overall system to scale up to
-larger vocabularies and thus we achieve e
-In this paper we rst give a brief presentation of our sys-
-tem and framework which was reported in an earlier limited
-audience conferenceworkshop We then present some orig-
-inal work to enhance what was done then
-Translating English to Formal languages
-Our approach to translate English to formal languages is in-
-spired by Montagues path-breaking thesis Montague 1974
-of viewing English as a formal language We consider each
-word to be characterized by one or more -calculus for-
-mulas and the translation to be obtained by composing ap-
-propriate -calculus formulas of the words as dictated by a
-PCCG Probabilistic Combinatorial Categorial Grammars
-The big challenge in this approach is to be able to come up
-with the right -calculus formulas for various words Our
-1httpwwwcsuni-potsdamdeclasp
-2httpwwwsatcompetitionorg
-approach initially presented in Baral et al 2011 utilizes
-inverse -calculus operators and generalization to obtain se-
-mantic representations of words and learning techniques to
-distinguish in between them The system architecture of our
-approach is given in gure 1 The left block shows an overall
-system to translate a sentence into a target formal language
-using the PCCG grammar and the lexicon while the right
-block shows the learning module to learn the meaning of
-new words via Inverse  and generalization methods and
-assigning weights to multiple meaning of words We now
-elaborate on some important parts of the system
-Inverse  computation
-The composition semantics of -calculus basically com-
-putes the meaning of a phrase a b by  or  depend-
-ing on the CCG parse Now suppose we know the meaning
-a b to be  and also know the meaning of a as  By
-inverse  we refer to the obtaining of  given  and  De-
-pending on whether  is  or  we have two inverse
-operators InverseR and InverseL We now give a quick
-glimpse of InverseR as given in Baral et al 2011 Further
-details are given in Gonzalez 2010
- Let G H represent
-J 1J 2J n represent
-w represent variables and 1n represent
-atomic terms
-formulas
-typed terms v1 to vn v and
- Let f  represent a typed atomic formula Atomic formu-
-las may have a different arity than the one specied and
-still satisfy the conditions of the algorithm if they contain
-the necessary typed atomic terms
- Typed terms that are sub terms of a typed term J are de-
- If the formulas we are processing within the algorithm
-do not satisfy any of the if conditions then the algorithm
-returns null
-typed -calculus
-noted as Ji
-Denition 1 Consider two lists of typed -elements A and
-B ai  an and bj  bn respectively and a formula H
-The result of the operation HA  B is obtained by replac-
-ing ai by bi for each appearance of A in H
-Denition 2 The function InverseRH G is dened as
-Given G and H
-1 If G is vvJ set F  InverseLH J
-2 If J is a sub term of H and G is vHJ  v then F  J
-3 G is not vvJ J is a sub term of H and G is
-wHJJ1  Jm  wJp  Jq with 1  pqs 
-m then F  v1  vsJJ1  Jm  vp  vq
-To illustrate InverseR assume that in the example given
-in table 2 the semantics of the word in is not known
-We can use the Inverse operators to obtain it as follows
-Using the semantic representation of the whole sentence
-answerriverloc2stateidcid48arkansascid48
-semantics of the word Name xanswerx we can
-use the respective operators to obtain the semantics of the
-rivers in Arkansas as riverloc2stateidcid48arkansascid48
-Repeating
-recursively
-process
-yyloc2stateidcid48arkansascid48 as
-the representation
-of in Arkansas and xyyloc2x as the desired
-meaning of in 3
-Generalization and trivial solution
-Using IN V ERSE L and IN V ERSE R we are able to
-obtain new semantic representations of particular words in
-the training sentences To go beyond that we use a no-
-tion of generalization that we developed For example con-
-sider the non-transitive verb y who category as per a
-CCG4 Steedman 2000 is SN P  Lets assume we ob-
-tain a new semantic expression for y as xf lyx using
-IN V ERSE L and IN V ERSE R Generalization looks
-up all the words of the same syntactic category SN P  It
-then identies the part of the semantic expression in which
-y is involved In our particular case its the subexpres-
-sion f ly We can then assign the expression xwx to the
-words w of the same category For example for the verb
-swim we could add xswimx to the dictionary This
-process can be performed en masse by going through the
-dictionary and expanding the entries of as many words as
-possible or on demand by looking up the words of the
-same categories when a semantic representation of a word in
-a sentence is required Even with generalization we might
-still be missing large amounts of semantics information to be
-able to use IN V ERSEL and IN V ERSER To make up
-for this we allow trivial solutions where words or phrases
-are assigned the meaning xx xyyx or similarly
-simple representations which basically mean that this word
-may be ignored The trivial solutions are used as a last resort
-approach if neither inverse nor generalization are sufcient
-Translation and the Overall Learning Algorithm
-Earlier we mentioned that a sentence is translated to a rep-
-resentation in a formal language by composing the meaning
-of the words in that sentences as dictated by a CCG How-
-ever in presence of multiple meaning of words probabilistic
-CCG is used where the probabilities of a particular transla-
-tion is computed using weights associated with each word
-and meaning pair For a given sentence the translation that
-has the higher probability is picked This raises the question
-of how does one obtain the weights The weights are ob-
-tained using standard parameter estimation approaches with
-the goal that the weights should be such that they maximize
-the overall probability of translating each of the sentences
-3A very brief review of the  representation is as follows The
-formula xanswerx basically means that x is an input and
-when that input is given then it replaces x in the rest of the for-
-mula This application of a given input in expressed via the symbol
- Thus xanswerxa reduces to answera
-4In a combinatorial categorial grammar CCG words are asso-
-ciated with categories The meaning of the category SN P is that
-if a word of category N P comes from the left then by combining
-it with a word of category SN P we get a phrase of category S
-For example if the word a has a category SN P and the word
-b has category NP then the two words can be combined to the
-phrase b a which will have the category S Similarly the cate-
-gory SN P means that a word of category N P has to come from
-the right for us to be able to combine
-Figure 1 Overall system architecture
-in the training set of sentences and their desired meaning
-to their desired meaning We now present our overall learn-
-ing algorithm that combines inverse  generalization and
-parameter estimation
- Input A set of training sentences with their corresponding desired representations S 
-Si Li  i  1n where Si are sentences and Li are desired expressions Weights
-are given an initial value of 01 An initial feature vector 0
- Output An updated lexicon LT 1 An updated feature vector T 1
- Algorithm
- Set L0  IN IT IAL DICT ION ARY S
- For t  1    T
- Step 1 Lexical generation
- For i  1n
- For j  1n
- Parse sentence Sj to obtain Tj
- Traverse Tj
- apply IN V ERSE L IN V ERSE R and GEN ERALIZED to nd new
--calculus expressions of words and phrases 
- Set Lt1  Lt  
- Step 2 Parameter Estimation
- Set t1  U P DAT Et Lt15
- return GEN ERALIZELT  LT  T 
-Automatic generation of initial dictionary
-In tables 6 and 7 we compare the performance of our sys-
-tems INVERSE INVERSE and INVERSEi with other
-systems that have similar goals However although other
-systems had other issues we were not happy that our sys-
-tems required a manually created initial dictionary consist-
-ing of -calculus representations of a set of words In the
-rest of the paper we present an approach to overcome that by
-automatically coming up with candidates for the initial dic-
-tionary and letting the parameter estimation module gure
-out the correct meaning In particular we present methods
-to automatically come up with possible -calculus represen-
-tation of nouns and various other words that are part of the
-initial vocabulary in Baral et al 2011 Unlike Baral et
-al 2011 where each of the word in the initial vocabulary is
-given a unique -calculus representation our approach does
-not necessarily come up with a single -calculus representa-
-tion of the words that are in the initial vocabulary in Baral
-5For details on  computation please see Zettlemoyer and
-Collins 2005
-et al 2011 but sometimes may come up with multiple pos-
-sibilities
-We will now illustrate our approach in obtaining the initial
-dictionary and the use of CCG and -calculus in obtaining
-semantic representations of sentences on the Geoquery cor-
-pus at httpwwwcsutexaseduusersmlgeohtml Table 1
-shows several examples of sentences with their desired rep-
-resentations while table 2 shows a sample CCG parse with
-its corresponding semantic derivation
-To be able to automatically create the entries in the ini-
-tial dictionary as given by Baral et al 2011 we need to
-answer the following two questions How do we nd the ex-
-pression xanswerx and how do we assign it to the word
-Name The word answer isnt given anywhere by the
-sentence Similarly How do we know that the semantic ex-
-pression for Arkansas should be stateidcid48arkansascid48
-The rst question can be answered by looking at several
-possible semantic representations as given in table 1 They
-share one common aspect which is that they all contain
-the predicate answer as the outermost expression Thus
-we can assume that xanswerx should be part of any
-derivation as given by table 2 In general using the grammar
-derivations for the meaning representations we can compare
-various representations and look for common parts which
-we will refer to as common structures We identify these
-common parts and assign them to certain relevant words
-in the sentence such as assigning the common expression
-xanswerx to the word Name To answer the sec-
-ond question we again look at the grammar derivations for
-nouns and analyze them to be able to obtain the semantic
-expression for Arkansas as stateidcid48arkansascid48
-Table 2 shows an example syntactic and semantic deriva-
-tion for the sentence Name the rivers in Arkansas The
-syntactic categories for each are given by the upper part
-of the table
-These are then combined using combi-
-natorial rules Steedman 2000 to obtain the rest of the
-syntactic categories For example the word Arkansas
-of category N is combined with the word in of cate-
-gory N PN N to obtain the syntactic category of in
-Arkansas N PN The lower portion of the table lists the
-Sentence
-Name the rivers in Arkansas
-How many people are there in New York
-How high is Mount McKinley
-Name all the lakes of US
-Name the states which have no surrounding states
-Representation
-answerriverloc2stateidcid48arkansascid48
-answerpopulation1stateidcid48newyorkcid48
-answerelevation1placeidcid48mountmckinleycid48
-answerlakeloc2countryidcid48usacid48
-answerexcludestateall nextto2stateall
-Table 1 Example translations
-N PN P
-N PN P
-N PN P
-riverloc2stateidcid48arkansascid48
-N PN N
-Arkansas
-xriverx
-xriverx
-xyyloc2x
-yyloc2stateidcid48arkansascid48
-riverloc2stateidcid48arkansascid48
-Arkansas
-stateidcid48arkansascid48
-xanswerx
-xanswerx
-xanswerx
-xanswerx
-answerriverloc2stateidcid48arkansascid48
-Table 2 CCG and -calculus derivation for Name the rivers in Arkansas
-semantic representations of each words using -calculus
-These are combined by applying the formulas one to an-
-other following the syntactic parse tree For example
-the semantics of Arkansas stateidcid48arkansascid48 is ap-
-plied onto the semantics of in xyyloc2x yielding
-yyloc2stateidcid48arkansascid48
-Let us rst discuss the common structures of a logical
-form For example for the Geoquery corpus as shown in
-table 1 many queries are of the form answerX where X
-is a structure corresponding to the actual query Similarly by
-analyzing the Robocup corpus we realize that all the queries
-are of the form A doB  def iner C B or def inec
-C B where C is an identier and A and B are some other
-constructs in the given language The main attribute of these
-expressions is that they dene the structures of the desired
-meaning representation
-The second component of the dictionaries were the se-
-mantic representations of nouns Unlike the common struc-
-tures these need to be generated for as many nouns as possi-
-ble to ensure that the system is capable to learn the missing
-semantic representations For example in GeoQuery a noun
-Arkansas is represented as stateidcid48arkansascid48 6 For
-Robocup a compound noun player 5 can be represented
-as player our 5
-Thus our task in being able to automatically obtain these
-is two fold We rst need to identify the common structures
-and nd the appropriate -calculus formulas and pick the
-words to which we will assign them The second part of our
-goal is to nd the corresponding -calculus expressions for
-nouns and compound nouns
-We will assume this process is done on the training data
-and full syntactic parse of the sentences as well as the parse
-of the desired formal representation are given
-Common structures
-In order to look for the common
-structures we will compare the derivation structures of var-
-ious formulas and look for common structures in them To
-6We are using the funql representation although the same ap-
-proach is applicable for the prolog one
-limit the potential search and with respect to our previous
-experience we will only look for the common parts at top
-parts of the derivation Also in order to be more precise and
-keep the computation within reasonable bounds instead of
-looking at the whole grammar for meaning representations
-we will look at the derivations of the meaning representa-
-tions of the training data This is a reasonable assumption
-as in general the amount of structures in the target language
-can be assumed to be less than the amount of training data
-as in the case of Geoquery and CLANG
-Denition 3 Given a context free grammar G with an initial
-symbol S a set of non-terminals N a set of terminals T  a
-set of production rules P and a string w  x1  xn where
-xis are terminal or non-terminal symbols a production d is
-a transformation x1  xn  x1  xi1 A xi1  xn
-such that xi  A is in P  We will say that xi  A corre-
-sponds to d
-Given a sequence of productions d  d1  dn a deriva-
-tion tree t corresponding to d is given as
-- If n  1 let X  X1 X2  Xn be the rule corre-
-sponding to d1 Then t is a tree with X as the root node
-which has n children in order left to right X1 X2  Xn
-- If tcid48 is a derivation tree corresponding to d1  dn1
-and X  X1 X2  Xn is the rule corresponding to dn
-then t is given as tcid48 with n children added in order left to
-right X1 X2  Xn to the left most leaf X of tcid48
-A  tree is a pair V t where V is a list of  bound
-variables and t is a tree where each interior node of t is
-a non terminal symbol from N and each leaf node of t is a
-terminal symbol from T or a variable from V 
-Given two sequences of productions d1 and d2 with their
-corresponding derivation trees t1 and t2 a  tree V tc is a
-common template of t1 and t2 iff there exists two sequences
-of applications s1  X1  Xn and s2  Y1  Yn such
-that when we apply each Xi to each vi i  1  n in tc we
-obtain a subtree of t1 and when we apply each Yi to each vi
-i  1  n in tc we obtain a subtree of t2
-cid46
-cid46
-cid46
-cid38
-cid38
-cid38
-answer
-ST AT E
-cid46
-cid46
-cid46
-answer
-COU N T RY
-cid38
-cid38
-cid38
-cid46
-cid46
-cid46
-ST AT E
-stateid
-ST AT EN AM E
-cid38
-cid38
-cid38
-Table 3 Sample derivation trees
-cid48virginiacid48
-Example derivation trees and a common template are
-given in tables 3 and 4
-cid46  cid38
-answer
-the initial
-Table 4 Sample common template
-Thus based on the above denitions
-the following parts of
-to look for
-the common structures in the desired meaning repre-
-look for common trees between
-sentations we will
-symbol
-derivations which are rooted at
-As an example consider
-derivation obtained directly from the Geoquery cor-
-pus for answerriverloc2stateidcid48arkansascid48 and
-answerlakeloc2countryidcid48usacid48
- S 1a answerRIV ER
- 2a answerriverRIV ER
- 3a answerriverloc2ST AT E
- S 1b answerP LACE
- 2b answerlakeP LACE
- 3b answerlakeloc2COU N T RY 
-Starting from the initial non-terminal S we can see that
-the rules 1a and 1b are already different They share a
-common part in having the terminal symbols answer and
- Thus if we replace all the non-terminals in the common
-parts of the derivation with  bound variables we obtain the
-common part of the derivations as vanswerv where v
-is the new  bound variable
-In general having a derivation we start at the initial sym-
-bol and follow the derivation tree level by level while com-
-paring the nodes in the derivation tree We then collect all
-the common terminals from this subtree and replace all the
-different non-terminals with  bound variables Note that
-there might be multiple such structures as in the case of
-Robocup corpus In that case we would store and use all of
-them and the learning part of the system would take care of
-picking the proper ones
-After nding the common structures between the deriva-
-tions we need to nd the words to which we assign them
-to Since the structures are supposed to dene the common
-structures of the desired representations it is reasonable to
-try to assign them to words which in a sense dene the
-sentences In our case we look for words that are usually
-last to combine in the CCG derivation The reasoning is that
-when looking for the common structures we looked at the
-top parts of the derivation of meaning representations Thus
-it is reasonable to try to assign them to words which are in
-the top parts of the derivation in the syntactic parse of the
-sentence Note that these words might not be the ones with
-most complex categories In practice such words are usu-
-ally verbs wh-words or some adverbs
-Denition 4 Given a CCG parse tree T of a sentence s and
-a word w from s a word w is a top word if there is no other
-word wcid48 from s such that levelwcid48  levelw
-Given a set of training pairs Si Li i  1  k where
-Si is a sentence and Li is the corresponding desired logical
-form together with a syntactic parse of Si and the derivation
-of Li we can obtain the candidate common structures using
-the following algorithm denoted as IN IT IALC
- Input
-A set of training sentences with their corresponding desired representations S  Si Li 
-i  1n where Si are sentences and Li are desired expressions A CCG grammar G for
-sentences Si A CFG grammar G for representations Li
- Output
-An initial lexicon L0
- Algorithm
- Step 1 Word selection
- For i  1n
- Parse Si using the CCG grammar G to obtain parse tree ti Find all the top words of ti
-and store them in Wi
-Ti and Tj 
- Step 2 -expression generation
- For i  1n
- For j  1n
- Parse derivations Li and Lj using the CFG grammar G to obtain the derivation trees
- Starting from roots compare Ti and Tj and nd the largest common template V T 
- Concatenate all the leafs of T together to form a -expression  For each v  V  add
- Add  as semantic expression to each of the words in Wi and Wj 7
- Set L0  iWi
- return L0
-such that T that is rooted at the initial symbol of the grammar S
-v in front of 
-In order to derive potential -expression candi-
-dates for nouns instead of looking at the top of the deriva-
-tion trees and nding words we match the nouns with the
-terminals in the leafs of the derivation tree and then look
-7This step exhaustively assigns the new semantics to all the top
-words While not optimal the learning part of the overall algorithm
-takes care of guring out the proper assignment
-for non-terminals which can produce it As we traverse up-
-wards towards the root we look for other terminals which
-are produced by the non-terminals we encounter At each
-encountered non-terminal we generate potential candidate
--expressions by analyzing the current subtree and store
-them As in the previous case we leave it to the parame-
-ter learning part of the overall algorithm to gure out the
-proper ones Our approach can be illustrated as follows
-cityloc2stateidcid48virginiacid48
-Give me the cities in Virginia also given by table 3
- CIT Y 1f cityCIT Y 
- CIT Y 2f loc2ST AT E
- ST AT E 3f stateidST AT EN AM E
- ST AT EN AM E 4f
-rules deriving
-sentence
-an example of
-from the
-cid48virginiacid48
-look at
-Let us assume that the noun we are interested in is Vir-
-ginia First we will attempt to match it to a terminal in
-the derivation which in this case is cid48virginiacid48 We will
-then traverse the tree upwards In this case we rst reach
-the non-terminal ST AT EN AM E Since cid48virginiacid48 is the
-only child we add cid48virginiacid48 as the potential candidate rep-
-resentation of Virginia Continuing recursively we arrive
-at the non-terminal ST AT E It has additional terminal sym-
-bols as children stateid and  We try to match these with
-the sentence and after being unsuccessful we concatenate
-on the leafs of the current subtree to generate another poten-
-tial candidate which yields stateidcid48virginiacid48 Continu-
-ing to traverse we arrive at the non-terminal CIT Y in the
-rule 2f  As in the previous case it has terminal symbols
-loc2 and  as children and we are unable to match them
-onto the sentence Thus we again concatenate at the leaves
-leading to loc2stateidcid48virginiacid48 as a potential represen-
-tation candidate for the word Virginia Continuing up-
-wards in the tree we reach the non-terminal symbol CIT Y
-given by the rule 1f  In this case we can match one of its
-children the terminal city with some words in the sentence
-and we stop This approach produces three possible repre-
-sentations for Virginia cid48virginiacid48 stateidcid48virginiacid48
-loc2stateidcid48virginiacid48 However during the training
-process the rst one does not yield any new semantic data
-using the inverse lambda operators while the third one is too
-specic and can only be used in very few sentences Con-
-sequently their weights are very low and they are not used
-leaving stateidcid48virginiacid48 as the relevant representation
-We will now dene an algorithm to obtain the candi-
-date noun expressions from the training set denoted by
-IN IT IALN  For our experiments maxlevel was set to
-2 and accuracy was set to 07
- Input A set of training sentences with their corresponding desired representations S 
-Si Li  i  1n where Si are sentences and Li are desired expressions A CCG
-grammar G for sentences Si A CFG grammar G for representations Li
-F N t - given a CCG parse tree t returns all the nouns in t nM AT CHw - returns a
-set of terminal symbols partially matching the string w with accuracy a Returns a single non
-terminal if w is a single word The accuracy for nM AT CHw is given by the partial string
-matching given as the percentage of similar parts in between the strings M CY KX - given
-a set of terminal and non terminal symbols nds the non-terminal symbol which can yield all of
-them using a modied CYK algorithm
-maxlevel M - maximum number of levels allowed to traverse in the derivation trees
- Output An initial lexicon Lcid48
- Algorithm
- Step 1 -expression generation
- For i  1n
- Parse Si using the CCG grammar to obtain ti
- Parse Li using the CFG grammar to obtain Ti
- Set W  F N ti
- For each wj  W 
- Set X  nM AT CHw
- Repeat a maximum of M times
- Set N  M CY KX
- Set T to be a subtree of Ti rooted at the N
- For each leaf node n of T which is a match of some word wcid48 of the sentence Si if
-the path from n to N contains a non-terminal symbol replace n with a new  bound
-variable v and add v to 
- Concatenate all the leaf nodes of T to form cid48
- Set    cid48 where  represents string concatenation
- Add wj   to Lcid48
- Set N  M CY KN 
-If N has two or more non-terminal children break
-If N has a child which terminal symbol can be matched to any word of Si but wj 
- return Lcid48
-The algorithm stops when it encounters other terminals
-because we are looking for the representations of specic
-words We assume each word is represented as a lambda cal-
-culus formula Once we encounter a terminal corresponding
-to some other word of the sentence we assume that word
-has its own representation which we do not want to add to
-the representation of the current noun we are investigating
-The algorithm produces results such as x answerx for
-the words list name what and stateidcid48virginiacid48 for the
-word V irginia In case of CLANG corpus some of the re-
-sults are xyxdo y xydef iner cid48xcid48 y for each of
-the words call let if
-Combining the output of both algorithms yields an initial
-lexicon which can be used by the system Some of the results
-obtained by the algorithms are given in table 5
-Virgina
-Mississippi
-player 5
-mideld
-Obtained representations
-stateidcid48virginiacid48
-x answerx
-stateidcid48mississippicid48 riveridcid48mississippicid48
-x answerx
-xyxdo y
-xydef iner cid48xcid48 y
-xyxdo y
-xydef iner cid48xcid48 y
-player our 5
-xx midf ield
-Table 5 Examples of learned initial representa-
-Evaluation
-Similarly to Zettlemoyer and Collins 2009 we used the
-standard GEOQUERY and CLANG corpora for evalua-
-tionThe GEOQUERY corpus contained 880 English sen-
-tences with their respective database queries in f unql lan-
-guage The CLANG corpus contained 300 entries specify-
-ing rules conditions and denitions in CLANG
-In all the experiments we used the CC parser of Clark
-and Curran 2007 to obtain syntactic parses for sentences
-In case of CLANG most compound nouns including num-
-bers were pre-processed We used the standard 10 fold cross
-validation and proceeded as follows A set of training and
-testing examples was generated from the respective corpus
-These were parsed using the CC parser to obtain the syn-
-tactic tree structure Next the syntactic parses plus the
-grammar derivations of the desired representations for the
-training data were used to create a corresponding initial dic-
-tionary These together with the training sets containing the
-training sentences with their corresponding semantic repre-
-sentations SRs were used to train a new dictionary with
-corresponding parameters Note that it is possible that many
-of the words were still missing their SRs however note that
-our generalization approach was also applied when comput-
-ing the meanings of the test data This dictionary was then
-used to parse the test sentences and the highest scoring parse
-was used to determine precision and recall Since many
-words might have been missing their SRs the system might
-not have returned a proper complete semantic parse To mea-
-sure precision and recall we adopted the measures given by
-Wong and Mooney 2007 and Ge and Mooney 2009 Pre-
-cision denotes the percentage of of returned SRs that were
-correct while Recall denotes the percentage of test examples
-with pre-specied SRs returned F-measure is the standard
-harmonic mean of precision and recall For database query-
-ing a SR was correct if it retrieved the same answer as the
-standard query For CLANG an SR was correct if it was an
-exact match of the desired SR except for argument ordering
-of conjunctions and other commutative predicates
-To evaluate our system a comparison with the perfor-
-mance results of several alternative systems with available
-data is given
-In many cases the performance data given
-by Ge and Mooney 2009 are used We compared our
-system with the following ones The SYN0 SYN20 and
-GOLDSYN systems by Ge and Mooney 2009 the system
-SCISSOR by Ge and Mooney 2005 an SVM based system
-KRIPS by Kate and Mooney 2006 a synchronous gram-
-mar based system WASP by Wong and Mooney 2007 the
-CCG based system by Zettlemoyer and Collins 2007 the
-work by Lu et al 2008 and the INVERSE and INVERSE
-systems given by Baral et al 2011 The results for differ-
-ent copora if available are given by the tables 6 and 78 The
-work by Percy Michael and Dan 2011 reports a 911 re-
-call on geoquery corpus but uses a 600 to 280 split
-A-INVERSE
-INVERSE
-INVERSE
-GOLDSYN
-SCISSOR
-Lu at al
-Precision
-F-measure
-Table 6 Performance on GEOQUERY
-A-INVERSE
-INVERSEi
-INVERSE
-GOLDSYN
-SCISSOR
-Lu at al
-Precision
-F-measure
-Table 7 Performance on CLANG
-8 The IN V ERSE  i and A  IN V ERSE  i denotes
-evaluation where denec and dener at the start of SRs were
-treated as being equal
-The results of our experiments indicate that our approach
-outperforms the existing parsers in F-measure and illustrate
-that our approach scales well and is applicable for sentences
-with various lengths In particular it is even capable of out-
-performing the manually created initial dictionaries given by
-Baral et al 2011 The main reason seems to be that unlike
-in Wong and Mooney 2007 our approach actually benets
-from a more simplied nature of funql compared to PRO-
-LOG The resulting -calculus expressions are often sim-
-pler as they do not have to account for variables and mul-
-tiple predicates The increase in accuracy mainly resulted
-from the decrease of number of possible semantic expres-
-sions of words As we understand the work by Baral et al
-2011 would sometimes include many meanings of words
-Our approach reduces this number A decrease was caused
-by not being able to automatically generate some expres-
-sions that were manually added in Baral et al 2011 The
-automatically obtained dictionary contained around 32 of
-the semantic data of the manually created one
-Most of the failures of our system can be attributed to the
-lack of data in the training set In particular new syntactic
-categories or semantic constructs rarely seen in the training
-set usually result in complete inability to parse those sen-
-tences In addition given the syntactic parses a complex
-semantic representations in lambda calculus are produced
-which are then often propagated via generalization and can
-produce bad translation and interfere with learning Addi-
-tionally many of the words will have several possible rep-
-resentations and the training set distribution might not prop-
-erly represent the desired one The CC parser that we used
-was primarily trained on news paper text Clark and Curran
-2007 and thus did have some problems with these differ-
-ent domains and in some cases resulted in complex semantic
-representations of words This could be improved by using
-a different parser or by simply adjusting some of the parse
-In the previous paragraphs we compared our system with
-similar systems in terms of performance We now give a
-qualitative comparison of our approach with other learning
-based approaches that can potentially translate natural lan-
-guage text to formal representation languages Zettlemoyer
-and Collins 2005 Kate and Mooney 2006 Wong and
-Mooney 2006 Wong and Mooney 2007 Lu et al 2008
-Zettlemoyer and Collins 2007 Ge and Mooney 2009
-Kwiatkowski et al 2010 Kwiatkowski et al 2011
-Percy Michael and Dan 2011 Zettlemoyer and Collins
-2005 uses a set of hand crafted rules to learn syntactic cat-
-egories and semantic representations of words using combi-
-natorial categorial grammar CCG Steedman 2000 and
--calculus formulas Gamut 1991 The same approach
-is adopted in Zettlemoyer and Collins 2007 Kanazawa
-2001 Kanazawa 2003 and Kanazawa 2006 focuses on
-computing the missing -expressions but do not provide a
-complete system In Ge and Mooney 2009 a word align-
-ment approach is adopted to obtain the semantic lexicon and
-rules which allow semantic composition are learned Com-
-pared to Ge and Mooney 2009 we do not generate word
-alignments for the sentences and their semantic representa-
-tions We only use a limited form of pattern matching to
-initialize our approach with several basic semantic represen-
-tations We focus on the simplest cases the top and bottom
-of the trees rather than performing a complete analysis of
-the trees We assign each word a -calculus formula as its
-semantics and use the native -calculus application  to
-combine them rather than computed composition rules The
-learning process then gures out which of the candidate se-
-mantics to use We use a different syntactic parser which
-dictates the direction of the semantic composition Both ap-
-proaches use a similar learning model based on Zettlemoyer
-and Collins 2005 The work by Kwiatkowski et al 2010
-uses higher-order unication Instead of using inverse they
-perform a split operation which can break a  expression
-into two However this approach is not capable of learn-
-ing more complex  calculus formulas and lacks general-
-ization Percy Michael and Dan 2011 uses dependency-
-based compositional semanticsDCS with lexical triggers
-which loosely correspond to our initial dictionaries
-Conclusion and Discussion
-In this work we presented an approach to translate natural
-language sentences into semantic representations Using a
-training set of sentences with their desired semantic repre-
-sentations our system is capable of learning the meaning
-representations of words
-It uses the parse of desired se-
-mantic representations under an unambiguous grammar to
-obtain an initial dictionary inverse  operators and gener-
-alization techniques to automatically compute the semantic
-representations based on the syntactic structure of the syn-
-tactic parse tree and known semantic representations without
-any human supervision Statistical learning approaches are
-used to distinguish the various potential semantic represen-
-tations of words and prefer the most promising one In this
-work we are able to overcome some of the deciencies of
-our initial work in Baral et al 2011 Our approach here is
-fully automatic and it generates a set of potential candidate
-words for each noun based solely on the context free gram-
-mar of the target language and the training data The result-
-ing method is capable of outperforming many of the existing
-systems on the standard copora of Geoquery and CLANG
-There are many possible extensions to our work One of
-the possible direction is to experiment with additional cor-
-pora which uses temporal logic as a target language Other
-directions include the improvements in inverse lambda com-
-putation and application of other learning methods such as
-sparse learning
-References
-Baral et al 2011 Baral C Gonzalez M Dzifcak J and
-Zhou J 2011 Using inverse  and generalization to trans-
-late english to formal languages In Proceedings of the Inter-
-national Conference on Computational Semantics Oxford
-England January 2011
-Clark and Curran 2007 Clark S and Curran J R 2007
-Wide-coverage efcient statistical parsing with ccg and log-
-linear models Computational Linguistics 33
-Gamut 1991 Gamut L 1991 Logic Language and Mean-
-ing The University of Chicago Press
-Ge and Mooney 2005 Ge R and Mooney R J 2005 A
-statistical semantic parser that integrates syntax and seman-
-tics In Proceedings of CoNLL 916
-Ge and Mooney 2009 Ge R and Mooney R J 2009
-Learning a compositional semantic parser using an existing
-syntactic parser In Proceedings of ACL-IJCNLP 611619
-Gonzalez 2010 Gonzalez M A 2010 An inverse lambda
-calculus algorithm for natural language processing Masters
-thesis Arizona State University
-Kanazawa 2001 Kanazawa M 2001 Learning word-to-
-meaning mappings in logical semantics In Proceedings of
-the Thirteenth Amsterdam Colloquium 126131
-Kanazawa 2003 Kanazawa M 2003 Computing word
-meanings by interpolation In Proceedings of the Fourteenth
-Amsterdam Colloquium 157162
-Kanazawa 2006 Kanazawa M 2006 Computing inter-
-polants in implicational logics Ann Pure Appl Logic
-1421-3125201
-Kate and Mooney 2006 Kate R J and Mooney R J
-2006 Using string-kernels for learning semantic parsers
-In Proceedings of COLING 439446
-Kwiatkowski et al 2010 Kwiatkowski T Zettlemoyer L
-Goldwater S and Steedman M 2010
-Inducing proba-
-bilistic ccg grammars from logical form with higher-order
-unication In In Proceedings of EMNLP
-Kwiatkowski et al 2011 Kwiatkowski T Zettlemoyer L
-Goldwater S and Steedman M 2011 Lexical generaliza-
-tion in ccg grammar induction for semantic parsing In In
-Proceedings of EMNLP
-Lu et al 2008 Lu W Ng H T Lee W S and Zettle-
-moyer L S 2008 A generative model for parsing natu-
-ral language to meaning representations In Proceedings of
-EMNLP-08
-1974 Formal Philoso-
-Montague 1974 Montague R
-phy Selected Papers of Richard Montague Yale University
-Percy Michael and Dan 2011 Percy L Michael J and
-Dan K 2011 Learning dependency-based compositional
-semantics In Proceedings of ACL-HLT 590599
-Steedman 2000 Steedman M 2000 The syntactic process
-MIT Press
-Wong and Mooney 2006 Wong Y W and Mooney R J
-2006 Learning for semantic parsing with statistical machine
-translation In Proceedings of HLTNAACL 439446
-Wong and Mooney 2007 Wong Y W and Mooney R J
-2007 Learning synchronous grammars for semantic parsing
-with lambda calculus In Proceedings of ACL 960967
-Zettlemoyer and Collins 2005 Zettlemoyer
-Collins M 2005 Learning to map sentences to logical
-form Structured classication with probabilistic categorial
-grammars In AAAI 658666
-Zettlemoyer and Collins 2007 Zettlemoyer
-Collins M 2007 Online learning of relaxed ccg gram-
-In Proceedings of
-mars for parsing to logical form
-EMNLP-CoNLL 678687
-Zettlemoyer and Collins 2009 Zettlemoyer
-Collins M 2009 Learning context-dependent mappings
-from sentences to logical form In ACL
+Adaptation dynamics in densely 
+clustered chemoreceptors 
+William Pontius12 
+Michael W Sneddon234 
+Thierry Emonet12 
+1Department of Physics Yale University New Haven CT USA 
+2Department of Molecular Cellular and Developmental Biology Yale University New Haven CT USA 
+3Interdepartmental Program in Computational Biology and Bioinformatics Yale University New Haven CT USA 
+4Current address Physical Biosciences Division Lawrence Berkeley National Lab Berkeley CA USA  
+In  many  sensory  systems  transmembrane  receptors  are  spatially  organized  in  large 
+clusters  Such  arrangement  may  facilitate  signal  amplification  and  the  integration  of 
+multiple stimuli However this organization likely also affects the kinetics of signaling 
+since the cytoplasmic enzymes that modulate the activity of the receptors must localize to 
+the  cluster  prior  to  receptor  modification  Here  we  examine  how  these  spatial 
+considerations shape signaling dynamics at rest and in response to stimuli As a model 
+system we use the chemotaxis pathway of Escherichia coli a canonical system for the 
+study of how organisms sense respond and adapt to environmental stimuli In bacterial 
+chemotaxis  adaptation  is  mediated  by  two  enzymes  that  localize  to  the  clustered 
+receptors and modulate their activity through methylation-demethylation Using a novel 
+stochastic  simulation  we  show  that  distributive  receptor  methylation  is  necessary  for 
+successful adaptation to stimulus and also leads to large fluctuations in receptor activity 
+in  the  steady  state    These  fluctuations  arise  from  noise  in  the  number  of  localized 
+enzymes combined with saturated modification kinetics between the localized enzymes 
+and the receptor substrate  An analytical model explains how saturated enzyme kinetics 
+and  large  fluctuations  can  coexist  with  an  adapted  state  robust  to  variation  in  the 
+expression  levels  of  the  pathway  constituents  a  key  requirement  to  ensure  the 
+functionality of individual cells within a population  This contrasts with the well-mixed 
+covalent modification system studied by Goldbeter and Koshland in which mean activity 
+becomes  ultrasensitive  to  protein  abundances  when  the  enzymes  operate  at  saturation 
+Large  fluctuations  in  receptor  activity  have  been  quantified  experimentally  and  may 
+benefit the cell by enhancing its ability to explore empty environments and track shallow 
+nutrient gradients Here we clarify the mechanistic relationship of these large fluctuations 
+to  well-studied  aspects  of  the  chemotaxis  system  precise  adaptation  and  functional 
+robustness   
+Introduction 
+High-resolution microscopy has revealed the exquisite spatial organization of signaling 
+pathways and their molecular constituents Understanding the computations performed by 
+biological  networks  therefore  requires  taking  the  spatiotemporal  organization  of  the 
+reactants into account 1 One feature common to many signal transduction pathways is 
+the clustering of receptors in the cell membrane This arrangement has been observed for 
+diverse  receptor  types  2  such  as  bacterial  chemoreceptors  3-6  epidermal  growth 
+factor  receptors  7  and  T  cell  antigen  receptors  8    Receptor  clustering  provides  a 
+mechanism  for  controlling  the  sensitivity  910  and  accuracy  1112  of  a  signaling 
+pathway Moreover by controlling which types of receptors participate in clusters a cell 
+can achieve spatiotemporal control over the specificity of the signaling complexes  
+While clustering receptors can tune the sensitivity and specificity of a signaling pathway 
+organizing  receptors  into  clusters  also  imposes  novel  constraints  on  the  kinetics  of  the 
+pathway    Temporal  modulations  of  the  activity  of  signaling  complexes  such  as 
+adaptation  are  typically  achieved  via  posttranslational  modification  of  the  cytoplasmic 
+tail of the receptors by various enzymes The localization of the receptor substrate into 
+clusters implies that trafficking of enzymes between the cytoplasm and the cluster and 
+between  receptors  within  a  cluster  is  likely  to  be  an  important  determinant  of  the 
+dynamics of such modulations  Recent theoretical studies of the effect of the localization 
+of  enzymes  and  substrates  on  signaling  kinetics  have  shown  that  spatiotemporal 
+correlations  between  reactants  can  significantly  affect  the  signaling  properties  of  these 
+pathways 13-15    
+One  well-characterized  system  in  which  the  spatial  organization  of  receptors  plays  a 
+significant role is the chemotaxis system of the bacterium Escherichia coli 16-18 E 
+coli moves by performing a random walk alternating relatively straight runs with sudden 
+changes of direction called tumbles  The probability to tumble is modulated by a two-
+component system in which transmembrane receptors regulate the activity of a histidine 
+kinase CheA which in turn phosphorylates the response regulator CheY Phosphorylated 
+CheY rapidly diffuses through the cell and binds the flagellar motors to induce tumbling 
+The tumbling rate decreases in response to chemical attractants and increases in response 
+to repellants allowing the bacterium to navigate its environment  
+Chemoreceptor  clustering  affects  both  signal  amplification  and  adaptation  to  persistent 
+stimuli  which  together  enable  bacteria  to  remain  sensitive  to  over  five  orders  of 
+magnitude  of  ligand  concentration  19    Signal  amplification  arises  from  allosteric 
+interactions between clustered receptors 920-23 whereas adaptation is mediated by the 
+activity of two enzymes CheR methylates inactive receptors thereby reactivating them 
+while  CheB  demethylates  active  receptors  deactivating  them  This  arrangement 
+implements an integral feedback mechanism 24 enabling kinase activity and therefore 
+cell behavior to return to approximately the same stationary point following response to 
+stimulus  2526  The  localization  of  enzymes  to  the  cluster  is  facilitated  by  a  high-
+affinity  tether  site  present  on  most  receptors    This  tether  together  with  the  dense 
+organization  of  the  cluster  enables  localized  enzymes  to  modify  multiple  receptors 
+within a range known as an assistance neighborhood 27  Modeling efforts have shown 
+that  assistance  neighborhoods  are  required  for  precise  adaptation  when  receptors  are 
+strongly coupled 28 
+Precise  adaptation  however  is  not  by  itself  sufficient  for  successful  chemotaxis  The 
+dynamics of the adaptation process including the rate of receptor modification and the 
+level  of  spontaneous  fluctuation  in  receptor  activity  are  also  critical  determinants  of 
+chemotactic performance 29-35 Recent measurements of the dynamic localization of 
+chemotaxis proteins have shown that the time scale of CheR and CheB localization to the 
+receptor cluster is comparable to the time scale of adaptation 36 and therefore expected 
+to  affect  the  dynamics  significantly    Moreover  dense  clustering  may  enable  localized 
+enzymes  to  perform  a  random  walk  over  the  receptor  lattice  without  returning  to  the 
+cytoplasmic  bulk  a  proposed  process  termed  brachiation  37  that  may  lead  to  more 
+efficient receptor modification 
+Here we analyze how the spatiotemporal localization of the adaptation enzymes  to the 
+receptor cluster affects the dynamics of the adaptation process First we build a stochastic 
+simulation of the chemotaxis system taking into account the organization of the receptors 
+into large clusters 46 the slow exchange of enzymes between the cytoplasm and the 
+clusters  36  enzyme  brachiation  37  and  assistance  neighborhoods  272838  This 
+model  quantitatively  recapitulates  experimental  observations  of  the  magnitude  of  the 
+spontaneous fluctuations in single cells 39-42 and the kinetics of adaptation averaged 
+over  multiple  cells  43    Notably  while  localized  enzymes  in  this  model  operate  at 
+saturation the output of the system nonetheless remains robust to cell-to-cell variation in 
+enzyme expression levels 44 in contrast to the covalent modification system studied by 
+Goldbeter  and  Koshland  12  We  therefore  resolve  the  question  of  how  large 
+spontaneous fluctuations might coexist with a robust mean output in the system 30  We 
+interpret these results in the second part of the paper using a mean-field analytical model 
+to  examine  the  molecular  mechanisms  underlying  these  features  and  their  relation  to 
+receptor clustering 
+Results 
+Numerical model of adaptation dynamics in a chemoreceptor cluster 
+We used the rule-based simulation tool NFsim 45 to create a stochastic model of the 
+bacterial chemotaxis system that accounts for the organization of chemoreceptors into a 
+large dense hexagonal lattice 4  Like the Gillespie algorithm NFsim computes exact 
+stochastic trajectories but avoids the full enumeration of the reaction network which can 
+undergo combinatorial explosion by using rules to generate reaction events 45  In the 
+simulation  each  chemoreceptor  dimer  is  represented  by  an  object  with  one  tether  site 
+one modification site and a methylation level ranging from 0 to 8  We model a single 
+contiguous  lattice  consisting  typically  of  7200  dimers  although  we  consider  different 
+sizes as well  The structure of the lattice is fully specified by enumerating for each dimer 
+its  six  nearest  neighboring  dimers    Receptor  cooperativity  is  modeled  using  Monod-
+Wyman-Changeux MWC complexes consisting of six receptor dimers Fig 1A  The 
+activity a of each signaling complex depends on the methylation and ligand-binding state 
+Fig  1  Adaptation  reactions  on  the  chemoreceptor  lattice    A  Bacterial  chemoreceptors  assemble  into 
+trimers of dimers that organize to form a dense hexagonal lattice  Most chemoreceptors have tether and 
+modification sites  In the model the assistance neighborhood for a given receptor red consists of all the 
+receptors accessible by its tether here taken to be the six nearest dimers light red in addition to itself 
+Groups  of  six  receptor  dimers  switch  cooperatively  between  active  blue  and  inactive  white  states 
+according  to  a  MWC  model    B  Modeled  reactions  between  CheR  and  the  chemoreceptors  with 
+corresponding rates  Binding rates to the modification site depend on the receptor activity a  CheR in the 
+t  and 
+cytoplasmic bulk may bind either the tether or modification site of a receptor blue arrows rates  ar
+m1 a   respectively    Once  bound  to  the  tether  or  modification  site  it  may  respectively  bind  the 
+modification site or tether of itself red arrows rates  ar
+ respectively or any other receptor 
+within its assistance neighborhood green arrows rate  arm 1 a  to bind the neighboring modification site 
+and rate  art
+ to bind the neighboring tether  Black arrows denote unbinding and catalytic steps catalytic 
+m   CheB-P participates in analogous 
+rate kr tether unbinding rate  dr
+reactions    In  the  rates  superscripts  m  and  t  denote  binding  to  the  modification  site  and  tether  site 
+respectively  The subscripts r and b denote CheR and CheB reactions respectively 
+t  modification site unbinding rate  dr
+m1 a  and  ar
+of  the  dimers  in  the  complex  and  is  calculated  from  Eq  13  Methods  as  previously 
+described  2328    The  implementation  of  this  model  in  NFsim  is  discussed  in  the 
+Supporting Text S1   
+Receptor  modification  occurs  through  the  enzymes  CheR  and  CheB  which  are  each 
+modeled as having two binding sites one specific to the receptor tether and one specific 
+to  the  modification  site    In  the  model  CheR  and  CheB  dynamically  bind  and  unbind 
+both of these sites  CheR participates in the reactions illustrated in Fig 1B  The possible 
+states of the enzyme are free and dispersed in the cytoplasmic bulk or bound to one or 
+both of the tether and modification sites  Enzymes in the bulk localize to the cluster by 
+binding either the tether site or the modification site directly  The time scales of these 
+binding reactions Fig 1B blue arrows are the slowest in the present model 15s for 
+localization  through  tether  binding  as  measured  36  and  longer  for  modification  site 
+binding reflecting the lower affinity of enzymes for the modification site  Once bound to 
+the  tether  or  modification  site  an  enzyme  may  bind  the  modification  site  or  tether 
+respectively of the receptor to which it is already bound Fig 1B red arrows or any of 
+its six nearest neighbors green arrows Therefore the assistance neighborhood consists 
+of  seven  dimers  consistent  with  measurements  27    Assistance  neighborhoods  are 
+unique  for  each  receptor  dimer  and  therefore  overlap    Accordingly  in  the  simulation 
+individual receptor dimers participate in multiple assistance neighborhoods  Since these 
+reactions  are  confined  to  small  volumes  given  by  the  5  nm  tether  radius  46  they 
+proceed at high rates 1-10 ms time scales see Text S1  The activity-dependent binding 
+rate of CheR to the modification site is proportional to 1 - a while the rates of all other 
+CheR reactions are taken to be independent of activity  Phosphorylated CheB CheB-P 
+participates  in  completely  analogous  reactions  except  that  the  rate  of  binding  the 
+modification  site  is  proportional  to  a  CheB  phosphorylation  proceeds  at  a  rate 
+proportional to the activity of the receptor cluster Text S1  For simplicity we assume 
+that  only  CheB-P  can  localize  to  the  receptor  cluster  since  its  affinity  for  the  tether  is 
+much higher than that of CheB 47  
+Our study is the first to incorporate enzyme brachiation 37 assistance neighborhoods 
+2838  cooperative  amplification  of  the  input  signal  92223  activity-dependent 
+adaptation kinetics 25 and a large contiguous receptor cluster into a single model  This 
+model  specifically  extends  two  earlier  models    The  first  of  these  models  considered 
+enzyme  brachiation  on  a  large  receptor  cluster  37  but  did  not  include  activity-
+dependent  kinetics  receptor  cooperativity  or  any  modification  of  the  receptors    The 
+second  of  these  models  included  activity-dependent  kinetics  cooperativity  and 
+assistance  neighborhoods  2838  but  excluded  enzyme  brachiation  and  limited  the 
+system size to a single MWC complex consisting of 19 dimers  Here we take advantage 
+of the flexibility and efficiency of NFsim to examine how all of these processes together 
+determine the dynamics of adaptation  
+Calibration of the model parameters is discussed in the Supporting Text S1  Supporting 
+Tables S1 and S2 present the full set of simulation parameters  We note that our model 
+includes only Tar receptors  This choice enabled us to compare our model directly to 
+measurements of the adaptation kinetics 43 performed on cells lacking receptors other 
+than  Tar    These  measurements  were  obtained  by  exposing  cells  to  time-dependent 
+exponential ramps of methyl-aspartate a protocol that we modeled in silico Fig 2A and 
+Fig S2 to verify the calibration of the kinetics of our model  In the remainder of the 
+paper we denote this calibrated model as the reference model M1  
+Distributive methylation leads to precise adaptation  
+Together with the dense organization of the receptor lattice the presence of the tether site 
+on  each  receptor  gives  rise  to  assistance  neighborhoods  27  and  possibly  enzyme 
+brachiation 37   During the brachiation process enzymes successively bind and unbind 
+the tethers and modification sites on different neighboring receptors enabling them to 
+perform  a  random  walk  over  the  lattice  without  returning  to  the  bulk  Both  assistance 
+neighborhoods  and  enzyme  brachiation  should  increase  the  distributivity  of  the 
+methylation  process  meaning  that  sequential  demethylation  events  catalyzed  by  a 
+single enzyme will tend to take place on different receptors  In a distributive scheme 
+Numerical 
+Features 
+Reference model assistance neighborhoods and enzyme 
+brachiation activity-dependent binding kinetics MWC receptor 
+cooperativity 
+Derived from M1 no assistance neighborhoods or enzyme 
+brachiation 
+Derived from M1 less efficient brachiation relative to M1 
+No enzyme tethering or lattice structure activity-dependent 
+binding kinetics MWC receptor cooperativity 
+Derived from B1 by increasing enzyme-receptor affinities 
+Table 1 Summary of numerical models
+therefore an enzyme will tend to modify multiple receptors during its residence time on 
+the cluster  Moreover it will tend to methylate receptors in an even fashion rather than 
+sequentially  modifying  a  single  receptor  until  it  is  fully  demethylated    Since 
+brachiation enables some randomization of enzyme position between methylation events 
+it should lead to a more distributive methylation process   
+To  investigate  how  distributivity  affects  adaptation  we  compared  our  reference  model 
+M1 which includes assistance neighborhoods and brachiation to a model in which the 
+binding  of  tethered  enzymes  to  the  modification  sites  of  neighboring  receptors  and 
+modification  site-bound  enzymes  to  neighboring  tethers  is  not  allowed  denoted  M2 
+Table 1  Disabling these reactions both removes assistance neighborhoods and prevents 
+enzyme  brachiation  As  a  result  methylation  is  more  processive    In  this  scheme  an 
+enzyme remains bound to and modifies only a single receptor during its residence time in 
+the  cluster    This  scheme  increases  the  probability  that  CheR  and  CheB  will  become 
+bound  to  receptors  with  high  or  low  methylation  levels  respectively    Consequently 
+enzymes will tend to have low affinity for their local modification sites and modification 
+will  proceed  in  an  inefficient  manner  compared  to  a  distributive  scheme    In  M2 
+adaptation to both small 5 M and large 1 mM steps of the attractant methyl-aspartate 
+becomes  much  slower  Fig  2B  light  gray  than  in  the  reference  model  M1  Fig  2B 
+black  Precise adaptation is also severely compromised for the large stimulus  
+We  also  consider  the  case  in  which  enzyme  brachiation  is  made  less  efficient  but 
+adaptational assistance is not eliminated  To examine this intermediate model M3 we 
+decreased  the  unbinding  rates  from  the  tether  drb
+  relative  to  M1    As  a  result  more 
+methylation  events  occur  before  an  enzyme  moves  on  the  lattice    This  leads  to  less 
+efficient  brachiation  than  in  M1  but  preserves  assistance  neighborhoods    As  a  result 
+adaptation to the large stimulus is less precise compared to M1 but more precise than M2 
+Fig 2B   
+The  picture  that  emerges  is  that  the  distributivity  of  the  modification  process  is  an 
+important  determinant  of  the  precision  of  adaptation    Adaptational  assistance  and 
+enzyme brachiation increase the distributivity of modification and lead to more precise  
+resulting 
+brachiation 
+CheR 
+already 
+  Compared  are 
+Fig  2  Processive  receptor  methylation 
+compromises  adaptation  and  decreases 
+signaling  noise 
+simulated  models  of 
+the  chemotaxis 
+adaptation  system  M1  with  assistance 
+neighborhoods  and  efficient  brachiation 
+black  traces  M2  with  no  assistance 
+neighborhoods  or  brachiation  light  gray 
+and M3 with assistance neighborhoods but 
+inefficient 
+gray  
+Methylation is more processive in M2 and 
+M3 than in M1  As processivity increases 
+enzymes  become  more 
+highly 
+receptors 
+methylated 
+demethylated 
+CheB  limiting  their  effectiveness  A 
+The  kinetics  of  M1  were  calibrated  by 
+comparison 
+population-level 
+measurements  gray  43        The  model 
+was  exposed  to  simulated  time-varying 
+exponential ramps of methyl-aspartate and 
+steady-state  activity  a0 
+recorded black B Response to small 5 
+M  and 
+large  1  mM  MeAsp  step 
+stimulus at applied at t  200 s as measured 
+by receptor activity at  While all models 
+adapt to the small stimulus top they fail 
+to  adapt  precisely  to  the  large  stimulus 
+bottom    For  the  large  stimulus  higher 
+processivity leads to less precise adaptation 
+with  M1  performing  best  and  M2  worst  
+Activities have been scaled and recentered 
+with  steady-state  values  at  0 
+Increasing  processivity  also  decreases  the 
+magnitude  of  fluctuations  in  at  in  the 
+adapted  state  around  the  mean  value  a0  
+Plotted is the variance aa of at  and the 
+noise  relative  to  the  mean  output  aa0 
+inset for different expression levels of the 
+enzyme CheR  Fluctuations are largest in 
+M1 and smallest in model M2 
+localized 
+adaptation in our model of the full receptor lattice  This result extends previous findings 
+that  the  ability  of  tethered  CheR  and  CheB  to  modify  several  receptors  within  an 
+assistance  neighborhood  is  necessary  for  precise  adaptation  within  a  single  MWC 
+complex  2838  In  our  simulations  as  in  these  previous  studies  increasing  the 
+distributivity of receptor methylation reduces the time CheR and CheB spend bound to 
+highly  methylated  and  demethylated  receptors  respectively  Consequently 
+methylation rate in distributive models is largely independent of the methylation levels of 
+individual receptors resulting in more precise adaptation Additionally demethylation 
+rates  are  higher  than  in  the  more  processive  schemes  because  the  enzymes  spend  less 
+time  interacting  with  receptors  that  are  already  highly  methylated  or  demethylated 
+Indeed plotting the rate of methylation after the step stimulus for the three simulations 
+depicted  in  Fig  2B  bottom  panel  indicates  that  it  is  highest  in  the  most  distributive 
+model M1 Fig S7 and Text S1 
+Distributive methylation leads to large steady-state fluctuations 
+Experiments and modeling efforts strongly suggest that the adaptation mechanism of the 
+bacterial chemotaxis system introduces slow spontaneous fluctuations in the activity of 
+the  receptor-kinase  complex  with  a  standard  deviation  of  5-10  of  the  mean  3339-
+424849  These  fluctuations  are  thought  to  lead  to  long-tailed  distributions  of  run 
+durations  3950  and  may  enhance  navigation  in  shallow  gradients  and  exploration 
+3032333539 Since distributivity affects the kinetics of adaptation it is also likely to 
+affect  the  spontaneous  fluctuations  of  the  system  Fig  2C  compares  the  level  of 
+fluctuation in receptor activity about the unstimulated steady-state level for each model at 
+different  expression  levels  of  CheR    The  model  M1  exhibits  fluctuations  of  the  same 
+order  as  those  measured  experimentally  particularly  at  low  CheR  levels  for  which  the 
+standard deviation a of fluctuations exceeds 7 of the mean activity a0  Notably the 
+magnitude of this noise is reduced when receptor modification is made less distributive in 
+models  M2  and  M3  These  results  suggest  that  the  features  required  for  successful 
+adaptation  assistance  neighborhoods  and  brachiation  also  lead  to  experimentally 
+observed  levels  of  signaling  noise  The  mechanism  underlying  these  relations  will  be 
+discussed in a later section with insights provided by an analytical model  
+Cells within an isogenic wild-type population are known to exhibit significant cell-to-cell 
+variability in the level of signaling noise 3339-41  To what extent does this variability 
+arise from cell-to-cell variability in the expression levels of the chemotaxis proteins  Our 
+simulations of the model M1 indicate that the level of signaling noise is sensitive to the 
+relative amounts of CheR and CheB in the cell Fig 2C  However the multicistronic 
+organization  of  cheR  and  cheB  on  the  chromosome  ensures  that  the  ratio  of  CheR  to 
+CheB  is  approximately  conserved  in  each  cell  within  a  wild-type  population  due  to 
+cotranscription 4451  Therefore variability in signaling noise levels must arise largely 
+from correlated variation in the expression levels of the chemotaxis proteins  Using our 
+stochastic simulation of enzyme dynamics on the receptor lattice M1 we investigated 
+the effects of covarying the number of CheR CheB and chemoreceptors  We sampled 
+cells from across a population in which CheR CheB and chemoreceptor counts all vary  
+Fig 3  Spontaneous output of the bacterial 
+chemotaxis  system 
+  Results  are  from 
+stochastic  simulations  of  a  chemotaxis 
+model M1 with a hexagonal receptor lattice 
+and  explicit  enzyme  tethering  and  the 
+model  B1  with  no  tethering  or  lattice 
+structure    A  We  sampled  representative 
+cells  from  a  population  in  which  the  ratio 
+CheRCheBchemoreceptors  is  maintained 
+but  the  overall  expression  level  varies  
+Stochastic simulation of model M1 black 
+predicts  that  some  cells  in  this  population 
+will  exhibit  especially  large  fluctuations 
+aa0 10  The magnitude of fluctuations 
+increases  sharply  as  the  level  of  protein 
+expression  decreases    Noise  levels  in  M1 
+are significantly larger than in B1 gray at 
+all expression levels  The horizontal axis is 
+normalized 
+common 
+expression  level    B  The  variance aa  of 
+fluctuations in receptor activity is shown as 
+CheR is varied while all other proteins are 
+expressed  at  their  mean  levels 
+variance aa is significantly greater in M1 
+black  diamonds 
+gray 
+  The  model  M1  produces 
+circles 
+exceeding  7  of  the  mean  level  black 
+inset while noise in B1 remains less than 
+3 gray inset  The noise was increased 
+in  B2  by  increasing  the  enzyme-receptor 
+affinities tenfold light gray relative to B1  
+C M1 and the black diamonds and B1 
+gray 
+similar 
+dependence of the mean receptor activity at 
+steady state a0 on CheR count  The model 
+B2  with  higher  enzyme-receptor  affinities 
+exhibits  highly  ultrasensitive  dependence 
+on the CheR count light gray 
+the  most 
+circles 
+in  B1 
+exhibit 
+according to a log-normal distribution Fig S5 obtained from measurements of CheY-
+YFP levels expressed from the native chromosomal locus 44  Mean protein expression 
+levels  were  set  according  to  immunoblotting  measurements  52    To  study  only  the 
+effects  of  concerted  variation  in  protein  levels  we  ignored  intrinsic  noise  thereby 
+preserving the ratio of CheRCheBreceptors  We found that the level of signaling noise 
+varies widely between each sampled cell between 3 and 10 of the mean Fig 3A This 
+degree of variation in signaling noise levels agrees well with measurements performed 
+across  a  wild-type  population  4041    Additionally  we  found  that  cells  with  low 
+expression  levels  of  the  chemotaxis  proteins  are  predicted  to  exhibit  the  large 
+fluctuations 10 of the mean level  Consequently we expect cells with high levels of 
+signaling noise to be present even in populations across which the CheR to CheB ratio is 
+maintained at the single cell level  
+High levels of signaling noise occur around a robust adapted level 
+In  previous  models  of  the  chemotaxis  system  in  which  enzyme  localization  is  not 
+considered the slow spontaneous fluctuations in the activity of the system were traced 
+back to the ultrasensitive nature of the methylation and demethylation reactions which 
+were assumed to operate near saturation 30 This mechanism however is insufficient to 
+explain  the  large  magnitude  of  the  noise  observed  experimentally  in  individual  cells 
+Indeed using a stochastic simulation of a recent representative analytical model Model 
+B1 in which the authors calibrated the rates of methylation-demethylation using direct 
+measurements of the average response of the receptor activity to ramps of attractant 43 
+we observe at most 2-3 relative noise for the individual cell Fig 3B The model B1 
+incorporates activity-dependent binding of the enzymes to the modification sites but does 
+not  consider  any  aspects  of  enzyme  localization  via  tether  binding  Table  1  
+Additionally while this model includes cooperative receptor-receptor interactions using a 
+MWC  model  given  by  Eq  13  as  for  M1  it  considers  neither  the  geometry  of  the 
+receptor  cluster  nor  the  resulting  features  of  adaptational  assistance  and  enzyme 
+brachiation   Higher noise levels can be obtained in this model by increasing the enzyme-
+substrate  affinities  tenfold  Model  B2  These  higher  affinities  however  result  in  a 
+steady-state activity that is ultrasensitive to total enzyme counts Fig 3C light gray  In 
+this  case  the  addition  or  subtraction  of  only  a  few  adaptation  enzymes  in  the  cell  is 
+sufficient to switch the system between the fully active and fully inactive states  This 
+scenario is biologically unacceptable since small fluctuations in gene expression across a 
+population would lead to large numbers of non-functional cells with either fully active or 
+inactive receptors at steady state  Parameter values for models B1 and B2 are given in 
+Tables S4 and S6 
+Interestingly  in  our  model  accounting  for  the  localization  of  enzymes  to  the  receptor 
+cluster  large  fluctuations  around  the  steady  state  activity  are  present  even  though  the 
+mean activity remains relatively robust to changes in enzyme counts  Fig 3B shows the 
+dependence  of  the  steady-state  fluctuations  in  M1  on  total  CheR  count  with  all  other 
+parameters fixed  M1 exhibits activity fluctuations that exceed 7 of the mean value a0 
+for low CheR counts and are significantly larger than those of the model B1 for all CheR 
+values  While the noise level is high the mean receptor activity at steady state a0 is 
+only modestly sensitive to changes in the total CheR count Fig 3C black  The specific 
+features  enabling  the  coexistence  of  large  fluctuations  with  a  robust  steady  state  are 
+discussed in a later section with reference to an analytical model 
+Finally we compare the noise levels predicted by the models M1 and B1 across a cell 
+population    When  cell-to-cell  variability  in  receptor  and  enzyme  counts  is  taken  into 
+account we observe that B1 which does not account for receptor clustering or enzyme 
+localization exhibits insufficiently large fluctuations aa0  4 across the entirety of 
+the  population  Fig  3A    In  contrast  M1  exhibits  levels  of  noise  similar  to  those 
+measured experimentally 334041 as discussed in the previous section  
+Mean-field model with distributive receptor methylation and precise adaptation 
+To  investigate  the  mechanisms  underlying  our  numerical  results  we  constructed  an 
+approximate  model  that  can  be  solved  analytically  Here  we  provide  a  mathematical 
+derivation  of  the  model  Analysis  of  the  adaptation  mechanism  using  this  model  is 
+provided in the next section  
+At the heart of this model is a covalent modification scheme that describes the kinetics of 
+receptor  methylation  by  CheR  and  CheB  similar  in  form  to  previous  models 
+1225305354  In order to modify the receptors however we require that CheR and 
+CheB  be  localized  to  the  receptor  cluster  by  being  bound  to  the  tether  site    In  this 
+treatment CheR may exist in three states free and dispersed in the cytoplasmic bulk R 
+bound only to the tethering site of a receptor R and bound to both the tether site and 
+modification  site  of  receptors   RT     The  notation  for  the  states   Bp Bp
+T   of 
+phosphorylated CheB is analogous Unphosphorylated CheB is assumed not to interact 
+with the receptors and therefore only exists in the bulk B  For simplicity we assume 
+that enzymes in the bulk always bind the higher-affinity tether sites on the receptors prior 
+to  binding  the  modification  sites    Since  the  model  includes  reactions  occurring  in 
+multiple volumes and will later be used for stochastic calculations all molecular species 
+below are quantified by number rather than concentration  Therefore the binding rates as 
+written implicitly include a factor of the inverse of the reaction volume  In the model 
+rate  ap  and  CheB 
+active 
+autodephosphorylates at rate dp leading to dBp dt  apTTotaB dpBp  which we take to be 
+in the steady state yielding  Bp  apTTotaB  dp  We assume that only bulk CheB B Bp 
+participates in the phosphorylation reactions 
+Defining  RTot
+T  as the total number of tether-bound CheR 
+and CheB-P the dynamics of enzymes in the bulk binding to the tether site is modeled by 
+receptor  complexes  phosphorylate  CheB  at  a 
+  R  RT  and  Bp Tot
+tTTotR  dr
+dt RTot
+dt Bp Tot
+tTTotBp db
+ denote the rates of cytoplasmic enzymes binding the tether site and  dr
+Here   ar
+denote the rates of enzymes bound only to the tether unbinding the tether and dispersing 
+into the bulk  Since the number of tether sites greatly exceeds the number of CheR and 
+CheB 52 we assume it to be constant and equal to the total number of receptors TTot  
+Enzymes bound to the tether may bind the modification site according to 
+RT     
+m1 aR  dr
+T                      4 
+dt RT  ar
+T  ab
+in  which  ar
+   are  the  rates  of  a  tether-bound  enzyme  to  bind  the  receptor 
+modification site  dr
+  are the unbinding rates from the modification site and kr kb 
+are  catalytic  rates  for  demethylation  and  methylation  of  the  modification  site 
+respectively  Binding to the modification site is dependent on the activity of the receptor  
+Eqs  3  4  employ  a  mean-field  approximation  by  assuming  that  the  activity  of  the 
+receptor  whose  modification  site  is  to  be  bound  is  equal  to  the  mean  activity  of  all 
+receptors in the cell a  This assumption makes the methylation process in this model 
+fully  distributive    Therefore  the  mean-field  model  represents  the  limit  of  a  single 
+maximally large assistance neighborhood encompassing all receptors or infinitely fast 
+brachiation in which enzymes completely randomize their position on the lattice between 
+methylation events  Relaxing this assumption requires a more detailed analytical model 
+which is explored in the Supporting Text S1 
+Since Eqs 3 4 describe a binding reaction confined to the 5nm radius defined by the 
+tether 46 the kinetics are fast relative to other reactions in the model Text S1  We 
+T dt  0  leading to an expression for the number of enzymes bound 
+take  dRT dt  dBp
+to both tethers and modification sites 
+1aR 
+            6 
+R      
+Here  Kr  and  Kb  are  dimensionless  constants  analogous  to  Michaelis-Menten  constants 
+The rate of change of the total methylation level M of all MWC complexes in the system 
+the total number of methylated receptor sites across all receptors in the cell is 
+dt  kr RT kbBp
+1 aR 
+    7 
+Using Eqs 5-7 we write the equation describing changes in average methylation level 
+per  2N-receptor  MWC  complex  m    M2NTTot  in  the  form  familiar  from  the 
+Goldbeter-Koshland system 123054 
+ 1 a
+Kr 1 a 
+m       8 
+kbBp Tot
+The tether-binding reactions Eqs 1 2 may be rewritten in terms of  RTot
+ and  Bp Tot
+dt RTot
+dt Bp Tot
+Kr 1 a RTot
+Kb  a Bp Tot
+tTTotR  dr
+ r  
+tTTotBp  db
+with  an  activity-dependent  unbinding  step    To  include  variation  around  the  mean 
+Langevin  sources  m  r  b  have  been  added  with  magnitudes  evaluated  using  the 
+linear noise approximation Text S1 5556  The instantaneous output of the system is 
+the fraction of active receptors at  amt Lt with a given by a MWC model Eq 
+13 for some external stimulus Lt Methods 222343  The noise statistics of the 
+output  at  at  steady  state  are  calculated  by  linearizing  the  model  and  solving  it  as  a 
+multivariate  Ornstein-Uhlenbeck  process  Methods  and  Text  S1  5758    Parameter 
+values for the analytical model Tables S1 and S4 were taken to be consistent with those 
+of the stochastic simulation M1 
+Two important features can be noted from the form of Eqs 8-10  First Eqs 9 and 
+10  emphasize  that  unbinding  from  the  receptor  lattice  is  a  two-step  process    Since 
+CheR has higher affinity for the modification site as activity decreases the overall rate of 
+CheR unbinding the lattice and returning to the bulk decreases accordingly  Additionally 
+a  smaller  value  of  Kr  which  denotes  higher  affinity  of  the  localized  enzyme  for  the 
+modification site leads to slower overall rates of unbinding   The argument for CheB-P 
+unbinding is analogous  Second since Eq 8 depends only on the mean activity of the 
+system and not on methylation or stimulus levels the analytical model exhibits precise 
+adaptation  This property follows from the mean field assumption or equivalently the 
+assumption of fully distributive kinetics 
+Using  this  analytical  model  we  next  examine  the  mechanisms  underlying  the  key 
+observations made using numerical simulations and argue that 1 large fluctuations in 
+receptor  activity  are  primarily  due  to  noise  in  localized  enzyme  counts  amplified  by  a 
+methylation process ultrasensitive to these counts 2 a distributive methylation scheme 
+increases  signaling  noise  by  increasing  the  ultrasensitivity  of  this  process  3  the 
+localized  enzymes  work  at  saturation  without  causing  the  mean  activity  to  be 
+ultrasensitive with respect to total enzyme expression levels  This result contrasts with 
+the covalent modification scheme studied by Goldbeter and Koshland 12 
+   -  -  0120-2  1-34 35
+102amplified by -20-2425-2621  
+The analytical model derived above predicts large fluctuations in receptor activity Fig 
+4A  black  similar  to  those  predicted  by  the  stochastic  simulation  M1    This  level  of 
+signaling noise is significantly higher at all CheR levels than the level predicted when 
+enzyme localization is not taken into account Fig 4A gray analytical version of model 
+B1 43 The high level of intracellular signaling noise in this system arises from three 
+key features   
+First since the total numbers of CheR and CheB are small 52 the relative variation in 
+the number of localized enzymes due to Poisson statistics is large  The overall rates of 
+methylation  and  demethylation  are  therefore  highly  variable  in  time    Second  these 
+fluctuations in localized enzyme counts occur at sufficiently slow time scales 36 to not 
+be  filtered  out  by  the  methylation  process    The  possibility  of  slow  fluctuations  in  the 
+number  of  tethered  enzymes  leading  to  increased  fluctuation  in  receptor  activity  was 
+previously noted using a model of a single MWC complex 38  Third the interaction 
+between the localized enzymes and the substrate occurs at saturation  Since the binding 
+of  the  localized  enzymes  to  the  receptor  modification  site  is  activity-dependent  this 
+interaction takes the same form as the covalent modification system studied by Goldbeter 
+and Koshland 12 as can be seen from Eq 8  Therefore we may analyze the localized 
+enzyme-receptor interaction in the same terms  Since a localized enzyme is confined to 
+the  tether  radius  the  effective  local  substrate  concentration  is  high  and  binding  to  the 
+modification site proceeds at a fast rate Therefore Kr Kb  1 and following Goldbeter 
+and  Koshland  the  steady-state  output  a0  has  ultrasensitive  dependence  on  the  ratio  of 
+localized CheR to CheB-P Fig 4B steep curve  This steep relationship suggests that 
+the  output  of  the  system  is  in  general  highly  susceptible  to  changes  in  the  ratio  of 
+localized CheR to CheB-P and consequently fluctuations in this ratio are the primary 
+source of noise in the output  In the limit in which methylation is fast relative to enzyme 
+localization dmdt  0 Eq 8 yields  a  a RTot
+  In this limit receptor activity is 
+a  function  of  only  the  ratio  of  the  localized  adaptation  enzymes  corresponding  to  the 
+steep  curve  of  Fig  4B  Likewise  the  variance  in  receptor  activity  becomes 
+aa  da0 d RTot
+     Therefore  when  the  catalytic  step  is  fast 
+relative to enzyme localization fluctuations in the localized enzyme ratio are amplified 
+by exactly this steep curve  This limit case is relevant for understanding the behavior of 
+our analytic and numerical models in which the rates of enzyme localization are slow 
+relative to all other rates in the system 
+2 var RTot
+ Bp Tot
+ BpTot
+ Bp Tot
+We may also show that fluctuations in the number of localized CheR and CheB are the 
+dominant  noise  sources  in  the  system  without  assuming  dmdt    0    To  illustrate  this 
+point we use the analytical model to decompose the total variance aa of the receptor 
+activity into a sum of three terms each plotted in the inset of Fig 4B  
+aa aar aab aam  
+Fig 4  Large fluctuations arise from the saturated kinetics of localized enzymes A Variance of receptor 
+activity aa  at  steady  state  is  significantly  larger  for  the  analytical  model  with  localization  black  than 
+without localization gray analytical version of model B1 for all values of total CheR RTot  The analytical 
+model  with  localization  inset  black  exhibits  signaling  noise  with aa0  up  to  7  while  noise  in  the 
+model with no localization analytical version of B1 remains at or below 3 of the mean output inset 
+gray  B Mean receptor activity a0 at steady state as a function of CheR to CheB ratio  When plotted as a 
+function of the total CheR to total CheB ratio a0 exhibits a similar relatively robust profile for both the 
+analytical  model  with  localization  black  and  without  localization  gray  analytical  version  of  B1  In 
+contrast the mean receptor activity is ultrasensitive to the ratio of the localized CheR to localized CheB-P 
+counts gray dot-dashed  RTot
+ Inset Variance in receptor activity aa black solid decomposed 
+into components due to fluctuation in localized CheR black dashed localized CheB gray dashed and 
+small  intrinsic  fluctuations  in  the  methylation  rates  gray  dot-dashed  as  in  Eq  11    All  quantities  are 
+plotted as functions of relative RTot C In the stochastic simulation of M1 steady-state activity a0 also has 
+ultrasensitive  dependence  on  the  ratio  of  tethered  CheRCheB-P  gray  despite  the  weak  dependence  on 
+total CheRCheB black  Inset 500 s simulation trace of instantaneous mean receptor activity at black 
+and  instantaneous  localized  CheRCheB-P  gray  smoothed  with  a  30  s  sliding  window  average    D 
+Comparison of the dependence of a0 on localized CheRCheB-P for the simulated models M1 black M2 
+light  gray  and  M3  dark  gray  from  Fig  2    This  dependence  is  significantly  weaker  for  the  more 
+processive models 
+ Bp Tot
+fluctuations due to the number of localized CheR aar those due to number of localized 
+CheB-P  aab  and  fluctuations  due  to  intrinsic  variability  in  the  methylation  and 
+demethylation rates aam  Each contribution aaidepends linearly on the intensity of 
+term  aam is  comparable  to  the  total  noise  predicted  by  models  without  enzyme 
+localization  Fig 4B inset shows that the first two terms on the right hand side of Eq 
+11 dominate to the exclusion of the third confirming that variability in localized CheR 
+and CheB-P is the dominant source of the large fluctuations in receptor activity  
+the corresponding noise source i in Eqs 8-10 aai  i
+  The magnitude of the third 
+This  same  mechanism  underlies  the  observed  large  fluctuations  in  the  stochastic 
+simulation  of  the  model  M1  considered  previously    Fig  4C  shows  mean  activity  a0 
+versus  the  ratio  of  mean  localized  CheR  to  mean  localized  CheB-P  obtained  from 
+simulation  by  varying  only  the  total  CheR  count    As  in  the  analytical  model  this 
+relationship is highly ultrasensitive  To illustrate the dependence between fluctuations in 
+the  localized  enzyme  ratio  and  fluctuations  in  receptor  activity  the  inset  of  Fig  4C 
+displays 500s time traces of receptor activity and the ratio of localized CheR to localized 
+CheB-P taken from simulation  The correlation between the two series is apparent and 
+consistent  with  activity  fluctuations  arising  from  variability  in  the  number  of  tethered 
+enzymes   
+In summary clustering of the receptors leads to a high density of modification sites for 
+the enzymes localized at the cluster This results in saturated ultrasensitive kinetics of the 
+covalent  modification  reactions  which  strongly  amplify  the  noise  due  to  the  slow 
+exchange of enzymes between the cluster and the bulk  
+Relation  between  distributive  receptor  modification  and  high  levels  of  signaling 
+In the analytical model large fluctuations in receptor activity result from the high affinity 
+of localized enzymes for the modification site  Since all receptors in the analytical model 
+are assumed to have the same activity this affinity is entirely characterized by the small 
+values of the constants Kr and Kb  In the numerical models in contrast the binding of 
+enzymes  to  individual  receptor  dimers  within  MWC  complexes  of  varying  levels  of 
+activity  is  explicitly  simulated    Consequently  the  affinity  of  the  enzymes  for  the 
+modification  site  depends  not  just  on  the  values  of  Kr  and  Kb  as  derived  from  the 
+binding unbinding and catalytic rates in the simulation but also on the distribution of 
+CheR  and  CheB  within  complexes  of  different  activities    If  enzymes  tend  to  become 
+localized  within  regions  of  the  cluster  for  which  they  have  low  binding  affinity  eg 
+CheR  within  a  highly  methylated  region  we  expect  the  ultrasensitive  dependence  of 
+activity on the ratio of localized enzymes Fig 4C to be reduced  This effect may be 
+thought of as increasing the effective values of Kr and Kb   
+Adaptational assistance and brachiation mitigate this effect to some extent by enabling 
+localized  enzymes  to  sample  a  number  of  receptors  during  their  residence  time  in  the 
+cluster  A higher rate of sampling indicates that a given enzyme samples a larger fraction 
+of the cluster between subsequent methylation events and therefore corresponds to more 
+distributive  methylation  kinetics    A  potentially  analogous  situation  has  been  studied 
+theoretically for a MAP kinase cascade 13 In this system slowly diffusing enzymes 
+tended  to  rebind  the  same  substrate  molecule  multiple  times  leading  to  a  processive 
+modification scheme  Faster diffusion enabled the enzymes to randomize their positions 
+between  modification  events  corresponding  to  distributive  modification    In  the  MAP 
+kinase study faster diffusion led to an ultrasensitive dependence of the output on enzyme 
+levels  Is a similar mechanism at work in the chemoreceptor cluster 
+For our numerical models we quantified the rates at which enzymes sampled different 
+unique receptors within the cluster and found that this rate was between 4 and 13-fold 
+smaller  for  the  more  processive  models  M2  and  M3  than  for  the  reference  model  M1 
+Table S7 Accordingly the steady-state activity in the more processive models M2 and 
+M3 is also less dependent on the ratio of localized CheR to CheB-P than in M1 Fig 4D  
+Since this relationship effectively amplifies fluctuations in the ratio of localized enzymes 
+this decreased steepness leads to lower signaling noise levels in these more processive 
+models  as  seen  previously  Fig  2C  For  further  details  regarding  the  comparison 
+between simulations and the analytical model see Supporting Text S1  We conclude that 
+a distributive methylation scheme leads to higher signaling noise levels by increasing the 
+overall affinity of the localized enzymes for the modification site substrate 
+Localized  enzymes  may  work  at  saturation  without  compromising  robustness  to 
+cell-to-cell variability in total enzyme expression levels 
+ Bp Tot
+The  mean  steady-state  activity  for  the  analytical  model  with  enzyme  localization  is 
+plotted in Fig 4B as a function of the ratio of both localized and total across the entire 
+cell  adaptation  enzymes  RTot
+  and  RTotBTot    While  the  activity  is  highly 
+ultrasensitive with respect to the localized enzyme ratio its sensitivity to the total enzyme 
+ratio is significantly less and comparable to the model B1  Therefore the mean steady-
+state activity of the system a0 is robust to changes in the total CheR to CheB ratio caused 
+by  noisy  gene  expression    This  result  is  somewhat  surprising  because  in  the  classic 
+covalent modification system studied by Goldbeter and Koshland 12 saturated enzyme-
+substrate  interactions  always  lead  to  a  steady-state  activity  that  is  ultrasensitive  to  the 
+total CheR to CheB ratio  
+In Eq 8 which we may analyze in the same manner as the Goldbeter-Koshland system 
+the sensitivity of the steady-state activity a0 with respect to the ratio of localized CheR to 
+CheB is determined solely by the constants Kr Kb that characterize the probability that a 
+localized enzyme will be bound to a modification site  Small values of these constants 
+lead  to  saturated  kinetics  and  ultrasensitivity  of  the  steady-state  activity  to  the  ratio  of 
+localized  CheR  to  CheB    Our  model  differs  from  the  Goldbeter-Koshland  system 
+however in that in our model these constants only partially determine the sensitivity of a0 
+to the ratio of total CheR to CheB  The sensitivity of the system to the total enzyme ratio 
+is also determined by the rates at which cytoplasmic enzymes localize to the cluster and 
+at which localized enzymes return to the bulk Since the rates  ar
+  at which enzymes 
+localize  to  the  cluster  are  slow  36  the  effective  affinities  of  the  enzymes  for  the 
+modification sites are reduced even though the affinities of enzymes already localized at 
+the cluster are high 
+The  steady-state  solutions  to  Eqs  8-10  quantify  how  the  mean  steady-state  activity 
+depends  on  the  total  enzyme  counts  RTot  and  BTot    Solving  Eqs  9  and  10  for  the 
+localized enzyme counts  RTot
+krRTot 1 a
+ and inserting the results into Eq 8 we obtain 
+tTTot 1 dp apTTota
+ and  BpTot
+Kb 1 db
+Kr 1 dr
+ a  0  
+ 1 a 
+kbBTota
+affinities 
+t TTot 1  
+  Values of 
+inverse 
+tTTot 1dp apTTota
+Eq 12 is also of the Goldbeter-Koshland form which indicates that the steepness of the 
+steady-state activity as a function of the total CheR to CheB ratio is determined by the 
+Kr  Kr 1dr
+effective 
+Kb a   Kb 1db
+Krb 1 lead to ultrasensitivity of 
+the steady-state activity with respect to the ratio RTotBTot  For the steady-state activity to 
+Krb 1    From  this  condition  we  can  see  that  the 
+be  considered  robust  we  require 
+steady-state  a0  can  be  robust  even  if  the  affinity  of  the  localized  enzymes  for  the 
+modification site is extremely high Kr Kb  1  This will be the case if the rates arb
+enzymes in the bulk to reach the cluster and bind the tether are sufficiently small relative 
+to the unbinding rates  drb
+ effectively compensating for the small Kr Kb and leading to 
+Kr b  Kr b dr b
+To  discuss  the  robustness  of  the  bacterial  chemotaxis  system  we  note  three  key 
+considerations    First  we  estimate  that  Kr  Kb    1  due  to  the  fast  rate  of  the  highly 
+localized  enzymes  binding  the  modification  site  Text  S1    Second  we  note  that  the 
+CheB-P  feedback  loop  is  not  by  itself  sufficient  to  make  the  steady-state  robust  to  the 
+Kb   1 dp apTTota   is 
+total  enzyme  ratio    While  the  term  due  to  the  feedback  loop  in 
+greater  than  1  and  therefore  confers  some  degree  of  robustness  for  typical  values  of 
+activity  a    02  or  greater  the  term  is  only  of  order  1  and  therefore  not  sufficient  to 
+compensate  for  small  Kb    Robustness  therefore  likely  arises  from  the  slow  kinetics  of 
+tether  binding    The  final  consideration  is  that  measurements  36  indicate  that  the 
+number  of  cytoplasmic  and  localized  enzymes  are  comparable  and  therefore  that  the 
+forward and reverse rates of Eqs 9 and 10 are roughly equal  This condition not only 
+leads to comparable numbers of localized and cytoplasmic enzymes but also indicates 
+that the rates of tether binding and unbinding fall in the regime in which the steady-state 
+activity is robust to the total number of enzymes  Specifically for CheR requiring the 
+forward 
+yields 
+tTTot  dr
+tTTot  Kr 1 for typical values 
+of  a  03-05  43    The  argument  for  CheB  is  analogous    Satisfying  this  constraint 
+therefore  leads  not  only  to  both  comparable  numbers  of  localized  and  cytoplasmic 
+enzymes but also to a steady-state activity that is robust to the total enzyme ratio  In this 
+of  Eq 
+  leading to  Kr dr
+tKr Kr 1a
+backward 
+tKr 1a
+comparable 
+manner the steady-state of the bacterial chemotaxis system can remain robust even when 
+the localized enzymes operate at saturation 
+Discussion  
+Chemotactic bacteria are able to navigate chemical gradients with strengths ranging over 
+five orders of magnitude 19  This remarkable capability results from the capacity of the 
+system to amplify small input signals while adapting to a wide range of concentrations of 
+persistent  stimulus  The  cooperative  receptor-receptor  interactions  that  amplify  input 
+signals  are  facilitated  by  the  formation  of  large  receptor  clusters  structures  that  are 
+strongly  conserved  across  bacterial  species  5    Adaptation  to  stimulus  requires  the 
+efficient recruitment of cytoplasmic enzymes to these clusters which is achieved through 
+the presence of a high-affinity enzyme-tethering site on most receptors  These tethers 
+together  with  the  dense  structure  of  the  receptor  lattice  give  rise  to  assistance 
+neighborhoods 27 and possibly enzyme brachiation 37  These features increase the 
+distributivity of methylation decreasing the likelihood that enzymes become localized in 
+neighborhoods  within  which  they  have  low  binding  affinity  and  therefore  act 
+inefficiently   
+Building  on  previous  work  that  showed  assistance  neighborhoods  were  necessary  for 
+precise adaptation in a single strongly coupled signaling complex 2838 we found that 
+assistance  neighborhoods  and  enzyme  brachiation  contributed  to  precise  adaptation  to 
+stimulus  We further linked distributive methylation to the presence of signaling noise in 
+the  output  and  showed  how  high  signaling  noise  may  coexist  with  a  mean  level  of 
+receptor activity that is robust to changes in the ratio of the adaptation enzymes  This 
+ratio  is  not  exactly  conserved  across  populations    Consequently  if  the  mean  activity 
+were not sufficiently robust the ultrasensitivity of the flagellar motor 5960 would lead 
+to  a  significant  fraction  of  nonfunctional  cells  permanently  in  the  running  or  tumbling 
+state      This  robustness  to  the  ratio  of  adaptation  enzymes  occurs  even  though  the 
+localized  enzymes  work  in  the  saturated  regime    This  scheme  is  not  possible  for  the 
+simpler  covalent  modification  system  studied  by  Goldbeter  and  Koshland  in  which 
+saturated enzyme kinetics always corresponds to ultrasensitivity to the enzyme ratio  
+The  mechanism  described  here  is  not  necessarily  restricted  solely  to  the  bacterial 
+chemotaxis system  The analytical model presented in this study describes generally an 
+extension  of  the  Goldbeter-Koshland  12  motif  in  which  enzymes  transition  between 
+active and inactive states whether by localization to the substrate prior to modification 
+as  in  the  bacterial  chemotaxis  model  or  by  chemical  activation  of  the  enzyme    This 
+simplified  model  captures  the  essential  features  underlying  large  fluctuations  slow 
+enzyme  activation  relative  to  the  modification  rate  saturated  kinetics  between  the 
+activated enzyme and the substrate and distributive modification  While the kinetics of 
+activated  enzyme  and  substrate  may  be  saturated  the  robustness  of  the  system  to  the 
+overall  expression  levels  of  the  enzymes  may  be  preserved  if  the  enzyme  activation 
+localization  rate  is  sufficiently  small  relative  to  the  deactivation  delocalization  rate 
+The effects of enzyme localization and the relationship between rapid enzyme rebinding 
+and  processivity  have  been  considered  in  studies  of  MAP  kinase  cascades    A  recent 
+study of the mating response in yeast 61 discusses a mechanism in which the kinase 
+Fus3  and  phosphatase  Ptc1  bind  a  docking  site  on  the  substrate  Ste5  prior  to 
+modification 
+  Since  the  docked  enzymes  operate  at  saturation  the  system  is 
+ultrasensitive  to  changes  in  the  number  of  recruited  enzymes  similar  to  the 
+chemoreceptor-enzyme  system  discussed  in  this  work    Unlike  the  chemotaxis  system 
+however yeast exploits these saturated kinetics to produce a switch-like response in the 
+steady state  The theoretical work of Takahashi et al 13 also considers the MAP kinase 
+system  using  it  as  a  model  to  explore  the  role  of  enzyme  diffusion  in  determining 
+whether substrate modification is processive or distributive  The authors conclude that 
+slow diffusion which causes the enzyme to bind and phosphorylate the same substrate 
+molecule repeatedly can effectively convert a distributive mechanism into a processive 
+one reducing the sensitivity of the system  The same effect figures prominently in our 
+model  of  the  bacterial  chemotaxis  system  but  in  the  opposite  regime  in  which  the 
+brachiation process serves to randomize enzyme positions between methylation events  
+Future studies of the bacterial chemotaxis system may further clarify the role of enzyme 
+brachiation  in  adaptation    Different  configurations  of  clustered  receptors  from  that 
+considered here such as less dense clusters that have been shown to reduce cooperativity 
+62 or larger numbers of significantly smaller clusters 63 could hinder the ability of 
+localized enzymes to visit a large number of unique receptors In these cases our results 
+suggest  that  signaling  noise  would  be  reduced  Interestingly  brachiation  may  be 
+particularly important when considering cluster structure within local adaptation models 
+64  In  these  models  receptors  of  different  types  respond  specifically  to  different 
+stimuli  Consequently successful adaptation may depend on the ability of the adaptation 
+enzymes  to  localize  efficiently  to  responsive  receptors  Brachiation  may  be  critical  for 
+such  efficient  localization  particularly  when  considering  the  adaptation  of  low 
+abundance receptors to their specific stimuli    
+introducing  only  minimal  deleterious  effects 
+While  many  systems  benefit  from  minimizing  signaling  noise  studies  of  bacterial 
+chemotaxis have shown that noise may increase the performance of the system in sparse 
+environments  while 
+  In  empty 
+environments  signaling  noise  may  lead  to  faster  cellular  exploration  to  locate  nutrient 
+sources more efficiently 323339  Signaling noise has also been shown theoretically to 
+increase  tracking  performance  in  shallow  gradients  323335    These  results  are 
+consistent with a picture of the chemotaxis system being not purely a signal transduction 
+system  for  which  minimizing  noise  would  typically  be  desirable  but  also  a  feedback 
+system in which the output controls the sampling of the input 
+Methods 
+Receptor activation 
+Since  changes  in  receptor  activity  are  effectively  instantaneous  relative  to  the  slow 
+methylation  kinetics  activation  of  the  receptor  clusters  is  described  by  an  equilibrium 
+MWC model 2223  Clusters in the model are composed of N  6 Tar homodimers  
+The  free  energy  difference  between  the  active  and  inactive  states  of  the  cluster  is 
+decreased by 1 per methylation level and increased by  N log 1 L  K
+the presence of methyl-aspartate attractant L  Then the fraction of active clusters is given 
+ 1 L  K
+1exp 0 1m
+1 L  K
+1 L  K
+with m the methylation level  Parameter values were taken from fits to dose response 
+measurements 43 and reproduced in Table S1  In the stochastic simulation m is taken 
+to  be  the  methylation  level  of  a  single  MWC  signaling  unit  and  am  L  is  used  to 
+calculate the activity of each MWC unit individually  In the analytical model following 
+Shimizu et al 43 m is the average methylation level per receptor cluster and am L is 
+taken to be the average activity of all receptors in the system  
+Signaling properties 
+We  analyze  the  signaling  properties  of  the  model  Eqs  8-10  by  performing  a 
+perturbation  analysis  around  the  steady  state    Small  displacements  in  the  numbers  of 
+chemical  species  x  evolve  according  to  the  linear  system  of  It  stochastic  differential 
+equations 
+dxt  Axtdt  BdWt  
+14          
+in which A is the Jacobian matrix of the system  B is the diffusion matrix and Wt is the 
+multidimensional Wiener process  By the linear noise approximation BTB  S diagv ST 
+with S the stoichiometry matrix and v the propensity vector 5556  The system in Eq 
+14 is a multivariate Ornstein-Uhlenbeck process 57   A has eigenvalues with negative 
+real  components  indicating  the  system  relaxes  to  steady  state  after  perturbation    The 
+steady-state  variance  in  the  output  of  the  system  is  obtained  by  solving  the  Lyapunov 
+equation 
+AAT  BTB  0   15 
+for the covariance matrix   Additional details of the noise calculation are presented in 
+the Supporting Text S1 
+Acknowledgements 
+The  authors  thank  Tom  Shimizu  Yann  Dufour  and  Nicholas  Frankel  for  helpful 
+discussions and comments on the manuscript  
+References 
+1 Bourret RB Borkovich KA Simon MI 1991 Signal transduction pathways involving 
+protein phosphorylation in prokaryotes Annual review of biochemistry 60 401-
+2  Lauffenburger  DA  Linderman  JJ  1993  Receptors  models  for  binding  trafficking 
+and signaling New York Oxford University Press 365 p 
+3  Alley  MR  Maddock  JR  Shapiro  L  1992  Polar  localization  of  a  bacterial 
+chemoreceptor Genes Dev 6 825-836 
+4  Briegel  A  Li  XX  Bilwes  AM  Hughes  KT  Jensen  GJ  et  al  2012  Bacterial 
+chemoreceptor  arrays  are  hexagonally  packed  trimers  of  receptor  dimers 
+networked by rings of kinase and coupling proteins P Natl Acad Sci USA 109 
+3766-3771 
+5  Briegel  A  Ortega  DR  Tocheva  EI  Wuichet  K  Li  Z  et  al  2009  Universal 
+architecture of bacterial chemoreceptor arrays P Natl Acad Sci USA 106 17181-
+17186 
+6 Liu J Hu B Morado DR Jani S Manson MD et al 2012 Molecular architecture of 
+chemoreceptor  arrays  revealed  by  cryoelectron  tomography  of  Escherichia  coli 
+minicells P Natl Acad Sci USA 109 E1481-1488 
+7 Abulrob A Lu Z Baumann E Vobornik D Taylor R et al 2010 Nanoscale imaging 
+of epidermal growth factor receptor clustering effects of inhibitors The Journal 
+of biological chemistry 285 3145-3156 
+8  Bunnell  SC  Hong  DI  Kardon  JR  Yamazaki  T  McGlade  CJ  et  al  2002  T  cell 
+receptor  ligation  induces  the  formation  of  dynamically  regulated  signaling 
+assemblies The Journal of cell biology 158 1263-1275 
+9  Bray  D  Levin  MD  Morton-Firth  CJ  1998  Receptor  clustering  as  a  cellular 
+mechanism to control sensitivity Nature 393 85-88 
+10 Duke TA Bray D 1999 Heightened sensitivity of a lattice of membrane receptors 
+Proc Natl Acad Sci U S A 96 10104-10108 
+11 Bialek W Setayeshgar S 2005 Physical limits to biochemical signaling P Natl Acad 
+Sci USA 102 10040-10045 
+12 Goldbeter A Koshland DE 1981 An Amplified Sensitivity Arising from Covalent 
+Modification in Biological-Systems P Natl Acad Sci-Biol 78 6840-6844 
+13  Takahashi  K  Tanase-Nicola  S  ten  Wolde  PR  2010  Spatio-temporal  correlations 
+can drastically change the response of a MAPK pathway P Natl Acad Sci USA 
+107 2473-2478 
+14 Mugler A Bailey AG Takahashi K ten Wolde PR 2012 Membrane Clustering and 
+the Role of Rebinding in Biochemical Signaling Biophys J 102 1069-1078 
+15  Benichou  O  Chevalier  C  Klafter  J  Meyer  B  Voituriez  R  2010  Geometry-
+controlled kinetics Nat Chem 2 472-477 
+16 Berg HC 2000 Motile Behavior of Bacteria Physics Today 53 24-29 
+17 Wadhams GH Armitage JP 2004 Making sense of it all Bacterial chemotaxis Nat 
+Rev Mol Cell Bio 5 1024-1037 
+18  Sourjik  V  Wingreen  NS  2012  Responding  to  chemical  gradients  bacterial 
+chemotaxis Curr Opin Cell Biol 24 262-268 
+19 Mesibov R Adler J 1972 Chemotaxis toward Amino-Acids in Escherichia-Coli J 
+20 Sourjik V Berg HC 2002 Receptor sensitivity in bacterial chemotaxis P Natl Acad 
+Bacteriol 112 315-326 
+Sci USA 99 123-127 
+21  Sourjik  V  Berg  HC  2004  Functional  interactions  between  receptors  in  bacterial 
+chemotaxis Nature 428 437-441 
+22 Mello BA Tu YH 2005 An allosteric model for heterogeneous receptor complexes 
+Understanding  bacterial  chemotaxis  responses  to  multiple  stimuli  P  Natl  Acad 
+Sci USA 102 17354-17359 
+23 Keymer JE Endres RG Skoge M Meir Y Wingreen NS 2006 Chemosensing in 
+Escherichia coli Two regimes of two-state receptors P Natl Acad Sci USA 103 
+1786-1791 
+24 Yi TM Huang Y Simon MI Doyle J 2000 Robust perfect adaptation in bacterial 
+chemotaxis  through  integral  feedback  control  P  Natl  Acad  Sci  USA  97  4649-
+25 Barkai N Leibler S 1997 Robustness in simple biochemical networks Nature 387 
+26 Alon U Surette MG Barkai N Leibler S 1999 Robustness in bacterial chemotaxis 
+913-917 
+Nature 397 168-171 
+27  Li  MS  Hazelbauer  GL  2005  Adaptational  assistance  in  clusters  of  bacterial 
+chemoreceptors Mol Microbiol 56 1617-1626 
+28 Endres RG Wingreen NS 2006 Precise adaptation in bacterial chemotaxis through 
+assistance neighborhoods P Natl Acad Sci USA 103 13040-13044 
+29 Andrews BW Yi TM Iglesias PA 2006 Optimal noise filtering in the chemotactic 
+response of Escherichia coli Plos Comput Biol 2 e154 
+30  Emonet  T  Cluzel  P  2008  Relationship  between  cellular  response  and  behavioral 
+variability in bacterial chernotaxis P Natl Acad Sci USA 105 3304-3309 
+31  Vladimirov  N  Lovdok  L  Lebiedz  D  Sourjik  V  2008  Dependence  of  bacterial 
+chemotaxis on gradient shape and adaptation rate Plos Comput Biol 4 e1000242 
+32 Matthaus F Jagodic M Dobnikar J 2009 E coli Superdiffusion and Chemotaxis-
+Search Strategy Precision and Motility Biophys J 97 946-957 
+33  Sneddon  MW  Pontius  W  Emonet  T  2012  Stochastic  coordination  of  multiple 
+actuators reduces latency and improves chemotactic response in bacteria P Natl 
+Acad Sci USA 109 805-810 
+34  Zhu  X  Si  G  Deng  N  Ouyang  Q  Wu  T  et  al  2012  Frequency-dependent 
+Escherichia coli chemotaxis behavior Phys Rev Lett 108 128101 
+35 Flores M Shimizu TS ten Wolde PR Tostevin F 2012 Signaling noise enhances 
+chemotactic drift of E coli Phys Rev Lett 109 148101 
+36  Schulmeister  S  Ruttorf  M  Thiem  S  Kentner  D  Lebiedz  D  et  al  2008  Protein 
+exchange dynamics at chemoreceptor clusters in Escherichia coli P Natl Acad Sci 
+USA 105 6403-6408 
+37  Levin  MD  Shimizu  TS  Bray  D  2002  Binding  and  diffusion  of  CheR  molecules 
+within a cluster of membrane receptors Biophys J 82 1809-1817 
+38  Hansen  CH  Endres  RG  Wingreen  NS  2008  Chemotaxis  in  Escherichia  coli  a 
+molecular model for robust precise adaptation Plos Comput Biol 4 e1 
+39 Korobkova E Emonet T Vilar JMG Shimizu TS Cluzel P 2004 From molecular 
+noise to behavioural variability in a single bacterium Nature 428 574-578 
+40 Park H Pontius W Guet CC Marko JF Emonet T et al 2010 Interdependence of 
+behavioural variability and response to small stimuli in bacteria Nature 468 819-
+41  Park  H  Oikonomou  P  Guet  CC  Cluzel  P  2011  Noise  Underlies  Switching 
+Behavior of the Bacterial Flagellum Biophys J 101 2336-2340 
+42  Tu  YH  Grinstein  G  2005  How  white  noise  generates  power-law  switching  in 
+bacterial flagellar motors Phys Rev Lett 94 208101 
+43  Shimizu  TS  Tu  YH  Berg  HC  2010  A  modular  gradient-sensing  network  for 
+chemotaxis in Escherichia coli revealed by responses to time-varying stimuli Mol 
+Syst Biol 6 382 
+44  Kollmann  M  Lovdok  L  Bartholome  K  Timmer  J  Sourjik  V  2005  Design 
+principles of a bacterial signalling network Nature 438 504-507 
+45  Sneddon  MW  Faeder  JR  Emonet  T  2011  Efficient  modeling  simulation  and 
+coarse-graining of biological complexity with NFsim Nat Methods 8 177-183 
+46 Windisch B Bray D Duke T 2006 Balls and chains - A mesoscopic approach to 
+tethered protein domains Biophys J 91 2383-2392 
+47 Kentner D Sourjik V 2009 Dynamic map of protein interactions in the Escherichia 
+coli chemotaxis pathway Mol Syst Biol 5 238 
+48  Ishihara  A  Segall  JE  Block  SM  Berg  HC  1983  Coordination  of  Flagella  on 
+Filamentous Cells of Escherichia-Coli J Bacteriol 155 228-237 
+49  Korobkova  EA  Emonet  T  Park  H  Cluzel  P  2006  Hidden  stochastic  nature  of  a 
+single bacterial motor Phys Rev Lett 96 058105 
+50 Min TL Mears PJ Chubiz LM Rao CV Golding I et al 2009 High-resolution 
+long-term  characterization  of  bacterial  motility  using  optical  tweezers  Nat 
+Methods 6 831-835 
+51  Lovdok  L  Kollmann  M  Sourjik  V  2007  Co-expression  of  signaling  proteins 
+improves robustness of the bacterial chemotaxis pathway J Biotechnol 129 173-
+52  Li  MS  Hazelbauer  GL  2004  Cellular  stoichiometry  of  the  components  of  the 
+chemotaxis signaling complex J Bacteriol 186 3687-3694 
+53 Mello BA Tu Y 2003 Perfect and near-perfect adaptation in a model of bacterial 
+chemotaxis Biophys J 84 2943-2956 
+54 Rao CV Kirby JR Arkin AP 2004 Design and diversity in bacterial chemotaxis A 
+comparative study in Escherichia coli and Bacillus subtilis Plos Biol 2 239-252 
+55 Gillespie DT 2000 The chemical Langevin equation J Chem Phys 113 297-306 
+56 Elf J Ehrenberg M 2003 Fast evaluation of fluctuations in biochemical networks 
+with the linear noise approximation Genome Res 13 2475-2484 
+57 Gardiner CW 2004 Handbook of stochastic methods for physics chemistry and the 
+natural sciences Berlin New York Springer-Verlag 415 p 
+58  Kampen  NGv  2007  Stochastic  processes  in  physics  and  chemistry  Amsterdam 
+New York Elsevier 463 p 
+59 Cluzel P Surette M Leibler S 2000 An ultrasensitive bacterial motor revealed by 
+monitoring signaling proteins in single cells Science 287 1652-1655 
+60 Yuan J Berg HC 2013 Ultrasensitivity of an Adaptive Bacterial Motor Journal of 
+molecular biology 101016jjmb201302016 
+61 Malleshaiah MK Shahrezaei V Swain PS Michnick SW 2010 The scaffold protein 
+Ste5 directly controls a switch-like mating decision in yeast Nature 465 101-105 
+62 Khursigara CM Lan G Neumann S Wu X Ravindran S et al 2011 Lateral density 
+of  receptor  arrays  in  the  membrane  plane  influences  sensitivity  of  the  E  coli 
+chemotaxis response Embo J 30 1719-1729 
+63 Thiem S Kentner D Sourjik V 2007 Positioning of chemosensory clusters in E coli 
+and its relation to cell division Embo J 26 1615-1623 
+64 Lan GH Schulmeister S Sourjik V Tu YH 2011 Adapt locally and act globally 
+strategy  to  maintain  high  chemoreceptor  sensitivity  in  complex  environments 
+Mol Syst Biol 7 475 
+Supporting Text S1 
+Adaptation dynamics in densely clustered chemoreceptors 
+William Pontius12 Michael W Sneddon234 Thierry Emonet12 
+1Department of Physics Yale University New Haven CT USA 
+2Department of Molecular Cellular and Developmental Biology Yale University New Haven CT USA 
+3Interdepartmental Program in Computational Biology and Bioinformatics Yale University New Haven CT USA 
+4Current address Physical Biosciences Division Lawrence Berkeley National Lab Berkeley CA USA 
+NFsim implementation of the receptor lattice model 
+NFsim 1 is a rule-based stochastic simulator of chemical reaction networks built on the 
+BioNetGen  language  2    It  is  designed  to  efficiently  simulate  systems  in  which 
+molecules may exist in large numbers of states and in which these states affect the rates 
+of the reactions in which molecules participate  To illustrate the problem we consider 
+the case of a bacterial chemoreceptor in a MWC signaling complex  The rate of CheR 
+binding to the modification site depends on 1 whether the receptor modification site is 
+occupied by CheR or CheB 2 whether the enzyme active site is occupied by CheR or 
+CheB  3  whether  the  enzyme  is  tethered  to  the  receptor  tethered  to  a  neighboring 
+receptor tethered to a non-neighboring receptor or in the bulk and 4 the methylation 
+level of the signaling complex in which the receptor is located which varies between 0 
+and  48  for  a  complex  of  six  dimers    Accordingly  the  reaction  proceeds  with  a  rate 
+specific to each of the 33449  1764 possible receptor-enzyme states NFsim enables 
+us to fully specify the above model with relatively few explicit reaction rules  Moreover 
+the speed of simulation in NFsim scales nearly independently of the number of possible 
+states 1 
+In  the  simulation  chemoreceptor  dimers  are  specified  by  objects  of  the  form 
+Tmmcastethlochex in which m and mc denote the methylation level 
+of the dimer 0 to 8 and the local MWC cluster 0 to 48 as and teth are binding sites 
+representing the active site and tether respectively and hex and loc are each a 
+series  of  binding  sites  used  to  specify  the  organization  of  the  receptor  lattice    While 
+NFsim does not support spatially resolved simulations we can specify the neighbors of a 
+given dimer by creating bonds between it and all of its neighboring dimers  Fig S1A 
+illustrates how a MWC cluster of six dimers is specified by creating bonds blue lines 
+between the loc sites blue squares on each dimer  Fig S1B illustrates 21 MWC 
+clusters assembled into a hexagonal lattice by specifying bonds red lines between the 
+hex sites red squares of neighboring dimers  All interior dimers are connected to 
+six neighboring dimers  These bonds need not correspond to chemical bonds in the  
+Fig S1 Structuring the chemoreceptor lattice in NFsim  A A MWC signaling complex consisting of two 
+trimers  of  dimers  left  is  specified  by  enumerating  bonds  right  blue  between  a  dimer  and  all  of  its 
+neighbors within the complex B The hexagonal lattice is then structured by enumerating bonds between a 
+given dimer and all of its neighbors in other signaling complexes red  The pictured lattice consists of 21 
+MWC  complexes    All  interior  dimers  have  six  neighbors    The  basic  unit  of  the  lattice  is  the  hexagon 
+consisting of three signaling complexes  We model lattices of equal length and width as specified in terms 
+of this basic hexagonal unit 
+actual system here they are a feature of the simulation language that we use to specify 
+the lattice organization 
+To illustrate reaction rules we consider the reaction in which a tethered CheR binds to 
+the active site of a neighboring receptor  The corresponding rule is 
+Rasteth1Tteth1hex2Ttashex2 -  
+            Ras3teth1Tteth1hex2Ttas3hex2  
+CheR  is  represented  by  the  object  R  with  two  binding  sites  as  and  teth    The  dot 
+notation indicates that two objects are bound and the n notation serves to label distinct 
+bonds    Tt  indicates  that  the  reaction  rate  is  a  function  of  the  state  of  the  object  T 
+referenced as t in the function argument  In this case the reaction rate is a basal binding 
+rate times one minus the activity of t calculated in the simulation by evaluating Eq 13 
+at  the  methylation  level mc  of t    Functionally  defined  rate  laws  are  a  key  feature  of 
+NFsim that in this illustrative case save us from having to define a separate reaction for 
+each value of mc and m 
+For simplicity we have assumed that each dimer has one modification site and one tether 
+site  This simplification should not affect the results significantly since the number of 
+receptors  greatly  exceeds  the  number  of  adaptation  enzymes  3    The  simulation 
+described  in  this  section  and  in  the  main  text  was  used  for  models  M1  M2  and  M3  
+Parameters for these models are given in Tables S1 S2 S6 and are discussed below 
+Implementation of models with no enzyme localization 
+The models B1 and B2 were also simulated using NFsim  MWC signaling complexes 
+were  modeled  as  objects  with  a  methylation  level  ranging  from  0  to  48  and  a 
+modification site for enzyme binding  The activity a was calculated for each signaling 
+complex  using  Eq  13    Binding  of  CheR  and  CheB  to  the  complex  was  taken  to  be 
+proportional to 1 - a and a respectively  Parameters for these models are given in Tables 
+S1 S3 S6  B1 is adapted from an analytical model presented in a previous study 4 
+Parameter values  
+1  Parameter values common to all models 
+Values in Table S1 were taken from experimental measurements presented in previous 
+studies    The  basal  protein  counts  RTot  BTot  TTot  represent  the  mean  counts  per  cell 
+measured  across  a  wild-type  population  by  immunoblotting  3    Parameters  for  the 
+MWC  model  of  Tar  receptor  clusters  0 1  N  K  K  were  obtained  through  FRET 
+measurements  of  kinase  activity  in  response  to  doses  of  the  chemoattractant  methyl-
+aspartate 4  The value of 1 reflects that in Eq 13 am L is written in terms of the 
+mean methylation level m per MWC signaling complex 
+2  Parameter values for numerical models of the receptor lattice and the analytical 
+model with enzyme localization 
+Parameter  values  for  the  adaptation  kinetics  were  chosen  to  agree  with  recent  in vivo 
+measurements  All parameter values for the analytical model with enzyme localization 
+Table S4 are taken to agree with corresponding parameters in the numerical model M1 
+Table S2   The rates of localization of cytoplasmic CheR and CheB-P arb
+ to the  
+Fig S2 Response of the numerical model M1 to time-varying exponential ramps of chemoattractant  We 
+presented the simulated cells with exponential ramps of methyl-aspartate light gray plotted in arbitrary 
+units of rate r shown in each panel and averaged the response in receptor activity over ten trials dark 
+gray    For  each  ramp  receptor  activity  approached  a  steady-state  value  during  stimulus  determined  by 
+exponential fits black to at and plotted in Fig 2A of the main text  Following a recent experiment 4 
+the methyl-aspartate concentration ranged between 0084 and 062 mM 
+receptor cluster were taken from FRAP measurements 5  We interpret these rates to 
+represent enzymatic binding to the high-affinity tether sites  The rates of localization by 
+binding  the  lower-affinity  modification  sites arb
+m  were  taken  to  be  slower    Since  few 
+enzymes localize through this channel their exact values do not affect the predictions of 
+the model significantly   
+Key parameters for the model are Kr and Kb Table S4 which characterize the affinity of 
+tethered enzymes for the modification site and therefore the steepness of the relationship 
+between  receptor  activity  and  the  ratio  of  localized  enzymes  Figs  3B-D    These 
+affinities are related to the rates in model M1 Table S2 via  Krb  drb
+  The 
+values  of  Kr  and  Kb  correspond  to  the  Michaelis-Menten  constants  for  the  enzyme-
+modification site interaction divided by the effective local concentration of the tethered 
+enzyme  Since the tether length is on the nanometer scale these local concentrations are 
+high theoretical estimates based on the tether structure vary from 017mM 6 to 5M 7  
+Given this range of estimates we chose the values of Kr and Kb conservatively ie to be 
+ arb
+m krb
+relatively  large  For  example  assuming  Michaelis-Menten  constants  of  10M  our 
+values of Krb imply an effective local concentration of 033mM  Smaller values of Krb 
+would lead to a stronger dependence of receptor activity on the ratio of localized enzymes 
+and correspondingly higher predictions for the level of signaling noise   
+For given values of the catalytic rates Kr and Kb set the values of the binding rates of 
+tethered  enzymes  to  the  modification  sites  and  the  rates  of  unbinding  from  the 
+modification  sites    Additionally  the  values  of  Krb  constrain  the  values  of  the  tether 
+unbinding rates  drb
+ as discussed in the main text  Suitable choices of these rates ensure 
+that the numbers of cytoplasmic and localized enzymes are comparable 5 and that the 
+steady-state receptor activity is somewhat robust to variations in the expression levels of 
+CheR and CheB  Parameters related to CheB phosphorylation were primarily based on 
+measured values see below 
+Given  values  of  the  above  parameters  the  catalytic  rates  kr  and  kb  of  methylation  and 
+demethylation  were  calibrated  by  comparison  with  the  measured  responses  of  cell 
+populations to exponential time-varying ramps of chemoattractant Figs 2A and S2 Ref 
+4 32C data  Using a CheY-CheZ FRET pair these measurements quantified changes 
+in receptor activity in response to ramps of methyl-aspartate  During stimulus activity 
+tended to reach steady-state values dependent on the speed of the ramp These steady-
+state values were determined by fitting the time trace of activity to an exponential decay 
+Fig  S2    Our  model  agrees  well  with  the  experimental  results  over  a  wide  range  of 
+activity  Fig  2A  but  diverges  for  strong  negative  ramps  because  it  does  not  include 
+nonlinear CheB phosphorylation see below 
+m  ar
+m  which satisfies detailed balance   
+The  remaining  binding  rates  of  Table  S2  were  chosen  to  be  consistent  with  those  
+discussed  above  by  requiring  ar
+3  Parameter values for models without enzyme localization 
+m   ab
+m  ar
+m  ab
+m   ar
+t  ar
+Parameter  values  in  Table  S4  are  used  in  the  analytical  model  without  enzyme 
+localization  and  are  taken  from  a  previous  study  in  which  they  were  calibrated  to  fit 
+experimental  measurements  4    Parameter  values  Table  S5  for  the  numerical 
+implementation of this model B1 were derived from these values 
+Total number of receptor monomers base 
+Total number of CheR base 
+Total number of CheB base 
+Number of receptor dimers per MWC cluster 
+Basal free energy difference active and inactive cluster  
+Free energy change per added methyl group 
+TTot0 
+RTot0 
+BTot0 
+6 units of kBT 
+1 units of kBT  
+MeAsp dissociation constant inactive Tar receptor 
+MeAsp dissociation constant active Tar receptor 
+Table S1 Parameter names and values common to all models 
+00182 mM 
+Bulk CheR binding to tether 
+Bulk CheR binding to modification site 
+Tethered CheR binding modification site same receptor  
+CheR binding tether while attached to mod site same receptor 
+Tethered CheR binding modification site neighboring receptor  
+CheR binding tether while attached to mod site neighboring rec 
+CheR unbinding modification site 
+CheR unbinding tether site 
+CheR catalytic rate 
+Bulk CheB-P binding to tether 
+Bulk CheB-P binding to modification site 
+Tethered CheB-P binding modification site same receptor 
+CheB-P binding tether while attached to mod site  
+Tethered CheB-P binding modification site neighboring receptor  
+CheB-P binding tether while attached to mod site neighboring rec 
+CheB-P unbinding modification site 
+CheB-P unbinding tether site 
+CheB-P catalytic rate 
+CheB phosphorylation rate 
+CheB-P dephosphorylation rate 
+Table S2 Parameter values for stochastic simulation of model M1 with enzyme localization  Rates are 
+designated as in Fig 1B with an r or b subscript to denote rates of CheR and CheB reactions 
+1147 s-1TTot0 
+00245 s-1TTot0
+400 s-1 
+1110 s-1 
+400 s-1 
+1110 s-1 
+93 s-1 
+27 s-1 
+1163 s-1TTot0 
+00245 s-1TTot0 
+400 s-1 
+1000 s-1 
+400 s-1 
+1000 s-1 
+3 s-1 TTot 
+037 s-1 
+CheR catalytic rate 
+CheB catalytic rate  
+CheR unbinding modification site 
+CheB unbinding modification site  
+kr  dr043 TTot 
+CheR binding to modification site 
+kb  db03 TTot 
+CheB binding to modification site  
+Table S3 Parameter values for stochastic simulation of the model B1 with no enzyme localization 
+2N 003 TTotRTot s-1 
+1147 s-1TTot0
+Bulk CheR binding to tether 
+CheR unbinding tether 
+t   1163 s-1TTot0 
+Bulk CheB binding to tether 
+t   5 s-1 
+CheB unbinding tether 
+27 s-1 
+CheR catalytic rate 
+CheB catalytic rate 
+Tethered CheR modification site affinity 
+Tethered CheB modification site affinity 
+ap   3 s-1 TTot 
+CheB phosphorylation rate 
+dp   037 s-1 
+CheB-P dephosphorylation rate 
+Table S4 Parameter values for mean-field analytical model with enzyme localization  All values are 
+derived from values of corresponding parameters in the numerical model M1 Table S2 
+CheR catalytic rate 
+CheB catalytic rate 
+Tethered CheR modification site affinity 
+Tethered CheB modification site affinity 
+Table S5 Parameter values for analytical version of model B1 with no enzyme localization 
+2N 003 TTotRTot s-1 
+2N 003 TTotBTot s-1 
+043 TTot 
+03 TTot 
+Base model 
+Parameters changed from base model 
+m  ar
+t  ab
+m  ab
+t  025s1 
+m  0  
+ar ab increased tenfold 
+Kr Kb increased tenfold 
+B2 analytical 
+B1 analytical 
+Table S6 Changes in parameter values for the derived models M2 M3 and B2 
+CheB phosphorylation 
+CheB is phosphorylated by the kinase CheA  Since only phosphorylated CheB is able to 
+efficiently dock with and demethylate chemoreceptors 5 this arrangement constitutes a 
+negative  feedback  loop    We  implemented  a  simple  CheB  phosphorylation  loop  in  our 
+numerical models M1 M2 M3 and in the analytical model with enzyme localization 
+following previous theoretical studies 8-11  We model CheB phosphorylation through 
+the reaction T  CheB  T  CheB-P with rate ap aT  in which aT is the activity of 
+the  receptor  T    The  rate  of  CheB-P  autodephosphorylation  dp  has  been  measured  by 
+previous  independent  studies  with  excellent  agreement  1213    We  estimated  the 
+maximum phosphorylation rate ap using a simple model that considered CheA CheB and 
+CheY  phosphorylation  Let  active  CheA  autophosphorylate  with  rate  ka  CheA-P  Ap 
+phosphorylate CheY with rate ky  100 M-1 s-1 14 and CheY-P Yp dephosphorylate 
+via CheZ with rate kz  3 s-1 12  Then at steady state 
+aka ATot  Ap
+kyAp YTot Yp
+  kyAp YTot Yp
+  kzYp  
+in which ATot  53 M and YTot  97 M are the total concentrations of CheA and CheY 
+3 for a cell volume of 14 fL 15  Solving these equations with the requirement that Yp 
+ 26 M at a  05 implies that ka  3 s-1 which in turn implies that Ap  02 M  a for 
+most values of a  Since CheA-P phosphorylates CheB with rate 15  M-1 s-1 14 this 
+estimate  implies  that  ap    3  s-1  TTot    In  our  implementation  then  the  fast 
+phosphorylation of CheA is effectively at steady state an approximation that serves to 
+reduce the number of parameters and significantly speed simulation 
+In vivo  measurements  of  activity  as  measured  through  the  CheY-CheZ  interaction  via 
+FRET suggest that the rate of CheB phosphorylation has nonlinear dependence on kinase 
+activity  Specifically this dependence is inferred from 1 significant asymmetry in the 
+rate  of  the  adaptation  response  to  positive  and  negative  step  stimuli  16  2  a  sharp 
+increase in the demethylation rate at high kinase activities measured through stimulation 
+by exponential time-varying ramps of chemoattractant 4  Comparison of results from 
+that  CheB 
+phosphorylation only affects the adaptation kinetics at high activities a  074  Since 
+the molecular processes underlying this nonlinearity are currently unknown we included 
+simpler linear CheB feedback in our models  As a result while our model agrees well 
+with  measurements  over  a  wide  range  of  activities  it  deviates  at  the  highest  activities  
+Fig 2A  These activities are higher than the mean activities of typical unstimulated 
+wild-type cells which are the primary focus of our study 
+Analytical models 
+ramp  stimulus  experiments 
+theoretical  model 
+indicates 
+1  Fluctuations without enzyme localization 
+The model in this section is an analytical treatment of B1  We consider a model of MWC 
+signaling  complexes  each  consisting  of  N   6  receptor  dimers    Let  m  be  the  average 
+methylation  level  per  signaling  complex  varying  between  0  and  8N    We  begin  by 
+studying the dynamics of the total methylation level M  mTTot2N the total number of 
+methyl groups bound to receptors  To the equation of motion for the mean of M we can 
+apply  the  linear  noise  approximation  LNA  directly  to  obtain  a  stochastic  differential 
+equation for the dynamics of M  From this basis we can then calculate fluctuations in 
+both m and the fraction of active receptor clusters a 
+In this model we neglect the localization of the cytoplasmic enzymes with the tether site 
+and simply assume that CheR binds the receptor modification site with affinity 1-aKr 
+and  CheB  binds  with  affinity  aKb    Then  the  number  of  CheR-receptor  complexes  is 
+RTKr and CheB-receptor complexes is BTKb in which R and B are the numbers of free 
+  and  BTot  B 1T   Kb
+krRTotT
+Kr T 
+conservation  of 
+enzymes and T and T are the numbers of inactive and active receptors  Kr and Kb are 
+Michaelis-Menten constants  Then for catalytic rates kr and kb the change in M is given 
+by  dM dt  kr RT Kr kb BT  Kb
+enzymes 
+RTot  R 1T  Kr
+  Using 
+  yields the equation 
+kbBTotT 
+Kb T   
+which has appreared in numerous previous models 
+Using  the  LNA  we  convert  Eq  S2  into  the  stochastic  differential  equation 
+dM  Mdt  DM dW  in which Wt is the Wiener process  The relevant noise intensity 
+krRTotT
+Kr T 
+kbBTotT 
+Kb T   
+Since  we  are  ultimately  considering  small  fluctuations  around  the  steady  state  the 
+quantities appearing in DM are evaluated at their steady-state values   
+To calculate the variation in the fraction of active receptors 
+  T 1 B  Kb TTot  
+we apply Its Lemma to the function am yielding 
+TTot 2N 
+TTot 2N
+2 dt 
+krRTotT
+Kr T dt 
+                                                  
+The derivatives of receptor activity am L Eq 13 of the main text with respect to the 
+methylation level per cluster m may be written in terms of the activity as 
+                                                         2a
+m 1a 1 a
+2a 1 a
+m2 1
+       
+Using Eqs S3-6 and the conservation of receptor number 
+kbBTotT 
+Kb T  dt  DM dW
+2 dt 
+TTot 2N
+        
+Fig S3 Fluctuations in the analytical model with no enzyme localization  The noise level within a narrow 
+range  of  CheR  values  increases  as  the  dependence  of  the  steady-  state  activity  on  CheR  count  becomes 
+steeper A Steady state activity a0 as a function of normalized CheR count for the parameters used in Fig 
+4 gray and with Michaelis-Menten constants Kr and Kb reduced by a factor of 10 black  The latter curve 
+exhibits an extreme dependence on variations in CheR count  B Variance aa and relative noise aa0 
+inset in activity at the steady state as a function of normalized CheR count for original gray and reduced 
+Kr and Kb black Reducing Kr and Kb increases the relative noise level to nearly 5   
+TTot  T 1
+T  1
+Kb T 
+2 DM TTot 2N
+   a 
+ aa Da 2  with  Da  a m
+we can express da in terms of only a and constants  Linearizing the resulting expression 
+around the steady state of a yields an equation of the form d a
+dt  DadW  
+from the which the expression for the relaxation time can be read off  The variance of 
+this process is var a
+2   For receptor 
+activity  a    074  and  the  parameters  in  Table  S4  this  model  is  equivalent  to  a  recent 
+model calibrated from population responses to exponential ramps of attractant 4  For a 
+ 074 that model included a nonlinear CheB-P feedback term which we have neglected 
+here  for  simplicity  and  since  we  are  primarily  interested  in  comparisons  at  lower 
+activities where signaling noise is higher  
+As  previously  discussed  8  the  noise  level aa  increases  with  the  dependence  of  the 
+activity at steady state on the number of CheR a0RTot  In Fig S3A a0RTot is plotted 
+both for the Michaelis-Menten constants in Table S3 and reduced by a factor of 10 Table 
+S6  As known from Goldbeter and Koshland 17 reducing Kr and Kb steepens a0RTot 
+and  correspondingly  increases  the  noise  level  in  activity  Fig  S3B    This  model  with 
+increased affinities corresponds to the numerical model B2 
+2  Fluctuations in the enzyme localization model 
+The  dynamics  of  the  analytical  model  with  enzyme  localization  are  given  by  the 
+stochastic Eqs S8-10 adapted here from the chemical Langevin Eqs 8-10 of the main 
+text   
+ 1a
+Kr 1a 
+tTTotR  dr
+dBp Tot
+tTTotBp  db
+dt  DM dWM  
+dt  DrdWr  
+kbBp Tot
+Kr 1 a RTot
+Kb  a Bp Tot
+dt  DbdWb  
+          S10
+in which Wit are independent Wiener processes  The derivation is given in the main 
+text  Additionally  enzyme  numbers  are  conserved  according  to RTot  R  RTot
+BTot  B  Bp  Bp Tot
+    Applying  Its  lemma  to  Eq  S8  we  find  that  receptor  activity 
+evolves according to 
+ 1a
+Kr 1a dt 
+kbBp Tot
+Kb a dt  DM dW
+2 dt      S11 
+TTot 2N
+The derivatives of activity a with respect to m may be expressed using Eq S6 as in the 
+previous section  Equations S9-11 may then be rewritten in the form 
+dt  BdW   
+dX  F X
+T  and the components of the diffusion matrix B are calculated 
+ Bp Tot
+in which X  a RTot
+by the LNA 1819 
+B  diag 2N
+ 1 a
+Kr 1 a 
+kbBp Tot
+tTTotR  dr
+Kr 1 a RTot
+tTTotBp  db
+Kb  a Bp Tot
+     S13 
+and evaluated at the steady state FX0  0  To consider small deviations x  X - X0 we 
+linearize Eq S12 by calculating the Jacobian A of F  The resulting linear system 
+dx  Axdt  BdW  
+is a multivariate Ornstein-Uhlenbeck process  The steady state variance in the output of 
+the system is obtained by solving the Lyapunov equation 2021 
+AAT  BTB  0   S15 
+for the covariance matrix   The autocorrelation matrix C at steady state may also be 
+calculated by  
+Ct  exp At
+3  Detailed model of enzyme localization 
+The  analytical  model  of  the  previous  section  incorporates  the  features  responsible  for 
+increased signaling noise when enzyme localization and brachiation are included in our 
+simulation  of  the  bacterial  chemotaxis  system    However  it  also  overestimates  the 
+magnitude  of  this  noise    Two  reasons  exist  for  this  overestimate    First  the  model 
+assumes that all receptors are equally accessible to all localized enzymes meaning that 
+methylation is fully distributive  In this picture enzymes bind the receptors for which 
+they have the highest affinity low methylation level for CheR and high methylation level 
+for CheB regardless of the state of the receptor to which they are tethered  The result is 
+an overestimate of the binding affinity of localized enzymes  for the receptor substrate  
+Second  the  previous  analytical  model  does  not  consider  a  distribution  of  methylation 
+levels  Rather  a  m  is evaluated at only a single methylation level corresponding to 
+the mean activity of the system  This approximation tends to overestimate a  m  most 
+significantly  for  systems  with  mean  activity  of  a    05  where  a  m  is  largest  
+Addressing  these  issues  requires  a  model  that  considers  the  dynamics  of  MWC 
+complexes of each methylation level m individually  Additionally the model must track 
+the numbers of enzymes localized to complexes at each methylation level  To tune the 
+processivity of methylation we introduce a parameter  representing the rate at which 
+localized enzymes randomize their position The value   0 corresponds to completely 
+processive  methylation  and  the  limit        corresponds  to  purely  distributive 
+methylation reducing the model to Eqs 8-10 of the main text 
+Let TTot m be the total number of receptor monomers within MWC signaling complexes 
+of  methylation  level  m    Also  let  Rm
+ be  the  number  of  CheR  and  CheB-P 
+localized within clusters of methylation level m but not bound to modification sites  For 
+simplicity we consider only the case of a tethered enzyme binding a modification site in 
+the  same  cluster  that  it  is  localized    This  binding  of  the  modification  site  forms 
+ Tm   The changes in the number of these complexes 
+complexes denoted by  Rm
+due to modification site unbinding and catalysis is then 
+Tm and  Bpm
+  and  Bpm
+Tm  ar
+m 1 am
+dt Bpm
+ Tm  ab
+mamBpm
+ Tm dt  0
+Tm dt  dBpm
+            
+as  in  Eqs  5-7  of  the  main  text
+Taking  the  approximation dRm
+changes in TTot m are given by
+dt TTot0  
+ 1 a0
+dt TTotm 
+1 am1
+ 1 am
+           S18 
+dt TTot8N 
+1 a8N1
+in which the cluster activity am  am L  All parameters are defined in the same manner 
+as those for the previous analytical model given in Table S4
+We now write the analogs of Eqs 1 2 in the main text which here describe the binding 
+and unbinding of cytoplasmic CheR R and CheB-P Bp to tether sites within signaling 
+complexes of methylation level m  The quantities  
+BpTotm
+    S19 
+denote  the  total  numbers  of  localized  enzymes  at  each  methylation  level    These  total 
+localized enzyme counts evolve according to 
+dt RTotm
+tRTTotm  dr
+1 am1
+ 1 am
+ Rm
+  R TTotm
+   S20 
+ TTotm
+dt BpTotm
+                  
+tBpTTotm  db
+ am  Bpm1
+  Bpm
+    S21 
+The first term two terms of the right hand side arise from the binding and unbinding of 
+localized enzymes from the tether site  As in the previous model we here assume the 
+number  of  free  tethers  to  be  large  compared  to  the  number  of  localized  enzymes  and
+therefore  TTotm    The  third  and  fourth  terms  multiplied  by  krbKrb  represent  the 
+localized enzyme demethylating the complex within which it is localized  The last two 
+terms  introduce  a  redistribution  of  localized  enzymes  between  the  receptor  clusters 
+occurring  at  a  rate     The  probability  of  a  given  complex  receiving  a  new  enzyme  is 
+proportional to its relative abundance TTotmTTot
+Molecule counts are conserved according to  
+RTot  R 
+BTot  B  Bp 
+BpTotm
+S22              
+          
+        
+and the overall activity a is calculated according to 
+amTTotm
+the  definitions  R 
+  RTTotm TTot and  Bpm
+In  the  limit        Eqs  S18  S20  S21  reduce  to  Eqs  8-10  of  the  main  text  
+Summing  Eqs  S20  S21  over  m  and  using 
+ reduces them to Eqs 9 10 describing the dynamics of the total number of 
+localized enzymes  To recover Eq 8 we note that as     it follows from Eqs S20 
+S21  that  Rm
+ TTotm TTot     Inserting  these  values  into  Eq 
+S18  and  summing dm  dt  m TTotm TTot
+yields  Eq  8  for am    0    0  and am   
+8N  1 8  This limit corresponds to fully distributive methylation in which localized 
+enzymes are completely redistributed between each methylation event according to the 
+abundances TTotm
+For calculations about the steady state with no stimulus only methylation levels up to m 
+ 16 must be considered since a16 L  0  1 guarantees that CheR will not methylate 
+clusters  beyond  this  limit    Signaling  noise  in  the  overall  activity  a  is  calculated  by 
+linearizing  and  applying  the  linear  noise  approximation  to  Eqs  S18  S20  S21    The 
+variance  in  the  overall  activity  aa  is  calculated  from  the  covariances  of  the  TTotm  
+Results of this calculation for   0 fully processive and   20 s-1  more distributive 
+are  shown  in  Fig  S4    The  more  distributive  model  exhibits  larger  fluctuations  and  a 
+higher affinity of the localized enzymes for the receptor substrate 
+Fig S4 Increasing the distributivity of 
+methylation  in  the  detailed  analytical 
+model Text S1 increases noise and the 
+affinity  of  localized  enzymes  for  the 
+receptor  substrate  A  Variance aa  in 
+overall  activity  as  a  function  of  total 
+CheR  count 
+fully  processive 
+methylation      0  gray  and  more 
+distributive  methylation      20  s-1 
+black  B  The  steady-state  activity  a0 
+as a function of total CheR is similar for 
+both   0 gray and   20 s-1 black  
+C  Steady-state  activity  a0  versus 
+localized  CheRCheB-P  RTot
+ Bp Tot
+is much steeper in the more distributive 
+model with
+gray 
+ 20 s-1 black than
+follows  a 
+representative  cells 
+Fig S5  Estimated distribution of overall chemotaxis 
+protein  expression  levels  in  a  wild-type  population 
+relative  to  the  most  common  expression  level  We 
+from  a 
+sampled 
+population 
+CheRCheBchemoreceptors  is  maintained  while  the 
+log-normal 
+overall  expression 
+distribution 
+representative cells are shown in Fig 3A of the main 
+text  
+points 
+  Signaling  noise 
+levels  for 
+Comparing the dependence of receptor activity on the localized enzyme ratio  
+When calculating the localized CheR to CheB-P ratio for the numerical models Fig 4C 
+D we ignore the population of inert CheR and CheB-P localized respectively within 
+fully methylated or demethylated assistance neighborhoods or for the model M2 lacking 
+assistance neighborhoods tethered to fully methylated or demethylated receptor dimers  
+While these inert enzymes are able to bind the modification sites of the receptors they 
+are  unable  to  participate  in  methylation-demethylation  and  therefore  do  not  affect  the 
+activity of the receptor cluster  This consideration provides the best comparison to Fig 
+4B since the analytical model assumes all bound enzymes will demethylate receptors at 
+the  same  rate  Eq  7    The  population  of  inert  CheR  is  small  for  all  models  but  the 
+fraction of inert CheB is high for the processive models since many receptors are fully 
+demethylated  Fig  S6    We  note  that  since  the  simulated  MWC  complexes  in  the 
+absence of stimulus are half active when the methylation of the complex is m  6 out of 
+a  possible  48  and  almost  fully  active  with  m    12  fully  demethylated  receptors  are 
+common even when the activity of the receptor cluster is high 
+Fig  S6  Mean  fraction  of  inert  CheB-P  tethered 
+within  fully  demethylated  assistance  neighborhoods 
+for  models  M1  black  and  M3  light  gray  or  with 
+fully  demethylated  receptor  dimers  M2  dark  gray 
+versus  total  CheR        These  enzymes  may  bind  the 
+modification sites of receptors but will be unable to 
+demethylate once bound  These enzymes are unable 
+to  affect  the  activity  of  the  receptor  cluster  and  are 
+therefore  not  counted  when  calculating  the  ratio  of 
+localized CheR to CheB-P for Fig 4  Since very few 
+receptors  are  fully  methylated  the  number  of  inert 
+localized  CheR  is  negligible    1  for  all  models  
+This  situation  arises  because  MWC  signaling 
+complexes are highly active even at low methylation 
+levels in the absence of stimulus a  05 for m  6 
+out  of  48  and  a    1  for  m    14    Consequently 
+many receptor dimers are fully demethylated even for 
+cases in which the average receptor activity is high  
+In contrast fully methylated dimers are rare 
+Fig  S7  Average  methylation  level  per  MWC 
+complex as a function of time for numerical models 
+M1  black  M2  light  gray  and  M3  dark  gray 
+during  the  simulations  shown  in  Fig  2B  lower 
+panel  of  the  main  text    A  step  stimulus  of  1  mM 
+MeAsp was presented at 200 s  The most distributive 
+model  M1  displays  the  highest  methylation  rate 
+during the adaptation process 
+Comparing adaptation rates between the numerical models 
+When presented with a large attractant stimulus the numerical models clearly displayed 
+different  rates  of  adaptation  with  the  most  distributive  model  M1  reaching  its  adapted 
+level  of  activity  first  Fig  2B    Fig  S7  shows  the  mean  methylation  level  per  MWC 
+complex versus time for the simulations plotted in Fig 2B which clearly shows that M1 
+black has the highest overall methylation rate during adaptation  We note that since the 
+enzymes in model M3 have lower rates of tether  unbinding 30 more enzymes are 
+localized  to  the  cluster  than  in  M1    This  leads  to  the  slightly  faster  initial  rate  of 
+methylation for M3 compared to M1  This rate however drops due to the processivity 
+of  methylation  in  M3  as  localized  CheR  is  unable  to  escape  from  pockets  of  high 
+methylation  In contrast the methylation rate of the most distributive model M1 remains 
+nearly constant during adaptation 
+CheR sampling rate dimerss 
+CheB-P sampling rate dimerss 
+Table S7 Number of unique dimers visited by localized enzymes per second for the numerical models  
+Higher rates indicate more distributive methylation 
+References 
+1 Sneddon MW Faeder JR Emonet T 2011 Efficient modeling simulation and coarse-
+graining of biological complexity with NFsim Nat Methods 8 177-183 
+2  Faeder  JR  Blinov  ML  Hlavacek  WS  2009  Rule-based  modeling  of  biochemical 
+systems with BioNetGen Methods Mol Biol 500 113-167 
+3  Li  MS  Hazelbauer  GL  2004  Cellular  stoichiometry  of  the  components  of  the 
+chemotaxis signaling complex J Bacteriol 186 3687-3694 
+4  Shimizu  TS  Tu  YH  Berg  HC  2010  A  modular  gradient-sensing  network  for 
+chemotaxis in Escherichia coli revealed by responses to time-varying stimuli Mol 
+Syst Biol 6 382 
+5  Schulmeister  S  Ruttorf  M  Thiem  S  Kentner  D  Lebiedz  D  et  al  2008  Protein 
+exchange dynamics at chemoreceptor clusters in Escherichia coli P Natl Acad Sci 
+USA 105 6403-6408 
+6  Levin  MD  Shimizu  TS  Bray  D  2002  Binding  and  diffusion  of  CheR  molecules 
+within a cluster of membrane receptors Biophys J 82 1809-1817 
+7  Windisch  B  Bray  D  Duke  T  2006  Balls  and  chains  -  A  mesoscopic  approach  to 
+tethered protein domains Biophys J 91 2383-2392 
+8  Emonet  T  Cluzel  P  2008  Relationship  between  cellular  response  and  behavioral 
+variability in bacterial chernotaxis P Natl Acad Sci USA 105 3304-3309 
+9 Kollmann M Lovdok L Bartholome K Timmer J Sourjik V 2005 Design principles 
+of a bacterial signalling network Nature 438 504-507 
+10 Rao CV Kirby JR Arkin AP 2004 Design and diversity in bacterial chemotaxis A 
+comparative study in Escherichia coli and Bacillus subtilis Plos Biol 2 239-252 
+11  Vladimirov  N  Lovdok  L  Lebiedz  D  Sourjik  V  2008  Dependence  of  bacterial 
+chemotaxis on gradient shape and adaptation rate Plos Comput Biol 4 e1000242 
+12 Kentner D Sourjik V 2009 Dynamic map of protein interactions in the Escherichia 
+coli chemotaxis pathway Mol Syst Biol 5 238 
+13 Stewart RC 1993 Activating and inhibitory mutations in the regulatory domain of 
+CheB  the  methylesterase  in  bacterial  chemotaxis  The  Journal  of  biological 
+chemistry 268 1921-1930 
+14 Stewart RC Jahreis K Parkinson JS 2000 Rapid phosphotransfer to CheY from a 
+CheA protein lacking the CheY-binding domain Biochemistry 39 13157-13165 
+15 Sourjik V Berg HC 2002 Binding of the Escherichia coli response regulator CheY 
+to its target measured in vivo by fluorescence resonance energy transfer P Natl 
+Acad Sci USA 99 12669-12674 
+16 Sourjik V Berg HC 2002 Receptor sensitivity in bacterial chemotaxis P Natl Acad 
+Sci USA 99 123-127 
+17 Goldbeter A Koshland DE 1981 An Amplified Sensitivity Arising from Covalent 
+Modification in Biological-Systems P Natl Acad Sci-Biol 78 6840-6844 
+18 Gillespie DT 2000 The chemical Langevin equation J Chem Phys 113 297-306 
+19 Elf J Ehrenberg M 2003 Fast evaluation of fluctuations in biochemical networks 
+with the linear noise approximation Genome Res 13 2475-2484 
+20 Gardiner CW 2004 Handbook of stochastic methods for physics chemistry and the 
+natural sciences Berlin New York Springer-Verlag 415 p 
+21  Kampen  NGv  2007  Stochastic  processes  in  physics  and  chemistry  Amsterdam 
+New York Elsevier 463 p 

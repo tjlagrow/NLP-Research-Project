@@ -1,1826 +1,870 @@
-Language Acquisition in Computers
-Megan Belzner
-Sean Colin-Ellerin
-Jorge H Roman
-belznermitedu
-seancolinelleringmailcom
-jhrlanlgov
-April 2012
-Abstract
-This project explores the nature of language acquisition in computers guided by
-techniques similar to those used in children While existing natural language processing
-methods are limited in scope and understanding our system aims to gain an under-
-standing of language from rst principles and hence minimal initial input The rst
-portion of our system was implemented in Java and is focused on understanding the
-morphology of language using bigrams We use frequency distributions and dierences
-between them to dene and distinguish languages English and French texts were an-
-alyzed to determine a dierence threshold of 55 before the texts are considered to be
-in dierent languages and this threshold was veried using Spanish texts The second
-portion of our system focuses on gaining an understanding of the syntax of a language
-using a recursive method The program uses one of two possible methods to analyze
-given sentences based on either sentence patterns or surrounding words Both methods
-have been implemented in C The program is able to understand the structure of
-simple sentences and learn new words In addition we have provided some suggestions
-regarding future work and potential extensions of the existing program
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Contents
-1 Introduction
-11 History                                       
-Statistical Parsers                             
-112 Other NLP Programs                           
-12 Common Language Properties                          
-121 Bigrams                                  
-122 Recursion                                 
-13 Linguistic Interpretation                             
-14 Project Denition                                 
-2 Morphology
-21 Algorithm                                     
-22 Limitations
-                                   
-23 Results                                       
-3 Syntax
-31 Algorithm                                     
-32 Limitations
-                                   
-33 Results                                       
-4 Analysis
-41 Comparison to Existing Programs                        
-5 Extension
-51 Other Sentence Structures                            
-52 Semantics                                     
-6 Conclusion
-A Sample Texts
-B Morphology Code
-C Syntax Code
-Page 2 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Introduction
-Natural language processing is a wide and varied subeld of articial intelligence The
-question of how best to give a computer an intuitive understanding of language is one with
-many possible answers which nonetheless has not yet been answered satisfactorily Most
-existing programs work only within a limited scope and in most cases it cannot realistically
-be said that the computer actually understands the language in question
-This project seeks to give a computer a truly intuitive understanding of a given language
-by developing methods which allow the computer to learn the language with a minimum of
-outside input on its own terms We have developed methods to teach the computer both
-the morphology and the syntax of a language and have provided some suggestions regarding
-language acquisition at the semantic level
-11 History
-The idea of natural language processing originates from Alan Turing a British computer
-scientist who formulated a hypothetical test known as the Turing Test The Turing
-Test proposes that the question Can machines think can be answered if a computer
-is indistinguishable from a human in all facets of thought such as conversation object
-identication based on given properties and so forth 1 After Turings proposition many
-attempts have been made to create natural language processing software particularly using
-sound recognition which is currently used in cell-phones most prociently in the iPhone
-4S Siri system However most of these programs do not have high-level semantic abilities
-rather they have a very limited set of operations for which keywords are assigned For
-example the Siri system can send an email or text message When told to send an email
-or text message the software uses these keywords to open a blank e-mail or text message
-and when told what is to be written in the e-mail or text message there is no semantic
-Page 3 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-understanding of the message simply a transcription of the words using voice recognition
-2 Similarly there is a lot of software such as LingPipe that is able to determine the origin
-and basic signicance of a term or sentence by searching the terms on a database for other
-uses of the terms These programs do not however gain a semantic understanding of the
-terms rather they simply collect patterns of information with association to the terms
-111 Statistical Parsers
-There have also been some more technical less commercially ecacious attempts at natural
-language processing such as statistical language parsers which have been intricately devel-
-oped by many educational institutions Parsers are a set of algorithms that determine the
-parts of speech of the words in a given sentence Current parsers use a set of human-parsed
-sentences that creates a probability distribution which is then used as a statistical model for
-parsing other sentences Stanford University and the University of California Berkeley use
-probabilistic context-free grammars PCFG statistical parsers which are the most accurate
-statistical parsers currently used with 8636 and 88 accuracy respectively 4 5 The
-dierent parts of speech are separated as in Figure 1
-In Figure 1 NN  noun NP  noun phrase S  subject VP  verb phrase and the
-other symbols represent more specic parts of speech One can see that the parser splits the
-sentence into three parts the subject noun phrase the verb phrase and the noun phrase
-Each of these parts is then split into more parts and those parts into parts nally arriving
-at individual qualications for each word The assignment of a given part of speech for a
-word is determined by tentatively allocating the part of speech that is most probable for
-that word which is then tested within its phrase ie subject noun phrase or verb phrase
-etc and if the probability remains high then that part of speech is set for the word These
-Page 4 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 1 Statistical parser tree 4
-parsers are called context-free because the parse of a word is not aected by the other words
-in the sentence other than those in its phrase while the less accurate parsers obtain an
-overall probability for a sentence and adjust their parsing accordingly 6
-112 Other NLP Programs
-In addition to statistical parsers which only determine the syntax of a sentence some ele-
-mentary programs have been written for evaluating the semantics of a given body of text
-There is a system called FRUMP that organises news stories by nding key words in an
-article that match a set of scripts and then assigns the article to a certain category in
-Page 5 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-which it is grouped with other articles of similar content SCISOR summarizes a given news
-article by analyzing the events utilizing three dierent sets of knowledge semantic knowl-
-edge abstract knowledge and event knowledge As the program sifts through the body
-of text certain words trigger dierent pieces of knowledge which are compiled to gain the
-best understanding of that word or sequence of words The resultant meanings can then be
-organized and rewritten using similar meanings equally balanced among the three sets of
-knowledge as the original piece of information Similarly TOPIC summarizes a given text
-by distinguishing the nouns and noun phrases and then analyzing their meaning through a
-thesaurus-like ontological knowledge base after which the program uses these equivalent
-meanings to rewrite the text 7
-12 Common Language Properties
-Certain elements of language are commonly used both in natural language processing and the
-general analysis of language These properties include bigrams and recursion two properties
-which play a signicant role in this project
-121 Bigrams
-An n-gram is a sequence of n letters The most commonly used forms of n-grams are
-bigrams and trigrams because these oer a specic indication for a set of information without
-signifying extremely rare and complex aspects of the subject A good example of this is the
-use of bigrams in cryptography A common method of decoding a message that has been
-encoded using a keyword like the Vigenere Cipher encryption is to calculate the distance
-in letters between two of the same bigrams in order to determine the length of the keyword
-and then the keyword itself 8 If any n-grams are used where n is greater than or equal
-to 4 or even in some cases if n is equal to 3 then the number of same n-grams for a given
-Page 6 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-message would be very rare and make determining the length of the keyword increasingly
-dicult
-Similarly in natural language processing bigrams are used for word discrimination which
-is the understanding of an unknown word based upon bigram correspondence with a reference
-list of known words In addition word bigrams are used in some lexical parsers the Markov
-Model for bag generation and several text categorization tools 9
-122 Recursion
-The principle of recursion is an essential aspect of human language and is considered one
-of the primary ways in which children learn a language For a sentence with a particular
-pattern a word with a specic part of speech can be exchanged for another word of the same
-part of speech indicating that the two words have the same part of speech For example
-given the sentence The boy wears a hat it can be determined that the and a are the
-same part of speech by reconstructing the sentence as A boy wears the hat In addition
-the word boy can be exchanged for the word girl indicating that these are also the same
-type of word thereby expanding the lexicon of the child
-In addition the words of a sentence can remain unchanged while the pattern changes
-thereby introducing a new part of speech If we have the sentence The boy wears a hat
-or A B C A B if represented as a pattern of parts of speech we can add a D part of
-speech by creating a new sentence The boy wears a big hat A B C A D B The child
-ascertains that big must be a new part of speech because no words have previously been
-placed between an A and a B This method can be repeated for any new part of speech
-as well as embedded clauses such as The boy who is very funny wears a big hat
-Finally recursion can be used to indicate the grammatical structures of a language Let
-us examine the following poem
-Page 7 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-When tweetle beetles ght
-its called
-a tweetle beetle battle
-And when they
-battle in a puddle
-its a tweetle
-beetle puddle battle
-AND when tweetle beetles
-battle with paddles in a puddle
-they call it a tweetle
-beetle puddle paddle battle
-- Excerpt from Dr Seuss Fox in Socks 10
-The author uses the recursive principle to indicate that tweetle beetle can be both a
-noun and an adjective and then repeats this demonstration with puddle and paddle
-Further the correct placement of the new noun acting as an adjective is shown to be between
-the old string of nouns acting as adjectives and the object noun Conversely the poem
-illustrates that a noun acting as an adjective can be rewritten as a preposition and an added
-clause eg a tweetle beetle puddle battle can be rephrased as a tweetle beetle battle in a
-puddle 11 Thus the principle of recursion can allow a child to acquire new vocabulary
-new types of parts of speech and new forms of grammar
-13 Linguistic Interpretation
-There is a basic three-link chain in the structure of language Phonetics is the most basic
-structure which is formed into meaning by units known as words Units are then arranged
-syntactically to form sentences which in turn forms a more extensive meaning formally
-called semantics 12
-It is fundamental in learning a language that a computer understand the connections in
-Page 8 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-the phonetics-syntax-semantics chain and the structure and computations of each with the
-exception of phonetics Phonetics and their formulation can be disregarded because these
-refer more greatly to the connections of the brain to external sounds than the core structure
-of language In fact the entire external world can be ignored as there need not be an infer-
-ence between external objects in their human sensory perception and their representation
-as language formally known as pragmatics or in Chomskyan linguistics as E-language Ex-
-ternal Language Instead the relations between words and meaning intricately augmented
-by the semantics created by their syntactically accurate formed sentences is the only form
-of language necessary denominated contrastingly as I-language Internal Language 12
-Noam Chomsky argues that I-Language is the only form of language that can be studied
-scientically because it represents the innate structure of language 7 Language similar
-to this form can be found in humans who are literate in a language yet can not speak it
-Therefore due to the increase in structure the lack of external representation in natural
-language processing may be more advantageous than one might think
-14 Project Denition
-This project examines the nature of language acquisition in computers by implementing
-techniques similar to those used by children to acquire language We have focused primarily
-on morphology and syntax developing methods to allow a computer to gain knowledge of
-these aspects of language We have developed programs in both C and Java
-Regarding morphology the program is able to analyze the word structure of given lan-
-guages and distinguish between languages in dierent samples of text using bigram frequen-
-cies and we have examined the usefulness and limitations of this method in the context of
-existing methods Using this technique we have developed computationally understandable
-denitions of English French and Spanish morphologies We have also described and par-
-Page 9 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-tially implemented a novel technique for understanding the syntax of a language using a
-minimum of initial input and recursive methods of learning both approximate meanings of
-words and valid sentence structures Finally we provide suggestions for future work regard-
-ing the further development of our methods for understanding syntax as well as potential
-methods for gaining a rudimentary understanding of semantics
-Page 10 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-2 Morphology
-To analyze the morphology of a given language bigrams can be used to dene and compare
-languages Since the frequency distribution of a set of bigrams is unique to a given language
-across a large enough sample text this can be used as an accurate identier of a language
-with minimal eort
-21 Algorithm
-The program was initially developed in C then translated to Java to take advantage
-of non-standard characters and is set up in two main portions The rst step involves
-generating a table of frequency values from a le and the second step is to compare the two
-tables and determine the level of similarity
-To generate a frequency table a two-dimensional numerical array is created from the set
-of valid characters such that the array includes a space for every possible bigram with the
-initial value for each being set to zero For each word from the input le the program checks
-each pair of letters adding one to the corresponding position in the bigram frequency table
-Once the end of the le is reached each frequency count is divided by the total number of
-bigrams found times 100 to give a percentage frequency This process is shown in Figure 2
-This produces an array similar to Table 1 which can be analyzed separately to examine
-common and uncommon bigrams for a given language or compared with another texts table
-to distinguish between languages as detailed below
-After the frequency tables are created for each le the two must be compared to deter-
-mine the level of similarity between the languages of the two les This is done by nding
-the absolute values of the dierences between corresponding frequencies for the two les
-then nding the sum of these dierences as seen in Figure 3
-This gives an approximate measure of how dierent the two les are in terms of the
-Page 11 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 2 Learning morphology with bigrams
-b 0080
-Table 1 Sample of frequency array
-frequency of given bigrams As each language tends to have a unique frequency distribution
-a large net dierence suggests a dierent language for each le while a smaller net dierence
-suggests the same language The threshold dividing a determination of same language or
-dierent language was experimentally determined to be approximately 55
-Figure 3 Calculating morphology dierences between sample texts
-Page 12 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-22 Limitations
-This method does have certain limitations however Since the program deals with bigrams
-though it can be easily made to use n-grams for any n greater than 1 single-letter words
-are not taken into account While this does not have a large overall eect it produces some
-inaccuracies in the analysis of frequencies for a given language
-A more signicant limitation is the requirement that all legal characters be dened
-before the program is run Although it would be relatively straightforward to dynamically
-determine the character set based on the input les this creates issues where the character
-sets for each le are not the same making it dicult if not impossible to accurately compare
-the two les Even ignoring this varying the number of characters may produce variations
-in the threshold used to determine language similarity The program is also eective only
-for les of considerable length to allow for a large enough sample size
-23 Results
-Figure 4 Distribution of English bigrams
-Page 13 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-The program was run using a series of les in English French and Spanish
-Initial
-frequency tables for analysis of individual languages were created using the EU Charter in
-each respective language 13 producing the frequency distributions shown in Figures 4 5
-and 6 for English French and Spanish respectively
-Figure 5 Distribution of French bigrams
-These frequency graphs show that each language has a handful of extremely common
-bigrams in addition to some which appear little or not at all In English this includes
-th and he with percentage frequencies of 29 and 28 respectively along with on and
-ti also both above 25 This data is slightly skewed by the text used though th and
-he are indeed the most common bigrams in English A study conducted using a sample of
-40000 words 14 gave the two frequencies of 15 and 13 respectively though the next most
-common bigrams in the sample text are not as common in the English language as a whole
-as their frequencies here would suggest This is largely due to an inherent bias in the text
-as words such as protection or responsibilities appear frequently in the EU Charter
-French resulted in es and on as the most common bigrams followed by de and
-Page 14 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 6 Distribution of Spanish bigrams
-le In Spanish the most common bigram by far was de followed by cl en er
-and es Again however these likely suer from slight biases due to the nature of the text
-The comparison threshold was initially determined using a series of randomized Wikipedia
-articles of considerable length in English and French The same threshold was also used
-to compare English and Spanish texts and French and Spanish texts with continued high
-accuracy for texts of considerable length showing that this method does not vary notably
-with dierent languages The outputs of these tests are shown in Table 2
-philosophy encyclopedia
-france fr
-capitalism fr
-jazz es nyc es
-philosophy
-encyclopedia
-france fr
-capitalism fr
-jazz es
-nyc es
-Table 2 Sample of sum dierences
-Page 15 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Finally this method was tested with les of varying lengths For the set of two English
-texts which were tested with decreasing word counts the point at which this method was
-no longer accurate was between 400 and 200 words For other les this is likely to vary
-and could be lessened with further ne-tuning of the threshold At a certain point however
-the dierence values begin overlapping due to variation and bias from the words used in the
-text making accuracy impossible
-Page 16 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-3 Syntax
-To analyze the syntax of a language a recursive learning method is implemented using
-C Since the program would ideally require an absolute minimum of initial information
-this method takes a small initial set of words and builds on this by alternately using known
-words to learn new sentence structures and using known sentence structures to learn new
-words as seen below
-cat man has  The man has a cat  The x y a z  The man wore a hat 
-cat man has wore hat
-31 Algorithm
-There are two main elements to understanding the recursive learning system namely un-
-derstanding both how the information is represented and the methods used to analyze new
-information
-The information this program gathers can be split into two pieces information on the
-words themselves and information on valid sentence structures For words the program
-keeps track of the word itself and the words type Only two specic types are dened in
-the program noun and verb and the actual meaning of each is dened by context
-Any word which does not t these denitions is dened relative to these denitions For
-sentences the program keeps track of the number of words in a given sentence pattern and
-the type of the word in each position in an array These structures are shown in Figure 7
-The methods used by the program to analyze new information can also be split into two
-pieces Both methods require that some information is already known about the sentence
-in question but are used in slightly dierent ways The rst method analyzes new words
-based on the structure of the sentence by selecting the most applicable of existing patterns
-Page 17 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 7 Word and sentence pattern datatypes
-based on correspondence with known information The program keeps track of how many
-matches there are between the sentence and the known pattern taking the one with the
-most matches if greater than half the word count and using it to set unknown word types
-This method is seen in Figure 8
-Figure 8 Sentence structure method of learning
-This method is particularly useful for learning new nouns and verbs in situations where
-other words in the sentence are primarily known grammatical particles The other method
-uses the surrounding words to dene the type of any unknown words The program notes the
-types of the words before and after the unknown word and the type of the unknown word
-is then stated as atype of previous word btype of next word For example a word
-with type anoun bverb would be one which tends to come after nouns and before verbs
-Page 18 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-This type could also be analyzed and modied to give further insight into other types of
-words such as adjectives as detailed in Section 51 The program can redene known words
-if new information is found on their positioning using the new denition if it is shorter and
-thus more general than the previous denition This is seen in Figure 9
-This method is best used when most of the nouns and verbs in a sentence are known
-but other words exist which are not known The program would be able to dynamically
-select between the two methods based on what information is already known As a rule the
-program would default to the rst method initially as this is more likely to provide accurate
-results
-Figure 9 Word-based method of learning
-32 Limitations
-With proper development this method could be used to learn many types of sentences
-However it still has several limitations Although it is sucient for simpler grammatical
-constructs complicated words and patterns could cause confusion
-In particular words
-which have multiple meanings with dierent parts of speech would confuse the program
-Page 19 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-tremendously and at present it also has no way of connecting related words such as plural
-or possessive forms of nouns
-In addition this method requires carefully crafted training sentences Although it can
-work with a minimum of initial information unlike most existing systems it still has to learn
-the constructs somewhat sequentially and avoid having too many new concepts introduced
-at once This could be partially remedied by implementing a method by which the program
-stores any sentences it does not yet have the tools to analyze to be recalled later so that a
-more general text could be used as training material
-33 Results
-As a proof of concept for these methods a series of three training sentences were input
-and analyzed by the program to learn a handful of new words and concepts Although the
-program begins with far less information than many existing programs it nonetheless needs
-some initial input - in this case three words which will together with a and the make
-up the initial sentence as seen in Table 3
-Word Type
-Table 3 Initial program input
-The rst sentence input into the program is the man has a hat which is analyzed
-using the word-based second method From here two new words are learned - namely a
-and the which are dened based on the surrounding words The sentence pattern is also
-catalogued and the known information reads as in Table 4
-At present although the must only appear before a noun a is assumed to require a
-Page 20 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-averb bnoun
-5 bnounnounverbaverb bnounnoun
-Table 4 Program knowledge after run one
-preceding verb To correctly dene a the next sentence reads a man has the hat While
-using the same words the two known grammatical particles are reversed The program
-redenes the word a with a more general denition ie simply requires a succeeding noun
-however the denition of the remains the same as the program determines that replacing
-the denition would add more constraints which is counterproductive The sentence pattern
-is again catalogued and the known information reads as in Table 5
-Word Type
-5 bnounnounverbaverb bnounnoun
-5 bnounnounverbbnounnoun
-Table 5 Program knowledge after run two
-Although the two existing sentence patterns are functionally identical and the rst should
-actually be redened as the second both are kept to demonstrate the rst method based on
-sentence patterns For this the sentence the dog ate a biscuit is used having the same
-structure as existing sentences but a dierent set of nouns and verbs Although some matches
-exist with the rst pattern the redenition of a results in only two matches Instead the
-program nds this to be the same as the second sentence pattern as the number of words
-matches as do the types of the words the and a Hence the program denes the unknown
-Page 21 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-words based on this pattern resulting in the set of information shown in Table 6
-Word Type
-biscuit
-5 bnounnounverbaverb bnounnoun
-5 bnounnounverbbnounnoun
-Table 6 Program knowledge after run three
-Page 22 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-4 Analysis
-In this project we have developed methods for allowing a computer to understand and learn
-both the morphology and the syntax of a language Using novel techniques or applications
-we have designed and implemented these methods and tested their capabilities for learning
-language
-Although the use of bigrams in language analysis is not a new idea we have implemented
-it in a novel way by working to develop it as a dening quality and learning mechanism for
-natural language processing The method proves very useful for understanding the mor-
-phology of a language though only to a point It is extremely eective when using a large
-enough sample text but with smaller sample texts it is no longer able to accurately compare
-languages Hence although it creates a computationally eective denition of a language
-its actual ability as a learning mechanism is limited Used in tandem with other methods
-the bigram method could prove extremely powerful
-The recursive learning method implemented for gaining an understanding of syntax proves
-very useful and has great potential to be developed further Both of its submethods work
-with high accuracy for simple sentences and hence it is able to develop a growing model of
-sentence construction Even more particularly it is able to do this with a very small amount
-of initial input and with methods which could be applied to many types of languages
-41 Comparison to Existing Programs
-The use of bigrams to understand and analyze dierent parts of a given language has been
-studied and implemented substantially For example there are programs that calculate
-bigram frequencies to evaluate a languages morphology However unlike our program
-none to date have utilized the dierences in bigram frequencies between two languages to
-distinguish one language from the next
-Page 23 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-The system in the program that was used for determining the parts of speech in a sentence
-has rarely been attempted and when it has been used only partially and in conjunction
-with other methods Most natural language processing programs have been designed to be
-as the ecient and eective as possible As a result many use large banks of initial data
-which the program then analyzes and uses for subsequent input As discussed previously the
-most common and successful programs of this sort are statistical parsers On the contrary
-our program uses the recursive principle to acquire new vocabulary and forms of syntax for
-a given language provided only a very small initial set of data In practice our model only
-required one sentence with verb and noun indicated to determine the parts of speech of all
-other words although not denoting them in linguistic terms article preposition etc as
-well as learn new words and in theory to learn new sentence patterns Despite the extensive
-power of the recursive method it has rarely been used in the history of natural language
-processing The results of our program illustrate the potential abilities of the recursive
-method that have not been seen previously
-Page 24 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-5 Extension
-The program as it stands now can learn and understand a range of language elements
-including morphology and simple sentence patterns However there is still signicant room
-for further exploration both by developing the techniques for learning syntax to allow for a
-more complete range of sentence patterns and by developing methods for a computational
-understanding of semantics
-51 Other Sentence Structures
-In addition to existing sentence structures and constructs the syntax program can learn
-other common constructs Although some may be understandable at present others may
-require some additions to the program to fully understand Below are some examples of
-other simple sentence constructs and how the program would interpret them
-The man has a blue hat
-Here the only unknown word with present knowledge is blue The program at present
-would interpret it using the word-context method resulting in a type of abnoun bnoun
-Continuing in this manner would quickly lead to complications however so the program
-could be extended to understand words based on the form of types which are not nouns or
-verbs The word directly before blue has the type bnoun so blue would be interpreted
-in this manner as a noun resulting in two nouns in a row The program could additionally
-be edited to interpret two like words in a row as a noun phrase or verb phrase which
-would dierentiate adjectives from nouns and adverbs from verbs in a way more intuitive to
-the computer
-The hat is blue
-This sentence presents a dierent use of an adjective eectively in the place of a noun
-Assuming is had been previously learned as a verb this sentence would be more-or-less
-Page 25 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-readily understandable as blue is still interpreted as related to nouns This introduces
-another common sentence construct as well namely that some nouns can appear directly
-after verbs without a bnoun word in between Here it may become worthwhile to add
-some indicator to new nouns about whether they can appear directly after a verb or not
-The man has one hat
-This sentence would introduce numerical words which would be readily understandable
-as bnoun words similar to a or the This is sucient and accurate for most cases
-though as the program expands into semantics this construct may require more specic
-denition
-The man has four hats
-Here the concept of plurality is introduced This sentence would simply be another
-example of the above sentence with regards to syntax alonethe word hats would just
-be considered a new noun However this would likely be the most problematic concept
-regarding semantics Without an external concept of meaning or some other indication
-plurality would have to be learned simply by similarity at the word level In many cases
-this would be sucient such as hats but some words do not follow standard plurality
-rules such as mice versus mouse Similar issues apply to verb tenses though here the
-rules are even less standardized This issue could be at least partially remedied by creating
-an articial semblance of external understanding though this would likely prove dicult as
-Many other sentence constructs are built from these sorts of basic patterns For example
-another common sentence construct involves prepositions such as the sentence the man
-threw the hat in the trash Assuming prior knowledge of the nouns present the program
-could interpret in as verb-like appearing between two noun phrases This is again a
-sucient interpretation in most cases A marker indicating what would eectively be two full
-Page 26 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-constructs could be implemented as well Embedded clauses would be interpreted similarly
-where the program would nd the pattern of the outside clause and then the pattern of
-the inside clause An understanding of punctuation would make such sentences more easily
-interpretable
-Despite some issues the program can currently or with only minor modications un-
-derstand many common sentence constructs using the two main forms of learning and still
-a fairly small amount of initial information The program proves fairly versatile though of
-course not at the full level of human understanding
-52 Semantics
-Semantics is the meanings of words or sentences not only determined by direct denition
-but also by connotation and context To gain a computational understanding of semantics in
-a given language without external representation for words we have devised an associative
-approach For a noun dierent adjectives and verbs can be used when employing the noun
-in a sentence The particular set of adjectives and verbs for that noun are representative of
-the nature of the object A second noun will have some shared verbs and adjectives and
-the degree to which this is true will indicate the similarities of the two objects Conversely
-a verb would be understood based on the dierent objects associated with it especially
-the order of the nouns ie the subjects and objects used with that noun From a set of
-sentences a threshold of similarity could be experimentally determined which would result
-in the categorization of the dierent nouns and verbs The sequence of sentences could be
-as follows
-1 The man wears the big hat
-2 The man throws the small hat
-Page 27 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-hat is known to be something that can be big small worn and thrown
-3 The man throws the big ball
-4 The man bounces the small ball
-ball is like hat in having the ability to be big or small and can be thrown
-however it has not yet be found that it can be worn and hat has not be shown to
-be able to be bounced
-5 The man wears the big shoes
-6 The man throws the small shoes
-shoes is then understood as the same type of object as hat
-7 The man uses the telephone
-8 The man answers the telephone
-Let us stop here because the fundamental logic of the sequence of sentences can now
-be seen Using these characteristics of nouns a complex associative web would be formed
-where objects have meaning based on their relation to a set of other objects which also
-have meaning in relations to another set objects that the rst may not This web may be
-represented visually by a venn diagram similar to the one in Figure 10
-For the verbs wear throw bounce etc the program would interpret the above
-sentences as suggesting that only man can conduct these actions but cannot be the recip-
-ient of these actions while certain nouns can be the recipient of these actions Further it
-should be noted that the training sentences do not require a strict order because a charac-
-teristic of a particular noun would be stored until another noun was found to have the same
-characteristic and the two nouns would then share a link of the web Similarly a verb would
-have tentative subjects and objects associated with it until more were found Nevertheless
-Page 28 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 10 Sample semantic web
-this method is limited by the requirement of large amounts of sentences in order to gain any
-signicant understanding of a given word
-To understand a concept such as time which is essential for semantics and acknowledging
-tenses the program would require some initial specication as well as using a time indicator
-in all sentences referring to the past or present It would start with the conditional parameter
-that if a sentence has the word yesterday ago tomorrow later past or future
-then a time dierent from the current moment is being referenced and the verb used is similar
-to another verb the present form which is the rst form the program learns but with a
-slightly dierent morphology Yet a problem arises because last and next applied in
-lastnext week or lastnext month cannot be used strictly as indicators of time as they
-can be used in other contexts such as He ate the last cookie in the jar or He is next
-in line at the supermarket Thus in certain cases time would present a diculty for the
-semantic understanding of the program The same applies for the use of negation as in the
-Page 29 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-sentence The man is not big whereby not never none no longer and no more
-would have to be explained prior and would result in the noun or verb being categorized as
-dierent from other nouns and verbs with shared associative terms
-In addition the associative method only allows for a denitional understanding of a given
-word which can be substantially limited due to the possible changes in the meaning of a
-word as a result of its context To allow a computer to have an understanding of context
-a system could be implemented to keep track of previously learned information Cognitive
-scientist Marvin Minsky suggests that a series of frames which represent generalized situ-
-ations can be used to represent cognition computationally These general frames could then
-be modied with situation-specic variables 15 This idea could prove useful in natural
-language processing to give a computer an understanding of context For example if a series
-of sentences read John is playing soccer He kicked the ball the program would be able to
-select a general frame which it could use to keep track of relevant variables such as John
-being the subject of this actionhence linking this to the he in the next sentence
-Another issue that might arise is the issue of connotative meaning of words rather than
-merely denotative meaning This is also related to the idea of symbolism another element of
-language which can prove dicult for a computer to understand Here a method similar to
-the associative approach above could be implemented after the initial denotative associations
-were formed Here the training sentences would be ones using symbolism rather than literal
-ones as above If a word is suddenly associated with a word which is not within the proper
-categorization such as a heart of stone it could be interpreted by the computer as a
-connotative association This would allow the computer to examine characteristics related
-only to one or the other hence gaining an understanding of the symbolic associations of
-Page 30 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-6 Conclusion
-Using certain principles of language we have designed a novel method by which a computer
-can gain an intuitive understanding of language rather than simply an articial understand-
-ing We have developed techniques by which a computer can learn and analyze the mor-
-phology of any given language and hence understand dierences between two languages
-We have also developed a recursive learning system for understanding sentence patterns and
-constructs which uses a minimum of initial information At present the program can in-
-terpret many basic sentences and we have also provided possibilities and suggestions for
-extending the capabilities of the program This approach is unique compared to common
-natural language processing systems because of this lack of need for signicant initial in-
-put and its recursive design and could have great potential in the eld of natural language
-processing
-Page 31 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-References
-1 E Reingold The Turing Test University of Toronto Department of Psychol-
-ogy Available at httpwwwpsychutorontocausersreingoldcoursesai
-turinghtml
-2 Learn More About Siri Apple Inc Available at httpwwwapplecomiphone
-featuressiri-faqhtml
-3 LingPipe Alias-I Available at httpalias-icomlingpipe
-4 D Klein and CD Manning Accurate Unlexicalized Parsing In Proceedings of the 41st
-Annual Meeting on Association for Computational Linguistics Vol 1 2003 423430
-5 M Bansal and D Klein Simple Accurate Parsing with an All-Fragments Grammar In
-Proceedings of the 48th Annual Meeting on Association for Computational Linguistics
-2010
-6 E Charniak Statistical Parsing with a Context-Free Grammar and Word Statistics
-In Proceedings of the Fourteenth National Conference on Articial Intelligence AAAI
-PressMIT Press Menlo Park CA 1997 598603
-7 CM Powell From E-Language to I-Language Foundations of a Pre-Processor for the
-Construction Integration Model Oxford Brookes University 2005
-8 R Morelli The Vigenere Cipher Trinity College Department of Computer Science
-Available at httpwwwcstrincolleducryptohistoricalvigenerehtml
-9 HH Chen and YS Lee Approximate N-Gram Markov Model Natural Language Gen-
-eration National Taiwan University Department of Computer Science and Information
-Engineering 1994
-10 Dr Seuss Fox in Socks Available at httpaieecsumichedupeopledreeves
-Fox-In-Sockstxt
-11 MH Christiansen and N Chater Constituency and Recursion in Language In MA
-Arbib The Handbook of Brain Theory and Neural Networks 2nd ed MIT Press Cam-
-bridge MA 2003 267271
-Page 32 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-12 BC Lust Child Language Acquisition and Growth Cambridge University Press Cam-
-bridge UK 2006
-13 The Charter of Fundamental Rights of the European Union European Parliament
-Available at httpwwweuroparleuropaeucharterdefaultenhtm
-14 Digraph Frequency Cornell University Department of Mathematics Available at http
-wwwmathcornelledumec2003-2004cryptographysubsdigraphshtml
-15 M Minsky A Framework for Representing Knowledge In J Haugeland editor Mind
-Design The MIT Press Cambridge MA 1981 95128
-Page 33 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-A Sample Texts
-Sample texts for the morphology-analysis system were primarily selected from randomized
-Wikipedia articles in the respective languages and were selected primarily for length The
-following sample texts were used for testing
-English EU Charter available at httpwwweuroparleuropaeucharterpdftextenpdf
-French EU Charter available at httpwwweuroparleuropaeucharterpdftextfrpdf
-Spanish EU Charter available at httpwwweuroparleuropaeucharterpdftextespdf
-English Wikipedia article on Philosophy available at httpenwikipediaorgwikiPhilosophy
-English Wikipedia article on Encyclopedias available at httpenwikipediaorgwikiEncyclopedia
-English Wikipedia article on Peace Dollars available at httpenwikipediaorgwikiPeace
-dollar
-English Wikipedia article on Bualo Nickels available at httpenwikipediaorgwikiBuffalo
-nickel
-French Wikipedia article on France available at httpfrwikipediaorgwikiFrance
-French Wikipedia article on Capitalism available at httpfrwikipediaorgwikiCapitalisme
-French Wikipedia article on Karl Marx available at httpfrwikipediaorgwikiKarlMarx
-French Wikipedia article on Democracy available at httpfrwikipediaorgwikiDmocratie
-Spanish Wikipedia article on Jazz available at httpeswikipediaorgwikiJazz
-Spanish Wikipedia article on New York City available at httpeswikipediaorgwikiNew
-YorkCity
-Spanish Wikipedia article on the Sassanid Empire available at httpeswikipediaorgwiki
-Imperiosasnida
-Spanish Wikipedia article on the Crown of Castile available at httpeswikipediaorgwiki
-CoronadeCastilla
-Page 34 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-B Morphology Code
-package ngrams 
-import java  io  B u f f e r e d R e a d e r 
-import java  io  File 
-import java  io  F i l e W r i t e r 
-import java  io  I O E x c e p t i o n 
-import java  io  I n p u t S t r e a m R e a d e r 
-import java  io  P r i n t W r i t e r 
-import java  util  Scanner 
-public class Ngrams 
- Main program
-public static void main  String  args  throws I O E x c e p t i o n 
-String file1     file2    
-float diff  0  Total f r e q u e n c y d i f f e r e n c e between two files
-char  alpha  aaaabccdeeeeefghijklmnoo
-pqrstuuuuvwxyyz  Valid c h a r a c t e r s
-System  out  print   Input First File Name   
-file1  read  file1   Reads text from file
-System  out  print   Input Second File Name   
-file2  read  file2 
-float bi1   count  file1  alpha   Creates f r e q u e n c y table for file
-float bi2   count  file2  alpha 
- C a l c u l a t e s total f r e q u e n c y d i f f e r e n c e
-for  int i  0 i  alpha  length  i 
-for  int j  0 j  alpha  length  j 
-diff  Math  abs  bi1  i  j  - bi2  i  j 
-System  out  println  diff 
-if  diff  55  E x p e r i m e n t a l l y d e t e r m i n e d t h r e s h o l d
-System  out  println   Same L a n g u a g e  
-System  out  println   D i f f e r e n t L a n g u a g e  
- Create f r e q u e n c y tables
-public static float  count  String file  char  alpha 
-throws I O E x c e p t i o n   2 - d f r e q u e n c y table of all p o s s i b l e bigrams
-float bigram   new float  alpha  length  alpha  length 
-for  int i  0 i  alpha  length  i 
-for  int j  0 j  alpha  length  j 
-bigram  i  j   0  I n i t i a l i z e with f r e q u e n c y 0
-int a  alpha  length 1  b  alpha  length 1
-float total  0  Total number of bigrams
-Scanner in  new Scanner  new File  file    txt  
-while  in  hasNext    S      Read file word by word
-Page 35 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-String word  in  next    S   
-word  t o L o w e r C a s e 
-for  int k  0 k  word  length  -1 k 
-  For each pair of letters
-a  alpha  length 1
-b  alpha  length 1
-for  int m  0 m  alpha  length  m 
-  Locates each letter within alpha list
-if  word  charAt  k   alpha  m 
-a  m 
-if  word  charAt  k 1  alpha  m 
-b  m 
-if  a  alpha  length  b  alpha  length 
-  Adds valid bigrams to f r e q u e n c y list
-bigram  a  b 
-total 
- Create new file with f r e q u e n c y table
-P r i n t W r i t e r out  new P r i n t W r i t e r  new F i l e W r i t e r  file   tab  csv  
-for  int p  0 p  alpha  length  p  
-for  int q  0 q  alpha  length  q  
-bigram  p  q    bigram  p  q   total   100
- Convert to decimal f r e q u e n c y
-out  print  bigram  p  q 
-out  print    
-out  print    n  
-out  close 
-return bigram 
- Read text from file
-public static String read  String str  
-String str2    
-B u f f e r e d R e a d e r read  new B u f f e r e d R e a d e r  new I n p u t S t r e a m R e a d e r  System  in 
-str2  read  r e a d L i n e 
- catch  I O E x c e p t i o n ioe  
-System  out  println   Error  Cannot Read Input  n  
-read  str 
-return str2 
-Page 36 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-C Syntax Code
-To begin types must be created and initial input dened and the sentence must be divided
-into its component words which are checked against known information
- Type d e f i n i t i o n s
-struct word 
-string word 
-string type 
- list 50
-struct pattern 
-int wcount 
-string patt 10
- list2 10
- Initial input - First word must be  NULL  to avoid errors
-list 0 word   NULL  
-list 0 type   NULL  
-list 1 word   has  
-list 1 type   verb  
-list 2 word   hat  
-list 2 type   noun  
-list 3 word   man  
-list 3 type   noun  
- Split s e n t e n c e into c o m p o n e n t words
-for  i  0 i  sen  length  i  
-if  sen  at  i  
-s e n  c o u n t 
-for  i  0 i  sen  length  i  
-if  sen  at  i  
-words  pos   sen  substr  temp i - temp 
-temp  i 1
-pos 
- Find words in  list  array
-num2  num 
-for  i  0 i  s e n  c o u n t  i    For each word
-for  j  0 j  num  j  
-if  words  i   list  j  word  
-inarray  i   j   For known words  track p o s i t i o n
-if  inarray  i   0 
-inarray  i   num2   For unknown words  set new p o s i t i o n
-num2 
-Page 37 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Unknown words are then dened using either the word-context method
- For words not in  list  array  define
- Define unknown words by s u r r o u n d i n g words
-for  i  0 i  s e n  c o u n t  i    For each word
-if  inarray  i   num 
-  If unknown  p o s i t i o n will be greater than num  number of words 
-list  inarray  i  word  words  i 
-list  inarray  i  type    
-if  i  0  If not the first word in the s e n t e n c e
-list  inarray  i  type 
-list  inarray  i  type   a   list  inarray i -1 type    
-if  i  sencount -1  If not the last word in the s e n t e n c e
-list  inarray  i  type 
-list  inarray  i  type   b   list  inarray  i 1 type    
-else if  list  inarray  i  type   noun  
-list  inarray  i  type   verb  
-  If known  but not a noun or verb  checks if should be r e d e f i n e d
-t y p e  t e m p    
-if  i  0
-t y p e  t e m p  t y p e  t e m p   a   list  inarray i -1 type    
-if  i  sencount -1
-t y p e  t e m p  t y p e  t e m p   b   list  inarray  i 1 type    
-if  t y p e  t e m p  length   list  inarray  i  type  length 
- The shorter one is the type
-list  inarray  i  type  t y p e  t e m p 
-num  num2   Reset known number of words
- Create new s e n t e n c e pattern
-list2  runs  wcount  s e n  c o u n t 
-for  i  0 i  s e n  c o u n t  i    For each word
-list2  runs  patt  i   list  inarray  i  type 
-Or by the sentence pattern method
- Define unknown words by s e n t e n c e s t r u c t u r e
-for  j  0 j  2 j    For each e x i s t i n g pattern
-matches  0
-for  i  0 i  s e n  c o u n t  i    For each word
-if  inarray  i   num 
-if  list  inarray  i  type  list2  j  patt  i 
-matches 
-Page 38 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-if  s e n  c o u n t  list2  j  wcount   If word counts match
-matches 
-if  matches  s e n  c o u n t 2
-  If enough matches exist  unknown words are defined
-for  i  0 i  s e n  c o u n t  i  
-if  inarray  i   num  
-list  inarray  i  word  words  i 
-list  inarray  i  type  list2  j  patt  i 
-num  num2   Reset known number of words
-Page 39 of 39
-Language Acquisition in Computers
-Megan Belzner
-Sean Colin-Ellerin
-Jorge H Roman
-belznermitedu
-seancolinelleringmailcom
-jhrlanlgov
-April 2012
-Abstract
-This project explores the nature of language acquisition in computers guided by
-techniques similar to those used in children While existing natural language processing
-methods are limited in scope and understanding our system aims to gain an under-
-standing of language from rst principles and hence minimal initial input The rst
-portion of our system was implemented in Java and is focused on understanding the
-morphology of language using bigrams We use frequency distributions and dierences
-between them to dene and distinguish languages English and French texts were an-
-alyzed to determine a dierence threshold of 55 before the texts are considered to be
-in dierent languages and this threshold was veried using Spanish texts The second
-portion of our system focuses on gaining an understanding of the syntax of a language
-using a recursive method The program uses one of two possible methods to analyze
-given sentences based on either sentence patterns or surrounding words Both methods
-have been implemented in C The program is able to understand the structure of
-simple sentences and learn new words In addition we have provided some suggestions
-regarding future work and potential extensions of the existing program
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Contents
-1 Introduction
-11 History                                       
-Statistical Parsers                             
-112 Other NLP Programs                           
-12 Common Language Properties                          
-121 Bigrams                                  
-122 Recursion                                 
-13 Linguistic Interpretation                             
-14 Project Denition                                 
-2 Morphology
-21 Algorithm                                     
-22 Limitations
-                                   
-23 Results                                       
-3 Syntax
-31 Algorithm                                     
-32 Limitations
-                                   
-33 Results                                       
-4 Analysis
-41 Comparison to Existing Programs                        
-5 Extension
-51 Other Sentence Structures                            
-52 Semantics                                     
-6 Conclusion
-A Sample Texts
-B Morphology Code
-C Syntax Code
-Page 2 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Introduction
-Natural language processing is a wide and varied subeld of articial intelligence The
-question of how best to give a computer an intuitive understanding of language is one with
-many possible answers which nonetheless has not yet been answered satisfactorily Most
-existing programs work only within a limited scope and in most cases it cannot realistically
-be said that the computer actually understands the language in question
-This project seeks to give a computer a truly intuitive understanding of a given language
-by developing methods which allow the computer to learn the language with a minimum of
-outside input on its own terms We have developed methods to teach the computer both
-the morphology and the syntax of a language and have provided some suggestions regarding
-language acquisition at the semantic level
-11 History
-The idea of natural language processing originates from Alan Turing a British computer
-scientist who formulated a hypothetical test known as the Turing Test The Turing
-Test proposes that the question Can machines think can be answered if a computer
-is indistinguishable from a human in all facets of thought such as conversation object
-identication based on given properties and so forth 1 After Turings proposition many
-attempts have been made to create natural language processing software particularly using
-sound recognition which is currently used in cell-phones most prociently in the iPhone
-4S Siri system However most of these programs do not have high-level semantic abilities
-rather they have a very limited set of operations for which keywords are assigned For
-example the Siri system can send an email or text message When told to send an email
-or text message the software uses these keywords to open a blank e-mail or text message
-and when told what is to be written in the e-mail or text message there is no semantic
-Page 3 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-understanding of the message simply a transcription of the words using voice recognition
-2 Similarly there is a lot of software such as LingPipe that is able to determine the origin
-and basic signicance of a term or sentence by searching the terms on a database for other
-uses of the terms These programs do not however gain a semantic understanding of the
-terms rather they simply collect patterns of information with association to the terms
-111 Statistical Parsers
-There have also been some more technical less commercially ecacious attempts at natural
-language processing such as statistical language parsers which have been intricately devel-
-oped by many educational institutions Parsers are a set of algorithms that determine the
-parts of speech of the words in a given sentence Current parsers use a set of human-parsed
-sentences that creates a probability distribution which is then used as a statistical model for
-parsing other sentences Stanford University and the University of California Berkeley use
-probabilistic context-free grammars PCFG statistical parsers which are the most accurate
-statistical parsers currently used with 8636 and 88 accuracy respectively 4 5 The
-dierent parts of speech are separated as in Figure 1
-In Figure 1 NN  noun NP  noun phrase S  subject VP  verb phrase and the
-other symbols represent more specic parts of speech One can see that the parser splits the
-sentence into three parts the subject noun phrase the verb phrase and the noun phrase
-Each of these parts is then split into more parts and those parts into parts nally arriving
-at individual qualications for each word The assignment of a given part of speech for a
-word is determined by tentatively allocating the part of speech that is most probable for
-that word which is then tested within its phrase ie subject noun phrase or verb phrase
-etc and if the probability remains high then that part of speech is set for the word These
-Page 4 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 1 Statistical parser tree 4
-parsers are called context-free because the parse of a word is not aected by the other words
-in the sentence other than those in its phrase while the less accurate parsers obtain an
-overall probability for a sentence and adjust their parsing accordingly 6
-112 Other NLP Programs
-In addition to statistical parsers which only determine the syntax of a sentence some ele-
-mentary programs have been written for evaluating the semantics of a given body of text
-There is a system called FRUMP that organises news stories by nding key words in an
-article that match a set of scripts and then assigns the article to a certain category in
-Page 5 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-which it is grouped with other articles of similar content SCISOR summarizes a given news
-article by analyzing the events utilizing three dierent sets of knowledge semantic knowl-
-edge abstract knowledge and event knowledge As the program sifts through the body
-of text certain words trigger dierent pieces of knowledge which are compiled to gain the
-best understanding of that word or sequence of words The resultant meanings can then be
-organized and rewritten using similar meanings equally balanced among the three sets of
-knowledge as the original piece of information Similarly TOPIC summarizes a given text
-by distinguishing the nouns and noun phrases and then analyzing their meaning through a
-thesaurus-like ontological knowledge base after which the program uses these equivalent
-meanings to rewrite the text 7
-12 Common Language Properties
-Certain elements of language are commonly used both in natural language processing and the
-general analysis of language These properties include bigrams and recursion two properties
-which play a signicant role in this project
-121 Bigrams
-An n-gram is a sequence of n letters The most commonly used forms of n-grams are
-bigrams and trigrams because these oer a specic indication for a set of information without
-signifying extremely rare and complex aspects of the subject A good example of this is the
-use of bigrams in cryptography A common method of decoding a message that has been
-encoded using a keyword like the Vigenere Cipher encryption is to calculate the distance
-in letters between two of the same bigrams in order to determine the length of the keyword
-and then the keyword itself 8 If any n-grams are used where n is greater than or equal
-to 4 or even in some cases if n is equal to 3 then the number of same n-grams for a given
-Page 6 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-message would be very rare and make determining the length of the keyword increasingly
-dicult
-Similarly in natural language processing bigrams are used for word discrimination which
-is the understanding of an unknown word based upon bigram correspondence with a reference
-list of known words In addition word bigrams are used in some lexical parsers the Markov
-Model for bag generation and several text categorization tools 9
-122 Recursion
-The principle of recursion is an essential aspect of human language and is considered one
-of the primary ways in which children learn a language For a sentence with a particular
-pattern a word with a specic part of speech can be exchanged for another word of the same
-part of speech indicating that the two words have the same part of speech For example
-given the sentence The boy wears a hat it can be determined that the and a are the
-same part of speech by reconstructing the sentence as A boy wears the hat In addition
-the word boy can be exchanged for the word girl indicating that these are also the same
-type of word thereby expanding the lexicon of the child
-In addition the words of a sentence can remain unchanged while the pattern changes
-thereby introducing a new part of speech If we have the sentence The boy wears a hat
-or A B C A B if represented as a pattern of parts of speech we can add a D part of
-speech by creating a new sentence The boy wears a big hat A B C A D B The child
-ascertains that big must be a new part of speech because no words have previously been
-placed between an A and a B This method can be repeated for any new part of speech
-as well as embedded clauses such as The boy who is very funny wears a big hat
-Finally recursion can be used to indicate the grammatical structures of a language Let
-us examine the following poem
-Page 7 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-When tweetle beetles ght
-its called
-a tweetle beetle battle
-And when they
-battle in a puddle
-its a tweetle
-beetle puddle battle
-AND when tweetle beetles
-battle with paddles in a puddle
-they call it a tweetle
-beetle puddle paddle battle
-- Excerpt from Dr Seuss Fox in Socks 10
-The author uses the recursive principle to indicate that tweetle beetle can be both a
-noun and an adjective and then repeats this demonstration with puddle and paddle
-Further the correct placement of the new noun acting as an adjective is shown to be between
-the old string of nouns acting as adjectives and the object noun Conversely the poem
-illustrates that a noun acting as an adjective can be rewritten as a preposition and an added
-clause eg a tweetle beetle puddle battle can be rephrased as a tweetle beetle battle in a
-puddle 11 Thus the principle of recursion can allow a child to acquire new vocabulary
-new types of parts of speech and new forms of grammar
-13 Linguistic Interpretation
-There is a basic three-link chain in the structure of language Phonetics is the most basic
-structure which is formed into meaning by units known as words Units are then arranged
-syntactically to form sentences which in turn forms a more extensive meaning formally
-called semantics 12
-It is fundamental in learning a language that a computer understand the connections in
-Page 8 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-the phonetics-syntax-semantics chain and the structure and computations of each with the
-exception of phonetics Phonetics and their formulation can be disregarded because these
-refer more greatly to the connections of the brain to external sounds than the core structure
-of language In fact the entire external world can be ignored as there need not be an infer-
-ence between external objects in their human sensory perception and their representation
-as language formally known as pragmatics or in Chomskyan linguistics as E-language Ex-
-ternal Language Instead the relations between words and meaning intricately augmented
-by the semantics created by their syntactically accurate formed sentences is the only form
-of language necessary denominated contrastingly as I-language Internal Language 12
-Noam Chomsky argues that I-Language is the only form of language that can be studied
-scientically because it represents the innate structure of language 7 Language similar
-to this form can be found in humans who are literate in a language yet can not speak it
-Therefore due to the increase in structure the lack of external representation in natural
-language processing may be more advantageous than one might think
-14 Project Denition
-This project examines the nature of language acquisition in computers by implementing
-techniques similar to those used by children to acquire language We have focused primarily
-on morphology and syntax developing methods to allow a computer to gain knowledge of
-these aspects of language We have developed programs in both C and Java
-Regarding morphology the program is able to analyze the word structure of given lan-
-guages and distinguish between languages in dierent samples of text using bigram frequen-
-cies and we have examined the usefulness and limitations of this method in the context of
-existing methods Using this technique we have developed computationally understandable
-denitions of English French and Spanish morphologies We have also described and par-
-Page 9 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-tially implemented a novel technique for understanding the syntax of a language using a
-minimum of initial input and recursive methods of learning both approximate meanings of
-words and valid sentence structures Finally we provide suggestions for future work regard-
-ing the further development of our methods for understanding syntax as well as potential
-methods for gaining a rudimentary understanding of semantics
-Page 10 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-2 Morphology
-To analyze the morphology of a given language bigrams can be used to dene and compare
-languages Since the frequency distribution of a set of bigrams is unique to a given language
-across a large enough sample text this can be used as an accurate identier of a language
-with minimal eort
-21 Algorithm
-The program was initially developed in C then translated to Java to take advantage
-of non-standard characters and is set up in two main portions The rst step involves
-generating a table of frequency values from a le and the second step is to compare the two
-tables and determine the level of similarity
-To generate a frequency table a two-dimensional numerical array is created from the set
-of valid characters such that the array includes a space for every possible bigram with the
-initial value for each being set to zero For each word from the input le the program checks
-each pair of letters adding one to the corresponding position in the bigram frequency table
-Once the end of the le is reached each frequency count is divided by the total number of
-bigrams found times 100 to give a percentage frequency This process is shown in Figure 2
-This produces an array similar to Table 1 which can be analyzed separately to examine
-common and uncommon bigrams for a given language or compared with another texts table
-to distinguish between languages as detailed below
-After the frequency tables are created for each le the two must be compared to deter-
-mine the level of similarity between the languages of the two les This is done by nding
-the absolute values of the dierences between corresponding frequencies for the two les
-then nding the sum of these dierences as seen in Figure 3
-This gives an approximate measure of how dierent the two les are in terms of the
-Page 11 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 2 Learning morphology with bigrams
-b 0080
-Table 1 Sample of frequency array
-frequency of given bigrams As each language tends to have a unique frequency distribution
-a large net dierence suggests a dierent language for each le while a smaller net dierence
-suggests the same language The threshold dividing a determination of same language or
-dierent language was experimentally determined to be approximately 55
-Figure 3 Calculating morphology dierences between sample texts
-Page 12 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-22 Limitations
-This method does have certain limitations however Since the program deals with bigrams
-though it can be easily made to use n-grams for any n greater than 1 single-letter words
-are not taken into account While this does not have a large overall eect it produces some
-inaccuracies in the analysis of frequencies for a given language
-A more signicant limitation is the requirement that all legal characters be dened
-before the program is run Although it would be relatively straightforward to dynamically
-determine the character set based on the input les this creates issues where the character
-sets for each le are not the same making it dicult if not impossible to accurately compare
-the two les Even ignoring this varying the number of characters may produce variations
-in the threshold used to determine language similarity The program is also eective only
-for les of considerable length to allow for a large enough sample size
-23 Results
-Figure 4 Distribution of English bigrams
-Page 13 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-The program was run using a series of les in English French and Spanish
-Initial
-frequency tables for analysis of individual languages were created using the EU Charter in
-each respective language 13 producing the frequency distributions shown in Figures 4 5
-and 6 for English French and Spanish respectively
-Figure 5 Distribution of French bigrams
-These frequency graphs show that each language has a handful of extremely common
-bigrams in addition to some which appear little or not at all In English this includes
-th and he with percentage frequencies of 29 and 28 respectively along with on and
-ti also both above 25 This data is slightly skewed by the text used though th and
-he are indeed the most common bigrams in English A study conducted using a sample of
-40000 words 14 gave the two frequencies of 15 and 13 respectively though the next most
-common bigrams in the sample text are not as common in the English language as a whole
-as their frequencies here would suggest This is largely due to an inherent bias in the text
-as words such as protection or responsibilities appear frequently in the EU Charter
-French resulted in es and on as the most common bigrams followed by de and
-Page 14 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 6 Distribution of Spanish bigrams
-le In Spanish the most common bigram by far was de followed by cl en er
-and es Again however these likely suer from slight biases due to the nature of the text
-The comparison threshold was initially determined using a series of randomized Wikipedia
-articles of considerable length in English and French The same threshold was also used
-to compare English and Spanish texts and French and Spanish texts with continued high
-accuracy for texts of considerable length showing that this method does not vary notably
-with dierent languages The outputs of these tests are shown in Table 2
-philosophy encyclopedia
-france fr
-capitalism fr
-jazz es nyc es
-philosophy
-encyclopedia
-france fr
-capitalism fr
-jazz es
-nyc es
-Table 2 Sample of sum dierences
-Page 15 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Finally this method was tested with les of varying lengths For the set of two English
-texts which were tested with decreasing word counts the point at which this method was
-no longer accurate was between 400 and 200 words For other les this is likely to vary
-and could be lessened with further ne-tuning of the threshold At a certain point however
-the dierence values begin overlapping due to variation and bias from the words used in the
-text making accuracy impossible
-Page 16 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-3 Syntax
-To analyze the syntax of a language a recursive learning method is implemented using
-C Since the program would ideally require an absolute minimum of initial information
-this method takes a small initial set of words and builds on this by alternately using known
-words to learn new sentence structures and using known sentence structures to learn new
-words as seen below
-cat man has  The man has a cat  The x y a z  The man wore a hat 
-cat man has wore hat
-31 Algorithm
-There are two main elements to understanding the recursive learning system namely un-
-derstanding both how the information is represented and the methods used to analyze new
-information
-The information this program gathers can be split into two pieces information on the
-words themselves and information on valid sentence structures For words the program
-keeps track of the word itself and the words type Only two specic types are dened in
-the program noun and verb and the actual meaning of each is dened by context
-Any word which does not t these denitions is dened relative to these denitions For
-sentences the program keeps track of the number of words in a given sentence pattern and
-the type of the word in each position in an array These structures are shown in Figure 7
-The methods used by the program to analyze new information can also be split into two
-pieces Both methods require that some information is already known about the sentence
-in question but are used in slightly dierent ways The rst method analyzes new words
-based on the structure of the sentence by selecting the most applicable of existing patterns
-Page 17 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 7 Word and sentence pattern datatypes
-based on correspondence with known information The program keeps track of how many
-matches there are between the sentence and the known pattern taking the one with the
-most matches if greater than half the word count and using it to set unknown word types
-This method is seen in Figure 8
-Figure 8 Sentence structure method of learning
-This method is particularly useful for learning new nouns and verbs in situations where
-other words in the sentence are primarily known grammatical particles The other method
-uses the surrounding words to dene the type of any unknown words The program notes the
-types of the words before and after the unknown word and the type of the unknown word
-is then stated as atype of previous word btype of next word For example a word
-with type anoun bverb would be one which tends to come after nouns and before verbs
-Page 18 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-This type could also be analyzed and modied to give further insight into other types of
-words such as adjectives as detailed in Section 51 The program can redene known words
-if new information is found on their positioning using the new denition if it is shorter and
-thus more general than the previous denition This is seen in Figure 9
-This method is best used when most of the nouns and verbs in a sentence are known
-but other words exist which are not known The program would be able to dynamically
-select between the two methods based on what information is already known As a rule the
-program would default to the rst method initially as this is more likely to provide accurate
-results
-Figure 9 Word-based method of learning
-32 Limitations
-With proper development this method could be used to learn many types of sentences
-However it still has several limitations Although it is sucient for simpler grammatical
-constructs complicated words and patterns could cause confusion
-In particular words
-which have multiple meanings with dierent parts of speech would confuse the program
-Page 19 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-tremendously and at present it also has no way of connecting related words such as plural
-or possessive forms of nouns
-In addition this method requires carefully crafted training sentences Although it can
-work with a minimum of initial information unlike most existing systems it still has to learn
-the constructs somewhat sequentially and avoid having too many new concepts introduced
-at once This could be partially remedied by implementing a method by which the program
-stores any sentences it does not yet have the tools to analyze to be recalled later so that a
-more general text could be used as training material
-33 Results
-As a proof of concept for these methods a series of three training sentences were input
-and analyzed by the program to learn a handful of new words and concepts Although the
-program begins with far less information than many existing programs it nonetheless needs
-some initial input - in this case three words which will together with a and the make
-up the initial sentence as seen in Table 3
-Word Type
-Table 3 Initial program input
-The rst sentence input into the program is the man has a hat which is analyzed
-using the word-based second method From here two new words are learned - namely a
-and the which are dened based on the surrounding words The sentence pattern is also
-catalogued and the known information reads as in Table 4
-At present although the must only appear before a noun a is assumed to require a
-Page 20 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-averb bnoun
-5 bnounnounverbaverb bnounnoun
-Table 4 Program knowledge after run one
-preceding verb To correctly dene a the next sentence reads a man has the hat While
-using the same words the two known grammatical particles are reversed The program
-redenes the word a with a more general denition ie simply requires a succeeding noun
-however the denition of the remains the same as the program determines that replacing
-the denition would add more constraints which is counterproductive The sentence pattern
-is again catalogued and the known information reads as in Table 5
-Word Type
-5 bnounnounverbaverb bnounnoun
-5 bnounnounverbbnounnoun
-Table 5 Program knowledge after run two
-Although the two existing sentence patterns are functionally identical and the rst should
-actually be redened as the second both are kept to demonstrate the rst method based on
-sentence patterns For this the sentence the dog ate a biscuit is used having the same
-structure as existing sentences but a dierent set of nouns and verbs Although some matches
-exist with the rst pattern the redenition of a results in only two matches Instead the
-program nds this to be the same as the second sentence pattern as the number of words
-matches as do the types of the words the and a Hence the program denes the unknown
-Page 21 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-words based on this pattern resulting in the set of information shown in Table 6
-Word Type
-biscuit
-5 bnounnounverbaverb bnounnoun
-5 bnounnounverbbnounnoun
-Table 6 Program knowledge after run three
-Page 22 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-4 Analysis
-In this project we have developed methods for allowing a computer to understand and learn
-both the morphology and the syntax of a language Using novel techniques or applications
-we have designed and implemented these methods and tested their capabilities for learning
-language
-Although the use of bigrams in language analysis is not a new idea we have implemented
-it in a novel way by working to develop it as a dening quality and learning mechanism for
-natural language processing The method proves very useful for understanding the mor-
-phology of a language though only to a point It is extremely eective when using a large
-enough sample text but with smaller sample texts it is no longer able to accurately compare
-languages Hence although it creates a computationally eective denition of a language
-its actual ability as a learning mechanism is limited Used in tandem with other methods
-the bigram method could prove extremely powerful
-The recursive learning method implemented for gaining an understanding of syntax proves
-very useful and has great potential to be developed further Both of its submethods work
-with high accuracy for simple sentences and hence it is able to develop a growing model of
-sentence construction Even more particularly it is able to do this with a very small amount
-of initial input and with methods which could be applied to many types of languages
-41 Comparison to Existing Programs
-The use of bigrams to understand and analyze dierent parts of a given language has been
-studied and implemented substantially For example there are programs that calculate
-bigram frequencies to evaluate a languages morphology However unlike our program
-none to date have utilized the dierences in bigram frequencies between two languages to
-distinguish one language from the next
-Page 23 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-The system in the program that was used for determining the parts of speech in a sentence
-has rarely been attempted and when it has been used only partially and in conjunction
-with other methods Most natural language processing programs have been designed to be
-as the ecient and eective as possible As a result many use large banks of initial data
-which the program then analyzes and uses for subsequent input As discussed previously the
-most common and successful programs of this sort are statistical parsers On the contrary
-our program uses the recursive principle to acquire new vocabulary and forms of syntax for
-a given language provided only a very small initial set of data In practice our model only
-required one sentence with verb and noun indicated to determine the parts of speech of all
-other words although not denoting them in linguistic terms article preposition etc as
-well as learn new words and in theory to learn new sentence patterns Despite the extensive
-power of the recursive method it has rarely been used in the history of natural language
-processing The results of our program illustrate the potential abilities of the recursive
-method that have not been seen previously
-Page 24 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-5 Extension
-The program as it stands now can learn and understand a range of language elements
-including morphology and simple sentence patterns However there is still signicant room
-for further exploration both by developing the techniques for learning syntax to allow for a
-more complete range of sentence patterns and by developing methods for a computational
-understanding of semantics
-51 Other Sentence Structures
-In addition to existing sentence structures and constructs the syntax program can learn
-other common constructs Although some may be understandable at present others may
-require some additions to the program to fully understand Below are some examples of
-other simple sentence constructs and how the program would interpret them
-The man has a blue hat
-Here the only unknown word with present knowledge is blue The program at present
-would interpret it using the word-context method resulting in a type of abnoun bnoun
-Continuing in this manner would quickly lead to complications however so the program
-could be extended to understand words based on the form of types which are not nouns or
-verbs The word directly before blue has the type bnoun so blue would be interpreted
-in this manner as a noun resulting in two nouns in a row The program could additionally
-be edited to interpret two like words in a row as a noun phrase or verb phrase which
-would dierentiate adjectives from nouns and adverbs from verbs in a way more intuitive to
-the computer
-The hat is blue
-This sentence presents a dierent use of an adjective eectively in the place of a noun
-Assuming is had been previously learned as a verb this sentence would be more-or-less
-Page 25 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-readily understandable as blue is still interpreted as related to nouns This introduces
-another common sentence construct as well namely that some nouns can appear directly
-after verbs without a bnoun word in between Here it may become worthwhile to add
-some indicator to new nouns about whether they can appear directly after a verb or not
-The man has one hat
-This sentence would introduce numerical words which would be readily understandable
-as bnoun words similar to a or the This is sucient and accurate for most cases
-though as the program expands into semantics this construct may require more specic
-denition
-The man has four hats
-Here the concept of plurality is introduced This sentence would simply be another
-example of the above sentence with regards to syntax alonethe word hats would just
-be considered a new noun However this would likely be the most problematic concept
-regarding semantics Without an external concept of meaning or some other indication
-plurality would have to be learned simply by similarity at the word level In many cases
-this would be sucient such as hats but some words do not follow standard plurality
-rules such as mice versus mouse Similar issues apply to verb tenses though here the
-rules are even less standardized This issue could be at least partially remedied by creating
-an articial semblance of external understanding though this would likely prove dicult as
-Many other sentence constructs are built from these sorts of basic patterns For example
-another common sentence construct involves prepositions such as the sentence the man
-threw the hat in the trash Assuming prior knowledge of the nouns present the program
-could interpret in as verb-like appearing between two noun phrases This is again a
-sucient interpretation in most cases A marker indicating what would eectively be two full
-Page 26 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-constructs could be implemented as well Embedded clauses would be interpreted similarly
-where the program would nd the pattern of the outside clause and then the pattern of
-the inside clause An understanding of punctuation would make such sentences more easily
-interpretable
-Despite some issues the program can currently or with only minor modications un-
-derstand many common sentence constructs using the two main forms of learning and still
-a fairly small amount of initial information The program proves fairly versatile though of
-course not at the full level of human understanding
-52 Semantics
-Semantics is the meanings of words or sentences not only determined by direct denition
-but also by connotation and context To gain a computational understanding of semantics in
-a given language without external representation for words we have devised an associative
-approach For a noun dierent adjectives and verbs can be used when employing the noun
-in a sentence The particular set of adjectives and verbs for that noun are representative of
-the nature of the object A second noun will have some shared verbs and adjectives and
-the degree to which this is true will indicate the similarities of the two objects Conversely
-a verb would be understood based on the dierent objects associated with it especially
-the order of the nouns ie the subjects and objects used with that noun From a set of
-sentences a threshold of similarity could be experimentally determined which would result
-in the categorization of the dierent nouns and verbs The sequence of sentences could be
-as follows
-1 The man wears the big hat
-2 The man throws the small hat
-Page 27 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-hat is known to be something that can be big small worn and thrown
-3 The man throws the big ball
-4 The man bounces the small ball
-ball is like hat in having the ability to be big or small and can be thrown
-however it has not yet be found that it can be worn and hat has not be shown to
-be able to be bounced
-5 The man wears the big shoes
-6 The man throws the small shoes
-shoes is then understood as the same type of object as hat
-7 The man uses the telephone
-8 The man answers the telephone
-Let us stop here because the fundamental logic of the sequence of sentences can now
-be seen Using these characteristics of nouns a complex associative web would be formed
-where objects have meaning based on their relation to a set of other objects which also
-have meaning in relations to another set objects that the rst may not This web may be
-represented visually by a venn diagram similar to the one in Figure 10
-For the verbs wear throw bounce etc the program would interpret the above
-sentences as suggesting that only man can conduct these actions but cannot be the recip-
-ient of these actions while certain nouns can be the recipient of these actions Further it
-should be noted that the training sentences do not require a strict order because a charac-
-teristic of a particular noun would be stored until another noun was found to have the same
-characteristic and the two nouns would then share a link of the web Similarly a verb would
-have tentative subjects and objects associated with it until more were found Nevertheless
-Page 28 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Figure 10 Sample semantic web
-this method is limited by the requirement of large amounts of sentences in order to gain any
-signicant understanding of a given word
-To understand a concept such as time which is essential for semantics and acknowledging
-tenses the program would require some initial specication as well as using a time indicator
-in all sentences referring to the past or present It would start with the conditional parameter
-that if a sentence has the word yesterday ago tomorrow later past or future
-then a time dierent from the current moment is being referenced and the verb used is similar
-to another verb the present form which is the rst form the program learns but with a
-slightly dierent morphology Yet a problem arises because last and next applied in
-lastnext week or lastnext month cannot be used strictly as indicators of time as they
-can be used in other contexts such as He ate the last cookie in the jar or He is next
-in line at the supermarket Thus in certain cases time would present a diculty for the
-semantic understanding of the program The same applies for the use of negation as in the
-Page 29 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-sentence The man is not big whereby not never none no longer and no more
-would have to be explained prior and would result in the noun or verb being categorized as
-dierent from other nouns and verbs with shared associative terms
-In addition the associative method only allows for a denitional understanding of a given
-word which can be substantially limited due to the possible changes in the meaning of a
-word as a result of its context To allow a computer to have an understanding of context
-a system could be implemented to keep track of previously learned information Cognitive
-scientist Marvin Minsky suggests that a series of frames which represent generalized situ-
-ations can be used to represent cognition computationally These general frames could then
-be modied with situation-specic variables 15 This idea could prove useful in natural
-language processing to give a computer an understanding of context For example if a series
-of sentences read John is playing soccer He kicked the ball the program would be able to
-select a general frame which it could use to keep track of relevant variables such as John
-being the subject of this actionhence linking this to the he in the next sentence
-Another issue that might arise is the issue of connotative meaning of words rather than
-merely denotative meaning This is also related to the idea of symbolism another element of
-language which can prove dicult for a computer to understand Here a method similar to
-the associative approach above could be implemented after the initial denotative associations
-were formed Here the training sentences would be ones using symbolism rather than literal
-ones as above If a word is suddenly associated with a word which is not within the proper
-categorization such as a heart of stone it could be interpreted by the computer as a
-connotative association This would allow the computer to examine characteristics related
-only to one or the other hence gaining an understanding of the symbolic associations of
-Page 30 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-6 Conclusion
-Using certain principles of language we have designed a novel method by which a computer
-can gain an intuitive understanding of language rather than simply an articial understand-
-ing We have developed techniques by which a computer can learn and analyze the mor-
-phology of any given language and hence understand dierences between two languages
-We have also developed a recursive learning system for understanding sentence patterns and
-constructs which uses a minimum of initial information At present the program can in-
-terpret many basic sentences and we have also provided possibilities and suggestions for
-extending the capabilities of the program This approach is unique compared to common
-natural language processing systems because of this lack of need for signicant initial in-
-put and its recursive design and could have great potential in the eld of natural language
-processing
-Page 31 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-References
-1 E Reingold The Turing Test University of Toronto Department of Psychol-
-ogy Available at httpwwwpsychutorontocausersreingoldcoursesai
-turinghtml
-2 Learn More About Siri Apple Inc Available at httpwwwapplecomiphone
-featuressiri-faqhtml
-3 LingPipe Alias-I Available at httpalias-icomlingpipe
-4 D Klein and CD Manning Accurate Unlexicalized Parsing In Proceedings of the 41st
-Annual Meeting on Association for Computational Linguistics Vol 1 2003 423430
-5 M Bansal and D Klein Simple Accurate Parsing with an All-Fragments Grammar In
-Proceedings of the 48th Annual Meeting on Association for Computational Linguistics
-2010
-6 E Charniak Statistical Parsing with a Context-Free Grammar and Word Statistics
-In Proceedings of the Fourteenth National Conference on Articial Intelligence AAAI
-PressMIT Press Menlo Park CA 1997 598603
-7 CM Powell From E-Language to I-Language Foundations of a Pre-Processor for the
-Construction Integration Model Oxford Brookes University 2005
-8 R Morelli The Vigenere Cipher Trinity College Department of Computer Science
-Available at httpwwwcstrincolleducryptohistoricalvigenerehtml
-9 HH Chen and YS Lee Approximate N-Gram Markov Model Natural Language Gen-
-eration National Taiwan University Department of Computer Science and Information
-Engineering 1994
-10 Dr Seuss Fox in Socks Available at httpaieecsumichedupeopledreeves
-Fox-In-Sockstxt
-11 MH Christiansen and N Chater Constituency and Recursion in Language In MA
-Arbib The Handbook of Brain Theory and Neural Networks 2nd ed MIT Press Cam-
-bridge MA 2003 267271
-Page 32 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-12 BC Lust Child Language Acquisition and Growth Cambridge University Press Cam-
-bridge UK 2006
-13 The Charter of Fundamental Rights of the European Union European Parliament
-Available at httpwwweuroparleuropaeucharterdefaultenhtm
-14 Digraph Frequency Cornell University Department of Mathematics Available at http
-wwwmathcornelledumec2003-2004cryptographysubsdigraphshtml
-15 M Minsky A Framework for Representing Knowledge In J Haugeland editor Mind
-Design The MIT Press Cambridge MA 1981 95128
-Page 33 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-A Sample Texts
-Sample texts for the morphology-analysis system were primarily selected from randomized
-Wikipedia articles in the respective languages and were selected primarily for length The
-following sample texts were used for testing
-English EU Charter available at httpwwweuroparleuropaeucharterpdftextenpdf
-French EU Charter available at httpwwweuroparleuropaeucharterpdftextfrpdf
-Spanish EU Charter available at httpwwweuroparleuropaeucharterpdftextespdf
-English Wikipedia article on Philosophy available at httpenwikipediaorgwikiPhilosophy
-English Wikipedia article on Encyclopedias available at httpenwikipediaorgwikiEncyclopedia
-English Wikipedia article on Peace Dollars available at httpenwikipediaorgwikiPeace
-dollar
-English Wikipedia article on Bualo Nickels available at httpenwikipediaorgwikiBuffalo
-nickel
-French Wikipedia article on France available at httpfrwikipediaorgwikiFrance
-French Wikipedia article on Capitalism available at httpfrwikipediaorgwikiCapitalisme
-French Wikipedia article on Karl Marx available at httpfrwikipediaorgwikiKarlMarx
-French Wikipedia article on Democracy available at httpfrwikipediaorgwikiDmocratie
-Spanish Wikipedia article on Jazz available at httpeswikipediaorgwikiJazz
-Spanish Wikipedia article on New York City available at httpeswikipediaorgwikiNew
-YorkCity
-Spanish Wikipedia article on the Sassanid Empire available at httpeswikipediaorgwiki
-Imperiosasnida
-Spanish Wikipedia article on the Crown of Castile available at httpeswikipediaorgwiki
-CoronadeCastilla
-Page 34 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-B Morphology Code
-package ngrams 
-import java  io  B u f f e r e d R e a d e r 
-import java  io  File 
-import java  io  F i l e W r i t e r 
-import java  io  I O E x c e p t i o n 
-import java  io  I n p u t S t r e a m R e a d e r 
-import java  io  P r i n t W r i t e r 
-import java  util  Scanner 
-public class Ngrams 
- Main program
-public static void main  String  args  throws I O E x c e p t i o n 
-String file1     file2    
-float diff  0  Total f r e q u e n c y d i f f e r e n c e between two files
-char  alpha  aaaabccdeeeeefghijklmnoo
-pqrstuuuuvwxyyz  Valid c h a r a c t e r s
-System  out  print   Input First File Name   
-file1  read  file1   Reads text from file
-System  out  print   Input Second File Name   
-file2  read  file2 
-float bi1   count  file1  alpha   Creates f r e q u e n c y table for file
-float bi2   count  file2  alpha 
- C a l c u l a t e s total f r e q u e n c y d i f f e r e n c e
-for  int i  0 i  alpha  length  i 
-for  int j  0 j  alpha  length  j 
-diff  Math  abs  bi1  i  j  - bi2  i  j 
-System  out  println  diff 
-if  diff  55  E x p e r i m e n t a l l y d e t e r m i n e d t h r e s h o l d
-System  out  println   Same L a n g u a g e  
-System  out  println   D i f f e r e n t L a n g u a g e  
- Create f r e q u e n c y tables
-public static float  count  String file  char  alpha 
-throws I O E x c e p t i o n   2 - d f r e q u e n c y table of all p o s s i b l e bigrams
-float bigram   new float  alpha  length  alpha  length 
-for  int i  0 i  alpha  length  i 
-for  int j  0 j  alpha  length  j 
-bigram  i  j   0  I n i t i a l i z e with f r e q u e n c y 0
-int a  alpha  length 1  b  alpha  length 1
-float total  0  Total number of bigrams
-Scanner in  new Scanner  new File  file    txt  
-while  in  hasNext    S      Read file word by word
-Page 35 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-String word  in  next    S   
-word  t o L o w e r C a s e 
-for  int k  0 k  word  length  -1 k 
-  For each pair of letters
-a  alpha  length 1
-b  alpha  length 1
-for  int m  0 m  alpha  length  m 
-  Locates each letter within alpha list
-if  word  charAt  k   alpha  m 
-a  m 
-if  word  charAt  k 1  alpha  m 
-b  m 
-if  a  alpha  length  b  alpha  length 
-  Adds valid bigrams to f r e q u e n c y list
-bigram  a  b 
-total 
- Create new file with f r e q u e n c y table
-P r i n t W r i t e r out  new P r i n t W r i t e r  new F i l e W r i t e r  file   tab  csv  
-for  int p  0 p  alpha  length  p  
-for  int q  0 q  alpha  length  q  
-bigram  p  q    bigram  p  q   total   100
- Convert to decimal f r e q u e n c y
-out  print  bigram  p  q 
-out  print    
-out  print    n  
-out  close 
-return bigram 
- Read text from file
-public static String read  String str  
-String str2    
-B u f f e r e d R e a d e r read  new B u f f e r e d R e a d e r  new I n p u t S t r e a m R e a d e r  System  in 
-str2  read  r e a d L i n e 
- catch  I O E x c e p t i o n ioe  
-System  out  println   Error  Cannot Read Input  n  
-read  str 
-return str2 
-Page 36 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-C Syntax Code
-To begin types must be created and initial input dened and the sentence must be divided
-into its component words which are checked against known information
- Type d e f i n i t i o n s
-struct word 
-string word 
-string type 
- list 50
-struct pattern 
-int wcount 
-string patt 10
- list2 10
- Initial input - First word must be  NULL  to avoid errors
-list 0 word   NULL  
-list 0 type   NULL  
-list 1 word   has  
-list 1 type   verb  
-list 2 word   hat  
-list 2 type   noun  
-list 3 word   man  
-list 3 type   noun  
- Split s e n t e n c e into c o m p o n e n t words
-for  i  0 i  sen  length  i  
-if  sen  at  i  
-s e n  c o u n t 
-for  i  0 i  sen  length  i  
-if  sen  at  i  
-words  pos   sen  substr  temp i - temp 
-temp  i 1
-pos 
- Find words in  list  array
-num2  num 
-for  i  0 i  s e n  c o u n t  i    For each word
-for  j  0 j  num  j  
-if  words  i   list  j  word  
-inarray  i   j   For known words  track p o s i t i o n
-if  inarray  i   0 
-inarray  i   num2   For unknown words  set new p o s i t i o n
-num2 
-Page 37 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-Unknown words are then dened using either the word-context method
- For words not in  list  array  define
- Define unknown words by s u r r o u n d i n g words
-for  i  0 i  s e n  c o u n t  i    For each word
-if  inarray  i   num 
-  If unknown  p o s i t i o n will be greater than num  number of words 
-list  inarray  i  word  words  i 
-list  inarray  i  type    
-if  i  0  If not the first word in the s e n t e n c e
-list  inarray  i  type 
-list  inarray  i  type   a   list  inarray i -1 type    
-if  i  sencount -1  If not the last word in the s e n t e n c e
-list  inarray  i  type 
-list  inarray  i  type   b   list  inarray  i 1 type    
-else if  list  inarray  i  type   noun  
-list  inarray  i  type   verb  
-  If known  but not a noun or verb  checks if should be r e d e f i n e d
-t y p e  t e m p    
-if  i  0
-t y p e  t e m p  t y p e  t e m p   a   list  inarray i -1 type    
-if  i  sencount -1
-t y p e  t e m p  t y p e  t e m p   b   list  inarray  i 1 type    
-if  t y p e  t e m p  length   list  inarray  i  type  length 
- The shorter one is the type
-list  inarray  i  type  t y p e  t e m p 
-num  num2   Reset known number of words
- Create new s e n t e n c e pattern
-list2  runs  wcount  s e n  c o u n t 
-for  i  0 i  s e n  c o u n t  i    For each word
-list2  runs  patt  i   list  inarray  i  type 
-Or by the sentence pattern method
- Define unknown words by s e n t e n c e s t r u c t u r e
-for  j  0 j  2 j    For each e x i s t i n g pattern
-matches  0
-for  i  0 i  s e n  c o u n t  i    For each word
-if  inarray  i   num 
-if  list  inarray  i  type  list2  j  patt  i 
-matches 
-Page 38 of 39
-Language Acquisition in Computers
-Megan Belzner and Sean Colin-Ellerin
-if  s e n  c o u n t  list2  j  wcount   If word counts match
-matches 
-if  matches  s e n  c o u n t 2
-  If enough matches exist  unknown words are defined
-for  i  0 i  s e n  c o u n t  i  
-if  inarray  i   num  
-list  inarray  i  word  words  i 
-list  inarray  i  type  list2  j  patt  i 
-num  num2   Reset known number of words
-Page 39 of 39
+Control of gene expression by modulated self-assembly 
+Jose M G Vilar12 and Leonor Saiz3 
+1Biophysics Unit CSIC-UPVEHU and Department of Biochemistry and Molecular 
+Biology University of the Basque Country PO Box 644 48080 Bilbao Spain 
+2IKERBASQUE Basque Foundation for Science 48011 Bilbao Spain 
+3Department of Biomedical Engineering University of California 451 E Health 
+Sciences Drive Davis CA 95616 USA 
+Abstract 
+Numerous transcription factors self-assemble into different order oligomeric species 
+in a way that is actively regulated by the cell Until now no general functional role 
+has  been  identified  for  this  widespread  process  Here  we  capture  the  effects  of 
+modulated  self-assembly  in  gene  expression  with  a  novel  quantitative  framework 
+We  show  that  this  mechanism  provides  precision  and  flexibility  two  seemingly 
+antagonistic  properties  to  the  sensing  of  diverse  cellular  signals  by  systems  that 
+share  common  elements  present  in  transcription  factors  like  p53  NF-B  STATs 
+Oct  and  RXR  Applied  to  the  nuclear  hormone  receptor  RXR  this  framework 
+accurately  reproduces  a  broad  range  of  classical  previously  unexplained  sets  of 
+gene expression data and corroborates the existence of a precise functional regime 
+with flexible properties that can be controlled both at a genome-wide scale and at 
+the individual promoter level 
+                                                 
+ Correspondence lsaizucdavisedu  
+INTRODUCTION 
+A  recurrent  theme  in  gene  regulation  is  the  self-assembly  of  transcription  factors  TF 
+into  coexisting  populations  of  dimers  tetramers  and  other  higher  order  oligomers  that 
+can bind simultaneously single and multiple DNA sites This behavior has been observed 
+explicitly  in  the  tumor  suppressor  p53  1  the  nuclear  factor  B    NF-B  23  the 
+signal  transducers  and  activators  of  transcription  STATs  4  the  octamer-binding 
+proteins  Oct  56  and  the  retinoid  nuclear  hormone  receptor  RXR  7  Table  1  In 
+these  systems  the  properties  of  self-assembly  and  the  partitioning  into  low  and  high 
+order  oligomeric  species  are  strongly  regulated  and  modulated  by  several  types  of 
+signals  such  as  ligand  binding  8  protein  binding  910  acetylation  11  and 
+phosphorylation  612  The  general  implications  of  this  modulation  however  are  not 
+clear 
+At the level of single DNA sites it is well established that the effects of TF are 
+finely  determined  by  their  concentration  and  cognate  DNA  sequences  13  Processes 
+based on interactions with different molecules and post-transcriptional modifications are 
+assumed to affect mainly the DNA binding properties of the TFs or their ability to recruit 
+coregulators This idea is entrenched in the field of gene regulation and is systematically 
+used as a guiding principle in the ongoing development of molecular therapies against 
+diverse  diseases  14  But  TFs  rarely  act  through  just  a  single  binding  site  615-21 
+Table 1 Modulated self-assembly MSA provides a key mechanism for controlling the 
+ability of TFs to bind two or more DNA sites simultaneously  
+To  determine  the  common  wide-ranging  effects  of  MSA  we  have  developed  a 
+general  quantitative  framework  that  accurately  links  MSA  with  control  of  gene 
+expression Figure 1 It focuses on the general aspects of the core control mechanism 
+shared by the wide variety of regulatory systems where MSA is present which include 
+TF  self-assembly  and  its  modulation  binding  of  the  TF  oligomers  to  DNA  and  the 
+resulting  transcriptional  responses  This  quantitative  framework  allowed  us  to  uncover 
+modulation of the oligomeric states of TFs as a flexible mechanism for precise sensing of 
+molecular signals in the presence of intracellular fluctuations Precision ensures that the 
+transcriptional  response  is  consistently  triggered  at  a  given  modulator  signal  strength 
+irrespective of the TF concentration Flexibility allows the precise triggering point to be 
+changed  up  to  several  orders  of  magnitude  both  at  the  individual  promoter  level  by 
+changing its DNA sequence and at a genome-wide scale by changing the molecular self-
+assembly properties  
+This methodology identified a core set of features needed to implement control of 
+transcription by MSA that are present in a wide variety of structurally different systems 
+Table 1 As an exemplar of these systems we have considered explicitly the nuclear 
+hormone receptor RXR In this case the quantitative framework accurately reproduced 
+in  some  instances  even  without  free  parameters  a  broad  range  of  classical  previously 
+unexplained  gene  expression  experimental  data  and  demonstrated  how  flexible  precise 
+control  of  gene  expression  can  be  achieved  directly  at  the  molecular  level  through 
+modulation of the oligomerization state of transcriptional regulators 
+MATHERIALS AND METHODS 
+The  first  step  in  the  signaling  cascade  orchestrated  by  MSA  is  the  regulation  of  the 
+relative abundance of the oligomerization states of the TF Figure 1 The self-assembly 
+modulator such as a ligand that binds to a TF or a kinase that phosphorylates the TF 
+affects the low-order oligomers to promote or prevent their self-assembly We consider 
+2n  as relevant high 
+explicitly tetramers 
+and low order oligomeric species Other oligomerization pairs such as octamer-tetramers 
+or dimer-monomers are mathematically equivalent to tetramer-dimers  
+function 
+We  quantitate  the  effects  of  self-assembly  modulation  through  the  modulator 
+ which describes in terms of concentrations the partitioning 
+2n  and non-tetramerizing dimers 
+4n  dimers 
+into the tetramerizing and non-tetramerizing dimers by the self-assembly modulator  s  
+This process affects dimer and tetramer concentrations which are related to each other 
+through 
+tdK  is the tetramer-dimer dissociation constant 
+ where 
+action of the modulator An explicit example is 
+The  precise  form  of  the  modulator  function  is  given  by  the  specific  mode  of 
+s K  for a ligand  s  that upon 
+binding to the dimer 
+2n  with dissociation constant 
+ligK  renders it unable to tetramerize 
+in  the  form 
+2n   Another  relevant  mechanistically  different  situation  corresponds  to 
+  for  phosphorylation  in  the  linear  regime  of  the  non-
+tetramerizing 
+2n   into  the  tetramerizing 
+concentration  of  active  kinases  and 
+2n   dimer  species  In  this  case   s   is  the 
+  are  the  phosphorylation  and 
+dephosphorylation  rate  constants  respectively    In  general  several  mechanisms  can  be 
+involved at the same time in controlling the oligomerization properties For instance the 
+case in which the two previous processes are combined so that the dimer has to be both 
+free  of  ligand  and  phosphorylated  to  be  able  to  tetramerize  leads  to  a  two-variable 
+modulator 
+ls   is  the 
+function 
+  where  
+ligand concentration and 
+ is the concentration of active kinases 
+Binding  of  the  different  TF  oligomers  to  the  DNA  sites  mediates  the 
+transcriptional effects of the self-assembly modulator Figure 1 Typically tetramers and 
+both types of dimers bind single DNA sites in a very similar way with free energies 
+ for site 1 and 2 respectively These quantities are related to the corresponding 
+dissociation constants through 
+  Tetramers in 
+addition  can  bind  two  sites  simultaneously  because  they  have  two  DNA  binding 
+domains one from each of its two constituent dimers which contribute with 
+  to  the  free  energy  The  simultaneous  binding  of  two  domains  is  typically 
+accompanied by conformational changes eg twisting and bending in both the tetramer 
+ to the 
+and DNA 2223 which contributes with an additional conformational term 
+free energy Therefore the standard free energy of the state with the tetramer bound to 
+  This  conformational  contribution  has  been 
+two  sites  is  given  by 
+studied in detail in the case of DNA looping by prokaryotic TFs and is dependent among 
+others on the TF and DNA flexibility the relative position of the DNA binding sites and 
+the DNA supercoiling state 2223 
+We use statistical thermodynamics to quantitatively describe binding to DNA in 
+terms of free energies and concentrations of the different oligomeric species 24-26 The 
+key  quantity 
+with  its  standard  free  energy 
+statistical  weight  or  Boltzmann 
+factor  defined  as 
+ which relates the relative probability of the binding state  i  
+  The  exponents 
+im   correspond  to  the 
+number of tetramers dimers and non-tetramerizing dimers in the state  i  respectively 
+The factor  RT  is the gas constant  R  times the absolute temperature T  The probability 
+Z   is  obtained  by  adding  the 
+of  a  given  group  of  binding  states  c  
+id   and 
+statistical weights of its states and normalizing by the sum for all the possible states 
+For a system with two binding sites there are 17 binding states Figure 1 These 
+states are those with both sites empty one occupied by a dimer or a tetramer two sites 
+occupied  by  two  dimers  by  two  tetramers  or  a  dimer  and  tetramer  and  two  sites 
+occupied simultaneously by a single tetramer In the case of states with dimers one has to 
+take  into  account  that  a  dimer  can  either  be  in  the  form  that  allows  or  prevents 
+tetramerization  In  general  each  binding  state  includes  a  constellation  of  molecular 
+substates with different DNA conformations For instance the state with both sites empty 
+can include a bent DNA conformation as in the case when the two sites are occupied 
+simultaneously  by  a  single  tetramer  but  the  lack  of  a  tetramer  to  stabilize  the 
+conformation  makes  this  conformation  highly  unlikely  This  type  of  effects  has  been 
+described in detail for other TF that bind two DNA sites simultaneously such as the lac 
+repressor 27  
+There is also the possibility that oligomerization is so weak in solution that it is 
+only observed on DNA This effect can be put in quantitative terms with our framework 
+by considering that the state with the tetramer bound simultaneously to two DNA sites 
+Figure  1  can  also  be  described  as  two  interacting  dimers  that  bind  cooperatively  to 
+DNA The statistical weight of this state is given by 
+  
+ in terms of 
+tetramer  concentration  and  by 
+  
+  in  terms  of  dimer 
+concentration  which 
+can  be 
+rewritten 
+  with 
+G RT K   Thus  a  very  high  dissociation  constant  that  does  not  lead  to 
+significant  tetramerization  in  solution  is  sufficient  to  promote  tetramerization  on  DNA 
+when  the  conformational  free  energy  is  sufficiently  low  Intuitively  tetramerization  is 
+Two differentiated types of transcriptional responses can be constructed from the 
+observed on DNA because binding to DNA brings the tetramerization domains close to 
+each other and increases their local concentration 
+binding states of the TF on DNA Figure 1  
+The  first  type  referred  to  as  response  R1  involves  a  high  order  oligomer  that 
+simultaneously  binds  two  non-adjacent  DNA  sites  Upon  binding  the  high-order 
+oligomer loops out the intervening DNA and positions a distal enhancer in the vicinity of 
+tP   of  the  state  with  the 
+the  promoter  region  to  control  transcription  The  probability 
+tetramer bound to the two DNA sites simultaneously Table 2 determines the effective 
+    which  weights  the 
+transcription  rate  through  the  expression 
+  
+transcription  rates  that  the  system  has  with 
+t   and  without 
+ref   the  distal  enhancer 
+close to the promoter  
+The second type denoted here response R2 takes advantage of the differentiated 
+recruitment abilities of different oligomerization states This mode of regulation applies 
+to  a  coactivator  that  is  recruited  by  a  low-order  oligomer  by  binding  to  a  molecular 
+surface  that  is  occluded  in  the  high-order  oligomer  In  this  case  the  effective 
+P   The 
+transcription  rate  is  given  by 
+subscripts  do  od  and  dd  of  the  transcription  rates     and  probabilities  P   refer  to  the 
+group  of  states  with  dimers  bound  to  just  site  1  to  just  site  2  and  to  both  sites 
+ref   is  the  transcription  rate  with  no  dimers  bound  including 
+respectively  Table  2 
+  
+empty sites and sites occupied by tetramers  
+Responses R1 and R2 embrace the prototypical cases mediated by long and short 
+range  interactions  between  regulatory  elements  They  are  controlled  by  the  relative 
+occupancy  of  DNA  binding  sites  by  the  different  oligomeric  species  This  mode  of 
+functioning differs from other systems with multiple binding sites like the lac operon 
+which  are  controlled  by  the  absolute  occupancy  of  their  sites  by  a  single  oligomeric 
+species  28  For  instance  IPTG  an  inducer  of  the  lac  operon  does  not  affect  the 
+oligomerization state of the tetrameric lac repressor but prevents each of its two DNA 
+binding domains from significantly binding their cognate sites 2829  
+RESULTS 
+To uncover the unique characteristics that emerge from the core structure of MSA in such 
+a  general  wide  variety  of  structurally  different  systems  Table  1  we  focus  on  a 
+functional regime that guarantees that there is response to changes in the self-assembly 
+modulator concentration This regime considers two properties The first one is that the 
+TF concentration is sufficiently high for it to significantly bind DNA In mathematical 
+terms it implies 
+ G RT
+ G RT
+  The  second 
+one is that the tetramer concentration is sufficiently low 
+n  so that they 
+do not to take completely over the binding The reason is that for typical values of 
+tetramers bind more strongly to two DNA sites simultaneously than dimers do to a single 
+DNA site 273031  
+The key implication of this regime is that the probabilities of the different groups 
+of binding states simplify in such a way see Table 2 that the transcriptional responses 
+are governed by the reduced expressions 
+  
+  
+which show that responses R1 and R2 despite being mechanistically different follow the 
+same control logics In both cases the two-site binding of the tetramer quantified by 
+determines the contributions of the reference and activated transcriptional states The end 
+tP  imparts precision and 
+result is even more remarkable because the particular form of 
+flexibility  to  the  transcriptional  responses  two  properties  that  are  the  cornerstone  of 
+natural gene expression systems but that have proved to be highly elusive because of their 
+seemingly antagonistic character 13 
+Precision  ensures  that  the  transcriptional  response  is  consistently  triggered  at  a 
+given  modulator  signal  strength  irrespective  of  the  particular  TF  concentration  which 
+cancels out in the reduced equations that govern the system behavior Flexibility on the 
+other  hand  allows  the  precise  triggering  point  to  be  altered  up  to  several  orders  of 
+magnitude  both  at  the  individual  promoter  level  by  changing  its  organization   o
+depends on the distance between the two DNA binding sites 1722 and at a genome-
+tdK  affect 
+wide scale by changing the molecular self-assembly properties   
+the regulation of all genes in the same way  
+All these results can be observed explicitly in the retinoid X receptor RXR an 
+exemplar  of  the  essential  regulators  that  share  the  central  features  of  MSA  Table  1  
+RXR controls a large number of genes by binding to DNA as homodimer homotetramer 
+or  obligatory  heterodimerization  partner  for  other  nuclear  receptors  Nuclear  retinoid 
+receptors are highly significant because they mediate the pleiotropic effects of retinoic 
+acid  which  include  cell  proliferation  differentiation  and  embryonic  development  and 
+affect the carcinogenic process in a number of organs 32 
+The canonical self-assembly modulator of RXR is the hormone 9-cis-retinoic acid 
+9cRA a derivative of Vitamin A which binds each RXR subunit independently of its 
+oligomerization  state  33  and  prevents  dimers  with  their  two  subunits  occupied  from 
+tetramerazing 8 This behavior is consistent with 
+being a holo-dimer as observed in the respective crystal structures of the dimers with no 
+ligand bound 34 and with two ligands bound 35 The crystal structure of one tetramer 
+with two ligands bound 36 shows that two dimers with just one ligand each can form 
+tetramers with a structure similar to those of two apo-dimers In addition to 9cRA there 
+are  other  ligands  of  RXR  as  for  instance  the  oleic  acid  docosahexaenoic  acid 
+methoprene acid and phytanic acid 35  
+These early steps in sensing 9cRA and other ligand concentrations are taken into 
+account by the explicit form of the modulator function which we obtain from the mass 
+action law as  
+2n  being an apo-dimer and with 
+ligK   and   s   are  the  ligand-RXR  dissociation  constant  and  the  ligand 
+concentration respectively see Supplementary Methods  
+To  compare  with  the  experimental  data  we  normalize  the  fold  induction  a 
+measure of relative changes in transcriptional activity so that its variation ranges from 0 
+to 1 This quantity referred to as normalized fold induction NFI is defined explicitly as 
+ is maximum value of the fold induction  FI   In 
+ where 
+terms  of  the  NFI  the  results  do  not  depend  on  parameters  related  to  the  baseline  and 
+maximum expression levels and it becomes possible to effectively compare experiments 
+on different promoters and cell lines see Supplementary Methods The only parameters 
+ligK  and 
+needed to characterize the shape of the response in the functional regime are 
+  which  can  be  inferred  by 
+tdK   which  have  been  measured  experimentally  and 
+adjusting its value to reproduce the experimental data 
+This  approach  accurately  describes  the  experimental  observations  16  for  the 
+ligand 9cRA and a promoter with two non-adjacent DNA binding sites for RXR and a 
+distal enhancer Figure 2A Simultaneous binding of an RXR tetramer to the two sites 
+loops  out  the  intervening  DNA  and  brings  the  enhancer  close  to  the  promoter  region 
+response  R1  Increasing  the  concentration  of  9cRA  prevents  the  formation  of  RXR 
+tetramers and leads to deactivation of transcription  
+The very same approach also captures in detail the observed behavior when the 
+two DNA binding sites are next to each other as in the classic set of experiments that 
+uncovered  9cRA  as  the  cognate  ligand  of  RXR  for  different  promoters  and  cell  lines 
+Figure 2B In these cases only the dimeric forms of RXR with ligand bound can recruit 
+a  coactivator  response  R2  and  increasing  the  concentration  of  9cRA  results  in  the 
+activation  of  transcription  The  extent  of  activation  is  modulated  by  the  RXR  AF-1 
+domain and RXR phosphorylation 37-39  
+parameters  the  responses  to  different  ligands  from  the  values  of 
+This  framework  has  the  much-sought  ability  to  fully  predict  without  free 
+  obtained  in 
+response to just a single ligand Applied to the all-trans retinoic acid atRA which was 
+tested  early  on  as  a  potential  cognate  ligand  of  RXR  4041  the  approach  closely 
+recapitulates its effects on transcription for different cell types and promoters from the 
+values of 
+ inferred in the responses to 9cRA Figure 2C This ability to fully predict 
+responses  without  free  parameters  is  especially  important  because  it  provides  a  direct 
+avenue  to  transfer  specific  molecular  information  of  the  ligand-TF  interaction  as 
+described by the measured or computed parameters across scales up to the transcriptional 
+effects  
+The high variability of the transcriptional responses as observed in Figure 2 has 
+been  a  long-standing  recurrent  issue  in  RXR  gene  regulation  In  particular  the  half-
+maximum response point characterized by the EC50 ranges from just above the RXR-
+ligand  dissociation  constant  up  to  values  30-fold  higher  Table  3  Our  results  have 
+identified  MSA  as  a  potential  mechanism  to  control  the  EC50  at  the  single-gene  level 
+ Table 3 This promoter-dependent flexibility indicates that 
+through the value of 
+for  these  systems  the  observed  variability  is  not  a  random  aspect  of  the  experimental 
+setup but the result of RXR precisely tailoring the response to each individual gene 
+The  observed  variability  can  be  collapsed  in  the  form  of  response  landscapes 
+Figure 3 which represent the transcriptional activity as a function of the conformational 
+free energy in addition to just the usual ligand concentration of dose-response curves The 
+landscapes explicitly show the ability of RXR to shape the molecular response to ligand 
+binding  in  a  promoter-dependent  way  The  response  landscapes  show  how  the  EC50 
+increases as the conformational free energy decreases in a way that closely matches the 
+experimental observations Figure 3 
+functional 
+To investigate the extent to which typical experimental conditions fall within the 
+characterized  by 
+as  previously  described 
+which 
+regime 
+ G RT
+ G RT
+  and 
+n   we 
+the  expressions  for 
+considered the model for RXR in the whole-parameter space All groups of binding states 
+were  considered  explicitly  without  simplifications  of 
+corresponding  probabilities  Table  2  In  addition  to  the  relevant  quantities  of  the 
+functional regime the whole-parameter space includes the experimentally measured free 
+energies  of  binding  to  DNA  the  RXR  dimer-monomer  dissociation  constant  and  the 
+nuclear  RXR  concentration  The  results  Figure  4  are  virtually  independent  of  the 
+precise  value  of  the  total  nuclear  RXR  protein  concentration  over  at  least  a  10-fold 
+range  and  accurately  capture  the  diverse  dose-response  curves  observed  in  the 
+experiments  in  agreement  with  the  results  for  the  functional  regime  In  all  cases  the 
+ranges  of  concentrations  include  550  nM  the  estimated  RXR  nuclear  concentration  in 
+HL-60  cells  7  Therefore  the  ability  to  elicit  flexible  and  precise  responses  as 
+uncovered  in  the  general  analysis  is  also  present  when  the  particularities  of  RXR-
+mediated transcriptional responses are taken into account 
+DISCUSSION 
+Cellular processes rely on intricate molecular mechanisms to function in extraordinarily 
+diverse intra- and extra-cellular environments Eukaryotic gene expression in particular 
+has  shown  to  be  exceedingly  complex  42-44  Just  the  core  of  the  transcriptional 
+machinery  itself  involves  a  wide  variety  of  components  with  oscillatory  patterns  of 
+macromolecular assembly and phosphorylation 45 On top of the constitutive processes 
+there  are  many  other  molecular  interactions  that  provide  regulation  enhancing  or 
+reducing  gene  expression  and  adjusting  to  changing  cellular  conditions  46  To 
+understand how these different levels of molecular complexity contribute to the observed 
+behavior one needs the right approaches 4748  
+The  quantitative  framework  we  have  developed  provides  an  efficient  avenue  to 
+connect  the  molecular  properties  of  MSA  with  its  effects  in  the  control  of  gene 
+expression This framework allowed us to uncover unique properties of control of gene 
+expression by MSA that lead to a flexible mechanism for precise sensing of diverse types 
+of  self-assembly  modulation  signals  irrespective  of  changes  in  transcription  factor 
+concentration  Application  of  this  methodology  to  the  nuclear  hormone  receptor  RXR 
+accurately  describes  the  experimentally  observed  transcriptional  responses  for  both 
+enhancers  response  R1  and  coactivators  response  R2  from  just  the  molecular 
+properties of the components Figures 2A and 2B and successfully predicts the observed 
+behavior without free parameters Figure 2C A detailed analysis of the whole-parameter 
+space reveals that regulation by RXR is functioning in a precise regime with minimal 
+dependence on RXR nuclear concentration Figure 4 in which the responses are highly 
+diverse as a result of the inherent flexibility that accompanies precision in the control of 
+gene expression by MSA Figure 3 
+The  observed  TF-concentration  insensitivity  of  control  of  gene  expression  by 
+MSA contrasts with the traditional role of RXR as obligatory heterodimerization partner 
+for other nuclear receptors which relies on the absolute occupancy of the cognate binding 
+sites  by  the  heterodimer  In  the  case  of  RXRPPAR  regulation  of  adipogenesis 
+however it has been observed that several promoters are controlled rather by the relative 
+occupancy between RXRPPAR heterodimers and other RXR heterodimers or homo-
+oligomers 49 Our framework provides a starting point to consider these more complex 
+situations by coupling MSA with hetero-oligomerization and to combine these extensions 
+with  recent  bioinformatics  methods  5051  to  make  accurate  predictions  on  gene 
+expression based on the binding profiles observed in the experimental data 49 
+The  combined  presence  of  flexibility  and  precision  in  the  control  of  gene 
+expression by MSA as explicitly shown for RXR allows a single TF to simultaneously 
+regulate  multiple  genes  with  promoter-tailored  dose-response  curves  that  consistently 
+maintain their diverse shapes for a broad range of the TF concentration changes These 
+features  are  especially  important  because  essential  TFs  like  p53  NF-B  STATs  Oct 
+and RXR each of which have all the core elements that form the backbone of control of 
+gene expression by MSA regulate multiple genes that engage in processes as diverse as 
+cancer  inflammation  autoimmune  diseases  and  cellular  differentiation  These  results 
+indicate  that  the  prospects  for  devising  more  effective  molecular  therapies  for  systems 
+controlled by MSA will greatly benefit from shifting potential intervention points from 
+those that affect absolute concentrations and single-site binding to those that can tackle 
+concentration ratios and promoter properties 
+SUPPLEMENTARY DATA 
+Supplementary Data is available from NAR online 
+FUNDING 
+This work was supported by the MICINN under grant FIS2009-10352 JMGV and the 
+University of California Davis LS 
+REFERENCES 
+Wang P Reed M Wang Y Mayr G Stenger JE Anderson ME 
+Schwedes JF and Tegtmeyer P 1994 p53 domains structure oligomerization 
+and transformation Mol Cell Biol 14 5182-5191 
+Phelps CB Sengchanthalangsy LL Malek S and Ghosh G 2000 
+Mechanism of kappa B DNA binding by RelNF-kappa B dimers J Biol Chem 
+275 24392-24399 
+Sengchanthalangsy LL Datta S Huang DB Anderson E Braswell EH 
+and Ghosh G 1999 Characterization of the dimer interface of transcription 
+factor NFkappaB p50 homodimer J Mol Biol 289 1029-1040 
+Zhang X and Darnell JE Jr 2001 Functional importance of Stat3 
+tetramerization in activation of the alpha 2-macroglobulin gene J Biol Chem 276 
+33576-33581 
+Tomilin A Remenyi A Lins K Bak H Leidel S Vriend G Wilmanns M 
+and Scholer HR 2000 Synergism with the coactivator OBF-1 OCA-B BOB-
+1 is mediated by a specific POU dimer configuration Cell 103 853-864 
+Kang J Gemberling M Nakamura M Whitby FG Handa H Fairbrother 
+WG and Tantin D 2009 A general mechanism for transcription regulation by 
+Oct1 and Oct4 in response to genotoxic and oxidative stress Genes Dev 23 208-
+Kersten S Kelleher D Chambon P Gronemeyer H and Noy N 1995 
+Retinoid X receptor alpha forms tetramers in solution Proc Natl Acad Sci U S A 
+92 8645-8649 
+Chen ZP Iyer J Bourguet W Held P Mioskowski C Lebeau L Noy N 
+Chambon P and Gronemeyer H 1998 Ligand- and DNA-induced dissociation 
+of RXR tetramers J Mol Biol 275 55-65 
+van Dieck J Fernandez-Fernandez MR Veprintsev DB and Fersht AR 
+2009 Modulation of the oligomerization state of p53 by differential binding of 
+proteins of the S100 family to p53 monomers and tetramers J Biol Chem 284 
+13804-13811 
+Hanson S Kim E and Deppert W 2005 Redox factor 1 Ref-1 enhances 
+specific DNA binding of p53 by promoting p53 tetramerization Oncogene 24 
+1641-1647 
+Li AG Piluso LG Cai X Wei G Sellers WR and Liu X 2006 
+Mechanistic insights into maintenance of high p53 acetylation by PTEN Mol 
+Cell 23 575-587 
+12  Wenta N Strauss H Meyer S and Vinkemeier U 2008 Tyrosine 
+phosphorylation regulates the partitioning of STAT1 between different dimer 
+conformations Proc Natl Acad Sci U S A 105 9238-9243 
+Ptashne M and Gann A 1997 Transcriptional activation by recruitment 
+Nature 386 569-577 
+de Lera AR Bourguet W Altucci L and Gronemeyer H 2007 Design of 
+selective nuclear receptor modulators RAR and RXR as a case study Nat Rev 
+Drug Discov 6 811-820 
+15  Mangelsdorf DJ Umesono K Kliewer SA Borgmeyer U Ong ES and 
+Evans RM 1991 A direct repeat in the cellular retinol-binding protein type II 
+gene confers differential regulation by RXR and RAR Cell 66 555-561 
+Yasmin R Yeung KT Chung RH Gaczynska ME Osmulski PA and 
+Noy N 2004 DNA-looping by RXR tetramers permits transcriptional 
+regulation at a distance J Mol Biol 343 327-338 
+Jackson P Mastrangelo I Reed M Tegtmeyer P Yardley G and Barrett J 
+1998 Synergistic transcriptional activation of the MCK promoter by p53 
+tetramers link separated DNA response elements by DNA looping Oncogene 16 
+283-292 
+Stenger JE Tegtmeyer P Mayr GA Reed M Wang Y Wang P Hough 
+PV and Mastrangelo IA 1994 p53 oligomerization and DNA looping are 
+linked with transcriptional activation EMBO J 13 6011-6020 
+Leung TH Hoffmann A and Baltimore D 2004 One nucleotide in a kappaB 
+site can determine cofactor specificity for NF-kappaB dimers Cell 118 453-464 
+Vinkemeier U Cohen SL Moarefi I Chait BT Kuriyan J and Darnell 
+JE Jr 1996 DNA binding of in vitro activated Stat1 alpha Stat1 beta and 
+truncated Stat1 interaction between NH2-terminal domains stabilizes binding of 
+two dimers to tandem DNA sites EMBO J 15 5616-5626 
+Xu X Sun YL and Hoey T 1996 Cooperative DNA binding and sequence-
+selective recognition conferred by the STAT amino-terminal domain Science 
+273 794-797 
+Saiz L Rubi JM and Vilar JMG 2005 Inferring the in vivo looping 
+properties of DNA Proc Natl Acad Sci U S A 102 17642-17645 
+Saiz L and Vilar JMG 2006 DNA looping the consequences and its control 
+Curr Opin Struct Biol 16 344-350 
+Hill TL 1960 An Introduction to Statistical Thermodynamics Addison-
+Wesley 
+Ackers GK Johnson AD and Shea MA 1982 Quantitative model for gene 
+regulation by lambda phage repressor Proc Natl Acad Sci U S A 79 1129-1133 
+Segal E and Widom J 2009 From DNA sequence to transcriptional behaviour 
+a quantitative approach Nat Rev Genet 10 443-456 
+Vilar JMG and Saiz L 2005 DNA looping in gene regulation from the 
+assembly of macromolecular complexes to the control of transcriptional noise 
+Curr Opin Genet Dev 15 136-144 
+Saiz L and Vilar JM 2008 Ab initio thermodynamic modeling of distal 
+multisite transcription regulation Nucleic Acids Res 36 726-731 
+Kuhlman T Zhang Z Saier MH Jr and Hwa T 2007 Combinatorial 
+transcriptional control of the lactose operon of Escherichia coli Proc Natl Acad 
+Sci U S A 104 6043-6048 
+Vilar JMG and Leibler S 2003 DNA looping and physical constraints on 
+transcription regulation J Mol Biol 331 981-989 
+Saiz L and Vilar JMG 2006 Stochastic dynamics of macromolecular-
+assembly networks Molecular Systems Biology 2 0024 
+Altucci L and Gronemeyer H 2001 The promise of retinoids to fight against 
+cancer Nat Rev Cancer 1 181-193 
+Kersten S Dawson MI Lewis BA and Noy N 1996 Individual subunits of 
+heterodimers comprised of retinoic acid and retinoid X receptors interact with 
+their ligands independently Biochemistry 35 3816-3824 
+Bourguet W Ruff M Chambon P Gronemeyer H and Moras D 1995 
+Crystal structure of the ligand-binding domain of the human nuclear receptor 
+RXR-alpha Nature 375 377-382 
+Egea PF Mitschler A and Moras D 2002 Molecular recognition of agonist 
+ligands by RXRs Mol Endocrinol 16 987-997 
+Gampe RT Jr Montana VG Lambert MH Wisely GB Milburn MV 
+and Xu HE 2000 Structural basis for autorepression of retinoid X receptor by 
+tetramer formation and the AF-2 helix Genes Dev 14 2229-2241 
+37  Mascrez B Mark M Krezel W Dupe V LeMeur M Ghyselinck NB and 
+Chambon P 2001 Differential contributions of AF-1 and AF-2 activities to the 
+developmental functions of RXR alpha Development 128 2049-2062 
+Nagpal S Friant S Nakshatri H and Chambon P 1993 RARs and RXRs 
+evidence for two autonomous transactivation functions AF-1 and AF-2 and 
+heterodimerization in vivo EMBO J 12 2349-2360 
+Chambon P 2005 The nuclear receptor superfamily a personal retrospect on 
+the first two decades Mol Endocrinol 19 1418-1428 
+Heyman RA Mangelsdorf DJ Dyck JA Stein RB Eichele G Evans 
+RM and Thaller C 1992 9-cis retinoic acid is a high affinity ligand for the 
+retinoid X receptor Cell 68 397-406 
+Levin AA Sturzenbecker LJ Kazmer S Bosakowski T Huselton C 
+Allenby G Speck J Kratzeisen C Rosenberger M Lovey A et al 1992 9-
+cis retinoic acid stereoisomer binds and activates the nuclear receptor RXR alpha 
+Nature 355 359-361 
+Levine M and Tjian R 2003 Transcription regulation and animal diversity 
+Nature 424 147-151 
+Simicevic J and Deplancke B 2010 DNA-centered approaches to characterize 
+regulatory protein-DNA interaction complexes Mol Biosyst 6 462-468 
+Ptashne M and Gann A 2002 Genes  signals Cold Spring Harbor 
+Laboratory Press Cold Spring Harbor NY 
+45  Metivier R Penot G Hubner MR Reid G Brand H Kos M and Gannon 
+F 2003 Estrogen receptor-alpha directs ordered cyclical and combinatorial 
+recruitment of cofactors on a natural target promoter Cell 115 751-763 
+Agalioti T Lomvardas S Parekh B Yie J Maniatis T and Thanos D 
+2000 Ordered recruitment of chromatin modifying and general transcription 
+factors to the IFN-beta promoter Cell 103 667-678 
+Vilar JMG Guet CC and Leibler S 2003 Modeling network dynamics the 
+lac operon a case study J Cell Biol 161 471-476 
+Lee E and Bussemaker HJ 2010 Identifying the genetic determinants of 
+transcription factor activity Mol Syst Biol 6 412 
+Nielsen R Pedersen TA Hagenbeek D Moulos P Siersbaek R Megens 
+E Denissov S Borgesen M Francoijs KJ Mandrup S et al 2008 
+Genome-wide profiling of PPARgammaRXR and RNA polymerase II occupancy 
+reveals temporal activation of distinct metabolic pathways and changes in RXR 
+dimer composition during adipogenesis Genes Dev 22 2953-2967 
+Vilar JMG 2010 Accurate prediction of gene expression by integration of 
+DNA sequence statistics with detailed modeling of transcription regulation 
+Biophys J 99 2408-2413 
+Vilar JM and Saiz L 2010 CplexA a Mathematica package to study 
+macromolecular-assembly control of gene expression Bioinformatics 26 2060-
+Bissonnette RP Brunner T Lazarchik SB Yoo NJ Boehm MF Green 
+DR and Heyman RA 1995 9-cis retinoic acid inhibition of activation-induced 
+apoptosis is mediated via regulation of fas ligand and requires retinoic acid 
+receptor and retinoid X receptor activation Mol Cell Biol 15 5576-5585 
+Vuligonda V Lin Y and Chandraratna RAS 1996 Synthesis of highly 
+potent RXR-specific retinoids The use of a cyclopropyl group as a double bond 
+isostere Bioorganic  Medicinal Chemistry Letters 6 213-218 
+54  Widom RL Rhee M and Karathanasis SK 1992 Repression by ARP-1 
+sensitizes apolipoprotein AI gene responsiveness to RXR alpha and retinoic acid 
+Mol Cell Biol 12 3380-3389 
+TABLES 
+Table 1 Modulated self-assembly of transcription factors 
+Self-assembly modulation  Oligomerization statesb 
+ligand-binding 8 
+NF-B 
+protein-binding 910 
+acetylation 11 
+protein-mediated 
+phosphorylation 12 
+phosphorylation 6 
+monomer dimer tetramer 
+monomer dimer tetramer 
+stacked-tetramers 1 
+dimer tetramer 23 
+dimer tetramer 4 
+monomer dimer 5 
+tetramer 6 
+DNA binding  
+1 site 4 consecutive half-sites 
+15 2 separated sites 16 
+1 site 2 separated half-sites 2 
+separated sites 1718 
+2 separated sites 19 
+tandem sites 2021 
+1 site 2 separated sites 6 
+aFor each transcription factor TF the table shows the experimentally observed 
+mechanism of the self-assembly modulation process the oligomerization states involved 
+and the corresponding arrangement of DNA binding sites at the promoter  
+bThe symbol  indicates the oligomeric species that have been observed to substantially 
+bind DNA
+Table 2 Probability 
+Statesa 
+Full expressionb 
+cP  of the different groups of binding states 
+15 16 
+9 10 
+12 13 
+8 11 
+14 17 
+Simplified  
+expressionc 
+aStates involved in the group as described in Figure 1 
+bThe expressions for the probabilities follow from the statistical thermodynamic approach 
+with the free energies of each state as described in Figure 1 
+cSimplified expressions for the probabilities in the functional regime 
+Table 3 EC50 control by ligand binding strength and conformational free energy 
+nM  Ligand 
+34032 
+kcalmol
+The EC50 is defined as the ligand concentration that gives the half-maximum response 
+FIGURE LEGENDS 
+Figure  1  Quantitative  modeling  of  control  of  gene  expression  by  modulated  self-
+assembly  Intracellular  signals  are  processed  through  modulated  self-assembly  into 
+populations  of  different  oligomeric  species  that  upon  DNA  binding  engage  in 
+transcription  control  Modulated  self-assembly  The  intensity  of  a  self-assembly 
+modulator signal   s  eg ligand or active kinase concentration regulates the formation 
+of  high  order  oligomers    by  modifying  represented  as  a  yellow  spark  the  low  order 
+oligomers  and  preventing  their  self-assembly  into  the  high  order  species    DNA 
+binding The oligomeric species bound to DNA in orangered are described by their 
+free energies with the statistical weights 
+ shown for each binding state expression 
+in  black  The  parenthesized  number  in  blue  labels  each  of  the  17  states  and  the 
+molecular  representations  illustrate  the  binding  combinations  of  the  transcriptional 
+regulator  to  the  two  DNA  sites  site  1  and  site  2  The  top  left  box  summarizes  the 
+notation Transcriptional control One state state 2 can trigger response R1 in which 
+an enhancer is positioned in the vicinity of the promoter region and twelve states states 
+6-17  can  potentially  trigger  response  R2  in  which  a  coactivator  is  recruited  to  the 
+promoter region Dimers and tetramers have been drawn as compositions of the nuclear 
+hormone  receptor  RXR  structures  from  the  PDB  files  1BY4  DNA  binding  domains 
+bound  to  the  two  half-sites  on  DNA  or  RXR  response  elements  and  1G1U  ligand 
+binding domains 
+Figure  2    Prediction  of  RXR-mediated  transcriptional  responses  to  9cRA  and  atRA 
+ligands The results of the model lines for the functional regime are compared to the 
+normalized  fold  induction  NFI  from  experimental  data  symbols  for  different 
+promoters and ligands The model  uses the experimental values 
+ for 9cRA 
+52  or 
+  for  atRA  53  and 
+  7  The  conformational  free 
+energy 
+ shown in kcalmol is inferred from just the experimental data for 9cRA by 
+minimizing  the  mean  squared  error  between  model  and  experiments  and  the  resulting 
+value is used subsequently for responses to atRA A Response to 9cRA for a system 
+with two separated DNA binding sites for RXR and a distal enhancer Experimental gene 
+expression data is taken from Figure 5b of Yasmin et al 16 which used COS-7 cells 
+transfected  with  the  reporter  consisting  of  double  RXRE  and  a  UAS  site  300  bp 
+upstream in a vector encoding GAL4-VP16   The NFI was computed as 
+Supplementary  Methods  with  equations  2  and  3  In  this  case  the  half-maximum 
+response  concentration  or  EC50  is  about  35  times  higher  than  the  9cRA-RXR 
+dissociation constant  B Responses to 9cRA for systems with contiguous DNA binding 
+sites for RXR The variability of the dose-response curves including 10-fold changes in 
+the EC50 and different slopes is accurately captured by the model by just adjusting 
+The three different curves correspond to three different experimental systems reported in 
+Figure  5a  of  Heyman  et  al  40  top  which  used  S2  cells  cotransfected  with  the 
+expression plasmid A5C-hRXR and the reporter plasmid ADH-CRBPII-LUC Figure 4b 
+of  Levin  et  al  41  center  which  used  CV-1  cells  cotransfected  with  the  reporter 
+CRBPII-RXRE-CAT construct and plasmid RXR and Figure 5b of Heyman et al 40 
+bottom which used CV-1 cells cotransfected with the expression plasmid pRSh-RXR 
+reporter  plasmid  TK-CRBPII-LUC  The  NFI  was  computed  as 
+P  see Supplementary Methods with equations 2 and 
+1 1   
+  
+3 C Responses to atRA for systems with contiguous DNA binding sites for RXR The 
+three different dose-response curves correspond to the three systems of Figure 2B with 
+the all-trans retinoic acid atRA as ligand of RXR instead of 9cRA The highly variable 
+dose-response curves are fully predicted without free parameters using the values of 
+inferred in Figure 2B  
+Figure 3  Local and global flexibility in the response landscapes The normalized fold 
+induction NFI for RXR from the model computed as in Figure 2 is shown as a function 
+of both the self-assembly modulator intensity either 9cRA or atRA concentration and 
+the  conformational  free  energy 
+  The  figures  on  the  bottom  are  density-plot 
+projections of the corresponding NFI on the top with dark and light gray corresponding 
+to low and high values of the NFI respectively The red line corresponds to NFI 05 and 
+shows  the  dependence  of  the  half-maximum  response  concentration  or  EC50  with  the 
+conformational  free  energy  The  EC50  can  be  changed  locally  at  the  single-promoter 
+level by changing the value of 
+ or globally at a genome-wide scale by changing 
+ligK   the  strength  of  the  ligand  binding  to  RXR  The  3D  plots  show  the  same 
+experimental data symbols as in A Figure 2A B Figure 2B and C Figure 2C along 
+with  the  dose-response  curves  black  lines  for  the  corresponding  values  of  the 
+conformational free energy  The values of the parameters used are 
+ 7 and 
+either  
+ for 9cRA 52 or 
+ for atRA 53  
+Figure  4  Precision  and  flexibility  of  the  transcriptional  responses  The  model  for  the 
+whole-parameter  space  see  Supplementary  Methods  reproduces  the  different  dose-
+response  curves  regardless  of  10-fold  changes  in  total  RXR  concentration  The 
+normalized  fold  induction  from  experimental  data  symbols  and  the  model  lines  is 
+shown for the same systems as in A Figure 2A B Figure 2B and C Figure 2C The 
+results  agree  with  the  experimental  data  over  10-fold  changes  of  the  total  RXR 
+n  which confirms the presence of a 
+concentration given by 
+precise  functional  regime  for  typical  molecular  parameters    The  experimental  values 
+used are 
+ for 9cRA 52 or 
+ for atRA 53 
+ 7 The free energies of binding are obtained through their corresponding 
+  54 
+constants 
+dissociation 
+s1K   and 
+  with 
+s2K   are  the  dimer-monomer  RXR-site  1  and 
+RXR-site  2  dissociation  constants  respectively  The  values  of  the  conformational  free 
+energies  were  inferred  in  Figure  2  The  10-fold  range  of  total  RXR  concentration  was 
+chosen for each specific system so that it best reproduces the experimental data in Figures 
+4A and 4B The explicit value of  Tn  is shown on the top of each graph in nM units The 
+results of Figure 4C are predictions without free parameters    
+Modulated  
+self-assembly  
+signal 
+  n2 f s
+DNA binding 
+  n4e
+n4e
+n4e
+o  Gs2
+o  Gs2
+ Zstate
+state 
+- site 2 --- site 1 - 
+  n4e
+  n2n4e
+  n2n4e
+o  Gs2
+o  Gs2
+  n2e
+  n2e
+n2e
+n2e
+o  Gs2
+  n4e
+  n42e
+  n22e
+o  Gs2
+o  Gs2
+o  Gs2
+o  Gs2
+o  Gs2
+Transcriptional
+control 
+response R1 
+enhancer 
+response R2 
+coactivator 
+Figure 1 
+Response R2 
+Klig8 
+Response R2 
+Klig350 
+Response R1 
+Klig8 
+o  803
+o  1092
+o  1076
+o  947
+9cRA nM 
+atRA nM 
+Figure 2 
+Response R1 
+Klig8 
+Response R2 
+Klig8 
+Response R2 
+Klig350 
+Figure 3 
+Response R1 Klig8 
+nT 1124
+o  803
+Response R2 Klig8 
+nT 2800
+10 1 100
+10 1 100
+10 1 100
+9cRA nM 
+o  1092
+o  1076
+o  947
+Response R2 Klig350 
+nT 2800
+10 1 100 101 102 103 104
+100 101 102 103 104
+atRA nM 
+100 101 102 103 104
+Figure 4 
+SUPPLEMENTARY METHODS 
+Normalized fold induction for response R1 
+In  the  case  of  an  enhancer  being  brought  to  the  promoter  the  fold  induction  and 
+maximum  fold  induction  are 
+FI  
+   and 
+which lead to a normalized fold induction given by 
+   
+  respectively 
+Therefore in the case of response R1 the normalized fold induction is determined by just 
+the probability of the conformation with the tetramer bound to the two DNA sites 
+Normalized fold induction for response R2 
+The  case  of  a  coactivator  being  recruited  by  an  active  RXR  dimer  is  more  involved 
+because the self-assembly modulator 9cRA is also an agonist of RXR The reason is that 
+an RXR dimer has to bind at least one 9cRA molecule to recruit a coactivator Therefore 
+the  quantities  c   see  text  are  themselves  effective  transcription  rates  given  by 
+  
+no ligand
+no ligand
+  where 
+no ligand
+  is  the  probability  that  none  of  the 
+dimers  of  the  group  of  binding  states  c   has  a  ligand  bound  It  is  given  by 
+no ligand
+1 1   
+ for the groups of binding states with one dimer od and do and 
+no ligand
+1 1   
+  for  the  group  of  binding  states  with  the  two  dimers  dd 
+The resulting effective transcription rates for the groups of binding states with dimers 
+      
+ 1 1   
+      
+ 1 1  
+      
+ 1 1   
+ depend explicitly on the self-assembly 
+modulator concentration and take into account that binding of at least one ligand to RXR 
+activates  the  dimeric  form  in  addition  to  modulating  the  oligomerization  state    In  the 
+case of response R2 therefore we have 
+FI  
+  and 
+ and the 
+resulting normalized fold induction is given by  
+1 1   
+  
+1 1   
+  
+for the whole-parameter space and by 
+1 1   
+  
+in the functional regime 
+Modulator function for RXR 
+The  self-assembly  modulator  of  RXR  is  the  hormone  9-cis-retinoic  acid    9cRA  a 
+derivative  of  Vitamin  A  which  binds  each  RXR  molecule  independently  of  its 
+oligomerization  state  and  prevents  dimers  with  their  two  subunits  occupied  from 
+tetramerazing  Therefore  there  are  several  types  of  tetramerizing  dimers  We  use  the 
+notation 
+ for the dimer concentration with no hormone bound 
+those with just one 9cRA molecule bound and 
+ for those with two 9cRA molecules 
+bound Binding of 9cRA to RXR follows the usual mass action law 
+  and 
+  where 
+ligand-RXR 
+dissociation constant The concentrations of tetramerazing and non-tetramerazing dimers 
+are therefore related to each other by 
+2  
+from which we obtain the explicit form of the modulator function  
+This expression explicitly indicates how the ligand controls the relative concentrations of 
+the different oligomerization states that shape the transcriptional response 
+Computational approach for RXR in the whole-parameter space 
+The  whole-parameter  space  needs  to  consider  explicitly  the  total  nuclear  RXR 
+concentration 
+n   which  includes  the  contributions  from 
+monomer  concentration 
+n   in  addition  to  those  from  the  tetramer  dimer  and  non-
+tetramerizing dimer Dimerization is described by 
+K  where 
+dmK  is 
+dimer-monomer  dissociation  constant  For  given  values  of  the  parameters  the 
+concentrations of the four oligomerization states are obtained by solving numerically the 
+equations  for  the  total  nuclear  RXR  concentration  dimerization  tetramerization  and 
+modulator 
+function 
+for  each 
+ligand  concentration  The 
+resulting  oligomeric 
+concentrations are used to obtain the corresponding probabilities Table 2 which in turn 
+substituted 
+expressions 
+1 1   
+  
+1 1   
+  
+P   to  obtain  the  normalized 
+fold induction for responses R1 and R2 respectively 

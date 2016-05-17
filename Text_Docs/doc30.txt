@@ -1,602 +1,3011 @@
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-Architecture of an Ontology-Based Domain-
-Specific Natural Language Question  
-Answering System 
-Athira P M Sreeja M and P C Reghuraj 
-Department of Computer Science and Engineering Government Engineering College 
-Sreekrishnapuram Palakkad Kerala India 678633 
-ABSTRACT 
-Question  answering  QA  system  aims  at  retrieving  precise  information  from  a  large  collection  of 
-documents  against  a  query  This  paper  describes  the  architecture  of  a  Natural  Language  Question 
-Answering  NLQA  system  for  a  specific  domain  based  on  the  ontological  information  a  step  towards 
-semantic  web  question  answering  The  proposed  architecture  defines  four  basic  modules  suitable  for 
-enhancing current QA capabilities with the ability of processing complex questions The first module was 
-the question processing which analyses and classifies the question and also reformulates the user query 
-The second module allows the process of retrieving the relevant documents The next module processes the 
-retrieved  documents  and  the  last  module  performs  the  extraction  and  generation  of  a  response  Natural 
-language processing techniques are used for processing the question and documents and also for answer 
-extraction  Ontology  and  domain  knowledge  are  used  for  reformulating  queries  and  identifying  the 
-relations The aim of the system is to generate short and specific answer to the question that is asked in the 
-natural  language  in  a  specific  domain  We  have  achieved  94    accuracy  of  natural  language  question 
-answering in our implementation 
-KEYWORDS 
-Natural Language Processing Question Answering Ontology Semantic Role Labeling 
-1 INTRODUCTION 
-Question  Answering  is  the  process  of  extracting  answers  to  natural  language  questions  A  QA 
-system takes questions in natural language as input searches for answers in a set of documents 
-and  extracts  and  frames  concise  answers  QA  systems  provide  answers  to  the  natural  language 
-questions  by  considering  an  archive  of  documents  Instead  of  providing  the  precise  answers  in 
-most of the current information retrieval systems the users have to select the required information 
-from  a  ranked  list  of  documents  Information  Extraction  IE  is  the  name  given  to  any  process 
-which selectively structures and combines data which is found explicitly stated or implied in one 
-or  more  texts  5  After  finding  the  significant  documents  the  IR  system  submits  those  to  the 
-user  The  scope  of  the  QA  has  been  constrained  to  domain  specific  systems  due  to  the 
-complications  in  natural  language  processing  NLP  techniques  4  Current  search  engines  can 
-return ranked lists of documents but not the answers to the user queries 
-DOI  105121ijwest20134403                                                                                                                    31 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-Novice users may lack adequate knowledge in the domain of search so the query framed by them 
-may  not  meet  the  information  needs  Moreover  the  query  that  the  users  often  codify  captures 
-many documents that are irrelevant and also fails to find the knowledge or relationships that are 
-hidden in the articles To overcome this drawback many systems provide various facilities such 
-as  relevance  feed-back  with  which  searchers  can  find  out  the  documents  that  are  of  interest  to 
-them With these questions about the current techniques in mind a new querying approach can be 
-developed based on domain specific ontologies and some NLP techniques for better results 7 
-Also syntactic analysis based on rules and semantic role labeling can be applied to improve both 
-query construction and answer extraction With this information we will be able to analyze and 
-extract  structure  and  meaning  from  both  questions  and  candidate  sentences  which  helps  us  to 
-identify more relevant and precise answers in a long list of candidate sentences 2 
-2 LITERATURE SURVEY 
-There  has  been  an  impressive  rise  in  the  significance  in  natural  language  question  answering 
-since  the  establishment  of  the  Question  Answering  track  in  the  Text  Retrieval  Conferences 
-beginning with TREC-8 in 1999 Voorhees and Harman 2000 However this is not the first time 
-that the QA has been discussed by the NLP researchers  In fact in 1965 Simmons published a 
-survey  article  Answering  English  Questions  by  Computer  and  his  paper  analyses  about  more 
-than fifteen English language question answering systems implemented in the previous  five years 
-5 A brief history of QA systems starting from database approaches is briefly described in 4 
-Question  answering  systems  have  traditionally  depended  on  a  variety  of  lexical  resources  to 
-bridge  the  surface  differences  between  questions  and  potential  answers  Syntactic  structure 
-matching has been applied to passage retrieval Cui et al 2005 and answer extraction Shen and 
-Klakow  2006  The  significance  of  semantic  roles  in  answering  complex  questions  was  first 
-emphasized  by  Narayanan  and  Harabagiu  in  2004  Predicate-argument  structures  were 
-identified in their system by consolidating the information on semantic roles from PropBank and 
-FrameNet  But the  history  of  semantic  and  thematic role  labeling  dates  back  to  ancient  period 
-The  classical  Sanskrit  grammar  Astadhyayi  created  by  the  Indian  grammarian  Panini  at  a  time 
-variously estimated at 600 or 300 BC includes a sophisticated theory of thematic structure that 
-remains influential till today 2 
-Sun et al successfully use semantic relations to match candidate answers FREyA Damljanovic 
-et al 2010 a Feedback Refinement and Extended Vocabulary Aggregation system associates the 
-method of syntactic parsing with ontological information for decreasing the effort of adaptation 
-In spite of the rule-based systems their system encodes the knowledge into ontology for a better 
-understanding  of  the  question  posed  by  the  user  Then  for  getting  a  more  definite  answer  the 
-syntactic parsing is incorporated 
-Our  work  focuses  on  the  analysis  of  questions  using  both  syntactic  and  semantic  methods 
-decomposing  a  single  complex  query  into  a  set  of  less  complex  queries  using  an  ontology  and 
-morphological expansion Our approach is different from the works in that we use semantic role 
-labeling  and  domain  knowledge  using  ontology  to  analyze  questions  as  well  as  to  find  answer 
-phrases  Importance  is  given  to  both  nouns  and  verbs  by  extracting  the  named  entities  noun 
-phrases and analyzing then using the Verbnet 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-3 QUESTION ANSWERING SYSTEM 
-Question  Answering  the  process  of  extracting  answers  to  natural  language  questions  is 
-profoundly different from Information Retrieval IR or Information Extraction IE IR systems 
-present the user with a set of documents that relate to their information need but do not exactly 
-indicate the correct answer In IR the relevant documents are obtained by matching the keywords 
-from  user  query  with  a  set  of  index  terms  from  the  set  of  documents  In  contrast  IE  systems 
-extract  the  information  of  interest  provided  the  domain  of  extraction  is  well  defined  In  IE 
-systems  the  required  information  is  built  around  in  presumed  templates  in  the  form  of  slot-
-fillers  
-The QA technology takes both IR and IE a step further and provides specific and brief answers to 
-open domain questions formulated naturally 9 Current information retrieval systems allow us to 
-locate  documents  that  might  contain  the  pertinent  information  but  most  of  them  leave  it  to  the 
-user to extract the useful information from a ranked list 10 
-The  Question  Answering  systems  based  on  a  repository  of  documents  have  three  main 
-components  The  first  is  an  information  retrieval  engine  that  sits  on  top  of  the  document 
-collection  and  handles  retrieval  requests  ie  a  web  search  engine  The  second  component  is  a 
-query  interpretation  system  that  deciphers  the  natural-language  questions  into  keywords  or 
-queries  for  the  search  engine  for  fetching  the  significant  documents  from  the  database That  is 
-the  documents  that  can  potentially  answer the  question  5  Fine  grained information  extraction 
-techniques  need  to  be  used  for  pinpointing  answers  within  likely  documents  The  third 
-component answer extraction evaluates these documents and extracts answer snippets from them 
-The three essential modules in almost all QA systems are question processing generate a query 
-out  of  the  natural  language  question  document  retrieval  perform  document  level  information 
-retrieval  and  answer  extraction  and  formulation  pinpointing  answers  8  The  general 
-architecture of a QA System is shown in Figure 1 
-Figure 1  General Architecture of a NLQA System 
-1  QUESTION PROCESSING The objective of this process is to understand the question 
-posed  by  the  user  for  which  analytical  operations  are  performed  for  the  representation 
-and classification of the questions  
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-2  DOCUMENT EXTRACTION  PROCESSING This module selects a set of relevant 
-documents and extracts a set of paragraphs depending on the focus of the question The 
-answer is in terms of these paragraphs  
-3  ANSWER PROCESSING This module is responsible for selecting the response 
-based on the relevant fragments of the documents This needs a pre-processing of 
-the information in order to relate the answers with a given question 
-Most of the current system uses either syntactic and semantic analysis or ontology processing for 
-answer  retrieval  But  our  system  implements  the  three  modules  based  on  a  hybrid  approach  a 
-step  towards  natural  language  question  answering  in  semantic  web  The  proposed  system 
-analyses  both  the  question  and  answer  processing  modules  using  the  syntactic  and  semantic 
-approaches and also uses the domain ontology for relation extraction and identification The base 
-ontology  is  populated  dynamically  for  each  document  in  the  collection  And  ontology  for  a 
-specific domain is created as a by-product of the system  which can be used for future analysis 
-and processes 
-4 THE PROPOSED ARCHITECTURE 
-The  proposed  architecture  of  an  ontology-based  domain-specific  NLQA  system  is  depicted  in 
-Figure 2 The model integrates key components such as Natural Language Processing techniques 
-Conceptual Indexing based Retrieval Mechanism and Ontology Processing 
-Figure 2  Proposed Architecture of the OD-NLQA System 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-41 Question Processing 
-In the question processing module with the help of various components the following actions 
-are performed 
-  Analysis of the natural language question  
-  Question classification  
-  Reformulation of the user query  
-A Query Analyzer  
-The natural-language question given by the user is analyzed using various natural 
-language processing techniques 
-  Syntactic Analysis  The question is analyzed syntactically using NLP techniques Part-of-
-speech tagging and named entity recognition NER are performed Tools such as Python-
-nltk OpenNLP Stanford CoreNLP can be used for this purpose In the proposed system we 
-used Stanford CoreNLP tool-kit The CoreNLP processes the document and creates an XML 
-file  as  output  Shallow  parsing  is  performed  to  identify  the  phrasal  chunks  The  phrasal 
-chunks can be identified using the Regular-expression chunker and the Conll-2000 trained 
-chunker  
-  Semantic  Analysis    Semantic  role  labeling  is  an  important  step  in  this  module  which 
-enables  to  find  the  dependencies  or  restriction  that  can  be  imposed  after  getting  the  user 
-query  6 This  greatly  eliminates  the  chances  of  irrelevant  set  of  answers  Semantic  roles 
-are identified using the verbnet frames  
-B Question Classification  
-The natural-language question needs to be classified into various sets for extracting more 
-precise sets of answers The following steps are performed by the proposed system 
-  Focus  Identification  -  The objective  of  this  is  to identify  the category  of  response  that the 
-user is searching for The question focus can be identified by looking at the question word 
-or a combination of the question word and its succeeding words Classification of question 
-word to question focus is shown in Table 1 For example both the question word when or 
-the combination what time indicates a temporal aspect which has to be found in the answer 
-Table 1 Question to Question focus Classification 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-  Phrase  or  Clause  Detection  -  The  phrases and clauses  contains the information  relevant  to 
-the expected answer and the irrelevant set can be easily eliminated The question phrase can 
-be determined using shallow parsing or chunking The NP chunk identifies the clauses that 
-are to be looked upon in the documents for obtaining the answer set  
-  Frame  Detection    The  semantic  roles  are  identified  and  mapped  to  a  semantic  frame  for 
-better retrieval For example The event E Who gave a balloon to the  kid has the roles 
-AGENT  verbgive  THEME  to  RECIPIENT  the  semantic  frame  is  identified  as 
-haspossessionstartE  Agent  Theme    haspossessionendE  Recipient  Theme 
-transferduringE  Theme  The  frames  can  also  be  used  for  ranking  of  the  retrieved 
-answer set  
-C Query Reformulation  
-The user queries may be reformulated by adding domain knowledge and ontological 
-information 
-  Ontology - Ontology is defined in the basic terms and relations comprising the vocabulary 
-of  a  specific  area  as  well  as  rules  for  combining  these  terms  and  relations  to  define 
-extensions  vocabularies  1  The  base  ontology  is  created  for  the  specific  domain  by 
-incorporating  the  classes  and  object properties The domain  range  and restrictions  on the 
-classes are also specified  
-42 Document Retrieval  
-This module selects a set of relevant documents from a domain specific repository Conceptual 
-indexing  is  used  for  the  retrieval  process  since  the  key  word  based  indexing  ignores  the 
-semantic content of the document collection 5 Both the documents and queries can be mapped 
-into  concepts  and  these  concepts  are  used  as  a  conceptual  indexing  space  for  identifying  and 
-extracting documents 
-43 Document Processing 
-The  retrieved  documents  are  processed  for  extracting  candidate  answer  set  This  module  is 
-responsible for selecting the response based on the relevant fragments of the documents 
-  Syntactic  Analysis    The  documents  analyzed  syntactically  using  the  NLP  techniques 
-such  as  part-of-speech  tagging  and  named-entity  recognition  In  the  syntactic  analysis 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-firstly  the  documents  are  tokenized  into  set  of  sentences  Using  the  Stanford  CoreNLP 
-the  POS  tagging  and  NER  is  performed  Shallow  parsing  is  performed  to  identify  the 
-phrasal chunks The chunks identified in the question analysis module are matched with 
-those identified in the document and relevant sentences are retrieved 
-  Semantic Analysis  Shallow parsing can be performed for finding the semantic phrases 
-or  clauses  The  semantic  roles  are  identified  and  mapped  to  semantic  frames  The 
-sentences whose semantic frames map exactly to the semantic frames of the question are 
-also extracted  
-  Relation  Identification  -  The  base  ontology  is  populated  with  the  domain  knowledge 
-incrementally  as  we  go  through  different  set  of  documents  By  this  method  a  valid 
-knowledge on any specialized discipline can be incorporated to the system The relations 
-among different concepts are identified using the domain knowledge and the ontological 
-information obtained  
-44 Answer Extraction  
-The  filtering  of  candidate  answer  set  and  answer  generation  is  performed  The  user  is  supplied 
-with a set of short and specific answers ranked according to their relevance The different stages 
-  Filtering  The extracted sentences are filtered and the candidate answer set is produced 
-This  is  done  by  incorporating  the  information  obtained  from  the  question  classification 
-and  document  processing  modules  The  identified  focus  and  frames  are  matched  to  get 
-the candidate set  
-  Answer  Ranking    The  answer  set  is  ranked  based  on  the  semantic  similarity  Simple 
-template  matching  is  not  adopted  since  it  neglects  the  semantic  content  and  domain 
-knowledge Answers are ranked based on the similarity between the question frame and 
-the answer frame Example The event E John gave a balloon to the kid has the roles 
-AGENT  verbgive  THEME  to  RECIPIENT  the  semantic  frame  is  identified  as 
-haspossessionstartE  Agent  Theme    haspossessionendE  Recipient  Theme 
-transferduringE Theme matches exactly with the question frame  
-  Answer Generation  From the answer set specific answers have to be generated in case 
-the direct answers are not available Hidden relations can be identified from the domain 
-knowledge gathered from the ontology Concept of natural language generation can also 
-be utilized for this purpose  
-5 EVALUATION AND TESTING  
-The TREC QA test collections contain newswire articles and the accompanying queries cover a 
-wide  variety  of  topics  11  QA  evaluation  process  simply  access  these  TREC  collections  for 
-testing the efficiency of the systems Simply applying the open domain QA evaluation paradigm 
-to  a  restricted  domain  poses  several  problems  So  a  different  method  for  evaluation  process  is 
-used in this system A random set of documents are collected over a specific domain Relevant 
-correct  and  complete  answers  are  derived  for  a  set  of  question  from  some  arbitrarily  chosen 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-unbiased users and this set is used for the testing purposes 4 The questions are tested for their 
-  Correctness - The answer should be factually correct  
-  Relevance - The answer should be a response to the question  
-  Completeness  -  The  answer  should  complete  ie  a  partial  answer  should  not  get  full 
-credit  
-The  proposed  system  tries to  find  precise  answers  to factual  questions  and  explanative  answers 
-are  not  provided  For  multiple  answers  ranking  is  provided  based  on  the  semantic  matching 
-Direct answers are generated using natural language generation techniques form the candidate set 
-of answers 
-The  system  is  tested  for  efficiency  using  the  notion  of  recall  Recall  for  a  question  answering 
-system  is  defined  as  the  ratio  of  number  of  correct  answers  to  the  total  number  of  questions 
-given  5  Answer  precision  may  be  subjective  but  we  have  tried  to  make  it  as  objective  as 
-possible 
-The  system  is  tested  in  a  domain  of  short  stories  and  the  results  are  presented  in  Table  2  and 
-Table  3  For  the  system  testing  the  document  set  collection  of  short  stories  is  retrieved 
-arbitrarily over the web For the testing we use the question track consisting of 100 questions of 
-varying type complexity and difficulty It has to be noted that  precise answer here indicates the 
-one-word  answer  generated  as  response  to  a  factual  question  but  for  a  question  answering 
-system the answer can be generated as a single sentence and is indicated as retrieved sentences 
-containing precise answers 
-Table 2  Recall with retrieved precise answers 
-No of 
-documents 
-Total size 
-No of questions  No of correct   Recall 
-answers 
-Table 3  Recall considering retrieved sentences containing precise answers 
-No of 
-documents 
-Total size 
-No of questions  No of correct   Recall 
-answers 
-6 CONCLUSION AND FUTURE WORK 
-We have presented an architecture of ontology-based domain-specific natural language question 
-answering that applies semantics and domain knowledge to improve both query construction and 
-answer extraction The system presented in this paper is a step towards the ultimate goal of using 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-the  web  as  a  comprehensive  self-updating  knowledge  repository  which  can  be  automatically 
-mined to answer a wide range of questions with much less effort than is required by todays search 
-engines The experiments show that our system is able to filter semantically matching sentences 
-and their relations effectively and therefore rank the correct answers higher in the result list 
-We intend to extend the coverage of the system to all possible question types ie move from the 
-factual  to  more  complex  forms  of  question  including  lists  summarization  of  contradictory 
-information and explanations including answers to how or why questions and eventually what 
-if  questions  Generating  short  coherent  and  precise  answers  will  be  a  major  research  area  and 
-will  rely  massively  on  progress  in  information  extraction  and  text  summarization  Also  new 
-research  should  be  done  to  gather  more  information  in  various  levels  of  understanding 
-effectiveness and situations 
-REFERENCES 
-1  Abouenour  LBouzouba  K  Rosso  P  2010  An  evaluated  semantic  query  expansion  and 
-structure-based  approach  for  enhancing  Arabic  questionanswering  International  Journal  on 
-Information and Communication Technologies Vol 3 June 2010  
-2  Akshar B Rajeev S 1993 Parsing Free Word Order Languages in the Paninian Framework  In 
-Proceedings of the 31st annual meeting on Association for Computational Linguistics  
-3  Allen J F  2007  Natural Language Understanding  Pearson Education Inc  
-4  Hirschman L Gaizauskas R 2001 Natural language question answering the view from here  
-          Journal of Natural Language Engineering  
-5  Kwok  C  Etzioni  O  Weld  D  S  2001  Scaling  Question  Answering  to  the  Web  ACM 
-Transactions on Information Systems  
-6  Pizzato L A Diego M 2008 Indexing on Semantic Roles for Question Answering  In 
-Proceedings of the 2nd workshop on Information Retrieval for Question Answering IR4QA 
-Coling  
-7  Song  M  Allen  RB  2007  Integration  of  association  rules  and  ontologies  for  semantic  query 
-expansion Data Knowledge Engineering Elsevier pp 6375  
-8  Sucunuta M E Riofrio G E 2010 Architecture of a Question-Answering System for a Specific 
-Repository of Documents  In 2nd International Conference on Software Technology and 
-Engineering  
-9  Surdeanu M Moldovan D 2003 On the role of Information Retrieval and Information Extraction 
-in Question Answering Systems  Information Extraction in Web Era - Springer 
-10  Tuffis  D  2011  Natural  Language  Question  Answering  in  Open  Domains    Computer  Science 
-Journal of Moldova  
-11  Yilmazel  O  Diekema  AR  Liddy  ED  2004  Evaluation  of  Restricted  Domain  Question                                                                                       
-Answering Systems Association for Computational Linguistics 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-Architecture of an Ontology-Based Domain-
-Specific Natural Language Question  
-Answering System 
-Athira P M Sreeja M and P C Reghuraj 
-Department of Computer Science and Engineering Government Engineering College 
-Sreekrishnapuram Palakkad Kerala India 678633 
-ABSTRACT 
-Question  answering  QA  system  aims  at  retrieving  precise  information  from  a  large  collection  of 
-documents  against  a  query  This  paper  describes  the  architecture  of  a  Natural  Language  Question 
-Answering  NLQA  system  for  a  specific  domain  based  on  the  ontological  information  a  step  towards 
-semantic  web  question  answering  The  proposed  architecture  defines  four  basic  modules  suitable  for 
-enhancing current QA capabilities with the ability of processing complex questions The first module was 
-the question processing which analyses and classifies the question and also reformulates the user query 
-The second module allows the process of retrieving the relevant documents The next module processes the 
-retrieved  documents  and  the  last  module  performs  the  extraction  and  generation  of  a  response  Natural 
-language processing techniques are used for processing the question and documents and also for answer 
-extraction  Ontology  and  domain  knowledge  are  used  for  reformulating  queries  and  identifying  the 
-relations The aim of the system is to generate short and specific answer to the question that is asked in the 
-natural  language  in  a  specific  domain  We  have  achieved  94    accuracy  of  natural  language  question 
-answering in our implementation 
-KEYWORDS 
-Natural Language Processing Question Answering Ontology Semantic Role Labeling 
-1 INTRODUCTION 
-Question  Answering  is  the  process  of  extracting  answers  to  natural  language  questions  A  QA 
-system takes questions in natural language as input searches for answers in a set of documents 
-and  extracts  and  frames  concise  answers  QA  systems  provide  answers  to  the  natural  language 
-questions  by  considering  an  archive  of  documents  Instead  of  providing  the  precise  answers  in 
-most of the current information retrieval systems the users have to select the required information 
-from  a  ranked  list  of  documents  Information  Extraction  IE  is  the  name  given  to  any  process 
-which selectively structures and combines data which is found explicitly stated or implied in one 
-or  more  texts  5  After  finding  the  significant  documents  the  IR  system  submits  those  to  the 
-user  The  scope  of  the  QA  has  been  constrained  to  domain  specific  systems  due  to  the 
-complications  in  natural  language  processing  NLP  techniques  4  Current  search  engines  can 
-return ranked lists of documents but not the answers to the user queries 
-DOI  105121ijwest20134403                                                                                                                    31 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-Novice users may lack adequate knowledge in the domain of search so the query framed by them 
-may  not  meet  the  information  needs  Moreover  the  query  that  the  users  often  codify  captures 
-many documents that are irrelevant and also fails to find the knowledge or relationships that are 
-hidden in the articles To overcome this drawback many systems provide various facilities such 
-as  relevance  feed-back  with  which  searchers  can  find  out  the  documents  that  are  of  interest  to 
-them With these questions about the current techniques in mind a new querying approach can be 
-developed based on domain specific ontologies and some NLP techniques for better results 7 
-Also syntactic analysis based on rules and semantic role labeling can be applied to improve both 
-query construction and answer extraction With this information we will be able to analyze and 
-extract  structure  and  meaning  from  both  questions  and  candidate  sentences  which  helps  us  to 
-identify more relevant and precise answers in a long list of candidate sentences 2 
-2 LITERATURE SURVEY 
-There  has  been  an  impressive  rise  in  the  significance  in  natural  language  question  answering 
-since  the  establishment  of  the  Question  Answering  track  in  the  Text  Retrieval  Conferences 
-beginning with TREC-8 in 1999 Voorhees and Harman 2000 However this is not the first time 
-that the QA has been discussed by the NLP researchers  In fact in 1965 Simmons published a 
-survey  article  Answering  English  Questions  by  Computer  and  his  paper  analyses  about  more 
-than fifteen English language question answering systems implemented in the previous  five years 
-5 A brief history of QA systems starting from database approaches is briefly described in 4 
-Question  answering  systems  have  traditionally  depended  on  a  variety  of  lexical  resources  to 
-bridge  the  surface  differences  between  questions  and  potential  answers  Syntactic  structure 
-matching has been applied to passage retrieval Cui et al 2005 and answer extraction Shen and 
-Klakow  2006  The  significance  of  semantic  roles  in  answering  complex  questions  was  first 
-emphasized  by  Narayanan  and  Harabagiu  in  2004  Predicate-argument  structures  were 
-identified in their system by consolidating the information on semantic roles from PropBank and 
-FrameNet  But the  history  of  semantic  and  thematic role  labeling  dates  back  to  ancient  period 
-The  classical  Sanskrit  grammar  Astadhyayi  created  by  the  Indian  grammarian  Panini  at  a  time 
-variously estimated at 600 or 300 BC includes a sophisticated theory of thematic structure that 
-remains influential till today 2 
-Sun et al successfully use semantic relations to match candidate answers FREyA Damljanovic 
-et al 2010 a Feedback Refinement and Extended Vocabulary Aggregation system associates the 
-method of syntactic parsing with ontological information for decreasing the effort of adaptation 
-In spite of the rule-based systems their system encodes the knowledge into ontology for a better 
-understanding  of  the  question  posed  by  the  user  Then  for  getting  a  more  definite  answer  the 
-syntactic parsing is incorporated 
-Our  work  focuses  on  the  analysis  of  questions  using  both  syntactic  and  semantic  methods 
-decomposing  a  single  complex  query  into  a  set  of  less  complex  queries  using  an  ontology  and 
-morphological expansion Our approach is different from the works in that we use semantic role 
-labeling  and  domain  knowledge  using  ontology  to  analyze  questions  as  well  as  to  find  answer 
-phrases  Importance  is  given  to  both  nouns  and  verbs  by  extracting  the  named  entities  noun 
-phrases and analyzing then using the Verbnet 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-3 QUESTION ANSWERING SYSTEM 
-Question  Answering  the  process  of  extracting  answers  to  natural  language  questions  is 
-profoundly different from Information Retrieval IR or Information Extraction IE IR systems 
-present the user with a set of documents that relate to their information need but do not exactly 
-indicate the correct answer In IR the relevant documents are obtained by matching the keywords 
-from  user  query  with  a  set  of  index  terms  from  the  set  of  documents  In  contrast  IE  systems 
-extract  the  information  of  interest  provided  the  domain  of  extraction  is  well  defined  In  IE 
-systems  the  required  information  is  built  around  in  presumed  templates  in  the  form  of  slot-
-fillers  
-The QA technology takes both IR and IE a step further and provides specific and brief answers to 
-open domain questions formulated naturally 9 Current information retrieval systems allow us to 
-locate  documents  that  might  contain  the  pertinent  information  but  most  of  them  leave  it  to  the 
-user to extract the useful information from a ranked list 10 
-The  Question  Answering  systems  based  on  a  repository  of  documents  have  three  main 
-components  The  first  is  an  information  retrieval  engine  that  sits  on  top  of  the  document 
-collection  and  handles  retrieval  requests  ie  a  web  search  engine  The  second  component  is  a 
-query  interpretation  system  that  deciphers  the  natural-language  questions  into  keywords  or 
-queries  for  the  search  engine  for  fetching  the  significant  documents  from  the  database That  is 
-the  documents  that  can  potentially  answer the  question  5  Fine  grained information  extraction 
-techniques  need  to  be  used  for  pinpointing  answers  within  likely  documents  The  third 
-component answer extraction evaluates these documents and extracts answer snippets from them 
-The three essential modules in almost all QA systems are question processing generate a query 
-out  of  the  natural  language  question  document  retrieval  perform  document  level  information 
-retrieval  and  answer  extraction  and  formulation  pinpointing  answers  8  The  general 
-architecture of a QA System is shown in Figure 1 
-Figure 1  General Architecture of a NLQA System 
-1  QUESTION PROCESSING The objective of this process is to understand the question 
-posed  by  the  user  for  which  analytical  operations  are  performed  for  the  representation 
-and classification of the questions  
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-2  DOCUMENT EXTRACTION  PROCESSING This module selects a set of relevant 
-documents and extracts a set of paragraphs depending on the focus of the question The 
-answer is in terms of these paragraphs  
-3  ANSWER PROCESSING This module is responsible for selecting the response 
-based on the relevant fragments of the documents This needs a pre-processing of 
-the information in order to relate the answers with a given question 
-Most of the current system uses either syntactic and semantic analysis or ontology processing for 
-answer  retrieval  But  our  system  implements  the  three  modules  based  on  a  hybrid  approach  a 
-step  towards  natural  language  question  answering  in  semantic  web  The  proposed  system 
-analyses  both  the  question  and  answer  processing  modules  using  the  syntactic  and  semantic 
-approaches and also uses the domain ontology for relation extraction and identification The base 
-ontology  is  populated  dynamically  for  each  document  in  the  collection  And  ontology  for  a 
-specific domain is created as a by-product of the system  which can be used for future analysis 
-and processes 
-4 THE PROPOSED ARCHITECTURE 
-The  proposed  architecture  of  an  ontology-based  domain-specific  NLQA  system  is  depicted  in 
-Figure 2 The model integrates key components such as Natural Language Processing techniques 
-Conceptual Indexing based Retrieval Mechanism and Ontology Processing 
-Figure 2  Proposed Architecture of the OD-NLQA System 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-41 Question Processing 
-In the question processing module with the help of various components the following actions 
-are performed 
-  Analysis of the natural language question  
-  Question classification  
-  Reformulation of the user query  
-A Query Analyzer  
-The natural-language question given by the user is analyzed using various natural 
-language processing techniques 
-  Syntactic Analysis  The question is analyzed syntactically using NLP techniques Part-of-
-speech tagging and named entity recognition NER are performed Tools such as Python-
-nltk OpenNLP Stanford CoreNLP can be used for this purpose In the proposed system we 
-used Stanford CoreNLP tool-kit The CoreNLP processes the document and creates an XML 
-file  as  output  Shallow  parsing  is  performed  to  identify  the  phrasal  chunks  The  phrasal 
-chunks can be identified using the Regular-expression chunker and the Conll-2000 trained 
-chunker  
-  Semantic  Analysis    Semantic  role  labeling  is  an  important  step  in  this  module  which 
-enables  to  find  the  dependencies  or  restriction  that  can  be  imposed  after  getting  the  user 
-query  6 This  greatly  eliminates  the  chances  of  irrelevant  set  of  answers  Semantic  roles 
-are identified using the verbnet frames  
-B Question Classification  
-The natural-language question needs to be classified into various sets for extracting more 
-precise sets of answers The following steps are performed by the proposed system 
-  Focus  Identification  -  The objective  of  this  is  to identify  the category  of  response  that the 
-user is searching for The question focus can be identified by looking at the question word 
-or a combination of the question word and its succeeding words Classification of question 
-word to question focus is shown in Table 1 For example both the question word when or 
-the combination what time indicates a temporal aspect which has to be found in the answer 
-Table 1 Question to Question focus Classification 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-  Phrase  or  Clause  Detection  -  The  phrases and clauses  contains the information  relevant  to 
-the expected answer and the irrelevant set can be easily eliminated The question phrase can 
-be determined using shallow parsing or chunking The NP chunk identifies the clauses that 
-are to be looked upon in the documents for obtaining the answer set  
-  Frame  Detection    The  semantic  roles  are  identified  and  mapped  to  a  semantic  frame  for 
-better retrieval For example The event E Who gave a balloon to the  kid has the roles 
-AGENT  verbgive  THEME  to  RECIPIENT  the  semantic  frame  is  identified  as 
-haspossessionstartE  Agent  Theme    haspossessionendE  Recipient  Theme 
-transferduringE  Theme  The  frames  can  also  be  used  for  ranking  of  the  retrieved 
-answer set  
-C Query Reformulation  
-The user queries may be reformulated by adding domain knowledge and ontological 
-information 
-  Ontology - Ontology is defined in the basic terms and relations comprising the vocabulary 
-of  a  specific  area  as  well  as  rules  for  combining  these  terms  and  relations  to  define 
-extensions  vocabularies  1  The  base  ontology  is  created  for  the  specific  domain  by 
-incorporating  the  classes  and  object properties The domain  range  and restrictions  on the 
-classes are also specified  
-42 Document Retrieval  
-This module selects a set of relevant documents from a domain specific repository Conceptual 
-indexing  is  used  for  the  retrieval  process  since  the  key  word  based  indexing  ignores  the 
-semantic content of the document collection 5 Both the documents and queries can be mapped 
-into  concepts  and  these  concepts  are  used  as  a  conceptual  indexing  space  for  identifying  and 
-extracting documents 
-43 Document Processing 
-The  retrieved  documents  are  processed  for  extracting  candidate  answer  set  This  module  is 
-responsible for selecting the response based on the relevant fragments of the documents 
-  Syntactic  Analysis    The  documents  analyzed  syntactically  using  the  NLP  techniques 
-such  as  part-of-speech  tagging  and  named-entity  recognition  In  the  syntactic  analysis 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-firstly  the  documents  are  tokenized  into  set  of  sentences  Using  the  Stanford  CoreNLP 
-the  POS  tagging  and  NER  is  performed  Shallow  parsing  is  performed  to  identify  the 
-phrasal chunks The chunks identified in the question analysis module are matched with 
-those identified in the document and relevant sentences are retrieved 
-  Semantic Analysis  Shallow parsing can be performed for finding the semantic phrases 
-or  clauses  The  semantic  roles  are  identified  and  mapped  to  semantic  frames  The 
-sentences whose semantic frames map exactly to the semantic frames of the question are 
-also extracted  
-  Relation  Identification  -  The  base  ontology  is  populated  with  the  domain  knowledge 
-incrementally  as  we  go  through  different  set  of  documents  By  this  method  a  valid 
-knowledge on any specialized discipline can be incorporated to the system The relations 
-among different concepts are identified using the domain knowledge and the ontological 
-information obtained  
-44 Answer Extraction  
-The  filtering  of  candidate  answer  set  and  answer  generation  is  performed  The  user  is  supplied 
-with a set of short and specific answers ranked according to their relevance The different stages 
-  Filtering  The extracted sentences are filtered and the candidate answer set is produced 
-This  is  done  by  incorporating  the  information  obtained  from  the  question  classification 
-and  document  processing  modules  The  identified  focus  and  frames  are  matched  to  get 
-the candidate set  
-  Answer  Ranking    The  answer  set  is  ranked  based  on  the  semantic  similarity  Simple 
-template  matching  is  not  adopted  since  it  neglects  the  semantic  content  and  domain 
-knowledge Answers are ranked based on the similarity between the question frame and 
-the answer frame Example The event E John gave a balloon to the kid has the roles 
-AGENT  verbgive  THEME  to  RECIPIENT  the  semantic  frame  is  identified  as 
-haspossessionstartE  Agent  Theme    haspossessionendE  Recipient  Theme 
-transferduringE Theme matches exactly with the question frame  
-  Answer Generation  From the answer set specific answers have to be generated in case 
-the direct answers are not available Hidden relations can be identified from the domain 
-knowledge gathered from the ontology Concept of natural language generation can also 
-be utilized for this purpose  
-5 EVALUATION AND TESTING  
-The TREC QA test collections contain newswire articles and the accompanying queries cover a 
-wide  variety  of  topics  11  QA  evaluation  process  simply  access  these  TREC  collections  for 
-testing the efficiency of the systems Simply applying the open domain QA evaluation paradigm 
-to  a  restricted  domain  poses  several  problems  So  a  different  method  for  evaluation  process  is 
-used in this system A random set of documents are collected over a specific domain Relevant 
-correct  and  complete  answers  are  derived  for  a  set  of  question  from  some  arbitrarily  chosen 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-unbiased users and this set is used for the testing purposes 4 The questions are tested for their 
-  Correctness - The answer should be factually correct  
-  Relevance - The answer should be a response to the question  
-  Completeness  -  The  answer  should  complete  ie  a  partial  answer  should  not  get  full 
-credit  
-The  proposed  system  tries to  find  precise  answers  to factual  questions  and  explanative  answers 
-are  not  provided  For  multiple  answers  ranking  is  provided  based  on  the  semantic  matching 
-Direct answers are generated using natural language generation techniques form the candidate set 
-of answers 
-The  system  is  tested  for  efficiency  using  the  notion  of  recall  Recall  for  a  question  answering 
-system  is  defined  as  the  ratio  of  number  of  correct  answers  to  the  total  number  of  questions 
-given  5  Answer  precision  may  be  subjective  but  we  have  tried  to  make  it  as  objective  as 
-possible 
-The  system  is  tested  in  a  domain  of  short  stories  and  the  results  are  presented  in  Table  2  and 
-Table  3  For  the  system  testing  the  document  set  collection  of  short  stories  is  retrieved 
-arbitrarily over the web For the testing we use the question track consisting of 100 questions of 
-varying type complexity and difficulty It has to be noted that  precise answer here indicates the 
-one-word  answer  generated  as  response  to  a  factual  question  but  for  a  question  answering 
-system the answer can be generated as a single sentence and is indicated as retrieved sentences 
-containing precise answers 
-Table 2  Recall with retrieved precise answers 
-No of 
-documents 
-Total size 
-No of questions  No of correct   Recall 
-answers 
-Table 3  Recall considering retrieved sentences containing precise answers 
-No of 
-documents 
-Total size 
-No of questions  No of correct   Recall 
-answers 
-6 CONCLUSION AND FUTURE WORK 
-We have presented an architecture of ontology-based domain-specific natural language question 
-answering that applies semantics and domain knowledge to improve both query construction and 
-answer extraction The system presented in this paper is a step towards the ultimate goal of using 
-International Journal of Web  Semantic Technology IJWesT Vol4 No4 October 2013 
-the  web  as  a  comprehensive  self-updating  knowledge  repository  which  can  be  automatically 
-mined to answer a wide range of questions with much less effort than is required by todays search 
-engines The experiments show that our system is able to filter semantically matching sentences 
-and their relations effectively and therefore rank the correct answers higher in the result list 
-We intend to extend the coverage of the system to all possible question types ie move from the 
-factual  to  more  complex  forms  of  question  including  lists  summarization  of  contradictory 
-information and explanations including answers to how or why questions and eventually what 
-if  questions  Generating  short  coherent  and  precise  answers  will  be  a  major  research  area  and 
-will  rely  massively  on  progress  in  information  extraction  and  text  summarization  Also  new 
-research  should  be  done  to  gather  more  information  in  various  levels  of  understanding 
-effectiveness and situations 
-REFERENCES 
-1  Abouenour  LBouzouba  K  Rosso  P  2010  An  evaluated  semantic  query  expansion  and 
-structure-based  approach  for  enhancing  Arabic  questionanswering  International  Journal  on 
-Information and Communication Technologies Vol 3 June 2010  
-2  Akshar B Rajeev S 1993 Parsing Free Word Order Languages in the Paninian Framework  In 
-Proceedings of the 31st annual meeting on Association for Computational Linguistics  
-3  Allen J F  2007  Natural Language Understanding  Pearson Education Inc  
-4  Hirschman L Gaizauskas R 2001 Natural language question answering the view from here  
-          Journal of Natural Language Engineering  
-5  Kwok  C  Etzioni  O  Weld  D  S  2001  Scaling  Question  Answering  to  the  Web  ACM 
-Transactions on Information Systems  
-6  Pizzato L A Diego M 2008 Indexing on Semantic Roles for Question Answering  In 
-Proceedings of the 2nd workshop on Information Retrieval for Question Answering IR4QA 
-Coling  
-7  Song  M  Allen  RB  2007  Integration  of  association  rules  and  ontologies  for  semantic  query 
-expansion Data Knowledge Engineering Elsevier pp 6375  
-8  Sucunuta M E Riofrio G E 2010 Architecture of a Question-Answering System for a Specific 
-Repository of Documents  In 2nd International Conference on Software Technology and 
-Engineering  
-9  Surdeanu M Moldovan D 2003 On the role of Information Retrieval and Information Extraction 
-in Question Answering Systems  Information Extraction in Web Era - Springer 
-10  Tuffis  D  2011  Natural  Language  Question  Answering  in  Open  Domains    Computer  Science 
-Journal of Moldova  
-11  Yilmazel  O  Diekema  AR  Liddy  ED  2004  Evaluation  of  Restricted  Domain  Question                                                                                       
-Answering Systems Association for Computational Linguistics 
+Theoretical Aspects of Immunity 
+Michael W Deem and Pooya Hejazi 
+Rice University 
+6500 Main Street  MS 142 
+Houston TX  77030 
+mwdeemriceedu 
+Abstract 
+The immune system recognizes a myriad of invading pathogens and their toxic 
+products  It does so with a finite repertoire of antibodies and T cell receptors  We 
+here describe theories that quantify the immune system dynamics  We describe 
+how the immune system recognizes antigens by searching the large space of 
+receptor molecules  We consider in some detail the theories that quantify the 
+immune response to influenza and dengue fever  We review theoretical 
+descriptions of the complementary evolution of pathogens that occurs in response 
+to immune system pressure  Methods including bioinformatics molecular 
+simulation random energy models and quantum field theory contribute to a 
+theoretical understanding of aspects of  immunity 
+Key words mathematical biology immunology statistical mechanics 
+Table of Contents 
+211 The generalized NK GNK model 
+212  Scaling theory of the B cell immune response 
+213  Autoimmune disease and the functional role of glassy dynamics 
+22  The cellular T cell immune response 
+221 Self-immunity 
+222  C-SMAC 
+21  The humoral B cell immune response 
+1  Introduction 
+2  Brief summary of the immune system 
+in the immune system 
+3  Traditional ODE models of immune response and viral growth 
+4  Bioinformatics of vaccine design 
+5  Collective effects of vaccine design in a population 
+6  Epidemiology 
+7  The immune response to influenza 
+8  The immune response to dengue fever 
+41  Modification of virus growth rates 
+42  Epitope recognition 
+71  H3N2 influenza virus vaccine efficacy 
+72  H1N1 influenza virus vaccine efficacy 
+73  Sequence space localization in the immune response to influenza 
+91  The quasispecies theory of virus evolution 
+92  Co-evolution theory 
+93  The emergence of new strains of a pathogen 
+81  Immunodominance in the immune response to dengue fever 
+82 Multi-site vaccination to alleviate imunodominance in dengue fever 
+101  Pressure on the virus to evolve 
+102  The emergence of new influenza strains 
+103  Point mutation 
+104  Reassortment recombination and HGT 
+105  Novel strain detection 
+106  Detailed simulation of antibody binding 
+107  Projected dynamics 
+108  Agent based modeling 
+9  General considerations of pathogen evolution 
+10  Evolution of the influenza virus 
+11  Evolution of other viruses 
+12  Cancer 
+1  Introduction 
+find regions of favorable free energy so too in evolution there is a search through 
+sequence space to find proteins pathways and organisms of high fitness  The immune 
+system is a real-time example of evolution as our body creates and modifies molecules 
+of the immune system in response to invading pathogens  Many pathogens respond to 
+this immune pressure by evolving themselves  The present article is a brief appraisal of 
+the literature in theoretical aspects of the adaptive vertebrate immune system 
+biology interesting 1  Finite timescales in biology bring out the importance of 
+dynamics and finite population sizes bring out the importance of randomness 
+correlations and fluctuations  Biological information and structure is organized 
+hierarchically and modularity is a key principle that we will use in describing the 
+immune system  At a deeper level the emergence of the adaptive immune system in 
+jawed vertebrates several hundred million years ago is an example of spontaneous 
+emergence of modularity a symmetry breaking phase transition by which biology itself 
+emerged from organic chemistry several billion years ago 2 3  Finally the response of 
+the immune system induces a complementary evolutionary dynamics in pathogens 
+In this chapter we discuss some of the theoretical aspects of immunity  In section 
+2 we provide an overview of the adaptive immune system including a discussion of the 
+111  Evolution of the HIV virus evolution 
+112  Evolution of the hepatitis C virus 
+113  Evolution of the dengue virus 
+121  The mutations leading to cancer 
+122  Immunodominance 
+123  Multi-site vaccination 
+Just as in statistical mechanics there is a search through configuration space to 
+The immune system exhibits many of the mathematical features that make 
+These models can help deduce design rules for vaccines The finite size of the 
+generalized NK theory that has been developed to describe immune system dynamics  In 
+section 3 we cover traditional ODE-type models of the immune system  In section 4 we 
+describe some of the bioinformatic approaches to vaccine design  We continue the 
+discussion of vaccine design with a consideration of theories of the collective 
+population-level effects in section 5  We elaborate with an explicit consideration of the 
+dynamics of virus spread in section 6  We explain the statistical mechanics of the 
+immune response to influenza in section 7  We present the statistical mechanics of the 
+immune response to dengue fever in section 8  The pathogen reacts to the immune 
+response and we describe general theories of pathogen evolution some derived from 
+quantum field theory in section 9  We discuss the theories used to understand the 
+evolution of influenza virus in section 10  We describe theories for other diseases in 
+section 11  We conclude with a very brief sample of theories to understand the immune 
+response to cancer in section 12 
+2  Brief summary of the immune system 
+Our immune system protects us against death by infection There are two major 
+components of the adaptive vertebrate immune systemthe antibody-mediated humoral 
+response and the T cell mediated cellular response In this article we discuss quantitative 
+models of the immune system response to often highly variable pathogens The variation 
+exists either because the disease mutates at a non-negligible rate or because the disease 
+exists in multiple subtype forms 
+immune system repertoires and the existence of immune system memory make the 
+immune system response to variable viral diseases nontrivial  A number of reviews have 
+covered some of the interesting aspects and challenges the immune system poses 4-7 
+21  The humoral B cell immune response 
+Virus bacteria and other pathogens are recognized and repelled from infecting 
+our cells by antibodies proteins produced by our B cells  Antibodies recognize patches 
+called antigens on the surface of pathogenic proteins  See Figure 1  To recognize the 
+many different pathogens that can attack us we have a repertoire of different B cells  
+Each different B cell produces a distinct antibody  The human immune system has on the 
+order of 108 different B cells and the probability that a given antigen will be recognized 
+by a given antibody is about 1 in 105 
+The immune system uses a hierarchical strategy to search through the space of 
+possible antibodies to find those which recognize antigens  There are about 100 amino 
+acids in the variable region of an antibody chain and so there are about 20100 or 10130 
+possible such structures  The immune system searches this large space with the sparse 
+set of 108 structures available via a two step process  The first step is the initial creation 
+of B cells that produce antibodies by joining together three different antibody fragments  
+There are libraries of these fragments available in the genome of the individual and this 
+diversity can create on the order of 1011 different structures although only 108 are present 
+at one point in time  This assembly process is called VDJ recombination  When an 
+The portion of the antibody that binds the antigen which is also the region that 
+individual is challenged by a pathogen the B cells that produce the 1 in 105 subset of 
+these initial antibodies that recognize the antigen are further optimized by a local search 
+process  Essentially the DNA that encodes these antibodies is randomly mutated and 
+the cells that make the antibodies that better recognize the antigen are expanded in 
+concentration and number  This mutation and selection process is repeated for a number 
+of rounds and leads to modified antibodies that strongly recognize the antigens of the 
+pathogen  This second optimization process is called somatic hypermutation 
+Figure 1 Influenza virus hemagglutinin Aichi 1968 trimer complex with a neutralizing 
+antibody dimmer PDB accession number 1E08 
+recognize an antigen it does evolve a subset of antibodies that recognize the antigen  
+The number of distinct antibodies produced in high concentrations is on the order of a 
+half-dozen or so  Indeed the antibody response can typically be deconvoluted to 
+responses from a few specific antibodies 8  These antibodies typically bind to non-
+overlapping neutralizing epitopes on the pathogen  This set of epitopes on the surface of 
+pathogenic proteins is termed the protective immunome 
+undergoes somatic hypermutation is called the hypervariable region  The antibody 
+protein structure in the hypervariable region is constrained to be loop-like largely 
+independent of sequence  Fundamental computer simulations have verified this aspect of 
+antibody structure 9  Interestingly simple molecular dynamics was insufficient to 
+equilibrate these structures and hybrid Monte Carlo with multi-dimensional parallel 
+tempering 10 was required  Parallel tempering simulations show that the hypervariable 
+region while constrained to be loop-like is sufficiently flexible to bind a wide range of 
+antigens 9 11 
+211 The generalized NK GNK model 
+through sequence space for antibodies with increased binding constants to antigen  The 
+immune system response to an antigen generates a high concentration of only a few 
+memory B cells in response to a pathogen   This focusing of the immune diversity results 
+in a strong subsequent response to identical antigens but can reduce the effectiveness of 
+a response to different but related antigens This competition between memory sequences 
+and newly formed VDJ recombinations determines the effectiveness of a vaccine against 
+a virus 
+The dynamics of affinity maturation can be described theoretically as a search 
+While the immune system does not evolve the single optimal antibody to 
+The Deem group has developed a random energy theory that describes the 
+dynamics of the immune system and the interaction between influenza antigens and 
+antibodies  12  This theory takes into account both the ruggedness of the interaction 
+energy landscape upon which the antibodies evolve and the correlations in this landscape 
+that allow VDJ recombination to produce a viable naive repertoire The model is 
+population based considering a population of B cells in one person a population of 
+viruses and a population of individual people The random energy model permits study 
+of the immune response at the level of individual antibodies and antigens  Absent this 
+theory study of the molecular interactions in detail would be computationally 
+prohibitive since there are many influenza strains 67  109 people 108 antibodies per 
+individual  and 104 atoms per antibody  Use of random energy theory to treat 
+correlations in complicated physical systems has a long pedigree in statistical physics 
+and antigens  Each antibody is identified by its amino acid sequence and each antigen is 
+represented by the coupling parameters in the theory  A successful immune response to 
+an antigen corresponds in the theory to finding a set of amino acid sequences with low 
+energy for the coupling parameters that represent the antigen  The spin-glass form of the 
+GNK model makes the energy landscape rugged  The energy landscape has a structure 
+however which is induced by the local antibody structure Usd the secondary antibody 
+structure Usd-sd and the interaction with the influenza proteins Uc 2  
+The generalized NK GNK model describes the interaction between antibodies 
+The approach is innovative because the GNK model can predict 
+An important feature of the theory is that the rugged landscape upon which the B 
+cells that code for antibodies evolve is not completely random but rather has structure 
+This structure is what allows productive VDJ recombinants to be formed  We were 
+motivated to use a spin-glass or random energy model for the fitness landscape because 
+we knew that evolution of proteins by point mutation alone is a slow process and hence 
+the landscape must not be smooth Moreover we realized that the random energy model 
+must be correlated because proteins have secondary structures at an intermediate length 
+scale between the amino acid and the domain length scales  We used this theory to 
+develop new subdomain swapping protocols for protein evolution 13 14 
+immunodominance and cross reactivity The GNK model considers the full diversity of 
+the B or T cell response and this is why it can predict phenomena such as 
+immunodominance cross reactivity and original antigenic sin see Sections 213 71 
+73 and 81 Traditional ODE models can be fit to but cannot predict 
+immunodominance cross reactivity and vaccine efficacy data Traditional ODE models 
+consider the immune dynamics within a small number of classes of immune cells eg 
+naive activated and memory but do not consider the full diversity of 108 B or T cells 
+that exist within the human immune system The GNK theory considers the full 108 
+diversity and for this reason is able to predict the immune dynamics and vaccine efficacy 
+that result from skewing of and interactions among this diversity 
+212  Scaling theory of the B cell immune response 
+insight into the principles of immune recognition 15  Larger animals have more mass 
+to protect and so they have a larger immune system  In fact both the diversity and the 
+A physically-motivated scaling theory of the immune system gives us some 
+The scaling theory starts with the observation that the lifespan T0 of an animal 
+total number of B cells is greater in larger animals  Scaling theory suggests how these 
+quantities depend on the mass M of an animal 
+scales with body mass as T0  M14  15  The immune system must be sufficiently 
+protective that the animal survives pathogen attack for this period of time on average  
+The mass of the animal is composed of M34 service volumes the volume of tissue 
+supplied and drained by one capillary  Each service volume is of volume M14 and it is 
+independently monitored by the immune system  The capillaries that supply blood flow 
+to these service volumes are of universal size and function in all animals and so the 
+amount of blood and antigens that enter the service unit per unit of time is independent of 
+M  If one assumes that the mobility of the B cells is also independent of M then the time 
+required for one B cell that is specific for one antigen to search each unit scales as the 
+volume M14  To keep the time of detection constant with animal size there must be 
+M14 copies of each B cells in each of the units  Thus the total number of copies of each 
+B cell should scale as M14  M34M 
+The second observation of scaling theory is that the total number of infections of 
+an individual is proportional to the lifetime metabolic intake of the animal 15  The total 
+metabolic rate of an animal scales as M34 according to Kleibers law  The lifetime 
+scales as M14 and so the lifetime metabolic intake M  Thus the number of infections 
+against which the immune system must protect is c M where c is some constant  The 
+probability that an immune system with N different B cells will fail to recognize a 
+specific pathogen is   1- V0VN  exp-N V0V where V0V is the fraction of antigens 
+recognized by a specific antibody  The probability that all lifetime infections are 
+successfully repelled is 1- cM  exp-cM  This probability should be near unity and 
+so  c M  1  Using the expression for  we find N  VV0 lnc M 
+copies of each B cell is consistent with known diversities in humans and mice 15  For 
+example humans have roughly 108 different B cells with 105 copies of each  Mice 
+which weigh about 20g roughly 3400x smaller in mass than humans have about 107 
+different B cells with 10 copies of each  At small enough masses this scaling relation 
+must break down  Using the numbers for human and mice we find c  012  g  Thus 
+the scaling relation surely breaks down for c M  1 or M  8 g  Recent estimates of the 
+immune repertoire size in zebrafish suggest a B cell diversity of 5000  6000 16  
+Zebrafish however with an average mass of 03 g would not seem to be within the 
+scaling regime  
+213  Autoimmune disease and the functional role of glassy dynamics in the immune 
+system 
+system to rapidly recognize a wide variety of potential antigens  One might ask 
+however if even more efficient evolutionary dynamics might be possible in the immune 
+system and if so why such dynamics has not evolved into wide usage  In fact if the 
+This prediction that the number of distinct B cells scales as ln c M with M 
+The VDJ and somatic hypermutation hierarchy has evolved to allow the immune 
+immune system continued with recombination during the somatic hypermutation process 
+this would be more efficient dynamics 17 18  In other words antibodies that more 
+strongly recognize antigens could be found with this process  It turns out however that 
+these antibodies would bind not only their intended target but also other targets  See 
+Figure 2  This off-target activity would lead to autoimmune disease  It would appear 
+therefore that the slow glassy dynamics of evolution in the immune system serves a 
+functional role to inhibit autoimmune disease 
+This calculation also provides us with an estimate of how many antibodies might 
+be needed to cover antigen space  As will be discussed in more detail below there is a 
+natural measure of antigenic distance in sequence space which we term pepitope  The 
+immune system primed by exposure to an antigen appears able to recognize other related 
+antigens out to a distance of pepitope  019 19 to 045 20  Taking the larger number 
+we find that such an immune response recognizes about 
+2020
+epitope
+ 17  Thus an immune repertoire with the 
+of all possible antigens where 
+diversity to allow the generation of 109 memory antibodies not necessarily all at the 
+same time would be able to recognize most antigens  This upper limit agrees well with 
+the 108 nave diversity of the human antibody immune system 
+Figure 2 Cross reactivity of primary immune response memory antibody sequences for 
+the two strategies against altered antigens point mutation only PM and gene segment 
+swapping in addition to point mutation PM  GSS where K is the binding constant and 
+p the antigenic distance of the new altered antigen from the original The cross reactivity 
+ceases at a higher value p  0472 for PM  GSS in comparison with PM alone p  
+0368  From 17 
+22  The cellular T cell immune response 
+Figure 3 3-D representation of TCR-MHC-peptide complex PDB accession number 
+2CKB  A Mouse TCR bound to the class I MHC  H-2Kb molecule and peptide  
+backbone tube diagram of ternary complex B Mouse TCR  and  chains binding the 
+MHC-peptide complex  above view of CDR regions C Above view of surface region 
+of the class I MHC H-2Kb molecule and peptide  After 21 
+TCRs to recognize antigenic peptide ligands that are presented by the MHC complex of 
+individual cells 20 See Figure 3  Multiple identical TCRs on the cell membrane 
+binding to the ligand activates the T cells which like antibodies are constructed from 
+modular elements with each individual human having a diversity of approximately 2 
+107 different receptors 22 
+The cellular immune system performs a stochastic search of T cell receptors 
+T cells originate in bone marrow and mature in the thymus They acquire their 
+diversity through the stochastic process of VDJ recombination During the development 
+of TCRs they undergo rounds of selection for increased avidity Unlike antibodies they 
+do not undergo somatic hypermutation presumably because further evolution may yield 
+TCRs with unnecessarily high affinity and cross-reactivity against other short peptides 
+present in the body and cause autoimmune disease 17 18 Some mature T cells 
+proliferate and produce effector T cells whereas others become memory cells 
+The important components of the T cell response are the peptide-MHCI complex 
+pMHC and the T cell receptor TCR Typically for CD8 T cells  the peptide is on the 
+order of 9 amino acids long and the T cell-mediated response consists of cycles of 
+concentration expansion and selection for favorable binding constants  The replication 
+rate of T cells in the immune system is a function of the fitness given by the generalized 
+NK model The binding energy quantifies activation of the T cells and specific lysis 
+quantifies the rate of killing infected cells The replication rate defines replication and 
+the binding energy quantifies activation  Some T cells are activated more than others T 
+cell activation depends on their stimulation by antigen as well as other stimulatory 
+factors within the immune system  See Figure 4 The difference in replication rate 
+between different T cells as it depends on their stimulation by antigen is of interest in 
+the theory of immunity and this difference depends on the amino acid identity of the 
+TCR  Moreover the replication rate changes when the peptideMHCI complex to which 
+the T cell binds changes  There are interactions within a subdomain of the TCR Usd 
+interactions between subdomains of the TCR Usdsd interactions between the TCR and 
+the peptide Upepsd and direct binding interaction between the TCR and peptide Uc as 
+in Section 211 23 
+pMHC where the binding constant K  is given by 23 
+We use the GNK model to describe the interaction between the TCR and the 
+The ability of one T cell to recognize an infected cell z is obtained by 
+The specific lysis L or the probability that the infected cell is lysed by the T cell can be 
+calculated using 
+Figure 4 The GNK model of the TCR selection dynamics where antigen recognition 
+expands T cell concentration according to their level of stimulation by the antigen Over 
+10 cell divisions the concentration can expand by three orders of magnitude reducing the 
+diversity to 05 in the primary response When a previously infected individual with 
+A final theory of the T cell response is serial triggering 25  The mechanism of T 
+memory cells to epitope A is subsequently exposed to a new epitope B the immune 
+response shall be a combination of the memory response from the prior exposure to A 
+and a nave response to B Our theory measures the contributions of both components  
+From 23 
+Another general theory of the T cell response is kinetic proofreading which 
+seems to occur 24  The basic idea is that a series of binding interactions leading to 
+activation can give a non-linear amplification of the signal  Denoting the complex 
+between the T cell and the pMHC as C0 a series of intermediate activated complexes is 
+denoted by Ci and the final active form is denoted CN  Each activated complex satisfies 
+d Ci  d t  k Ci-1  k Ci  k-1 Ci          CN1  0 
+Thus one finds that the ratio of final activated complex to total complex is CN  i Ci  
+kkk-1N  Thus the amount of activated complex depends in a highly sensitive and 
+non-linear way on the equilibrium constant for T cell and peptideMHC binding  In this 
+way ligands of different affinity may elicit qualitatively different signals 
+cell activation seems to require multiple interactions with the TCR not merely a single 
+very high affinity interaction  Indeed if the affinity is too great for example due to a 
+low-off rate then the TCR is not able to achieve a sufficient number of interactions  In 
+this way the T cell has evolved into a sensitive detector of small numbers of antigenic 
+determinants present on infected cells 
+221 Self-immunity 
+the lymph nodes and blood 26  Those T cells that bind no antigen in the thymus are 
+eliminated  Those T cells that bind antigen weakly are kept  Those T cells that bind 
+antigens from ones own proteins strongly are eliminated because they would cause 
+cross-reactivity and autoimmune disorders  Thus T cell receptors are enhanced in weak-
+binding amino acids Crystal structures support this conclusion that T cell recognition is 
+via multiple modest interactions We can understand this suppression of strongly binding 
+amino acids with the following physical argument 26  The interaction between the T 
+cell receptor and the jth of the M peptides in the thymus is denoted by Elj and the 
+cutoff to avoid negative selection is denoted by EN  Thus whether the T cell will 
+survive negative selection ie not bind too strongly to any of the peptides is given by 
+pl  j1 M EN  Elj  The average survival probability is pl   EN  
+EljM where one has assumed that the peptide compositions are independent  Making 
+the further assumption which we know from the GNK model is not true but which 
+perhaps does not greatly detract from the present argument that the interaction energy 
+between the T cell receptor and the peptide is a linear sum of terms due to each amino 
+acid on the peptide Elj  i1
+each of the j peptides  In other words the distribution of amino acids in the T cell 
+receptor must be such that Jli  ENN  Thus since the peptides in the thymus are 
+T cells created in the bone marrow pass through the thymus before proceeding to 
+N Jlij we reach the conclusion that i1
+N Jlij  EN for 
+The T cell receptor is bound to the surface of T cells  In some cases the receptors 
+typical self peptides and the T cell receptor must bind them only weekly the amino acids 
+in the T cell receptor should be the weakly binding amino acids 
+222  C-SMAC 
+aggregate during a recognition event localizing the receptor antigen and kinases into a 
+small area 27  This aggregation is now thought to regulate the degradation of the T cell 
+receptors  A maximum of T cell signaling seems to occur for intermediate TCR-pMHC 
+half lives  Too strong a binding does not allow serial triggering to cause activation and 
+too weak a binding does not allow enough receptor binding to cause activation 
+Advances in video microscopy revealed interactions between the T cell and 
+antigen in lymph nodes 28  Three phases of T cell motion were found  The initial 
+activation phase is termed phase I  Quantitative analysis showed that the duration of 
+phase I which can be minutes to hours depends on the ratio of TCR-pMHC half life to 
+the time of T cell  DC encounter 29  This ratio is a consolidated measure of antigenic 
+quality and type 29 
+3  Traditional ODE models of immune response and viral growth 
+systems of ordinary differential equations ODEs that describe the time-dependent 
+concentration profiles of pathogen antigen and B and T cells  A well studied case is that 
+of HIV dynamics by the Los Alamos group 30  There are three phases of the disease 
+initial growth of the virus due to exposure and then suppression of the virus by the 
+immune system a long period of low virus concentration in the body and then finally 
+growth of the virus again with a transition to AIDS  Mathematical modeling along with 
+experiment revealed rather rapid virus and immune cell turnover during the second phase 
+which had been previously thought to be a quiescent phase 
+may simply be failed attempts at viral replication  These DI particles may also serve a 
+functional role to inhibit the immune response against the viable virus particles  A 
+difference equation approach was used to evaluate the effect of DI particles on vesicular 
+stomatitis virus VSV growth 31  At low DI particle concentrations both virus and DI 
+particles were predicted to expand in number  At intermediate concentrations both were 
+inhibited  Finally at high DI particle concentrations DI particle growth was inhibited 
+but virus was propagated 
+A natural extension of ODE models is into the spatial dimension  Reaction 
+diffusion models have been developed for example to examine the spatio-temporal 
+patterns of viral infection 32  The model described VSV growth and spread in cells 
+using parameters extracted from imaging studies 
+4  Bioinformatics of vaccine design 
+Traditionally theoretical modeling of the immune system has been based upon 
+A subset of virus progeny are defective interfering DI particles  These particles 
+The explosion of bioinformatics data coupled with a mechanistic understanding 
+Viruses exist not just in an isolated individual but also in a population of 
+In another study the effect of gene order on virus growth was predicted and used 
+41  Modification of virus growth rates 
+of viral growth dynamics and immune recognition allows for a novel approach to 
+vaccine design  For example a model-based approach has been applied to the design of 
+growth-attenuated viruses 33  These are viruses to be used as a vaccine that generate an 
+immune response but which grow poorly or not at all in humans and do not cause 
+infection  The traditional experimental approach for creating such vaccines has been to 
+evolve them in foreign hosts until they replicate poorly and are no longer infectious  
+Using molecular biology and bioinformatics and predicting how genetic changes 
+correlate with virus growth it is possible to design a growth-attenuated virus strain for 
+use as a vaccine  A model predicted how a virus-infected cell will produce viral progeny  
+In particular the model captures the details of virus entry transcription of viral mRNA 
+translation of viral protein replication of the viral genome assembly of intermediates 
+and production and release of viral progeny 33  The predictions of this model were 
+then used to suggest genetic modifications that would lead to a growth-attenuated strain 
+to design a vaccine strain 34  Permutations of gene order for the vesicular stomatitis 
+virus were examined for their effect on growth  Reordering of the genes that affect levels 
+of gene transcripts by 6000 was found  These modifications of growth rates were 
+largely due to imbalances in gene expression levels needed for optimal growth 
+42  Epitope recognition 
+Bioinformatics methods have also been used to identify and modulate immune 
+recognition of viruses  The Los Alamos group has extensively examined the humoral 
+immune response to HIV  In one study the B cell response to a DNA vaccine for HIV 
+was examined 35  Nucleotide motifs that were common in HIV but under-represented 
+in highly expressed human genes were identified  It was postulated that these motifs 
+were leading to the poor expression of the HIV proteins gag pol and env from the 
+vaccine  In addition an optimized consensus codon sequence was chosen for the gag 
+gene  These bioinformatics-based optimizations gave a 5 increased antibody response 
+to the gag protein from the vaccine 
+5  Collective effects of vaccine design in a population 
+individuals  Mathematical models can predict the sometimes non-intuitive effects of 
+vaccine use in a population 36  A sufficiently powerful model would aid the effort to 
+design a vaccine that is most effective in a population  One of the basic concepts in 
+vaccine design is that of herd immunity  In the simplest model viruses infect people 
+and propagate from infected people to other susceptible individuals  There is a 
+percolation transition as a function of the transmission probability of the virus  That is 
+no epidemic occurs below a critical transmission probability whereas an epidemic that 
+infects a significant fraction of the population occurs above the critical transmission 
+probability Under such a scenario the dynamical mean-field reaction rate equation is 
+k is the probability of a vertex with degree  k being infected and 
+probability that any given link points to the infected node At steady state one obtains 
+  is the 
+Furthermore we can obtain the epidemic threshold and the fraction of infective vertices 
+assuming a distribution that has finite degree fluctuations 37 
+When  falls below c there is no epidemic  Vaccines affect the transmission 
+probability  because vaccinated individuals are much less likely to be infected by the 
+virus  Thus even people who are not vaccinated can benefit from the vaccine if enough 
+of the population is vaccinated and the vaccine is efficacious enough that   c they are 
+completely protected  Decreasing the transmission rate below the critical value by means 
+of vaccination so that no epidemic occurs is the essence of what is meant by herd 
+immunity  Recent exact mathematical results provide sharper bounds on the 
+applicability of this mean field analysis to infinite populations  119 
+A number of non-trivial issues arise in vaccine design against viruses with natural 
+diversity 36  For example different host species may be infected by different versions 
+or serotypes or a virus  How should a vaccine composition be optimized if only some 
+of the species will be vaccinated  The bacterial disease H influenza Hib contains a 
+single serotype whereas there are numerous serotypes of pneumococcal bacteria  Thus 
+the pneumococcal vaccine must be updated regularly where as the Hib need not be  A 
+related question for pathogens with multiple serotypes is which serotypes to include in 
+the vaccine  Mathematical models provide insight into this question  For example it 
+might be advisable to include only the most pathogenic subtypes in the vaccine and leave 
+out the avirulent serotypes  This approach similar to the sparing of pesticides in a 
+limited fraction of cultivated land may allow the avirulent serotype to outcompete and 
+suppress the more troublesome virulent serotypes 
+6  Epidemiology 
+Viruses exist in a population of individuals and survive by propagation between 
+infected individuals  We can calculate an upper limit on the viral spreading rate 38  
+Let us assume that a single virus particle in a single cell reproduces in one day to make 
+100 viable progeny  The volume of a cell is 10-15 m3  If each of the progeny infects one 
+other cell the volume of infected cells is 100n  10-15 m3 at the end of n days  This 
+We know that typical viruses do not overtake the globe quite this rapidly 38  
+Epidemiology is the study of virus spread in a population and modern models 
+expansion process would be able to infect enough cells to populate the entire top km of 
+the surface of the earth a volume of 51  1017 m3 in 17 days 
+The reason is that the population infected by the virus is heterogeneous  Living matter is 
+not well mixed  Microbes fish plants birds and mammals are distributed 
+heterogeneously on the earth and virus progeny do not have unfettered access to all other 
+susceptible cells on the earth  Virus transmission is highly restricted by the local contact 
+processes between infected and susceptible individuals  In addition viruses are restricted 
+by their biology to the hosts they can infect  That is a given virus usually can only infect 
+a subset of cells in one or at most a few species   
+take into account the heterogeneity of the transmission process and the selectivity of the 
+virus  Mean field analysis of these models leads to classical results but it fails for 
+spatially localized contact processes  Approaches such as moment closure methods have 
+been developed to account for correlations in the dynamics 39  High dimensional 
+detailed dynamics of an epidemic have been projected onto lower dimensions by 
+projection operator methods 40  Some generic implications of spatial heterogeneity 
+have been derived  For example spatial heterogeneity of a host population tends to lead 
+to greater disease persistence 41  Important order parameters to characterize viral 
+spreading include how well the immune system recognizes related strains of a virus 
+transmissibility of the virus and population size 42  Three fixed points for viral 
+dynamics have been described global extinction stable single-strain persistence and 
+multiple-strain persistence with strain diversity  The transmission rate of the virus and 
+strength of cross immunity between strains determine the boundary between single and 
+multiple strain persistence  Among the order parameters population size and cross 
+immunity most dramatically affect the dynamics  It was noted that The most crucial 
+feature of multi-strain pathogeneiss is that infection by one strain induces partial 
+immunity to future infections by other strains 42  We will return to this point in 
+Section 71 
+strain structure  There is a worldwide effort to sequence human influenza so a great deal 
+is known about the distribution of the virus and its various strains  Human influenza A 
+viruses tend to travel around the world with the international air travel of human hosts 
+43  Frequent travelers accelerate the spread of epidemics 44 although seasonal 
+epidemics are large enough and infect enough people that even the average travelers are 
+enough to distribute the virus globally 
+number of suggested mechanisms to explain this observation 45  It may be that 
+increased crowding that occurs with indoors activities including school terms during the 
+winter months leads to greater transmission  The immune system may also be 
+fundamentally weaker in cold weather  For example the antibody response seems to 
+depend on melatonin and be sensitive to vitamin D both of which are lower during 
+Influenza predominates in the winter months of temperate climates  There are a 
+Influenza provides an example of how the host affects viral transmission and 
+winter  Epidemics are most synchronized ie more mean-field in the more populous 
+states of the US and during the most severe disease season as one would expect from 
+simple fluctuation versus number considerations  While children are still thought to be 
+the dominant spreaders of disease at local levels of communities schools and 
+households the long-distance spread of the virus is better correlated with patterns of adult 
+workflow traffic  Interestingly epidemics in the tropics are correlated with rainy 
+seasons  It is known as well that the virus is more stable at lower temperatures 
+7  The immune response to influenza 
+Influenza is a viral disease that infects 5  15 of the population and causes a 
+worldwide mortality of 250000  500000 annually  Influenza virus is categorized as 
+either A or B  Influenza A is further subtyped by the hemagglutinin and neuraminidase 
+serotypes HxNy  The typical course of an influenza infection in an individual lasts 7 
+days 46  The first 1  2 days after exposure the individual suffers no symptoms 
+although the virus is rapidly expanding in number in the upper respiratory tract  During 
+these days the individual is shedding virus and is infectious however  Day 2 is the day 
+of maximum virus shedding which lasts roughly until day 7  The degree of 
+infectiousness is roughly proportional to viral shedding  While fever is often considered 
+a classic symptom of the flu only 40 of AH3N2 36 of AH1N1 and 75 of B 
+cases cause fever  The H3N2 serotype is the most virulent and expands to higher viral 
+concentrations or titer in individuals  H3N2 also typically causes more severe illness 
+and higher mortality and a greater number of hospitalization cases than does H1N1  
+Children shed influenza virus earlier and longer than do adults 
+method for quantifying difference between strains of influenza virus is known as the 
+hemagglutination inhibition assay which quantifies the ability of an antibody to 
+competitively inhibit the binding of the hemagglutin protein of the virus to red blood 
+cells  Antibodies raised against one strain of the virus typically inhibit other strains to 
+lesser degree in a way that depends on the difference between the strains  The lesser the 
+inhibition the greater the distance between the strains and this assay forms a basis to 
+quantify antigenic distance 47  These assays are typically performed in ferrets 
+however and the correlation of antigenic distances derived from this animal model with 
+vaccine efficacy in humans is imperfect 
+48  It appears that epidemics are often associated with rainy seasons in tropical regions  
+Indeed there is a correlation with vapor pressure influenza transmission and virus 
+survival  It has also been observed that transmission decreases with vapor pressure in a 
+linear way and that virus survival increases with low levels of vapor pressure  Thus it 
+has been suggested that humidification of air in homes schools and work could reduce 
+virus transmission substantially  From Section 5 we know that epidemics are percolation 
+phase transitions and so reduction of transmission probability below the critical value 
+would extinguish an epidemic 
+The annual influenza epidemics exhibit a strong seasonality in temperate regions 
+There are multiple strains of each virus serotype  See Figure 5 The traditional 
+There is an annual vaccine for influenza  There are three components to the 
+Number of amino acids in the dominant epitope 
+The immune response to an influenza vaccine and then subsequent response to a 
+From sequence data it is now thought that global migration of influenza drives 
+epidemics 49  That is the virus does not persist locally flaring up during the winter  
+Rather the virus seems to arrive from elsewhere  It is now thought that Asia sometimes 
+China and sometimes other places in Asia is the source for the annual epidemic strains 
+50  For example it appears that Northern hemisphere strains are not descendant of 
+South American or African strains but rather from Asian strains  This continual source 
+of strains induces a one-dimensional character to the phylogenetic tree of influenza 
+strains  Modeling efforts have suggested that once an influenza epidemic reaches 104  
+105 cases travel restrictions are unable to contain further spread 51 
+Figure 5 Phylogenetic tree of HA1 nucleotide sequences  From 50 
+71  H3N2 influenza virus vaccine efficacy 
+vaccine currently specific strains of AH1N1 AH3N2 and influenza B  In 20092010 
+there will also be a supplemental novel AH1N12009 strain 
+virus that may be a bit different from the vaccine has been the subject of intense 
+theoretical efforts 19 52 53  The immune system recognizes mainly the hemagglutinin 
+protein on the surface of the influenza virus particle  On this protein there are five main 
+regions called epitopes that antiobodies recognize  It has been postulated that a suitable 
+order parameter to characterize antigenic distance for influenza is the fraction of amino 
+acids that differ in the dominant epitope between two strains 19 53  This order 
+parameter is called 
+ pepitope          Number of amino acids that differ in the dominant epitope 
+This order parameter correlates to a greater degree with vaccine efficacy in humans than 
+do even the ferret animal model studies 19 52  This order parameter is a useful new 
+tool for influenza vaccine design  See Figure 6 
+Figure 6 Vaccine efficacy for influenza is well represented as a function of pepitope Also 
+shown is a linear least square fit of the epidemiological data based on the pepitope  
+parameter  Original antigenic sin or negative efficacy has been observed 26 of the 
+time  From 19 
+72  H1N1 influenza virus vaccine efficacy 
+The other major serotype of influenza that has afflicted humans over the past few 
+decades and the cause of some concern during the 20092010 season is H1N1  As with 
+H3N2 it is desired to have a predictive correlate of vaccine efficacy for H1N1  To 
+develop the pepitope method first the epitopes of H1N1 needed to be identified 54   
+Roughly 13 of the positions were known from antibody mapping experiments  
+These measures of antigenic distance are based upon a statistical physics 
+An interesting distinction between H3N2 and H1N1 is that the immune response 
+Remaining positions were identified by structural mapping from H3N2 and identification 
+of sites under immune selection pressure  With these epitopes in hand pepitope for H1N1 
+was developed 20  This order parameter correlated well with vaccine efficacy in 
+humans just as it did for H3N2 
+to H1N1 appears to be stronger 20  This for example explains why the H1N1 vaccines 
+are typically more efficacious and why they extend protection to larger values of pepitope 
+than do H3N2 vaccines  It also appears that due to this greater immune pressure H1N1 
+viruses evolve to a greater extent when they are dominant than do H3N2 viruses 
+73  Sequence space localization in the immune response to influenza 
+description of the immune response to vaccine and subsequent exposure to virus 2  
+This theory is termed the generalized NK GNK model  The GNK model is a spin glass 
+random energy theory of the landscape upon which the immune system dynamics 
+evolves  This theoretical description was the first to predict both a region of positive 
+protection from the vaccine and a region of increased susceptibility due to a vaccine  
+Essentially there is an intermediate antigenic distance for which the immune memory 
+generated by the vaccine causes the immune response to be trapped in a local region of 
+sequence space and this suboptimal response is worse than if the vaccine had not been 
+given  For vaccine design a positive efficacy is desired  The GNK theory allows one to 
+quantify the antigenic distance between the vaccine and mutant viral strains and to 
+predict the expected vaccine efficacy as a function of this distance 
+8  The immune response to dengue fever 
+Originally a tropical and subtropical disease Dengue virus DENV is now being 
+tracked and investigated in the United States as well as the rest of the world 55 56 The 
+infected cases seem to grow with the range of the spread of DENV causing 
+approximately 50 to 100 million cases on annual basis with a conservative estimate of 
+25000 mortalities each year 57 Despite being immune to the same strain after 
+surviving a bout of the disease individuals that are reinfected with a different serotype 
+are at an elevated risk of suffering the dengue hemorrhagic fever DHF as a symptom 
+DHF is characterized by plasma loss due to increased vascular permeability and is the 
+cuase for essentially all the mortalities stemming from DENV 58 59 In order to avoid 
+this original antigenic sin a DENV vaccine must be able to protect against all four 
+serotypes simultaneously 60 To date however no four-component vaccine has been 
+developed to combat all of the four serotypes 61 Development is impeded by the need 
+to overcome or at least minimize immunodominance and bypass the potentially adverse 
+effects caused by heterologous immunity  
+There are four serotypes of dengue virus 62  The serotypes differ by up to 30 
+in amino acid composition  The ten DENV protein products ordered by greatest to least 
+variation are NS2A C NS1 NS2B E NS4A NS5 M NS3 and NS4B  See Figure 7  
+Since DENV is comprised of four related serotypes an ideal vaccine would 
+These four serotypes frequently co-circulate in the same locality  As with influenza it 
+appears that Asia provides the source population for dengue and the greatest diversity of 
+dengue is found in that region  In other words there is frequent dengue virus migration 
+with relatively little in situ evolution 63 While the sequence data for dengue is not 
+nearly as extensive as that for influenza it does appear that there is significant fluctuation 
+in genetic diversity of the virus with rapid creation and extinction of many dengue 
+clades 
+81  Immunodominance in the immune response to dengue fever 
+provide the basis for a simultaneous and balanced attack against all four viral variants 
+Discovery of an effective vaccine against all four dengue viruses DENVs however has 
+been hampered by skewing of immune responses to only one or two serotypes  A 
+fundamental problem with DENV is that immunity after infection by one serotype of 
+DENV protects modestly or even negatively against reinfection by other serotypes 56 
+57 64  Presence of original antigenic sin requires having a vaccine for DENV that can 
+induce protective immunity against all four serotypes simultaneously 56 57 65 To 
+date not only has no such effective vaccine has been developed but also it is believed 
+that the T cell immunological response to each serotype is to a limited number of 
+epitopes that are similar but distinct in various serotypes 66 67 Differences in the 
+epitope sequences in addition to simultaneous exposure to all four DENV serotypes can  
+make the quality of the immune response to some of the serotypes poor 60 65 
+Immunodominance is a severe immunological problem that DENV poses 
+Figure 7 DENV genome expressed as proteins and the levels of antibody and T cell 
+immune response to each blank meaning no response  indicating mild response and 
+ indicating the strongest response  From 57 
+immunodominance effect in which immune response is not strong against all serotypes 
+Why immunodominance occurs so dramatically in DENV has been the subject of much 
+debate Studies suggest that CD8
+ T cell receptors TCRs which recognize dominant 
+epitopes inhibit expansion of TCRs  to other epitopes due to reduction of viral load 
+apoptosis homeostasis and resource competition 66 68 69 However the complexity 
+of the interactions between the immune system and DENV had made a quantitative 
+understanding of immunodominance challenging Moreover no four-component vaccine 
+to date has been able to overcome this immunodominance 
+82 Multi-site vaccination to alleviate imunodominance in dengue fever 
+Based on our studies 23 we have suggested a novel multi-site vaccination that may 
+ameliorate immunodominance for the DENV vaccine  See Figure 8  By multi-site 
+vaccination we mean vaccinating in different locations in a manner that each component 
+of the vaccine would drain to a physiologically distinct lymph node eg as used to be 
+Clinical trials for a four-component DENV vaccine 57 60 show an 
+Three experimental studies in animals have now confirmed our hypothesis that 
+done with the rabies vaccine in the abdomen and buttocks  See Figure 9  Hence there 
+would be independent evolutions of immune response in different individual lymph 
+nodes of various vaccine components until complete mixing after which amplified T 
+cells spread more evenly through the lymphatic system and a fraction are randomly 
+chosen to be further expanded Such independent selection evolution allows for a 
+successful multi-site vaccination by generating a predisposition in amplified T cells prior 
+to mixing Since this predisposition can be preselected by vaccine components it can 
+in turn be used towards sculpting the immune response to ameliorate immunodominance 
+Administration of two different vaccines at physically separated sites rather than same 
+site has been shown in cancer vaccines to reduce immunodominance 70-72 The model 
+further suggests that vaccinating with a poorly recognized serotype first followed by 
+multi-site vaccination is an effective strategy to sculpt an increased number of TCRs 
+recognizing the subdominant serotypes to mitigate immunodominance Finally the model 
+predicts that judicious choice of the subdominant epitopes may further ameliorate 
+immunodominance 
+Figure 8 Specific lysis ratios from the least to most dominant epitope of the four dengue 
+viruses under various situations  Data from 23 
+Figure 9 Representation of values for parameter mixing day to draining lymph nodes at 
+different distances from the heart  From 21 
+multi-site vaccination may alleviate immunodominance 73-75 These studies 
+investigated the diversity of a CD8 T cell response to a mixture of HIV epitopes In 75 
+mice were immunized with a mixture of AL11 and KV9 Db-restricted HIV epitopes 
+Injection to the same site resulted in a specific response to the KV9 epitope Anatomic 
+separation between injection sites resulted in a response against both epitopes  In 74 
+whether a broad CD8 T cell response recognizing multiple HIV-1 types termed clades 
+could be induced by a multi-component vaccine was assessed in mice Single-clade A B 
+and C vaccines generated limited cross-clade reactivity Combining the three clades into 
+one vaccine resulted in a reduced breadth of response due to immunodominance 
+Administering individual clade-specific vaccines simultaneously into anatomically 
+distinct sites on the body alleviated immunodominance and increased the number of 
+epitopes recognized by the T cell response  In 73 a four-component dengue vaccine 
+was examined in monkeys  A broader immune response was generated with multi-site 
+vaccination than with single-site vaccination  A broader immune response was also 
+generated when subdominant serotypes were administered in different physiological 
+locations to the dominant serotypes These studies provide confirmation of our theory 
+9  General considerations of pathogen evolution 
+infection and remains a significant problem 1  For example A significant fraction of 
+patients in hospitals are infected with common bacteria such as Staphylococcus aureus 
+Enterococci and Pseudomonas aeruginosa resistant to antibiotics  Many species of 
+Emergence of drug resistant strains of pathogens exposes people to virulent 
+fm  max f     1  212  
+In the late 60s and early 70s Crow Kimura and Eigen developed the 
+There is an analogy between this evolutionary dynamics and thermodynamics 
+viruses evolve in response to immune or vaccine pressure and influenza has become 
+resistant to several common antivirals 
+91  The quasispecies theory of virus evolution 
+quasispecies theory to describe viral evolution  These physical theories of evolution 
+consider the replication and mutation of a population of viruses  The key results that 
+emerged were that a population of viruses clusters around a defined genotype which 
+need not be the genotype with the most rapid replication rate and that there is a critical 
+mutation rate beyond which the virus species no longer can exist  The disappearance of 
+the virus for mutation rates greater than the critical value is called the error catastrophe 
+Individual viral fitness is like energy mutation rate is like temperature and fitness of the 
+viral population is like free energy  Quantum field theoretical treatments were able to 
+make this analogy precise 76 For example if the viral replication rate f depends on 
+distance from a wild-type sequence  the population of viruses in the Crow-Kimura 
+model optimizes the expression 
+where  is the viral mutation rate and fm is the mean viral fitness in the population The 
+error catastrophe is a true phase transition with an order that depends on the form of the 
+fitness function and the alphabet size of the virus 77  These methods provide the exact 
+phase diagram and population fitness values of quasispecies theory derivable from this 
+equation 
+quantum field theory 78  This extension allows one to consider for example one 
+region of sequence space with high viral fitness and a distinct region of immune or drug 
+suppression  This refined model allows one to consider evolution of drug resistance or 
+immune escape of the virus 
+transfer 79 and recombination 80 to quasispecies theory  Horizontal gene transfer and 
+recombination are essential for large-scale evolution and an accurate description of viral 
+evolutionary dynamics must include these processes  It was found that these processes 
+affect the phase diagram and population fitness of the virus  Perhaps most significantly 
+however these processes affect the ability of a finite population of viruses to evolve 
+the mutation rate of the virus could be driven beyond the critical value then the virus 
+would be eradicated  Some current antivirals may indeed operate by this mechanism  It 
+has been shown in the case of vesicular stomatitis virus that the virus can evolve to 
+decrease its natural mutation rate thus counteracting this treatment strategy 81  This 
+response to lethal mutagenesis is a novel viral resistance mechanism  Modulation of the 
+The quasispecies theory in the literature suggests using mutagens as antivirals  If 
+Extension of quasispecies theory to multiple fitness peaks was possible by this 
+The quantum field theory also allowed the incorporation of horizontal gene 
+mutation rate in response to a change in environmental pressure is well supported by 
+generalized NK studies of evolution 13 
+92  Co-evolution theory 
+The combination of the immune system and the virus population is a co-evolving 
+system  In the viral dynamics there is the error catastrophe phase transition as a function 
+of viral mutation rate  In addition however there is an adaptation catastrophe for virus 
+mutation rates too low to escape immune attack 82  Thus viruses can only exist within 
+a window of mutation rates  It might be expected that the immune system would try to 
+make this window of viability as small as possible by varying the B cell mutation rate 
+and antibody receptor length  Optimizing these parameters in a physical model leads to 
+values close to the biological ones 82 
+93  The emergence of new strains of a pathogen 
+that each individual virus would maximize its reproductive rate R0  This analysis 
+however is approximate because it ignores correlations in the virus population  If there 
+are multiple strains and co-infection of different virus strains in individual hosts the 
+strains that persist in a population may not be the ones that maximize R0 83  That is 
+the virus population will maximize total strain persistence rather than the replication rate 
+of any individual virus  This result was evident in quasispecies theory where it is not the 
+bare viral replication rate f that is optimized but rather the renormalized population-
+level viral fitness fm 
+10  Evolution of the influenza virus 
+in the population of individuals and the immune pressure on the virus arises from those 
+individuals who have memory antibodies against the virus due to previous infection or 
+those individuals who have been vaccinated  The antigenic variation of the virus disrupts 
+the antigen-specific immune response 36  This variation arises from point mutation of 
+the RNA that encodes the proteins of the virus that the immune system recognizes as well 
+as recombination and reassortment of the genes of the virus between different strains 
+101  Pressure on the virus to evolve 
+pressure from the immune system  As discussed in Sections 71 and 72 the immune 
+pressure from the antibody immune system can be quantified by the pepitope distance 
+between the virus and any strains to which an individual has been previously exposed or 
+immunized  This immune pressure extends to pepitope  019 for H3N2 or pepitope  045 
+for H1N1 
+The influenza virus evolves to evade the immune response  This evolution occurs 
+Considering a population of viruses at the mean field level leads one to suspect 
+The virus experiences different pressures that can lead to evolution  First is 
+There are also pressures on the virus related to its ability to infect and transmit 
+Finally there are pressures on the influenza virus to survive antiviral treatment  
+between individuals  For example typical avian influenzas infect water fowl in the lower 
+respiratory tract whereas typical human influenzas infect people in the upper respiratory 
+tract  Thus the influenza virus must alter its binding specificity from what is known as 
+an  23- to an  26-linkage to sialic acid when making the transition from birds to 
+humans 84 The ability of the virus to persist in a population also depends on its 
+transmission rate between individuals and so there is pressure on the virus to achieve a 
+viable transmission rate 
+There are a number of antivirals against influenza including neuraminidase inhibitors 
+and adamantines  Adamantine resistance has evolved rather completely in current 
+influenza strains 85  A single Ser31Asn replacement in the M2 protein is thought to be 
+sufficient to cause resistance  This evolution of the M2 protein has perhaps occurred 
+only once with that strain then spreading throughout the population as all adamantine 
+resistant viruses have a shared 17 amino acid replacement signature  The emergence of 
+adamantine resistant viruses also provides further support for the source-sink model with 
+Asia as the source because there is limited adamantine use in the US and Australia but a 
+majority of the strains in the US and Australia are resistant 86 
+Neuraminidase inhibitors are  97 efficacious when given 29h after exposure to a 
+susceptible strain 87  These antivirals inhibit the release of newly formed virus 
+particles from infected cells and the virus is cleared before a systemic infection is 
+established when the inhibitor is given sufficiently early  There are two known mutations 
+that lead to neuraminidase inhibitor resistance His274Tyr and Asn294Ser 88 
+Of note is that while specific amino acid mutations or pairs of mutations are often 
+mentioned as necessary and sufficient for resistance or transmission modification other 
+mechanisms to achieve these changes are likely possible  For example more than simply 
+ 23- to  26-linkage changes are known to be responsible for human infection 84  In 
+fact the novel AH1N12009 strain which seems to be highly infectious and 
+transmissible between humans is still an  23-linkage binder as of this writing 
+102  The emergence of new influenza strains 
+animals will appear in humans  Two recent examples are the H5N1 bird flu and the 
+H1N1 swine flu  The jumping of a pathogen to a human host is called zoonosis  
+There are three stages 89  The first stage is infection of humans but no human-to-
+human transmission  The H5N1 is currently in this stage  The second stage is localized 
+transmission of the new strain among humans  The third stage is sustained transmission 
+among humans which causes an epidemic  The novel AH1N12009 is in this stage   
+overcome the human immune system  Additionally however the virus may also need to 
+Resistance to the neuraminidase inhibitors is incomplete at present  
+Occasionally a strain of influenza that had previously only infected birds or 
+There are several barriers to achieving the third stage 90  The virus must 
+Point mutation is a fine tuning of the virus once it lands in a new host  To evade 
+undergo substantial evolution to achieve sustained transmission between humans  It has 
+been said that in the context of emergence of an influenza A virus strain via a host 
+switch event it is difficult to predict what specific polygenic changes are needed for 
+mammalian adaptation 91  In other words zoonosis is not a predictable event with 
+current theory  In the context of AH5N1 there has been quite a bit of thought as to what 
+would lead this virus to develop sustained human-to-human transmission 92  For 
+example AH5N1 may acquire from reassortment events with AH1N1 or AH3N2  
+Indeed a significant fraction up to 25 of patents infected with one strain of influenza 
+are simultaneously infected with another strain thus allowing for potential reassortment 
+events 92  It is also of note that consensus sequencing eg as carried out by Roche454 
+machines cannot generally measure evolution within individual hosts  For this reason 
+published consensus sequences are skewed toward dominant strains within isolates 92 
+103  Point mutation 
+the immune system for example the hemagglutinin protein must make a sufficiently 
+large modification of pepitope so that immune system memory from prior infection or 
+vaccination does not eliminate the virus  Taking the novel AH1N12009 as an example 
+the distances between this virus and the AH1N1 virus from the 2008-2009 season the 
+1976 swine flu strain and the 1918 Spanish flu strain are pepitope  091 028 and 038 
+respectively  Point mutations contributing to other components of the virus fitness such 
+as transmission are less well understood at present  For example molecular markers 
+predictive of adaptation in humans are not currently present in 2009 AH1N1 viruses 
+suggesting that previously unrecognized molecular determinants could be responsible for 
+the transmission among humans 93 
+104  Reassortment recombination and HGT 
+Segmental reassortment of the 8 coding segments of influenza is a significant 
+contributor to the evolution of novel strains of H1N1  For example each of the novel 
+H1N1 strains in 1918 1947 and 1951 came about by reassortment 94 as did the strain 
+in 2009  Multiple lineages of H3N2 co-circulate persist and reassort 95   
+One study found 14 HA or NA reassortments over 7 years 45  Consistent with this 
+study it has been estimated that there may be at least 2-3 reassortment events among 
+influenza A strains each year 96  The most common reassortment is incorporation of a 
+novel hemagglutinin or neuraminidase segment to the virus  These are also the proteins 
+undergoing the most rapid point mutation evolution It appears that the reassortment 
+evolvability of these two proteins has been selected for due to a sufficiently great immune 
+pressure  Reassortment of these segments also occurs at an elevated rate in vitro in the 
+absence of immune selection suggesting that the reassortment of these segments may be 
+elevated due to packaging effects 
+105  Novel strain detection 
+The sequence data of influenza are consistent with large selection pressure 97  
+While there are long periods of stasis of the dominant strain this suppression of 
+fluctuations is to be expected in a finite population  Even strong selection pressure eg 
+from the immune system could lead to a relatively homogeneous virus population during 
+one season but rather different populations in different seasons  The existence of this 
+selection pressure suppressed as it is by finite population effects has not been widely 
+recognized 98 
+Thus identification of new strains before they become dominant is a significant 
+and non-trivial task  The annual influenza vaccine for the northern hemisphere is chosen 
+in February for the vaccine that will be administered in October  So novel strains must 
+be identified at least 9 months in advance of when they will be dominant if a vaccine 
+against them is to be identified  As discussed in Section 7 strain classification has been 
+based upon the ferret hemagglutination inhibition assay  However as discussed in 
+Section 72 the correlation between the ferret immune and human immune responses is 
+imperfect  By projecting the strains in the multidimensional sequence space to a two-
+dimensional sequence space clusters containing incipient new strains can be identified 
+months to years in advance 99  It appears that novel strains can be identified with 
+clusters containing as few as ten strains 
+106  Detailed simulation of antibody binding 
+evolve  The pressure is due to antibodies produced in the immune system that chemically 
+bind to the hemagglutinin protein on the virus surface People who have been vaccinated 
+have antibodies that bind the virus protein 102-103 times as strongly  Since there is 
+pressure on the virus to mutate when the virus does mutate this may be to the advantage 
+of the virus  In particular some mutations may disrupt the antibodyhemagglutinin 
+binding more than others  We postulated that the free energy of the binding is directly 
+correlated to the fitness of the virus 54  That is we propose that the decrease in the 
+binding constant between antibodies and the mutated hemagglutinin is one of the most 
+significant driving forces of virus evolution 
+We have used molecular dynamics MD simulation with the CHARMM22 force 
+field to calculate the Gibbs free energy G from which the change of binding constant 
+Immune memory from virus in previous years imposes a pressure on the virus to 
+
+aK  and 
+aK  are the binding constant of the mutated complex and the 
+is obtained where 
+wild type complex respectively  Thermodynamic integration with an Einstein crystal 
+reference system for the endpoints was used to calculate this free energy difference 
+We performed calculations on the 1968 H3N2 Aichi strain 100 We noticed that 
+the 10 observed mutations had different levels of stability and some mutations persisted  
+while others reverted to the original residue one or two years after the first mutation  We 
+found that the mutations which persisted in the human populations were those that most 
+disrupted G among the 10 observed  We also calculated the free energy change for a 
+Agent based modeling provides a full solution to the stochastic process of virus 
+double mutation found in a Guinea pig animal model experiment performed by our 
+collaborators  This mutation significantly disrupted G 
+107  Projected dynamics 
+Coupling the virus evolution within individuals to the transmission of the virus in 
+a population leads to a large system of stochastic dynamics  Analytic progress is possible 
+when this dynamics is projected to a lower dimension  For example stage-structured 
+modeling reduces the number of variables 101  This approach is a projection of an 
+agent-based approach to be discussed next 
+108  Agent based modeling 
+evolution in a population  Fluctuation effects are particularly significant to capture 
+effects of strain emergence and extinction 1  Deterministic modeling in particular 
+often leads to an excessive number of strains with a paucity of extinction 102 
+A full agent based model captures the immune pressures on the virus in an 
+individual due to prior exposure or immunization via pepitope distances 103  Each 
+individual acquires an immune history specific to its exposure history  Viruses mutate 
+and evolve in individuals and transmit to other individuals  So the variables are the 
+current infection status and immune history of each individual  Transmission between 
+individuals occurs via social contact and so the contact network within and between 
+cities is a key parameter in the formulation of the dynamics 
+Figure 10 The vaccine effect on cumulative attack rate for the initial introduction of 
+two-strains The multiple-component vaccine Mc is superior to the single-component 
+vaccine Sc for different fractions of population vaccinated  After 103 
+This detailed model offers specific predictions for the progression of an influenza 
+epidemic and how vaccination may modulate the epidemic 103  The attack rate in the 
+population the fraction of the population that becomes infected during a season is of 
+prime interest and is calculated   See Figure 10  The greater the fraction of the 
+population vaccinated and the earlier the vaccine is administered the lower the attack 
+rate  In this way herd immunity is quantified  In some cases a multi-strain vaccine is 
+warranted  For example in the 20092010 season both a seasonal and a novel H1N1 
+vaccine will be available  This detailed agent based approach is the first to quantify the 
+efficacy of a multiple strain vaccine  The interactions among vaccine components can be 
+non-trivial  The reports in 2009 of potential negative interactions between the seasonal 
+and the novel H1N1 components of the vaccine which concerned three provinces in 
+Canada enough to delay administration of the seasonal vaccine until the novel vaccine 
+was ready are an example the decision was based on preliminary results  not yet 
+published or reviewed  from four Canadian studies involving 2000 people according to 
+Dr Don Low at Mount Sinai Hospital 104   To further quantify the potential impact of 
+an epidemic the quantity Population at Risk PaR was introduced  The PaR is the 
+maximum expected attack rate calculated to a 90 95 or 99 confidence interval 
+11  Evolution of other viruses 
+pathogens  These patterns are  105 
+There are several patterns into which antigenic variability falls for general 
+1  limited variation within host population wide variation that is independent of 
+2  limited variation within host population wide variation that depends on space and 
+space and time eg S pneumoniae 
+time eg N meningitides 
+3  limited variation within host limited population variation at one time but rapid 
+population variation over the time scale of years eg Influenza 
+4  significant variation in host over time extensive and increasing diversity in the 
+global population HIV-1 
+5  limited or no antigenic variability limited diversity in the population and so 
+nearly complete vaccine or naturally acquired immunity measles mumps 
+rubella 
+Antigenic diversity is a major challenge to vaccine design as we saw in Section 7 
+A strong immune cross reactivity between strains leads to large distances between 
+evolving strains  Conversely higher transmission weaker cross immunity and short-
+lived infections promote a rapid strain turnover The prevalence of a pathogen prevale is 
+increased for higher transmissibility for infections with longer duration or for less 
+immune cross-immunity  Thus pathogenic diversity is greater for weaker cross 
+immunity and for more transmissible pathogens  A failing of simple epidemic models is 
+that too much diversity is generated too rapidly 
+for the specific case of influenza  For viruses such as HIV or hepatitis C one wonders 
+whether a vaccine can be protective in a diverse population of hosts 105  For influenza 
+one wonders whether a universal vaccine one not requiring annual updates is possible 
+Modeling has shed light on a few features of viral emergence 84  For example 
+due to their higher mutation rates new RNA viruses are more likely to emerge than DNA 
+viruses  In addition zoonosis is more likely from generalist than specialist viruses  
+Epistatic effects stemming from the necessity to replicate in different hosts however 
+disallows much amino acid variation and reduces the speed with which zoonosis occurs  
+While phylogenetically related species are more likely to have cross species transmission 
+similar immune systems in related species may suppress virus transmission in new 
+species detailed modeling could provide insight into this phenomenon 
+111  Evolution of the HIV virus evolution 
+HAART therapy for HIV has significantly increased the life expectancy of 
+infected patients  The effects on HIV evolution however are less clear 106  For 
+example while HAART increases life expectancy it also increases viral transmission  
+On the other hand decreased infectiousness decreases the transmission  Thus 
+mathematical models can determine 
+1  Optimal use of HAART 
+2  Epidemiological consequences of HAART and behavioral changes 
+3  The course of evolution of drug resistance within an individual and within a 
+population 
+4  Achievable levels of coverage and effectiveness including effective and efficient 
+use of second line treatments and demographic or health care impacts 
+A number of features of HIV evolution have been determined  For example there 
+is a significant bottleneck as the virus transmits from one person to another  The HIV 
+diversity goes down 99 during transmission to new host 107  The evolution of HIV 
+slows down as CD4 T cells decline presumably because the immune pressure is reduced 
+108 
+A quasispecies model for HIV evolution demonstrated the emergence of mutants 
+109  The time scale for a substantial diversity to evolve was 1-2 years  As the mutants 
+emerge the diversity taxes the capacity of the immune system to respond due to 
+immunodominance  This mechanism was the first to explain in a single model the three 
+phases of HIV  See Figure 11  Moreover this mechanism suggests a forward-looking 
+vaccine strategy  If a subset of the mutants that are likely to evolve in 1-2 years are 
+vaccinated against during week 14 using the multi-site protocol of Section 82 then 
+immunodominance is alleviated and the immune system is predicted to eradicate the 
+Figure 11 HIV-1 infection time course where circles represent the clinical data and the 
+solid line is generated by the model  From 109 
+population sizes recombination increased diversity and mean fitness  At larger 
+population sizes recombination increased fitness but decreased diversity  For small 
+population sizes we generally expect that recombination may increase fitness due to a 
+reduction of Mullers ratchet effect 111  For larger population sizes recombination 
+may increase or decrease fitness depending on the sign of epistasis 79 112 
+112  Evolution of the hepatitis C virus 
+transplantation 113  Under conditions of mild fibrosis genetic distance and non-
+synonymous mutations in the viral quasispecies increased  Under conditions of severe 
+fibrosis the opposite happened  The interpretation is that under mild disease there is less 
+pressure on the virus and a more complex quasispecies can emerge  Conversely under 
+severe disease there is substantial pressure on the virus and a more localized and less 
+complex quasispecies emerge 
+113  Evolution of the dengue virus 
+The effects of recombination on HIV have been investigated 110  At moderate 
+The evolution of hepatitis C has been quantified after orthotopic liver 
+Dengue virus has only recently entered the human population and the virus 
+The immune system controls pre-cancerous cells on a daily basis  Theoretical 
+continues to evolve in the human host  Homologous recombination has been observed in 
+the flaviviridae family to which dengue belongs 114  Recombination within each of the 
+dengue strains has been observed 95  Conclusive proof of recombination between 
+strains has now been obtained from a patient infected with DEN-1 and DEN-2 and with 
+DEN-12 recombinants 115  These results illustrate the general importance of 
+recombination to viral evolution 
+12  Cancer 
+discussion of cancer and the immune system focuses on cancers of the immune system 
+immune control of cancer and potential vaccination strategies 
+121  The mutations leading to cancer 
+As an example of detailed modeling a simulation study of human follicular 
+lymphoma B cells has been carried out 116  A model of the germinal center was 
+constructed A significant number of detailed parameters were identified  The focus of 
+the study was to identify mutations leading to cancerous cells 
+122  Immunodominance 
+The resistance of cancer to standard therapies has led many researchers to consider 
+immune control Various effects including tolerance and immunodominance however 
+have limited the ability of the immune system and vaccines to control cancer These 
+effects occur because cancer is effectively a multi-strain disease with multiple cancer-
+associated or cancer-specific epitopes 
+Immunodominance is one general mechanism by which cancer cells may escape either 
+by mutation of the dominant epitope or by loss of the MHC class I allele that expresses 
+the dominant epitope Cross-presentation of the lost dominant epitope on surrounding 
+cells often sustains the futile immune response Indeed many types of cancerous cells are 
+exceptionally adept at evading immune control   
+123  Multi-site vaccination 
+vaccine is to administer the different components of the vaccine strains to different 
+physical regions of the patient in this way breaking the hierarchy of immunodominance 
+117  These experiments are well explained by the GNK theory of T cell response to 
+multiple antigens 21118  See Figure 12  Since cancerous cells often express multiple 
+similar epitopes this theory could explain a significant fraction of the immunobiological 
+responses to cancer 
+One means to generate a broader T cell response to a multicomponent cancer 
+Figure 12 Specific lysis for a two component vaccine with two completely different 
+cancer epitopes a single site injection b dual site injection with each epitope in the 
+vaccine draining to a different lymph node  From 21 
+Deem MW 2007 Mathematical adventures in biology Physics Today 60 42-7 
+Sun J Deem MW 2007 Spontaneous emergence of modularity in a model of 
+evolving individuals Phys Rev Lett 99 228107 
+He J Sun J Deem MW 2009 Spontaneous emergence of modularity in a model 
+of evolving individuals and in real networks Phys Rev E 79 031907 
+Deem MW 2005 Complexity in the immune system Computers  Chemical 
+Engineering 29 437-46 
+Deem MW 2004 Comptexity in the immune system New opportunities for 
+chemical engineering research AIChE Journal 50 734-8 
+Deem MW 2005 Entropy disease and new opportunities for chemical 
+engineering research AIChE Journal 51 3086-90 
+Sun J Deem MW 2009 Statistical mechanics of immune response to vaccines 
+Statistical Mechanics of Cellular Systems and Processes Cambrige University 
+Press Edited by Muhammad H Zaman 177-213  
+Pai JC Sutherland JN Maynard JA 2009 Progress towards recombinant anti-
+infective antibodies Recent Pat Antiinfect Drug Discov 4 1-17 
+Fenwick MK Escobedo FA 2003 Hybrid Monte Carlo with multidimensional 
+replica exchanges Conformational equilibria of the hypervariable regions of a 
+llama VHH antibody domain Biopolymers 68 160-77 
+Earl DJ Deem MW 2005 Parallel tempering Theory applications and new 
+perspectives Physical Chemistry Chemical Physics 7 3910-6 
+Velez-Vega C Fenwick MK Escobedo FA 2009 Simulated mutagenesis of the 
+hypervariable loops of a llama VHH domain for the recovery of canonical 
+conformations J Phys Chem B 113 1785-95 
+Deem MW Lee HY 2003 Sequence space localization in the immune system 
+response to vaccination and disease Phys Rev Lett 91 068101 
+Earl DJ Deem MW 2004 Evolvability is a selectable trait Proc Natl Acad Sci 
+USA 101 11531-6 
+Bogarad LD Deem MW 1999 A hierarchical approach to protein molecular 
+evolution Proc Natl Acad Sci USA 96 2591-5 
+15  Wiegel FW Perelson AS 2004 Some scaling principles for the immune system 
+Immunol Cell Biol 82 127-31 
+16  Weinstein JA Jiang N White RA 3rd Fisher DS Quake SR 2009 High-
+throughput sequencing of the zebrafish antibody repertoire Science 324 807-10 
+Sun J Earl DJ Deem MW 2005 Glassy dynamics in the adaptive immune 
+response prevents autoimmune disease Phys Rev Lett 95 148104 
+Sun J Earl DJ Deem MW 2006 Localization and glassy dynamics in the 
+immune system Modern Physics Letters B 20 63-95 
+22  Martin S Kohler H Weltzien HU Leipner C 1996 Selective activation of CD8 
+T cell effector functions by epitope variants of lymphocytic choriomeningitis 
+virus glycoprotein J Immunol 157 2358-65 
+Zhou H Deem MW 2006 Sculpting the immunological response to dengue fever 
+by polytopic vaccination Vaccine 24 2451-9 
+24  McKeithan TW 1995 Kinetic proofreading in T-cell receptor signal transduction 
+Gupta V Earl DJ Deem MW 2006 Quantifying influenza vaccine efficacy and 
+antigenic distance Vaccine 24 3881-8 
+Pan K Subieta KC Deem MW 2009 Quantifying Seasonal H1N1 Influenza 
+Vaccine Efficacy and Antigenic Distance Submitted  
+Yang M Park J-M Deem MW 2006 Evolutionary design in biological physics 
+and materials science Lect Notes Phys 704 541-62 
+Proc Natl Acad Sci USA 92 5042-6 
+Valitutti S Muller S Cella M Padovan E Lanzavecchia A 1995 Serial 
+triggering of many T-cell receptors by a few peptide-MHC complexes Nature 
+375 148-51 
+Kosmrlj A Jha AK Huseby ES Kardar M Chakraborty AK 2008 How the 
+thymus designs antigen-specific and self-tolerant T cell receptor sequences Proc 
+Natl Acad Sci USA 105 16671-6 
+Lee KH Dinner AR Tu C Campi G Raychaudhuri S et al 2003 The 
+immunological synapse balances T cell receptor signaling and degradation 
+Science 302 1218-22 
+von Andrian UH 2002 Immunology T cell activation in six dimensions Science 
+296 1815-7 
+Zheng H Jin B Henrickson SE Perelson AS von Andrian UH Chakraborty AK 
+2008 How antigen quantity and quality determine T-cell decisions in lymphoid 
+tissue Mol Cell Biol 28 4040-51 
+Rong L Perelson AS 2009 Modeling HIV persistence the latent reservoir and 
+viral blips J Theor Biol  
+Stauffer Thompson KA Rempala GA Yin J 2009 Multiple-hit inhibition of 
+infection by defective interfering particles J Gen Virol 90 888-99 
+Haseltine EL Lam V Yin J Rawlings JB 2008 Image-guided modeling of virus 
+growth and spread Bull Math Biol 70 1730-48 
+Lim KI Lang T Lam V Yin J 2006 Model-based design of growth-attenuated 
+viruses PLoS Comput Biol 2 e116 
+Lim KI Yin J 2009 Computational fitness landscape for all gene-order 
+permutations of an RNA virus PLoS Comput Biol 5 e1000283 
+Huang Y Krasnitz M Rabadan R Witten DM Song Y et al 2008 A recoding 
+method to improve the humoral immune response to an HIV DNA vaccine PLoS 
+One 3 e3214 
+Lipsitch M 2002 Vaccination and Serotype Replacement Adaptive dynamics of 
+infectious diseases In pursuit of virulence management eds U Dieckmann J A 
+J Metz M W Sabelis  K Sigmund 362-74 
+Dorogovtsev S N Mendes J F F 2003 Evolution of networks From biological 
+nets to internet and WWW Oxford University Press New York 
+53  Munoz ET Deem MW 2005 Epitope analysis for influenza vaccine design 
+Vaccine 23 1144-8 
+Deem MW Pan K 2009 The epitope regions of H1-subtype influenza A with 
+application to vaccine efficacy Protein Eng Des Sel 22 543-6 
+55  McBride WJ 2005 Deaths associated with dengue haemorrhagic fever The first 
+in Australia in over a century Med J Aust 183 35-7 
+56  Mongkolsapaya J Dejnirattisai W Xu XN Vasanawathana S 
+Yin J 2007 Chemical Engineering and Virology Challenges and opportunities at 
+the interface AIChE 53 2202-9 
+Parham PE Ferguson NM 2006 Space and contact networks Capturing the 
+locality of disease transmission J Roy Soc Interface 3 483-93 
+Dodd PJ Ferguson NM 2007 Approximate disease dynamics in household-
+structured populations J Roy Soc Interface 4 1103-6 
+Hagenaars TJ Donnelly CA Ferguson NM 2004 Spatial heterogeneity and the 
+persistence of infectious diseases J Theor Biol 229 349-59 
+Abu-Raddad LJ Ferguson NM 2004 The impact of cross-immunity mutation 
+and stochastic extinction on pathogen diversity Proc Biol Sci 271 2431-8 
+Trifonov V Khiabanian H Rabadan R 2009 Geographic dependence 
+surveillance and origins of the 2009 influenza A H1N1 virus N Engl J Med 
+361 115-9 
+Hollingsworth TD Ferguson NM Anderson RM 2007 Frequent travelers and 
+rate of spread of epidemics Emerg Infect Dis 13 1288-94 
+Nelson MI Holmes EC 2007 The evolution of epidemic influenza Nat Rev 
+Genet 8 196-205 
+Carrat F Vergu E Ferguson NM Lemaitre M Cauchemez S et al 2008 Time 
+lines of infection and disease in human influenza A review of volunteer challenge 
+studies Am J Epidemiol 167 775-85 
+Russell CA Jones TC Barr IG Cox NJ Garten RJ et al 2008 Influenza vaccine 
+strain selection and recent studies on the global migration of seasonal influenza 
+viruses Vaccine 26 Suppl 4 D31-4 
+Lipsitch M Viboud C 2009 Influenza seasonality Lifting the fog Proc Natl 
+Acad Sci USA 106 3645-6 
+Nelson MI Simonsen L Viboud C Miller MA Holmes EC 2007 Phylogenetic 
+analysis reveals the global migration of seasonal influenza A viruses PLoS 
+Pathog 3 1220-8 
+Russell CA Jones TC Barr IG Cox NJ Garten RJ et al 2008 The global 
+circulation of seasonal influenza A H3N2 viruses Science 320 340-6 
+Hollingsworth TD Ferguson NM Anderson RM 2006 Will travel restrictions 
+control the international spread of pandemic influenza Nat Med 12 497-9 
+Pan K Deem MW 2009 Comment on Ndifon et al On the use of 
+hemagglutination-inhibition for influenza surveillance Surveillance data are 
+predictive of influenza vaccine effectiveness Vaccine 27 5033-4 
+Tangthawornchaikul N et al 2003 Original antigenic sin and apoptosis in the 
+pathogenesis of dengue hemorrhagic fever Nat Med 9 921-7 
+Rothman AL 2004 Dengue Defining protective versus pathologic immunity J 
+Clin Invest 113 946-51 
+Gibbons RV Vaughn DW 2002 Dengue An escalating problem BMJ 324 
+1563-6 
+Ferguson NM Galvani AP Bush RM 2003 Ecological and immunological 
+determinants of influenza evolution Nature 422 428-33 
+Sette A Fikes J 2003 Epitope-based vaccines An update on epitope 
+identification vaccine design and delivery Curr Opin Immunol 15 461-70 
+Calvert AE Huang CY Kinney RM Roehrig JT 2006 Non-structural proteins of 
+dengue 2 virus offer limited protection to interferon-deficient mice after dengue 2 
+virus challenge J Gen Virol 87 339-46 
+Holmes EC 2006 The evolutionary biology of dengue virus Novartis Found 
+Symp 277 177-87 discussion 87-92 251-3 
+Jarman RG Holmes EC Rodpradit P Klungthong C Gibbons RV et al 2008 
+Microevolution of Dengue viruses circulating among primary school children in 
+Kamphaeng Phet Thailand J Virol 82 5494-500 
+Klenerman P Zinkernagel RM 1998 Original antigenic sin impairs cytotoxic T 
+lymphocyte responses to viruses bearing variant epitopes Nature 394 482-5 
+Gubler DJ 1998 Dengue and dengue hemorrhagic fever Clin Microbiol Rev 11 
+480-96 
+Yewdell JW Bennink JR 1999 Immunodominance in major histocompatibility 
+complex class I-restricted T lymphocyte responses Annu Rev Immunol 17 51-88 
+Zivny J Kurane I Leporati AM Ibe M Takiguchi M et al 1995 A single nine-
+amino acid peptide induces virus-specific CD8 human cytotoxic T lymphocyte 
+clones of heterogeneous serotype specificities J Exp Med 182 853-63 
+Freitas AA Rocha B 2000 Population biology of lymphocytes The flight for 
+survival Annu Rev Immunol 18 83-111 
+Fu TM Friedman A Ulmer JB Liu MA Donnelly JJ 1997 Protective cellular 
+immunity Cytotoxic T-lymphocyte responses against dominant and recessive 
+epitopes of influenza virus nucleoprotein induced by DNA immunization J Virol 
+71 2715-21 
+van der Most RG Sette A Oseroff C Alexander J Murali-Krishna K et al 1996 
+Analysis of cytotoxic T cell responses to dominant and subdominant epitopes 
+during acute and chronic lymphocytic choriomeningitis virus infection J Immunol 
+157 5543-54 
+Cole GA Hogg TL Coppola MA Woodland DL 1997 Efficient priming of 
+CD8 memory T cells specific for a subdominant epitope following Sendai virus 
+infection J Immunol 158 4301-9 
+72  Makki A Weidt G Blachere NE Lefrancois L Srivastava PK 2002 
+Immunization against a dominant tumor antigen abrogates immunogenicity of the 
+tumor Cancer Immun 2 4 
+Guy B Barban V Mantel N Aguirre M Gulia S et al 2009 Evaluation of 
+interferences between dengue vaccine serotypes in a monkey model Am J Trop 
+Med Hyg 80 302-11 
+Larke N Im EJ Wagner R Williamson C Williamson AL et al 2007 Combined 
+single-clade candidate HIV-1 vaccines induce T cell responses limited by multiple 
+forms of in vivo immune interference Eur J Immunol 37 566-77 
+77  Munoz E Park JM Deem MW 2009 Solution of the Crow-Kimura and Eigen 
+models for alphabets of arbitrary size by Schwinger spin coherent states Journal 
+of Statistical Physics 135 429-65 
+Saakian DB Munoz E Hu CK Deem MW 2006 Quasispecies theory for 
+multiple-peak fitness landscapes Phys Rev E 73 041913 
+79  Munoz E Park JM Deem MW 2008 Quasispecies theory for horizontal gene 
+Liu J Ewald BA Lynch DM Nanda A Sumida SM Barouch DH 2006 
+Modulation of DNA vaccine-elicited CD8 T-lymphocyte epitope 
+immunodominance hierarchies J Virol 80 11991-7 
+Park JM Deem MW 2006 Schwinger boson formulation and solution of the 
+Crow-Kimura and Eigen models of quasispecies theory Journal of Statistical 
+Physics 125 975-1015 
+transfer and recombination Phys Rev E 78 061921 
+Park JM Deem MW 2007 Phase diagrams of quasispecies theory with 
+recombination and horizontal gene transfer Phys Rev Lett 98 058101 
+Sanjuan R Cuevas JM Furio V Holmes EC Moya A 2007 Selection for 
+robustness in mutagenized RNA viruses PLoS Genet 3 e93 
+Kamp C Bornholdt S 2002 Coevolution of quasispecies B-cell mutation rates 
+maximize viral error catastrophes Phys Rev Lett 88 068104 
+Abu-Raddad LJ van der Ventel BI Ferguson NM 2008 Interactions of multiple 
+strain pathogen diseases in the presence of coinfection cross immunity and 
+arbitrary strain diversity Phys Rev Lett 100 168102 
+Holmes EC Drummond AJ 2007 The evolutionary genetics of viral emergence 
+Curr Top Microbiol Immunol 315 51-66 
+Simonsen L Viboud C Grenfell BT Dushoff J Jennings L et al 2007 The 
+genesis and spread of reassortment human influenza AH3N2 viruses conferring 
+adamantane resistance Mol Biol Evol 24 1811-20 
+Nelson MI Simonsen L Viboud C Miller MA Holmes EC 2009 The origin and 
+global emergence of adamantane resistant AH3N2 influenza viruses Virology 
+388 270-8 
+Baccam P Beauchemin C Macken CA Hayden FG Perelson AS 2006 Kinetics 
+of influenza A virus infection in humans J Virol 80 7590-9 
+Hayden F Klimov A Tashiro M Hay A Monto A et al 2005 Neuraminidase 
+inhibitor susceptibility network position statement Antiviral resistance in 
+influenza AH5N1 viruses Antivir Ther 10 873-7 
+Parrish CR Holmes EC Morens DM Park EC Burke DS et al 2008 Cross-
+species virus transmission and the emergence of new epidemic diseases 
+Microbiol Mol Biol Rev 72 457-70 
+Kuiken T Holmes EC McCauley J Rimmelzwaan GF Williams CS Grenfell 
+BT 2006 Host species barriers to influenza virus infections Science 312 394-7 
+Dunham EJ Dugan VG Kaser EK Perkins SE Brown IH et al 2009 Different 
+evolutionary trajectories of European avian-like and classical swine H1N1 
+influenza A viruses J Virol 83 5485-94 
+Ghedin E Fitch A Boyne A Griesemer S DePasse J et al 2009 Mixed 
+infection and the genesis of influenza virus diversity J Virol 83 8832-41 
+Garten RJ Davis CT Russell CA Shu B Lindstrom S et al 2009 Antigenic and 
+genetic characteristics of swine-origin 2009 AH1N1 influenza viruses 
+circulating in humans Science 325 197-201 
+Nelson MI Viboud C Simonsen L Bennett RT Griesemer SB et al 2008 
+Multiple reassortment events in the evolutionary history of H1N1 influenza A 
+virus since 1918 PLoS Pathog 4 e1000012 
+Holmes EC Ghedin E Miller N Taylor J Bao Y et al 2005 Whole-genome 
+analysis of human influenza A virus reveals multiple persistent lineages and 
+reassortment among recent H3N2 viruses PLoS Biol 3 e300 
+Rabadan R Levine AJ Krasnitz M 2008 Non-random reassortment in human 
+influenza A viruses Influenza Other Respi Viruses 2 9-22 
+Kryazhimskiy S Plotkin JB 2008 The population genetics of dNdS PLoS Genet 
+4 e1000304 
+98  Wolf YI Viboud C Holmes EC Koonin EV Lipman DJ 2006 Long intervals of 
+stasis punctuated by bursts of positive selection in the seasonal evolution of 
+influenza A virus Biol Direct 1 34 
+He J Deem MW 2009 Low-dimensional clustering reveals new influenza strains 
+before they become dominant Submitted  
+100  Pan K Deem MW 2009 Fixation tendencies of H3N2 influenza virus Submitted  
+101  Chao DL Davenport MP Forrest S Perelson AS 2004 A stochastic model of 
+cytotoxic T cell responses J Theor Biol 228 227-40 
+102  Minayev P Ferguson N 2009 Improving the realism of deterministic multi-strain 
+models implications for modelling influenza A J Roy Soc Interface 6 509-18 
+103  Zhou H Pophale RS Deem MW 2009 Computer-assisted Vaccine Design in 
+Influenza Molecular virology Horizon Scientific Press edited by Qinghua Wang 
+and Yizhi Jane Tao 173-191  
+104  Baker G 2009 Seasonal flu shot may increase H1N1 risk CBS 
+httpwwwcbccahealthstory20090923flu-shots-h1n1-seasonalhtml 
+105  Lipsitch M OHagan JJ 2007 Patterns of antigenic diversity and the mechanisms 
+that maintain them J Roy Soc Interface 4 787-802 
+106  Baggaley RF Ferguson NM Garnett GP 2005 The epidemiological impact of 
+antiretroviral use predicted by mathematical models A review Emerg Themes 
+Epidemiol 2 9 
+107  Edwards CT Holmes EC Wilson DJ Viscidi RP Abrams EJ et al 2006 
+Population genetic estimation of the loss of genetic diversity during horizontal 
+transmission of HIV-1 BMC Evol Biol 6 28 
+108  Lee HY Perelson AS Park SC Leitner T 2008 Dynamic correlation between 
+intrahost HIV-1 quasispecies evolution and disease progression PLoS Comput 
+Biol 4 e1000240 
+109  Wang G Deem MW 2006 Physical theory of the competition that allows HIV to 
+escape from the immune system Phys Rev Lett 97 188106 
+110  Vijay NN Vasantika Ajmani R Perelson AS Dixit NM 2008 Recombination 
+increases human immunodeficiency virus fitness but not necessarily diversity J 
+Gen Virol 89 1467-77 
+111  Park J-M Munoz E Deem MW 2009 Quasispecies theory for finite populations 
+Submitted  
+112  Pellis L Ferguson NM Fraser C 2008 The relationship between real-time and 
+discrete-generation models of epidemic spread Math Biosci 216 63-70 
+113  Lyra AC Fan X Lang DM Yusim K Ramrakhiani S et al 2002 Evolution of 
+hepatitis C viral quasispecies after liver transplantation Gastroenterology 123 
+1485-93 
+114  Twiddy SS Holmes EC 2003 The extent of homologous recombination in 
+members of the genus Flavivirus J Gen Virol 84 429-40 
+115  Aaskov J Buzacott K Field E Lowry K Berlioz-Arthaud A Holmes EC 2007 
+Multiple recombinant dengue type 1 viruses in an isolate from a dengue patient J 
+Gen Virol 88 3334-40 
+116  Fenwick MK Escobedo FA 2009 Exploration of factors affecting the onset and 
+maturation course of follicular lymphoma through simulations of the germinal 
+center Bull Math Biol 71 1432-62 
+117  Van Waes C Monach PA Urban JL Wortzel RD Schreiber H 1996 
+Immunodominance deters the response to other tumor antigens thereby favoring 
+escape prevention by vaccination with tumor variants selected with cloned 
+cytolytic T cells in vitro Tissue Antigens 47 399-407 
+118  Yang M Park JM Deem MW 2006 A theory of multi-site vaccination for 
+cancer Physica A 366 347-64 
+119  Durret R 2010 Some features of the spread of epidemics and information on a 
+random graph Proc Natl Acad Sci USA  1074991-8 
+GSS  PM
+Figure 2
+Figure 3a
+Figure 3b
+Figure 3c
+Primary Response
+Secondary Response
+3 rounds proliferation
+and selection
+Epitope A
+10 rounds proliferation
+and selection
+Distinct 
+Naive T cells
+Antigen 
+Specific Naive 
+T cells
+Memory T cells 
+Diversity 5
+Clearance probability Zm
+Epitope B
+T cells
+New Memory  
+Diversity 1
+10 ZnZnZ m
+103  Final
+Memory T cells 
+10 rounds proliferation
+and selection
+103  Antigen 
+Specific Naive T cells
+Clearance probability Zn
+Memory T cells 
+Diversity 5
+Distinct 
+Naive T cells
+Figure 4
+WUHAN3591995-1995-09-26
+KYONGBUK3042002-2002-11-18
+Figure 5
+SOFIA3442002-2002-11-02
+AARGENTINA12002-2002-05-14
+PH-1159050-2002-11-21
+ASOFIA3432002-2002-11-02
+OSAKA312005-2005-11-21
+SOUTHAUSTRALIA1022001-2001-10-29
+PERTH32002-UNKNOWN
+AWASHINGTON32002-2002-04-03
+VICTORIA1052002-2002-01-09
+VICTORIA1022002-UNKNOWN
+SYDNEY2752002-2002-08-28
+SOUTHAUSTRALIA1542002-2002-09-15
+VICTORIA1032002-2002-01-09
+VICTORIA1162002-UNKNOWN
+BRISBANE1922002-2002-08-13
+DENMARK92003-2003-17-01
+LATVIA47422002-UNKNOWN
+LATVIA48822002-UNKNOWN
+ANORTH-CAROLINA62002-2002-02-21
+AOKLAHOMA22002-2002-01-04
+ATEXAS12002-2002-01-08
+WELLINGTON332002-UNKNOWN
+ANEW-YORK182002-2002-02-04
+LATVIA27282002-UNKNOWN
+PERTH492002-2002-08-21
+ANEW-YORK162002-2002-01-23
+ANEW-YORK172002-2002-02-04
+II-057068-2005-01-15
+NY-03-1626-2003-04-22
+PARMA72003-2003-03-02
+ABRAZIL17322002-2002-06-27
+ABRAZIL24582002-2002-08-09
+ENGLAND12003-2003-01-08
+EG-2002923226-2003-01-14
+SALAMANCA82002-UNKNOWN
+AARKANSAS12002-2002-01-28
+ABRAZIL17272002-2002-05-23
+BL-324-02-2003-09-05
+BR-IAL-2302-UNKNOWN
+POITIERS622002-UNKNOWN
+BR-IAL1544-2003-06-20
+SYDNEY322003-UNKNOWN
+INVERNESS58241572002
+AHONG-KONG5682002-2002-03-25
+AHONG-KONG1217152002-2002-03-06
+ATEXAS42002-2002-01-06
+ACONNECTICUT12002-2002-01-25
+VICTORIA5152002-2002-07-08
+DARWIN42002-2002-08-02
+BRISBANE3122002-2002-09-04
+DARWIN142002-2002-09-13
+SONGKHLA1072002-2002-03-08
+BANGKOK1092002-2002-03-25
+SYDNEY212002-2002-07-07
+AILLINOIS12002-2002-02-24
+VICTORIA1022003-2002-01-12
+PERTH892002-2002-09-29
+VICTORIA2542002-2002-09-16
+ANEBRASKA122002-2002-04-17
+ICELAND872002-UNKNOWN
+BRISBANE222002-2002-07-15
+DARWIN132002-2002-08-23
+BRISBANE1322002-2002-08-08
+BRISBANE1682002-2002-08-12
+PARIS4572002-UNKNOWN
+STOCKHOLM242002-UNKNOWN
+LIMOGES8742002-UNKNOWN
+MALMO32002-UNKNOWN
+OSLO18092002-UNKNOWN
+LATVIA137942002-2002-12-23
+FINLAND1352002-UNKNOWN
+SACHSEN962003-UNKNOWN
+INVERNESS58241172002
+HANNOVER82002-UNKNOWN
+BUCHAREST3472002-UNKNOWN
+BUCHAREST4232002-UNKNOWN
+TRIESTE32002-UNKNOWN
+PRAGUE32002-UNKNOWN
+BRATISLAVA1342002-UNKNOWN
+DENMARK212002-UNKNOWN
+ACEARA1772002-2002-04-04
+DENMARK62002-UNKNOWN
+ANEW-YORK202002-2002-02-26
+ANEW-YORK222002-2002-02-27
+ALOUISIANA22002-2002-01-01
+GENOA42002-UNKNOWN
+BAYERN272002-UNKNOWN
+ANEW-YORK212002-2002-02-25
+OSLO8882002-UNKNOWN
+ATHAILAND1284002002-2002-03-04
+BRISBANE1222002-2002-07-31
+BRISBANE2692002-2002-08-26
+BRISBANE3242002-2002-09-25
+NEWCALEDONIA62002-2002-04-04
+NEWCALEDONIA192002-2002-05-13
+BRISBANE2302002-2002-08-21
+ANEW-YORK282002-2002-11-01
+BRISBANE1152002-2002-07-26
+CHRISTCHURCH422003-2003-05-02
+CHRISTCHURCH92003-2003-04-20
+NC-C02-4981-2002-12-29
+VICTORIA5082002-2002-06-11
+SOUTHAUSTRALIA842002-2002-07-10
+VICTORIA4322002-2002-10-02
+VICTORIA5452002
+BRISBANE1572002-2002-08-11
+BRISBANE2372002-2002-08-21
+VICTORIA5552002
+SYDNEY232002-2002-07-04
+HI-02-3736-2002-10-30
+AUCKLAND262002-2002-07-09
+BRISBANE452002-2002-07-17
+WAIKATO102002-UNKNOWN
+BRISBANE1442002-2002-08-08
+VICTORIA5442002-2000-08-15
+AHAWAII42002-2002-03-05
+FUKUOKA152002-2002-02-23
+VICTORIA5062002-2002-05-20
+AMASSACHUSETTS22002-2002-02-01
+VICTORIA5462002
+AUTAH62002-2002-01-05
+BRISBANE32002-2002-02-18
+VICTORIA2352002-2002-08-22
+CHRISTCHURCH372002-2002-06-13
+ICELAND932002-UNKNOWN
+AUCKLAND572002-2002-09-03
+PRAGUE342003-2003-02-02
+LYON199892002-2002-10-15
+TU-RSP-02-1035-2002-12-13
+BAYERN12003-2003-01-14
+GREECE1092003-2003-03-21
+LATVIA15062003-2003-02-10
+OSLO33852003-2003-04-13
+IT-RSP-03-1997-2003-03-14
+RO-972-03-2003-04-08
+BUCHAREST9722003-UNKNOWN
+LATVIA27542003-2003-03-05
+ICELAND222003-2003-03-19
+HANNOVER312002-UNKNOWN
+NY-03-1484-2003-03-14
+AG-R517-03-2003-06-12
+BR-1609-2003-06-17
+HANNOVER1542003-2003-03-07
+PERTH12003-2003-04-02
+CT-52038835-2003-09-11
+AK-V03-1257-2003-07-22
+APERU30292002-2002-05-14
+AG-2289-2003-07-03
+AK-V03-708-2003-04-07
+NEWCALEDONIA22003-2003-07-02
+NEWCALEDONIA52003-2003-07-16
+NEWCALEDONIA112003-2003-09-01
+TRIESTE82003-UNKNOWN
+THURINGEN362003-2003-02-17
+CAEN2412002-UNKNOWN
+CAEN5742002-UNKNOWN
+PARIS2072002-2002-12-01
+CAEN4062002-UNKNOWN
+AHEBEI222002-2002-01-10
+AWUHAN162002-2002-01-17
+GUANGZHOU6032002-2002-06-15
+FUJIAN3542002-2002-07-23
+AINDIA255022002-2002-08-16
+BANGKOK2472002-2002-07-15
+BRISBANE62002-2002-06-20
+BRISBANE52002-2002-06-07
+ATHAILAND1624962002-2002-07-18
+AWUHAN122002-2002-01-10
+BANGKOK1902002-2002-07-01
+BANGKOK2232002-2002-08-07
+SINGAPORE22002-2002-01-07
+SINGAPORE292002-2002-07-02
+SOUTHAUSTRALIA792002-2002-07-06
+MALAYSIA1162002-UNKNOWN
+VICTORIA1232002-UNKNOWN
+VICTORIA1212002-UNKNOWN
+HONG-KONG15502002-2002-01-19
+SINGAPORE72002-2002-01-24
+SINGAPORE162002-2002-04-02
+ABEIJING202002-2002-01-07
+AZHEJIANG82002-2002-01-08
+PERTH2012002-2002-01-29
+ZHEJIANG82002-UNKNOWN
+JILIN162003-2003-02-12
+SHANGHAI3692003-2003-04-16
+HONG-KONG12562003-2003-07-15
+PHILIPPINES6212003-2003-07-21
+PHILIPPINES6292003-2003-07-21
+PHILIPPINES8252003-2003-07-29
+PHILIPPINES11162003-2003-08-18
+NE-W49587-2003-08-27
+PHILIPPINES13202003-2003-09-04
+DUNEDIN392003-2003-08-19
+GQ-RSP-03-3715-2003-10-01
+KOBE1872004-2004-11-15
+VICTORIA1012004-2004-06-18
+VICTORIA1102004-2004-07-14
+VICTORIA1182004-2004-08-13
+YAMANASHI1732004-2004-12-13
+HAMAMATU82005-2005-01-25
+TOKYO10352004-UNKNOWN
+NIIGATA952004-2004-01-13
+DC-AHERN-L-2003-08-22
+VICTORIA1252004-2004-08-30
+BRISBANE592004-2004-09-20
+VICTORIA1442004-2004-10-05
+VICTORIA1462004-2004-10-05
+BRISBANE1642004-2004-10-29
+BRISBANE1222004-2004-10-01
+GUNMA14892004-2004-12-08
+GUNMA162005-2005-01-17
+VICTORIA5002004-2004-08-13
+SENDAI492005-2005-03-02
+SINGAPORE682004-2004-11-09
+SENDAI792005-2005-04-13
+VICTORIA5202004-2004-10-20
+VICTORIA5052004-2004-09-06
+SENDAI672004-2004-12-09
+MIYAGI732005-2005-02-14
+VICTORIA5072004-2004-09-09
+SOFIA1412003-2003-02-01
+CI-03-8266-ORIGINAL-2003-06-19
+ATIANJIN52002-2002-01-01
+TAIWAN82002-2002-09-25
+AGUANGZHOU3942002-2002-05-14
+BERLIN352003-2003-02-27
+TOWNSVILLE42002-2002-07-17
+PHILIPPINES4712002-2002-07-18
+PHILIPPINES4722002-2002-07-18
+GUAM2282002-2002-10-26
+NEWJERSEY42002-2002-11-04
+SINGAPORE442002-2002-12-07
+SWITZERLAND74942002-UNKNOWN
+AHONG-KONG11432002-2002-06-06
+AHONG-KONG15542002-2002-08-02
+SINGAPORE372003-2003-01-24
+BRISBANE12003-2003-03-21
+NETHERLANDS3682002-2002-12-10
+SINGAPORE502002-2002-12-22
+SINGAPORE162003-2003-01-15
+HK-03V6205-2003-02-03
+TRIESTE22003-2003-03-02
+EG-2003901386-2003-03-03
+KWANGJU2192002-2002-10-31
+AHONG-KONG15102002-2002-07-26
+IRELAND12152003-2003-01-24
+EG-2003900525-2003-01-23
+APHILIPPINES1602832002-2002-07-17
+TW-1522-2002-12-15
+CHITA62003-2003-02-12
+JILIN142003-2003-02-02
+JILIN172003-2003-02-16
+JILIN182003-2003-02-18
+TW-1521-2002-12-09
+MALAYSIA1452002-2002-09-09
+LYON4762003-2005-02-05
+AHUNAN4072002-2002-08-20
+AK-RSP-02-753-2002-12-02
+KO-RSP-02-770-2002-12-02
+CA-T02-3025-2002-12-03
+II-031741-TS-2003-03-03
+SYDNEY72003-2003-03-06
+JA-RSP-02-910-2002-12-09
+DAEJEON3902002-2002-11-27
+CHEJU2742002-2002-11-29
+AUCKLAND62003-2003-06-16
+HI-02-4055-2002-12-24
+AUCKLAND202003-2003-06-15
+HI-02-4051-2002-12-22
+HONG-KONG6642003-2003-02-28
+HONG-KONG9922003-2003-03-28
+FINLAND1702003-2003-01-14
+MX-1066-2003-05-22
+GA-0302328070-2003-01-06
+SINGAPORE72003-2003-01-07
+JA-RSP-03-493-2003-01-23
+JAPAN7272003-2003-01-30
+HONG-KONG3342003-2003-02-24
+MX-503-2003-03-11
+MX-736-2003-03-27
+HONG-KONG9952003-2003-03-29
+TX-AC-19535-2003-06-18
+ISHIKAWA1022002-2002-11-26
+AK-V03-250-2003-02-12
+MX-325-2003-02-25
+HONG-KONG9112003-2003-03-20
+WV-159-2003-02-11
+TX-VC3-1265-2003-04-23
+BR-IAL-2314-UNKNOWN
+CHEONNAM4322002-2002-11-26
+HONG-KONG7112003-2003-03-07
+HK-03V6385-2003-02-08
+AZ-994-2003-03-01
+UY-PA03-4-2003-06-14
+TX-AC22579-2003-09-28
+WA-V130811-2003-01-08
+AZ-300763-2003-03-20
+MI-VC76-2003-01-15
+NY-8548-2003-02-12
+OR-F03-0155-UNKNOWN
+MEMPHIS22003-2003-01-16
+MEMPHIS32003-2003-01-21
+MEMPHIS42003-2003-01-21
+ANHUI5502002-2002-12-01
+MALAYSIA2262003-2003-03-10
+NETHERLANDS202003-UNKNOWN
+HONG-KONG10522003-2003-04-03
+NH-2003028575-2003-08-07
+FUJIAN4112002-2002-08-11
+MOSCOW282003-2003-02-04
+ABEIJING512002-2002-12-20
+TAK1852003-UNKNOWN
+OSLO22212003-UNKNOWN
+MALAYSIA4342003-2003-04-22
+DENMARK402003-2003-03-07
+BEIJING178-NEW-AGN2002-2002-11-21
+BA-1164729-2003-05-06
+SD-VR1197-03-2003-05-12
+WI-03-VI-13573-2003-04-02
+WI-03VI17748-2003-04-29
+MI-M03VC614-2003-03-22
+MEMPHIS12003-2003-01-16
+HONG-KONG7122003-2003-03-11
+MN-VI2003-464-S0030494-2003-02-25
+AG-R809-03-2003-07-01
+HUNAN2452003-2003-05-20
+WA-V13-998-2003-05-06
+KUMAMOTO1022002-2002-12-25
+WYOMING32003-2003-02-13
+MX-102-2003-01-27
+HI-02-4092-2002-12-28
+AHAWAII192002-2002-12-30
+WYOMING22003-2003-01-28
+WY-2003100054-2003-02-13
+AZ-300637-2003-03-11
+AK-V03-206-2003-02-05
+CI-03-8299-2003-06-19
+CI-03-6421-2003-05-13
+CI-03-7379-2003-06-03
+UK1861-CDC-20030709-ROW-122003-2003-03-08
+HONG-KONG7972003-2003-03-17
+HONG-KONG11592003-2003-06-16
+HONG-KONG11732003-2003-06-20
+CI-03-6267-2003-05-12
+CI-03-8806-2003-06-30
+TW-1526-2003-08-20
+FUJIAN3252003-2003-05-21
+WUHAN2112003-2003-06-30
+CI-03-7985-2003-06-12
+NM-200301457-2003-12-01
+TX-VC3-2838-2003-11-05
+ID-2008-2003-11-06
+OKLAHOMA82004-2003-12-08
+IN-03C00483-NP-SWAB-2003-12-17
+VT-04VIR239-ORIGINAL-2003-12-19
+VT-04VIR253-ORIGINAL-2003-12-22
+NEW-YORK312004-2004-01-06
+AZ-4-0187-2004-01-28
+AZ-4081-2003-11-10
+WY-2003100231-2003-12-02
+WY-2003100267-2003-12-09
+NC-5663-2003-12-21
+KOREA1242003-2003-12-30
+WI-04-VI-187-2004-01-02
+SD-558-04-2004-01-11
+NM-200301489-2003-12-01
+OR-F03-2072-2003-12-29
+AZ-4707-2003-10-23
+MEMPHIS322003-2003-12-03
+MX-2663-2003-12-15
+TAIWAN15692004-2004-05-12
+BRISBANE72003-2003-06-26
+NE-T42565-2003-12-16
+VICTORIA1492003-2003-08-08
+CL-4145-2003-11-20
+PERU12962004-2004-01-22
+MALAYSIA10092003-UNKNOWN
+MALAYSIA10102003-UNKNOWN
+WELLINGTON342003-2003-06-30
+LIMOGES24022003-2003-12-18
+NY-04-005-2135-2004-01-05
+VICTORIA5462003-2003-08-24
+VA-W56472-2003-11-19
+MALAYSIA15222004-2004-07-14
+BR-IAL-445-2004-04-03
+FUJIAN2922003-2003-08-05
+NY-03-1932-2003-08-16
+TAIWAN15292003-2003-09-07
+WUHAN2142003-2003-06-30
+TW-1530-2003-09-08
+FUJIAN4452003-2003-07-12
+TW-1548-2004-04-08
+DUNEDIN242003-2003-07-15
+CHRISTCHURCH2462003-2003-07-22
+WELLINGTON32003-2003-05-19
+WELLINGTON172003-2003-06-11
+CHRISTCHURCH72003-2003-06-17
+CHRISTCHURCH462003-2003-06-17
+VICTORIA1052003-2003-06-28
+WELLINGTON382003-2003-06-30
+CHRISTCHURCH822003-2003-07-01
+CHRISTCHURCH892003-2003-07-01
+DUNEDIN402003-2003-07-02
+CHRISTCHURCH3132003-2003-07-13
+DUNEDIN152003-2003-07-15
+TOWNSVILLE12003-2003-07-24
+CHRISTCHURCH3402003-2003-07-26
+VICTORIA5322003-2003-08-13
+VICTORIA22003-2003-08-18
+BRISBANE1062003-2003-08-19
+VICTORIA5622003-2003-08-29
+BRISBANE2652003-2003-09-11
+PERTH822003-2003-09-16
+VICTORIA5902003-2003-09-20
+SYDNEY982003-UNKNOWN
+CHRISTCHURCH3022003-2003-02-08
+DUNEDIN42003-2003-07-02
+BRISBANE682003-2003-08-20
+SOUTHAUSTRALIA1072003-2003-09-08
+VICTORIA5202003-2003-08-11
+SOUTHAUSTRALIA392003-2003-09-06
+BRISBANE1882003-2003-09-11
+BRISBANE3272003-2003-10-01
+DUNEDIN112003-2003-07-13
+PERTH52003-2003-08-18
+SYDNEY102003-2003-06-07
+BRISBANE722003-2003-08-15
+VICTORIA5262003-2003-08-15
+BRISBANE862003-2003-08-17
+SOUTHAUSTRALIA192003-2003-08-19
+NEWCALEDONIA142003-2003-09-08
+NEWCALEDONIA202003-2003-10-14
+SYDNEY952003-UNKNOWN
+MALAYSIA7682003-2003-10-09
+SINGAPORE1072003-2003-11-11
+ECUADOR19682004-2004-02-23
+CHRISTCHURCH862003-2003-07-01
+CHRISTCHURCH1762003-2003-07-08
+VICTORIA5602003-2003-08-28
+NY-W15509-2003-11-19
+NJ-03-324-1391-2003-11-20
+SYDNEY542003-2003-08-08
+TOWNSVILLE362003-2003-08-28
+SOUTHAUSTRALIA802003-2003-09-04
+BRISBANE2682003-2003-09-20
+PERTH1312003-2003-10-07
+EG-2003917221-2003-11-15
+PERTH32003-2003-08-04
+PERTH1032003-2003-09-24
+PERTH1102003-2003-08-28
+BRISBANE3402003-2003-11-11
+DARWIN42003-2003-03-09
+DARWIN72003-2003-09-08
+IRELAND101082003-2003-09-16
+TX-78104-2003-10-03
+TX-78107-2003-10-03
+TX-78108-2003-10-03
+TX-78111-2003-10-03
+AZ-4877-2003-10-23
+GA-123598-2003-11-03
+FL-JVT10894-2003-11-06
+GA-123886-2003-11-07
+NY-04-1007-CASE-NY-007-2003-12-29
+TX-AC22326-2003-09-22
+TX-78106-2003-10-03
+TX-78112-2003-10-03
+TX-78105-2003-10-03
+TEXAS1402003-2003-10-03
+TX-AC24395-2003-10-27
+TX-AC22291-2003-09-20
+TX-AC22588-2003-09-28
+TX-AC22472-2003-09-24
+TX-335-2901-BT-2003-12-01
+NE-F25563-2003-11-14
+NE-M79032-2003-12-08
+OSAKA252003-2003-12-01
+MX-2656-2003-12-17
+TX-VC3-1751-2003-09-29
+TX-VC3-1785-2003-10-13
+CO-20668-2003-11-03
+SYDNEY1012003-UNKNOWN
+BRISBANE322003-2003-08-13
+CHRISTCHURCH282003-2003-06-24
+CHRISTCHURCH192003-2003-06-20
+UT-40322405-2003-11-13
+TEXAS402003-2003-10-02
+TX-78114-2003-10-03
+OK-V324-2003-10-24
+IA-V400566-2003-11-17
+VA-VA659-03-2003-11-06
+IA-V400553-2003-11-13
+AZ-4907-2003-12-22
+SD-VR36680-03-2003-12-02
+NY-04-005-1626-2004-01-04
+MO-VC03-402-2003-11-11
+WI-03-VI-52624-2003-12-16
+GA-04C0158712-2003-12-15
+UY-CA04-3173-2004-06-24
+LA-000026-UNKNOWN
+NC-5605-2003-12-19
+VA-VA-777-03-2003-12-03
+AR-V-3083-2003-10-16
+LOUISIANA42003-2003-10-21
+FL-JVT10891-2003-11-04
+NC-5691-CASE-NC-2003-12-29
+WI-04-VI-564-2004-01-07
+NE-H79319-2003-12-04
+AZ-10006-ORIGINAL-2003-11-26
+NC-5338-2003-12-10
+GA-04C0158713-2003-12-15
+AG-R26-04-2004-04-03
+IRELAND97422003-2003-09-04
+KHABAROVSK132003-2003-11-23
+SAPPORO1932003-2003-12-09
+BRISBANE3422003-2003-11-20
+AK-V03-2522-2003-12-17
+KITAKYUSHU22004-2004-01-19
+ZAMORA442003-UNKNOWN
+CT-767-2003-08-27
+GRANADA14202003-UNKNOWN
+KOBE32004-2004-01-04
+PY-697-2004-07-01
+PUSAN5042002-2002-11-20
+CHEONNAM4322002-2002-11-26
+BR-IAL-615-2004-03-21
+NY-26239-2004-04-22
+JM-5524-03-2003-12-11
+LYON212004-2004-01-04
+EUSKADI14282003-2003-10-20
+FG-00220012-2004-02-18
+HUNAN1672003-2003-04-15
+MAE-HONG-SON3172003-2003-08-11
+MAE-HONG-SON3302003-2003-08-11
+BANGKOK13402004-2003-07-23
+FUJIAN5552003-2003-08-24
+NC-0019-CASE-NC-2003-12-23
+RO-802-03-2003-12-21
+CHANTHABURI2192003-2003-06-24
+BANGKOK242004-2004-01-13
+NAKHONRATCHASIMA6352004-2004-02-05
+OMSK322004-2004-01-15
+BEIJING3012002-2002-12-20
+TIANJIN322004-2004-01-18
+HYOGO1132003-2003-12-15
+HEBEI1962003-2003-11-28
+GANSU302004-2004-01-15
+MACAU762004-2004-02-13
+BEIJING1702003-2003-12-05
+TIANJIN1992003-2003-10-20
+XIAMEN802004-2004-03-12
+TIANJIN1432003-2003-10-04
+WV-198-2003-11-05
+UA-2003918069-2003-12-12
+SHIZUOKA3832003-2003-12-22
+SINGAPORE42004-2004-01-19
+WELLINGTON12004-2004-01-26
+NEWCALEDONIA62004-2004-04-29
+BRISBANE12004-2004-01-24
+AR-2003100148-2003-11-17
+GE-838-2003-12-18
+CT-52038834-2003-09-27
+POITIERS7192004-2004-10-26
+CHEONNAM3232002-2002-11-20
+INCHEON2602002-2002-11-14
+JOHANNESBURG302004-UNKNOWN
+MOSCOW1642003-2003-12-08
+MOSCOW1792003-2003-12-15
+NEWCALEDONIA122004-2004-07-26
+HI-4-310-THROAT-2004-01-05
+KANAGAWA882003-2003-12-18
+FUKUSHIMA62004-2004-01-05
+EHIME332004-2004-01-26
+MACAU2142004-2004-04-08
+NAGOYA12004-2004-01-02
+YAMANASHI122004-2004-01-06
+NAGOYA492004-2004-03-08
+HOKKAIDO342004-2004-04-12
+AICHI1812004-2004-06-16
+YAMANASHI12004-2004-01-05
+NIIGATA22004-2004-01-09
+SINGAPORE12004-2004-01-09
+PERTH12004-2004-01-30
+FUKUSHIMA1732003-2003-12-03
+SENDAI1262003-2003-12-16
+CHIBA1132003-2003-12-23
+ISHIKAWA582004-2004-01-24
+HOKKAIDO152004-2004-01-26
+YAMAGUCHI452004-2004-02-09
+OKINAWA412004-2004-03-15
+SOLOMONISLANDS22004-2004-03-25
+NARA642003-2003-12-08
+SHIMANE22004-2004-01-13
+NIIGATA2342004-2004-01-17
+NIIGATA5282004-2004-03-08
+SOLOMONISLANDS12004-2004-03-25
+TOCHIGI552003-2003-12-12
+OKAYAMA92004-2004-01-13
+SHIZUOKA1122004-2004-01-16
+SAGA192004-2004-01-26
+YOKOHAMA242004-2004-01-15
+NAGANO10232004-2004-01-18
+GIFU192004-2004-01-27
+KAGOSHIMA272004-2004-02-19
+FUKUOKA72004-2004-01-15
+TOYAMA402004-2004-02-12
+HIROSHIMA52004-2004-01-29
+IWATE32004-2004-01-08
+BRAZIL17592004-2004-05-28
+SARABURI17922004-2004-09-22
+CHACHOENGSAO14222004-2004-08-05
+MACAU1032004-2004-02-18
+FIJI1852004-UNKNOWN
+MALAYSIA4522004-2004-02-20
+SAPPORO2582004-2004-03-03
+SINGAPORE152004-2004-03-19
+MALAYSIA6612004-2004-03-09
+NAGASAKI592004-2004-02-02
+BANGKOK11582004-2004-03-11
+MALAYSIA12004-2004-01-02
+WUHAN1012004-2004-04-05
+II-511132-2005-10-03
+MIE202004-2004-01-09
+YAMANASHI142004-2004-01-15
+KUMAMOTO22004-2004-01-20
+HIROSHIMA392004-2004-01-26
+KUMAMOTO362004-2004-02-09
+FUKUSHIMA1472004-2004-02-23
+FUKUI442004-2004-03-08
+EHIME42004-2004-01-20
+KOCHI432004-2004-01-26
+OKINAWA132004-2004-02-06
+HIROSHIMA192004-2004-01-21
+KOBE1862004-2004-03-23
+AKITA22004-2004-01-05
+AOMORI162004-2004-02-02
+SHIZUOKA12004-2004-01-05
+KAWASAKI2622004-2004-01-15
+CHIBA1102004-2004-02-16
+CHIBA1252004-2004-02-24
+AOMORI432004-2004-02-25
+SHIMANE312004-2004-03-01
+LIPETSK152004-2004-01-17
+SR-2004902496-2004-01-29
+NY-04-1647-2004-09-21
+HIROSHIMA142004-2004-02-12
+JAPAN1202004-2004-01-02
+JA-RSP-04-120-ORIGINAL-2004-01-02
+ARGENTINA1262004-2004-05-20
+AG-R126-04-2004-05-20
+AICHI1832004-2004-08-13
+UT-40414933-2004-09-17
+THAILAND14192004-2004-06-11
+TH-02-505107-ORIGINAL-UNKNOWN
+THAILAND442005-2005-02-06
+SINGAPORE952003-2003-11-02
+TX-VC4-404-2004-08-04
+WY-00120-ORIGINAL-2005-03-15
+WI-04-VI-50662-2004-11-29
+YAROSLAVL42004-2004-01-20
+SOFIA6822005-2004-12-16
+TW-1554-2004-04-10
+TAIWAN15632004-2004-07-08
+NINGBO9972004-2004-09-06
+TIANJIN2632004-2004-09-06
+TIANJIN2732004-2004-09-28
+KOBE1892004-2004-11-22
+CHEJU18452004-2004-12-24
+NEPAL16602004-2004-07-02
+PERTH12005-2005-01-04
+MS-05020500070-2005-02-27
+JIANGXI1692005-2005-03-17
+RI-2005100001-2005-01-24
+NY-17460-2005-01-05
+GA-05C0191488-2005-01-06
+TAIWAN15622004-2004-08-06
+MALAYSIA252004-2004-09-15
+JIANGXI2062005-2005-03-30
+TEXAS62004-2004-09-02
+MALAYSIA18752004-2004-09-06
+CA-S71051-2004-09-11
+WAKAYAMA12005-2005-01-19
+HI-05-0137-2005-01-04
+FL-JVT-15282-2005-03-10
+NEPAL16802004-2004-07-02
+VE-254155-2005-08-19
+KYOTO32005-2005-02-05
+NEPAL16702004-2004-07-02
+KHABAROVSK92005-2005-01-27
+KAMPHAENGPHET35242004-2004-11-02
+GUNMA5082004-2004-12-07
+SAITAMA432004-2004-12-21
+TAIWAN512005-2005-01-27
+SINGAPORE382004-2004-06-15
+SINGAPORE212004-2004-05-10
+MALAYSIA13442004-2004-06-08
+CHRISTCHURCH1042004-2004-09-07
+DARWIN12004-2004-07-08
+CHRISTCHURCH2152004-2004-09-13
+SINGAPORE372004-2004-06-07
+SINGAPORE362004-2004-06-15
+ND-V2004-3168-CDC-20041116-ROW-34-2004-10-20
+CO-04-14697-2004-10-27
+WI-04VI50096-2004-11-22
+WI-10-2005-01-17
+WI-14-2005-01-21
+AZ-799-2005-02-15
+NORTH-DAKOTA12004-2004-10-20
+WISCONSIN192004-2004-11-06
+WI-04VI50096-ORIGINAL-2004-11-22
+SD-VR-4888-2004-12-02
+TX-VC4-724-2004-12-14
+IA-2005011460-2005-01-30
+NICE9382004-2004-12-06
+GA-05CO149708-2004-12-14
+VA-VAV1-34-2005-01-07
+SC-X590-2005-02-04
+KYUNGNAM1222005-2005-01-17
+THAILAND362005-2005-02-08
+FINLAND6182005-2005-03-12
+SLOVENIA1462005-2005-01-18
+NEPAL16462004-2004-07-01
+NJ-04-361-1083-2004-12-26
+TX-VC5-593-2005-02-09
+BRISBANE52005-2005-03-16
+CHRISTCHURCH102004-2004-07-20
+CHRISTCHURCH2802004-2004-10-12
+HYOGO42005-2005-02-07
+HYOGO72005-2005-02-12
+NY-17343-2005-01-03
+AICHI112005-2005-01-27
+KANAGAWA312005-2005-02-10
+INCHEON2432005-2005-02-07
+BARCELONA1042005-2005-01-17
+TRIESTE552005-2005-02-15
+VICTORIA5132004-2004-09-30
+PA-S-45670-2005-01-15
+NE-M42528-2005-01-03
+LYON13752005-2005-01-05
+VE-246971-ORIGINAL-2005-05-25
+NEPAL16592004-2004-07-02
+NEPAL16752004-2004-07-02
+NEPAL17022004-2004-07-03
+LOP-BURI31282004-2004-10-22
+MO-VC04-196-2004-10-22
+NEPAL16782004-2004-07-02
+ICELAND62005-2005-01-07
+ST-PETERSBURG42005-2005-03-28
+AG-R56-05-2005-05-26
+FUKUOKA42005-2005-02-12
+WV-419-2005-01-05
+BERLIN42005-2005-01-20
+ISHIKAWA772005-2005-02-14
+THAILAND1232005-2005-03-21
+THAILAND4962005-2005-10-03
+LYON1082005-2005-01-12
+HIROSHIMA292005-2005-03-29
+HIROSHIMA252005-2005-04-07
+NETHERLANDS1232005-01-15
+YUNNAN7132004-2004-09-20
+NINGBO10462004-2004-09-23
+SHIZUOKA1082005-2005-01-17
+KITAKYUSHU22005-2005-03-08
+ANHUI5632005-2005-03-31
+MIE102005-2005-02-02
+IWATE122006-2006-02-01
+MALAYSIA20502004-2004-09-29
+TX-VC4-775-2004-12-27
+NIIGATA6202005-2005-03-01
+KANAGAWA62005-2005-01-25
+YAMAGATA2062005-2005-04-25
+SHAANXI902005-2005-03-02
+EG-2005904864-2005-04-20
+EKATERINBURG92005-2005-03-03
+MX-931-2005-04-04
+PARIS6592004-UNKNOWN
+UY-05-39082-2005-08-01
+YAMAGATA1812005-2005-03-26
+NIIGATA9652005-2005-04-15
+AG-R113-05-2005-06-10
+AG-R55-05-2005-05-26
+WELLINGTON32005-2005-07-13
+CI-05-7099-2005-05-20
+AG-3065-2005-06-09
+NY-13341-2004-11-19
+NY-13342-2004-11-19
+GA-05C0-193835-2005-01-27
+WI-2-2005-01-08
+NEW-YORK402004-2004-11-18
+NY-12512-ORIGINAL-2004-11-09
+SWITZERLAND57322004-2004-12-29
+HONG-KONG2552005-2005-03-04
+BR-IAL2353-0505-04099-ORIGINAL-UNKNOWN
+NEW-YORK552004-2004-11-18
+NEW-YORK55-A-PR-8-34-X-1572004-UNKNOWN
+NEW-YORK55-X-PR-8-X-157B2004-UNKNOWN
+NEW-YORK55-X-PR-8-X-157A2004-UNKNOWN
+BR-IAL-2363-0506-06502-ORIGINAL-UNKNOWN
+JOHANNESBURG4852005-2005-06-27
+OTAGO22004-2004-08-12
+CHRISTCHURCH1782004-2004-09-11
+BRISBANE252004-2004-09-13
+UT-40415155-2004-09-22
+CHRISTCHURCH1902004-2004-09-24
+TX-VC4-495-2004-10-12
+VICTORIA5232004-2004-11-03
+VA-VA-V1-28-2005-01-07
+NV-1305-2005-04-22
+WY-0049-2005-01-14
+WY-0050-2005-01-14
+WY-0052-2005-01-14
+PERTH262004-2004-09-23
+MT-410734-2004-10-02
+TAIWAN532005-2004-12-24
+MT-439520-2005-01-28
+WI-04-VI44150-2004-10-18
+MALAYSIA992005-UNKNOWN
+CHRISTCHURCH2632004-2004-09-26
+VICTORIA5112004-2004-09-28
+AUCKLAND452004-2004-08-30
+LA-I-000014-2005-01-26
+BRISBANE702004-2004-09-14
+WI-11-2005-01-17
+CI-05-6898-2005-05-24
+PERTH452004-2004-10-19
+ATRIESTE8-05-UNKNOWN
+TRIESTE82005-UNKNOWN
+PERTH352004-2004-10-07
+SOUTHAUSTRALIA82004-2004-09-20
+TOKUSHIMA22005-2005-02-07
+ROMANIA7512005-2005-03-29
+BA-167113-2005-05-29
+ROMANIA8102005-2005-03-30
+HI-RSP04-2340-ORIGINAL-2004-09-29
+CALIFORNIA72004-2004-09-16
+MO-VC05-03-ORIGINAL-2005-01-03
+MO-VC-05-095-2005-02-11
+MO-VC05-235-ORIGINAL-2004-12-29
+HI-RSP04-2624-ORIGINAL-2004-11-03
+WY-0078-ORIGINAL-2005-02-01
+WY-0079-ORIGINAL-2005-02-02
+WY-00114-ORIGINAL-2005-03-10
+BA-141817-ORIGINAL-2005-05-30
+WY-0076-ORIGINAL-2005-02-03
+AUCKLAND572004-2004-02-09
+SYDNEY42004-2004-07-18
+AUCKLAND132004-2004-08-18
+WAIKATO412004-2004-09-22
+NE-T71052-2004-11-09
+KY-2004VF20654-2004-12-03
+NJ-05-429-CDC-20050323-ROW-34-2005-02-13
+CHIBA322005-2005-02-22
+NEWCASTLE12004-2004-01-10
+MA-V105-00018-2005-01-07
+CHIBA82005-2005-01-24
+NEWCALEDONIA182004-2004-10-30
+NEWCALEDONIA192004-2004-11-02
+KY-2004VF20627-ORIGINAL-2004-11-27
+ME-VSP-1109-233-2004-11-29
+KY-2005VF-01156-ORIGINAL-2005-04-01
+WASHINGTON12004-2004-10-14
+WA-04V-2240-2004-10-14
+AK-V04-1798-2004-11-05
+AZ-86-2005-01-05
+AK-V04-1768-2004-11-03
+MI-M04VC-1066-2004-09-13
+JIANGSUFU1372004-2004-09-09
+MD-V84003-2004-06-04
+AK-RSP04-2654-ORIGINAL-2004-11-21
+AK-V04-1501-2004-10-04
+MT-439520-ORIGINAL-2005-01-28
+AK-V04-1784-ORIGINAL-2004-11-08
+OTAGO292004-2004-10-02
+CHU2-5242005-2005-01-13
+WV-449-2005-01-25
+GUNMA592005-2005-03-07
+TOYAMA392005-2005-03-11
+TOYAMA282005-2005-02-28
+NAGASAKI362005-2005-03-09
+CO-05-021-1822-2005-01-21
+VT-05VIR066-2004-12-13
+WI-15-2005-01-20
+UT-40500892-2005-01-12
+BR-IAL-266-2005-02-17
+BR-IAL-1499-2005-06-16
+BRAZIL17422005-2005-07-07
+ANHUI12472005-2005-08-23
+KS-648-4177460VS-2005-01-18
+NE-W24350-2005-03-23
+HONG-KONG46142004-2004-12-03
+HUNANL170-12004-2004-05-24
+HUBEI2762004-2004-06-11
+HUNANL199-12004-2004-09-06
+HUBEI4122004-2004-09-10
+NINGBO10492004-2004-09-21
+NINGBO10422004-2004-09-23
+NINGBO11192004-2004-09-30
+WI-04-VI-42565-2004-10-08
+GUANGDONG5922004-UNKNOWN
+HONG-KONG28742004-UNKNOWN
+WUHAN682004-2004-04-07
+JIANGSUFU812004-2004-08-11
+TENNESSEE62004-2004-08-17
+WUHAN2712004-2004-08-23
+BANGKOK15632004-2004-09-01
+MIE12005-2005-01-06
+MOSCOW72005-2005-02-28
+HOKKAIDO112005-2005-01-28
+NINGBO10182004-2004-09-13
+NINGBO11142004-2004-09-30
+ZHEJIANG72004-2004-03-07
+HONG-KONG29822004-2004-07-09
+NH-2004041081-2004-10-11
+SHIGA252004-2004-12-07
+SHIMANE32005-2005-02-17
+HOKKAIDO422005-2005-02-19
+NINGBO10432004-2004-09-23
+NIIGATA12042004-2004-07-12
+JIANGSUDY32004-2004-09-14
+BUSAN32005-2005-01-04
+KYUNGNAM1702005-2005-01-26
+NINGBO9822004-2004-09-02
+SHIZUOKA32005-2005-01-06
+SICHUAN10172004-2004-09-24
+SICHUAN10252004-2004-09-24
+HUNAN2002004-2004-04-01
+GUANGDONG5962004-UNKNOWN
+SHANTOU12192004-2004-08-10
+HUNANL264-32004-UNKNOWN
+CANADA5782004-2004-05-09
+MACAU3042004-2004-05-21
+HUNAN2042004-2004-02-20
+WUHAN2692004-2004-08-23
+OSAKA562004-2004-09-21
+OSAKA602004-2004-10-07
+NARA862004-2004-10-30
+HUNANL200-32004-2004-09-13
+IWATE252005-2005-03-02
+HUNANLY-932004-2004-06-03
+HUNANLY952004-2004-06-03
+ANHUI5442005-2005-03-30
+INCHEON6802006-2006-11-17
+INCHEON6772006-2006-11-14
+THAILAND1412005-2005-04-11
+FINLAND4872004-2004-12-21
+HONG-KONG2012005-2005-02-23
+SINGAPORE382005-2005-06-07
+HIROSHIMA82005-2005-02-18
+AICHI1132005-2005-03-15
+SHIMANE252005-2005-05-12
+HIROSHIMA262005-2005-03-29
+BRISBANE32005-2005-01-13
+SHIMANE152005-2005-03-24
+HOKKAIDO792005-2005-04-09
+NIIGATA82005-2005-02-12
+AOMORI12005-2005-03-01
+YOKOHAMA102005-2005-02-14
+CHIBA1352004-2004-11-18
+CHIBA1432004-2004-11-29
+GIFU32005-2005-01-27
+TN-679-2005-02-11
+KOBE142005-2005-01-31
+TN-676-2005-02-07
+NIIGATA5332005-2005-02-17
+KALININGRAD202006-2006-02-28
+NINGBO10052004-2004-09-09
+YAMAGATA1902005-2005-03-18
+BRISBANE32006-2006-03-02
+AUSTRIA2774102005
+BADEN-WURTTEMBERG382005-2005-02-09
+NORWAY8832005-2005-04-04
+OKAYAMA522004-2004-11-02
+MALAYSIA25562004-2004-02-14
+MALAYSIA22562004-2004-10-27
+THAILAND2202005-2005-06-16
+EHIME322005-2005-03-10
+OITA502005-2005-03-17
+SYDNEY22005-2005-04-04
+EHIME552005-2005-04-20
+DARWIN52005-2005-06-07
+TOWNSVILLE162005-2005-06-18
+TOWNSVILLE212005-2005-06-19
+BRISBANE202005-2005-06-27
+TOWNSVILLE1162005-2005-07-12
+VICTORIA5332005-2005-07-14
+NEWCASTLE42005-2005-07-17
+SOUTHAUSTRALIA372005-2005-07-07
+TOWNSVILLE1182005-2005-07-19
+TASMANIA22005-2005-07-29
+DARWIN72005-2005-08-03
+OTAGO22005-2005-08-11
+WAIKATO122005-2005-09-13
+VICTORIA1262005-2005-06-08
+WELLINGTON42005-2005-07-12
+SAITAMA72006-2006-01-11
+YOKOHAMA862006-2006-01-27
+OKINAWA182006-2006-02-10
+HOKKAIDO502006-2006-02-11
+NIIGATA272006-2006-01-11
+AZ-6-0178-2006-01-11
+VICTORIA5032005-UNKNOWN
+VICTORIA5122005-UNKNOWN
+TOWNSVILLE1492005-2005-09-10
+PHILIPPINES6252005-2005-07-04
+NIIGATA5952006-2006-03-04
+AKITA292005-2005-12-03
+NAGOYA132005-2005-11-30
+YAMAGUCHI252005-2005-12-15
+FUKUOKA102005-2005-12-20
+FUKUOKA162005-2005-12-30
+KUMAMOTO12006-2006-01-04
+OITA92006-2006-01-07
+OITA192006-2006-01-13
+TOYAMA332006-2006-01-16
+HAMAMATU322006-2006-01-19
+HIROSHIMA462006-2006-01-26
+OITA402006-2006-01-29
+FUKUOKA282006-2006-02-14
+KUMAMOTO392006-2006-02-16
+GUNMA632006-2006-02-17
+KYOTO102006-2006-04-08
+FUKUSHIMA1692006-2006-04-18
+SOUTHAUSTRALIA92005-2005-06-19
+CHRISTCHURCH642005-UNKNOWN
+SYDNEY492005-UNKNOWN
+KITAKYUSHU52006-2006-01-20
+SHIMANE292006-2006-01-28
+HIROSHIMA1382006-2006-03-01
+CHONGQING5602005-2005-03-11
+FUKUI262006-2006-01-17
+HIROSHIMA1362006-2006-01-20
+NEWCALEDONIA12006-2006-01-06
+NEWCALEDONIA62005-UNKNOWN
+TH-TH-129-05-2005-03-14
+THAILAND542005-2005-02-14
+HONG-KONG29712005-2005-05-26
+THAILAND1542005-2005-04-25
+THAILAND1512005-2005-04-25
+THAILAND3082005-2005-08-01
+AOMORI122005-2005-11-28
+ISHIKAWA12006-2006-01-04
+THAILAND4262005-2005-09-19
+HOKKAIDO852005-2005-12-11
+THAILAND862006-2006-04-10
+SAPPORO1562005-2005-12-27
+MISSISSIPPI52004-2004-12-14
+TH-3244-06-2006-03-12
+MOSCOW12006-2006-01-25
+THAILAND2572005-2005-06-23
+THAILAND2862005-2005-07-06
+KOBE732005-2005-09-29
+NARA62006-2006-01-16
+YAMAGATA582006-2006-01-31
+BRISBANE12006-2006-01-24
+GA-06C0-222079-2006-01-18
+OSAKA182006-2006-02-16
+NAGASAKI502005-UNKNOWN
+CHIBA1492006-2006-02-27
+CN-RV887-06-2006-03-27
+HONG-KONG2232005-2005-02-24
+JIANGXI1982005-2005-03-23
+TIANJIN2752005-2005-03-29
+CHONGQING6282005-2005-04-08
+NINGBO5512005-2005-04-08
+OKAYAMA152005-2005-04-15
+ZHEJIANG1992005-2005-04-19
+CHONGQING6502005-2005-04-22
+HONG-KONG28312005-2005-05-25
+HUNANL07312005-2005-05-27
+DARWIN12005-2005-05-30
+THAILAND1962005-2005-05-30
+HONG-KONG46072005-2005-06-14
+PERTH142005-2005-06-29
+THAILAND2632005-2005-07-12
+THAILAND5042005-2005-10-23
+VICTORIA2702005-2005-11-03
+ID-2560-2005-11-27
+KAGOSHIMA372005-2005-12-03
+IA-2005138961-2005-12-12
+TOCHIGI22006-2006-01-04
+GANSUCHENGGUAN972006-2006-01-10
+HAMAMATU312006-2006-01-19
+NAGOYA322006-2006-02-08
+NAGOYA342006-2006-02-16
+NAGOYA332006-2006-02-17
+CN-RV657-06-2006-02-21
+MALAYSIA6392005-UNKNOWN
+VICTORIA1162005-UNKNOWN
+CHONGQING6522005-2005-04-25
+HONG-KONG17102005-2005-04-25
+SHIMANE232005-2005-05-09
+OKAYAMA202005-2005-06-01
+BEIJING582006-2006-01-19
+TAIWAN832006-2006-02-04
+TAIWAN992006-2006-02-12
+OITA632006-2006-03-15
+BEIJING2092006-2006-03-17
+GT-232-UNKNOWN
+MA-VI05-00277-2005-11-30
+HIROSHIMA542005-2005-11-17
+BEIJING472006-2006-01-20
+HONG-KONG22872005-2005-05-09
+HONG-KONG28452005-2005-05-26
+AG-R570-05-2005-07-25
+ID-2589-2005-12-21
+WA-VI5-1873-2005-11-30
+MS-5090200008-UNKNOWN
+HIROSHIMA522005-2005-10-24
+HIROSHIMA532005-2005-11-17
+YAMAGUCHI352005-2005-12-26
+BEIJING272006-2006-01-12
+MACAU5612005-2005-05-13
+MACAU5572005-UNKNOWN
+GUANGDONG3152005-2005-04-19
+SINGAPORE702005-2005-08-10
+SUKHBAATAR15682005-2005-11-28
+ULAANBAATAR15992005-2005-11-29
+GUNMA252006-2006-01-16
+NAGOYA292006-2006-01-23
+ST-PETERSBURG52006-2006-02-17
+MD-V101821-2005-08-25
+VICTORIA2672005-2005-10-20
+AG-R1-06-2006-01-31
+ARGENTINA12006-UNKNOWN
+WUHAN2952005-2005-08-22
+NH-2006010876-2006-03-06
+MIE252005-2005-09-12
+BEIJING372006-2006-01-12
+PA-5V00335-2005-11-13
+TIANJIN4462005-2005-08-30
+TIANJIN4592005-2005-09-11
+HYOGO352005-2005-06-22
+CHEONNAM2382006-2006-01-29
+JEJU2602006-2006-02-14
+GANGWON3762006-2006-04-10
+DAEJEON4172006-2006-04-19
+OSAKA292005-2005-03-11
+SAKAI462005-2005-12-03
+KANAGAWA752005-2005-12-06
+NARA332005-2005-12-20
+NIIGATA282006-2006-01-10
+DAEJEON5142006-2006-05-01
+JEJU2682006-2006-03-08
+JEJU2702006-2006-03-10
+GANGWON2592006-2006-02-18
+ANHUI12382005-2005-08-23
+DAEJEON2842006-2006-03-20
+WISCONSIN682005-2005-10-19
+GA-06C0-222569-ORIGINAL-2006-01-23
+NE-S30962-2006-04-01
+KAWASAKI5022005-2005-11-17
+OITA912006-2006-03-14
+MACAU4822005-2005-04-29
+BRISBANE2002005-2005-08-29
+CHEONBUK10722005-2005-12-19
+NIIGATA92006-2006-02-10
+BRISBANE482005-2005-06-20
+TIANJIN4512005-2005-08-29
+MO-VC06-001-2006-01-03
+VICTORIA1702006-2006-08-03
+CAMBODIA72005-2005-07-05
+CHONGQING10962005-2005-04-01
+YAMAGATA2232005-2005-07-16
+OKINAWA342005-2005-11-24
+HOKKAIDO32006-2006-01-11
+CAMBODIA92005-2005-07-05
+OKINAWA182005-2005-06-28
+AUSTRIA285414200-UNKNOWN
+ANHUI11792005-2005-08-09
+VICTORIA5032006-2006-06-13
+VICTORIA5192006-2006-07-01
+FUKUI372005-2005-11-24
+BRISBANE112006-2006-06-18
+GUNMA182006-2006-01-14
+HYOGO362005-2005-12-08
+HYOGO392005-2005-12-12
+NAGOYA62006-2006-01-19
+SHIGA182006-2006-02-03
+NIIGATA132006-2006-03-15
+SHIGA262005-2005-12-28
+WAKAYAMA62006-2006-01-11
+NC-VR06-841-2006-02-21
+NAGOYA122005-2005-08-02
+AKITA122006-2006-03-03
+NORTHCAROLINA132005-2005-08-04
+HONG-KONG28512005-2005-05-27
+HONG-KONG28972005-2005-05-19
+TIANJIN4542005-2005-09-06
+KOBE742005-2005-10-26
+KYOTO92005-2005-11-14
+YAMAGUCHI132006-2006-01-10
+II-0634983-2006-11-09
+KUMAMOTO42006-2006-01-18
+OITA752006-2006-01-18
+SYDNEY242005-UNKNOWN
+CHIBA192006-2006-01-16
+CHIBA782006-2006-01-23
+TOTTORI292006-2006-02-06
+KAGAWA752006-2006-03-06
+SHIGA232005-2005-12-09
+THAILAND6562006-2006-09-18
+SINGAPORE352005-2005-05-31
+KYOTO192005-2005-11-06
+WUHAN2832005-2005-08-15
+GA-06C0-222950-2006-01-24
+TN-777-2006-03-07
+KITAKYUSHU62006-2006-01-24
+FUKUI862006-2006-02-22
+YAMANASHI612005-2005-11-11
+TOKYO107092005-2005-12-06
+YAMANASHI732005-2005-12-06
+NAGANO12482005-2005-12-29
+ISHIKAWA252006-2006-01-17
+HIROSHIMA92005-2005-10-11
+UA-218-2006-04-20
+KYUNGGI2052005-2005-02-04
+CN-RV29-07-2006-12-17
+ULSAN1982005-2005-01-27
+CHUNGBUK18222004-2004-12-20
+THAILAND5582006-2006-08-21
+UKRAINE132006-2006-03-20
+ST-PETERSBURG42006-2006-02-21
+LYON6362006-2006-02-27
+ASTRAKHAN1722006-UNKNOWN
+UA-20-2006-04-07
+KALININGRAD312006-2006-03-10
+MOSCOW42006-2006-02-18
+BRISBANE252005-2005-06-29
+BRISBANE1012005-2005-08-03
+BRISBANE2342005-2005-09-06
+GUANGDONG3182005-2005-04-16
+YUNNAN1612005-2005-04-14
+YUNNAN3952005-2005-08-10
+PERTH202005-2005-07-06
+YAMANASHI812005-2005-12-09
+SHIZUOKA7902005-2005-12-22
+TOKYO516722006-2006-02-06
+YAMANASHI742005-2005-11-28
+YAMANASHI802005-2005-12-07
+YAMAGATA742006-2006-02-10
+BRISBANE1192005-2005-08-05
+WISCONSIN672005-2005-08-31
+WISCONSIN67-X-PR8-X-1612005-UNKNOWN
+CALIFORNIA202005-2005-10-11
+ANHUI12392005-2005-08-23
+ID-2695-UNKNOWN
+BR-1898-ORIGINAL-UNKNOWN
+SANTIAGO94912006-2006-07-27
+BR-1945-2006-07-03
+AG-R631-06-2006-10-20
+AG-R624-06-2006-10-17
+INCHEON6822006-2006-11-20
+INCHEON6882006-2006-11-27
+KOREA682006-2006-12-25
+JEONBUK7462006-2006-12-14
+KOREA692006-2006-12-25
+JIANGXIDONGHU14352006-2006-06-28
+BEIJINGXICHENG12722006-2006-12-11
+JILINCHAOYANG11782006-2006-12-11
+JILINNANGUAN11652006-2006-12-11
+SAITAMA612006-2006-12-15
+YUNNANANNING1992006-2006-12-25
+BEIJINGXICHENG3182006-2006-12-07
+BEIJINGXICHENG3132006-2006-12-08
+BEIJINGXICHENG3152006-2006-12-08
+WI-06VI-70266-2006-12-27
+WISCONSIN442006-2006-12-27
+JIANGXIDONGHU3122006-2006-06-29
+NAGANO13152006-2006-12-14
+HUBEIWUCHANG12582006-2006-12-26
+HUBEIWUJIAGANG11212006-2006-08-03
+FUKUSHIMA1722006-2006-12-26
+MD-V186917-2006-08-21
+ULSAN6892006-2006-11-29
+HIROSHIMA1502006-2006-12-11
+HIROSHIMA1492006-2006-12-14
+CN-RV32-07-2006-11-24
+HI-06-10284-2006-12-28
+GYEONGGI7432006-2006-12-11
+GANGWON7412006-2006-12-11
+THAILAND6502006-2006-09-18
+NEW-YORK222006-2006-11-29
+CHRISTCHURCH202005-2005-05-24
+YOKOHAMA1412006-2006-12-07
+YOKOHAMA1422006-2006-12-11
+DARWIN12006-2006-09-12
+JOHANNESBURG5032006-2006-07-05
+ZAGREB42742006-2006-04-15
+BRISBANE92006-2006-06-22
+UMEA62006-2006-11-15
+UMEA72006-2006-11-15
+SOUTHAUSTRALIA32006-2006-07-03
+VICTORIA1442006-UNKNOWN
+LYON52-582006-2006-12-25
+LYON52-3392006-2006-12-30
+THAILAND7072006-2006-10-11
+BRISBANE2562006-2006-09-19
+SYDNEY182006-UNKNOWN
+WI-06VI-68652-2006-12-16
+MALAYSIA3822006-2006-09-04
+HONG-KONG30692006-2006-11-03
+PHILIPPINES37432006-2006-11-14
+NEWCALEDONIA102006-2006-10-30
+SRILANKA102006-UNKNOWN
+THAILAND4752006-2006-08-04
+WI-06VI-68651-2006-12-16
+MALAYSIA4202006-2006-10-05
+STOCKHOLM212006-2006-12-08
+STOCKHOLM202006-2006-12-05
+CN-RV0101-07-2006-12-29
+THAILAND6362006-2006-09-04
+TAIWAN7842006-2006-09-06
+THAILAND6252006-2006-09-09
+BRISBANE342006-2006-07-18
+THAILAND6972006-2006-10-06
+SINGAPORE752006-2006-08-18
+DAEJEON6902006-2006-11-29
+DAEJEON6922006-2006-12-02
+DAEJEON7002006-2006-12-06
+PHILIPPINES38752006-2006-11-20
+MALAYSIA3632006-2006-08-09
+THAILAND6932006-2006-10-09
+TAIWAN7602006-2006-09-17
+CO-ER-2006-12-08
+THAILAND7752006-2006-11-15
+SINGAPORE792006-2006-09-28
+HONG-KONG30562006-2006-10-10
+NORWAY22502006-2006-12-01
+LYON13592006-2006-12-27
+ALGERIA4532006-UNKNOWN
+ALGERIAG1382006-2006-11-05
+LYON13242006-2006-12-20
+HAWAII82006-2006-12-12
+WASHINGTON112006-2006-12-18
+WASHINGTON102006-2006-12-19
+LYON13312006-2006-12-22
+FUKUOKA312006-2006-12-12
+MADAGASCAR27612006-2006-11-17
+YAMAGATA2272005-2005-11-08
+KAGAWA152005-2005-12-12
+ULAANBAATAR19222005-2005-12-14
+ULAANBAATAR21642005-2005-12-23
+NAGANO10052006-2006-01-05
+KHOVD2692006-2006-01-06
+KHOVD2622006-2006-01-10
+YAMAGATA62006-2006-01-10
+SAPPORO42006-2006-01-11
+HOKKAIDO452006-2006-02-14
+FUKUI822006-2006-02-17
+MIYAGI412006-2006-03-23
+HI-05-6679-2005-11-02
+CHOIBALSAN20832005-2005-12-21
+SAPPORO1232006-2006-02-21
+ANHUI12202005-2005-08-17
+SAITAMA432006-2006-01-26
+HOKKAIDO1052006-2006-04-01
+HOKKAIDO222006-2006-01-20
+CHEONNAM10042005-2005-12-20
+KOBE12006-2006-01-06
+DAEJEON2692006-2006-03-09
+CHONGQING6182005-2005-04-08
+CHONGQING11672005-2005-04-20
+WUHAN1582005-2005-05-23
+SC-SC05-217-ORIGINAL-2005-06-23
+MALAYSIA8152005-UNKNOWN
+DAEJEON2002006-2006-01-25
+MACAU7472005-2005-06-16
+NARA262005-2005-08-08
+NIIGATA62006-2006-01-31
+AKITA302005-2005-12-08
+AKITA332005-2005-12-09
+IWATE722005-2005-11-16
+KANAGAWA122006-2006-01-16
+IWATE402006-2006-05-02
+AOMORI32006-2006-01-13
+OKAYAMA342005-2005-12-09
+OKAYAMA292005-2005-12-11
+HIROSHIMA642005-2005-12-24
+SAITAMA52006-2006-01-07
+OITA272006-2006-01-10
+KOCHI82006-2006-01-13
+KOCHI52006-2006-01-16
+EHIME152006-2006-01-17
+KOBE102006-2006-01-21
+NAGOYA92006-2006-01-23
+NAGOYA112006-2006-01-23
+HIROSHIMA1162006-2006-01-24
+SAKAI112006-2006-01-26
+WAKAYAMA272006-2006-01-26
+HYOGO272006-2006-01-28
+NIIGATA3422006-2006-01-30
+HONG-KONG2182006-2006-02-03
+HONG-KONG218-CDC-20061003-ROW-342006-2006-02-03
+SHIMANE302006-2006-02-11
+CHIBA1342006-2006-02-21
+AICHI2002006-2006-03-06
+GUNMA722006-2006-03-14
+NIIGATA6422006-2006-03-14
+ISHIKAWA142006-2006-01-16
+ISHIKAWA1012006-2006-02-07
+MIE292005-2005-12-27
+YAMAGUCHI172006-2006-01-13
+AICHI152006-2006-01-18
+AICHI1052006-2006-01-27
+KOCHI412006-2006-02-03
+OKAYAMA242005-2005-11-28
+SHIMANE362006-2006-02-26
+OR-F05-1875-2005-11-29
+PHILIPPINES4982005-2005-05-30
+CN-RV1341-05-2005-11-17
+NY-19770-ORIGINAL-2006-01-01
+MIYAZAKI392005-2005-12-22
+OH-605-2006-01-26
+KOCHI362006-2006-01-26
+EHIME562006-2006-01-31
+HIROSHIMA332006-UNKNOWN
+NJ-06-0076-ORIGINAL-UNKNOWN
+MX-2264-2005-11-09
+GA-06C0-221239-2006-01-02
+OSAKA42006-2006-01-11
+YOKOHAMA492006-2006-01-28
+NAGOYA262006-2006-01-30
+NIIGATA3062006-2006-02-02
+NC-VR06-1120-2006-03-09
+CO-05-14196-2005-12-03
+JEJU1872006-2006-01-20
+TAIWAN402006-2006-01-21
+KOCHI382006-2006-01-26
+TH-3274-06-2006-02-05
+KANAGAWA502006-2006-01-18
+GUNMA582006-2006-01-10
+KAWASAKI6492006-2006-01-31
+SAITAMA412005-2005-12-20
+CHIBA1462006-2006-02-07
+CHIBA852006-2006-02-18
+IWATE302006-2006-02-24
+CHIBA152006-2006-01-13
+TX-VC5-1463-2005-11-28
+HAMAMATU422006-2006-01-25
+KUMAMOTO82006-2006-01-26
+WY-172-ORIGINAL-2006-02-09
+WI-90609618-2006-04-07
+CHIBA32006-2006-01-05
+MIYAGI1232005-2005-12-18
+TOKUSHIMA82006-2006-02-02
+PE-5102-ORIGINAL-2006-07-02
+PE-5107-ORIGINAL-2006-07-03
+NAGANO11382006-2006-04-14
+NAGANO11502006-2006-04-26
+NIIGATA2622006-2006-01-30
+SHIZUOKA252006-2006-01-16
+GUNMA572006-2006-02-08
+SHIMANE402006-2006-02-15
+NIIGATA3812006-2006-02-06
+CHIBA302006-2006-01-26
+CHIBA122006-2006-01-20
+KAWASAKI72006-2006-05-09
+WYOMING1-NEW2006-2006-01-23
+NC-VR06-608-2006-02-08
+NJ-06-0121-ORIGINAL-2006-01-21
+MN-S0060656-ORIGINAL-2006-03-13
+PA-6V-355-2006-03-12
+OR-F06-321-2006-02-06
+WI-90607201-2006-03-29
+NY-22327-ORIGINAL-2006-01-26
+AKITA12006-2006-01-06
+VA-VA-V1-120-2006-01-30
+AZ-6-0536-2006-02-22
+AZ-6-0596-2006-03-02
+FUKUSHIMA92006-2006-01-06
+NAGANO10582006-2006-02-02
+FUKUSHIMA1172006-2006-02-10
+MO-VC06-131-2006-02-24
+SANTIAGO82482006-2006-07-03
+FUKUSHIMA932006-2006-01-17
+AKITA172006-2006-03-16
+NIIGATA8722006-2006-04-16
+NIIGATA42006-2006-01-19
+SAPPORO1832006-2006-03-10
+FUKUSHIMA622006-2006-01-07
+YOKOHAMA922006-2006-02-18
+KANAGAWA372006-2006-01-19
+SENDAI632006-2006-05-26
+FUKUSHIMA202006-2006-01-30
+SHIZUOKA762006-2006-02-20
+MARSEILLE12152006-2006-11-22
+SINGAPORE572006-2006-07-06
+UT-40519645-2005-12-06
+TOTTORI372005-2005-12-22
+TOTTORI222006-2006-01-20
+TX-VC5-1434-2005-11-15
+NORWAY566-12006-2006-02-16
+NORWAY6222006-2006-02-27
+WAIKATO492006-2006-06-14
+WAIKATO582006-2006-06-26
+AUCKLAND472006-2006-07-09
+AUCKLAND782006-2006-07-15
+BRISBANE352006-2006-07-15
+MEXICO25192006-2006-10-18
+AG-3509-2006-06-28
+CL-6928-2006-01-18
+PERU40702006-UNKNOWN
+RI-FLU-05-031-ORIGINAL-2006-03-06
+PE-FLU-3355-2006-03-07
+MEMPHIS102006-2006-03-01
+WELLINGTON52006-2006-06-06
+WELLINGTON332006-2006-07-04
+CHRISTCHURCH202006-2006-07-07
+SYDNEY132006-UNKNOWN
+SENDAIF1312006-UNKNOWN
+KO-37-06-2005-12-28
+NE-M20652-2006-01-16
+AUCKLAND232006-2006-06-27
+SALAMANCA552006-UNKNOWN
+BRISBANE1502006-2006-08-28
+BRISBANE492006-2006-08-01
+NORWAY6212006-2006-02-22
+CT-5204-7547-2006-09-27
+BRISBANE692006-2006-08-10
+PHILIPPINES11242006-2006-06-13
+MO-VC06-80-ORIGINAL-2006-02-03
+CHRISTCHURCH192006-2006-06-30
+OTAGO12006-2006-04-06
+FL-JVT-17100-2005-12-05
+NY-31003-2006-04-17
+KENTUCKY32006-2006-04-02
+WELLINGTON432006-2006-07-06
+CALARASI6732006-UNKNOWN
+BRISBANE2032006-2006-09-04
+FLORIDA22006-2006-01-19
+THAILAND6922006-2006-10-06
+THAILAND5592006-2006-08-21
+GUYANE282006-2006-06-20
+GUYANE82006-UNKNOWN
+TOULON12442006-2006-12-06
+LYON12922006-2006-12-18
+THAILAND8092006-2006-11-28
+LYON13132006-2006-12-20
+TH-TH-701-06-2006-10-13
+GYEONGNAM6842006-2006-11-22
+GYEONGNAM6852006-2006-11-22
+GYEONGNAM6942006-2006-12-04
+GYEONGNAM7192006-2006-12-07
+GYEONGNAM7382006-2006-12-11
+GYEONGNAM7402006-2006-12-11
+GYEONGNAM7242006-2006-12-07
+SAITAMA602006-2006-10-21
+THAILAND7092006-2006-10-18
+CN-RV1198-06-2006-11-28
+CN-RV1194-06-2006-11-29
+CN-RV1295-06-2006-12-19
+CN-RV0063-07-2006-12-28
+CN-RV1213-06-2006-12-06
+CN-RV0009-07-2006-12-21
+CN-RV0020-07-2006-12-11
+CN-RV0008-07-2006-12-19
+CN-RV0019-07-2006-12-19
+THAILAND6182006-2006-09-05
+BANGLADESH19992006-2006-10-21
+NP-HC90997-ORIGINAL-2006-07-10
+THAILAND7152006-2006-10-18
+NP-HC91440-ORIGINAL-2006-07-10
+NP-HC91445-ORIGINAL-2006-07-10
+HAMAMATU1832006-2006-11-22
+NEPAL9212006-2006-07-11
+HONG-KONG30552006-2006-10-10
+cid31
+Epidemiological studies
+pepitope
+Figure 6
+Response
+Antibody
+C pM    E    NS1 2a 2b NS3   4a 4b   NS5
+         
+                                                    
+Figure 7
+cid31
+Specicid31c lysis comparison 
+Experimental  single site vaccination
+Theroetical single site vaccination
+Theroetical multisite vaccination
+1                                   2                                3                                    4    
+Figure 8
+Mixing day  6 
+Mixing day  4 
+Mixing day  4 
+Lymph node 
+Mixing day  5 
+Mixing day  4 
+Mixing day  6 
+Mixing day  5 
+Mixing day  5 
+Mixing day  6 
+Mixing day  5 
+Mixing 
+day  6 
+Mixing 
+day  6 
+Mixing day  7 
+Mixing day  7 
+Mixing day  7 
+Mixing day  7 
+Mixing day  8 
+Mixing day  8 
+Mixing day  9 
+Mixing day  9 
+Figure 9
+Sc  V10
+Sc  V40
+Sc  V70
+Mc  V10
+Mc  V40
+Mc  V70
+pepitope
+Figure 10
+Figure 11
+cid31
+Epitope A th
+Epitope B th
+Epitope A exp
+Epitope B exp
+Epitope B exp
+Figure 12a
+cid31
+Epitope A th
+Epitope B th
+Epitope A exp
+Epitope B exp
+Epitope B exp
+Figure 12b

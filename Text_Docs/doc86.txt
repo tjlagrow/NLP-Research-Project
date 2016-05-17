@@ -1,731 +1,875 @@
-Information retrieval in folktales using natural
-language processing
-Adrian Groza and Lidia Corde
-Department of Computer Science
-Intelligent Systems Group
-Technical University of Cluj-Napoca Romania
-AdrianGrozacsutclujroLidiaCordecs-gwutclujro
-AbstractOur aim is to extract information about literary
-characters in unstructured texts We employ natural language
-processing and reasoning on domain ontologies The rst task is
-to identify the main characters and the parts of the story where
-these characters are described or act We illustrate the system in
-a scenario in the folktale domain The system relies on a folktale
-ontology that we have developed based on Propps model for
-folktales morphology
-Index TermsNatural language processing ontologies literary
-character folktales
-I INTRODUCTION
-Recognising literary characters in various narrative texts
-is challenging both from the literary and technical perspec-
-tive From the literary viewpoint the meaning of the term
-character leaves space to various interpretations From the
-technical perspective literary texts contain a lot of data about
-emotions social life or inner life of the characters while they
-are very thin on technical straight-forward messages To infer
-the character type from literary texts might pose problems even
-to the human readers 4
-Interactions between literary characters contain rich social
-networks Extracting these social networks from narrative text
-has gained much attention 13 in different domains such as
-literary ction 6 screenplays 1 or novels 9 2
-Our aim is to correctly determine the relationships of a
-character in a tale and to nd its role upon the development
-of the story In line with 16 the rst task is to identify
-the parts of the story where that character is involved Our
-approach relies on interleaving natural language processing
-and ontology-based reasoning We enact our method in the
-folktale domain
-Information extraction systems usually have three compo-
-nents responsible for named entity recognition co-reference
-resolution and relationship extraction These modules are
-integrated in a pipeline in a layered manner given that each
-task will use information provided by the previous neighbor
-Natural language processing has been applied in the domain
-of folktales 14 8 Formal models for folktales have been
-proposed in 12 15 Character identication in folktales
-have been approached in 17 19
-The remaining of the paper is organized as follows Sec-
-tion II presents the ontology that we developed for modeling
-978-1-4673-8200-715 3100 ccid13 2015 IEEE
-MAIN CHARACTERS IN THE PROPPS MODEL
-TABLE I
-Villain
-Dispatcher
-Magical Helper
-Princess or Prize
-False hero
-Description
-The opponent of the hero - often the representation
-of evil
-The person that sends the hero into the journey or
-the person that informs the hero about the villainy
-The one that helps the hero into its journey
-It represents what
-victorious
-Prepares the hero for the battle
-The main character in a story - often the represen-
-tation of good
-The one that tries to steal the prize from the hero
-or tries to marry the princess
-the hero receives when it
-the domain of folktales Section III depicts the architecture
-of our system Section IV illustrates our method to extract
-knowledge about characters Section V presents the experi-
-mental results on seven folktales Section VI browses related
-work while section VII concludes the paper
-II ENGINEERING THE FOLKTALE ONTOLOGY
-To support reasoning in the folktale domain we developed
-an ontology used to extract knowledge regarding characters
-We assume the reader is familiarised with the syntax of
-Description Logic DL For a detailed explanation about
-families of description logics the reader is referred to 3
-To support character identication and reasoning on these
-characters we need structured domain knowledge Hence we
-developed an ontology for the folktale domain as shown in
-Fig 3 Our folktale ontology formalizes knowledge from
-three sources 1 the folktale morphology as described by the
-Propp model 15 2 various entities specic to folktales ie
-animals witch dragons and 3 common family relations ie
-child ancee groom In the following these three knowledge
-sources are detailed
-a Folktale morphology Firstly we rely on the Propps
-model 15 of the folktale domain In the Propps model the
-story broke down into several sections Propp demonstrated
-that the sequence of sections appears in the same chronological
-order in Russian folktales Propp identied a set of character
-types that appear in most of the folktales see Table I
-The corresponding formalization in Description Logic ap-
-pears in Fig 1 where the characters are divided in nine types
-Agent cid116 Donor cid116 FalseHero cid116 Hero cid116 Prisoner cid116 Villain cid116 Dis-
-patcher cid116 MagicalHelper cid116 Princess cid118 Character
-Hero cid117 Villain cid118 FalseHero
-PositiveCharacter cid116 NegativeCharacter cid118 Character
-Villain cid116 FalseHero cid116 Prisoner cid118 NegativeCharacter
-Hero cid116 MagicalHelper cid116 Agent cid116 Donor cid116 Prisoner cid116 Dispatcher cid118
-PositiveCharacter
-Fig 1 Formalising the Propps model of folktales
-A21 Bear cid116 Bird cid116 Dog cid116 Duck cid116 Frog cid116 Horse cid116 Lion cid118 SingleAnimal
-A22 Enchantress  Witch
-A23 Enchantress cid118 Woman cid117 SingleSocialStatus
-A24 Giant cid118 Supernatural
-A25 Goldsmith cid116 Helmsman cid118 SingleSocialStatus
-A26 King cid118 SingleSocialStatus
-A27 Oven cid118 Object
-A28 Prince  Son cid117 hasParentKing cid116 hasParentQueen
-A29 Prince cid118 SingleSocialStatus
-A30 Princess  Daughter cid117 hasParentKing cid116 hasParentQueen
-Fig 2 Common entities in the folktale domain
-axiom 1 In axiom 2 a false hero is a hero who is also
-a villain Axiom 3 divides the characters into negative and
-positive ones Note that positive and negative characters are
-not disjoint as for instance the concept Prisoner belongs to
-both sets
-b Folktale main entities Secondly the common entities
-appearing in folktales were formalized in Fig 2 The axioms
-depict the animals axiom 21 witches or enchantresses which
-are women with a single social status axioms 22 and 23
-and supernatural characters like Giant in axiom 24 Specic
-characters like Goldsmith or King and various objects ie
-oven are also modeled A prince is dened in axiom 28 as a
-son that have a parent either a king or a queen Similarly the
-princess is a daughter with at least on parent of type king or
-queen axiom 30
-c Family relationships in folktale Fig 4 lists part of the
-family relationships adapted to reason in the folktale domain
-A signicant part of these relationships are correlated with the
-recurrent theme of the main character who is nding his bride
-or ancee
-To facilitate reasoning on the ontology we allow several
-extensions of the ALC version of description logics 3 Using
-role inheritance we can specify that the role hasFather is more
-specic than the role hasParent Hence if we nd in the folk-
-tale that a character has a father the system deduces based on
-role inheritance that the character has also a parent Similarly
-inverse roles like hasChild and hasParent are used to infer
-new knowledge based on the partial knowledge extracted by
-natural language processing If we identify that two individuals
-are related by the role hasChild the system deduces that those
-individuals are also related by the role hasParent The domain
-restriction species that only persons can have brothers The
-range restriction constraints the range of the role hasGender
-to the concept Gender
-Fig 3 Folktale ontology
-A50 Boy cid118 SinglePerson
-A51 Boys cid118 MultiplePerson
-A52 Bride  Fiancee
-A53 Bride cid118 UnmarriedCoupleMember
-A54 Brother cid118 Sibling cid117 Male
-A55 Daughter  Girl cid117 cid117Child hasParentParent
-A56 Father  Man cid117 hasChildChild
-A57 Fiance  Groom
-A58 Fiance cid118 UnmarriedCoupleMember
-A59 Fiancee  Bride
-A60 Fiancee cid118 UnmarriedCoupleMember
-A61 Girl  Maiden
-A62 Girl cid118 SinglePerson
-A63 Husband cid118 Consort
-Fig 4 Family relationships in the folktale domain
-EXPLOITING ROLE CONSTRAINTS TO REASON ON THE ONTOLOGY
-TABLE II
-Extensios of ALC
-Role inheritance
-Inverse roles
-Transitive roles
-Domain restriction
-Range restriction
-symmetric roles
-cardinality
-constraints
-Folktale examples
-hasBrother cid118 hasSibling hasFather cid118 hasParent
-hasHusband cid118 hasConsort
-hasHusband  hasWife hasChild  hasParent
-hasSiblingt
-hasBrothercid62 cid118 Person
-cid62 cid118 hasBrotherPerson cid62 cid118 hasGenderGender
-hasConsort  hasConsort
-cid62 cid118 1 hasGenderThing
-Fig 5 The System Architecture
-III SYSTEM ARCHITECTURE
-Extracting knowledge about characters is obtained by inter-
-leaving natural language processing NLP and reasoning on
-ontologies The NLP component is based on GATE text engi-
-neering tool 5 while reasoning in DL on the OWLAPI 10
-as depicted by the architecture in Fig 5
-Firstly the folktale ontology is processed using OWLAPI to
-generate classes of characters from the ontology into GATE
-The folktale corpus is analysed aiming to populate the ontol-
-ogy and to annotate each folktale with the identied named
-entities In parallel to the annotation process the Stanford
-parser creates the coreference information les The task is
-challenging as even a human might have a problem in decoref-
-erencing some of the sentences as example 1 illustrates
-Example 1 The Smiths went to visit the Robertsons After
-that they stayed home watching tv where they might be
-tied to the Smiths or the Robertsons or to both of the families
-For de-coreferencing the following pipeline was designed
-left part of Fig 5 The tokenizer groups all the letters into
-words Next the sentence splitter Ssplit groups the sequence
-of tokens obtained in the previous step into sentences The
-part of speech POS annotation labels all the tokens from
-a sentence with their POS tags Lemma annotation generates
-the word lemmas for all the tokens in the corpus The next
-step is to apply named entity recognition NER so that the
-numerical and temporal entities are recognized This is done
-using a conditional random elds CRF sequence taggers
-trained on various corpora The parse function provides a full
-syntactic analysis for each sentence in the corpora Finally
-the coreference chain annotation Dcoref obtains both the
-pronominal and nominal coreference resolution After coref-
-erence resolution the stories are updated with the coreference
-information
-The Reverb information extraction tool 7 is used to
-generate triplets containing the following structure cid104nominal
-phrase verb phrase nominal phrasecid105 For the sentence Good
-heavens said the girl no strawberries grow in winter the
-output of Reverb is exemplied in Table III In order to obtain
-the triplets each sentence has to be POS-tagged and NP-
-chunked
-IV INTERLEAVING NATURAL LANGUAGE PROCESSING
-WITH REASONING ON ONTOLOGIES
-This section details three algorithms used to identify knowl-
-edge about characters Algorithm 1 identies characters in the
-folktale Algorithm 3 is used for anaphora resolution of the
-named entities recognized as characters Algorithm 2 extracts
-knowledge about characters from the de-coreferences The
-execution ow of this pipeline is presented in Fig 6
-Natural
-language processing is enacted to populate the
-folktale ontology The extraction Algorithm 1 is performed
-repetitively on a document each time using the newly pop-
-ulated ontology le In this way the algorithm interleaves
-reasoning on ontology with natural language processing based
-on Japes rules 18 The rst step is to apply the Jape rules
-JN on the folktale corpus aiming to identify all the denite
-and indenite nominal phrases Given that the characters are
-nominal phrases this rst step returns all the information
-needed plus some extra phrases that have to be ltered out
-Next the Jape rules JC are enacted to select candidate char-
-acters from the set of nominal phrases previously identied
-For each character found a set of rules JR is used to match
-the character against a concept in the ontology
-Original Sentence
-Good heavens said the girl no
-strawberries grow in winter
-The kings daughter began to cry
- for daughter was afraid of the
-cold frog which daughter did not
-like to touch and which was
-now to sleep in daughter pretty
-clean little bed
-When everything was stowed on
-board a ship faithful John put
-on the dress of a merchant and
-the king was forced to do the
-same in order to make king quite
-unrecognizable
-EXTRACTING TRIPLETS FROM FOLKTALES USING REVERB
-TABLE III
-Nominal
-berries
-daughter
-grow in
-Nominal
-Extraction
-Con-
-afraid of
-the cold
-POS tags
-Chunk tags
-JJ NNS  VBD DT NN  DT
-NNS VB IN NN 
-B-NP I-NP O B-VP B-NP I-NP
-O B-NP I-NP
-DT NN POS NN VBD TO VB
- IN NN VBD JJ IN DT JJ NN
-WDT NN VBD RB IN TO VB 
-CC WDT VBD RB TO VB RP
-NN RB  JJ JJ NN 
-dress of
-WRB NN VBD VBN IN NN
-DT NN  NN NNP VBD IN DT
-NN IN DT NN  CC DT NN
-VBD VBN TO VB DT JJ IN
-NN TO VB NN RB JJ 
-Sons each kept watch in turn
-and sat on the highest oak and
-looked towards the tower
-watch in
-Rapunzel grew into the most
-beautiful child under the sun
-Rapunzel
-The kings son ascended but
-instead of nding son dearest
-rapunzel
-son found the en-
-chantress who gazed at son with
-wicked and venomous looks
-chantress
-gazed at
-the most
-beautiful
-NNPS DT VBD NN IN NN 
-CC VBD IN DT JJS NN CC
-VBD IN DT NN 
-NNP VBD IN DT RBS JJ NN
-IN DT NN 
-DT NN POS NN VBD  CC RB
-IN VBG NN NN NN  NN VBD
-DT NN  WP VBD IN NN IN
-JJ CC JJ NNS 
-B-NP I-NP I-NP I-NP B-VP I-
-VP I-VP O B-PP B-NP B-VP B-
-ADJP B-PP B-NP I-NP I-NP B-
-NP I-NP B-VP O O B-VP I-VP
-O O B-NP B-VP B-ADVP B-VP
-I-VP B-NP I-NP B-ADVP O B-
-NP I-NP I-NP O
-B-ADVP B-NP B-VP I-VP B-
-PP B-NP B-NP I-NP O B-NP B-
-NP B-VP B-PP B-NP I-NP I-NP
-I-NP I-NP O O B-NP I-NP B-
-VP I-VP I-VP I-VP B-NP I-NP
-B-SBAR O B-VP I-VP B-NP B-
-ADJP I-ADJP O
-O B-NP B-VP B-NP B-PP B-
-NP O O B-VP B-PP B-NP I-NP
-I-NP O B-VP B-PP B-NP I-NP
-B-NP B-VP B-PP B-NP I-NP I-
-NP I-NP B-PP B-NP I-NP O
-B-NP I-NP I-NP I-NP B-VP O
-O B-PP I-PP B-VP B-NP I-NP
-I-NP O B-NP B-VP B-NP I-NP
-O B-NP B-VP B-PP B-NP B-PP
-B-NP I-NP I-NP I-NP O
-Input  Of - Folktale ontology
-S - Corpus of folktales
-JN - Jape rules to identify denite and indenite
-nominal phrases
-JC - Jape rules to identify candidate characters
-JR - Jape rules to identify characters relation to
-the ontology
-Result C Set of annotated characters
-C  
-N P  applyRulesJN S
-while applyRulesJC S N P  cid54 null do
-N C  applyRulesJC S N P 
-Rel  applyRulesJR S N C
-foreach r  Rel do
-foreach concept from r do
-if checkCastN C concept then
-castN C concept
-while is referredS N C do
-Ref  getReference
-linkN C Ref
-C  C  N C
-After identifying a concept for which the character is an
-instance
-the algorithm exploits reasoning on ontology to
-identify all atomic concepts to which the character belongs
-For instance a character identied as Daughter will be
-an instance of Girl Child M aiden SingleP erson recall
-Fig 4 For each concept to which the character belongs the
-algorithm looks again in the corpus to see if there are other
-mentions of the newly introduced character If this is the case
-the character is related with the new knowledge
-Input  S Corpus of folktales P  Pipeline conguration
-for decoreferencing
-F N List with lenames for each S
-SC Stanford-CoreNLP command
-Result D Decoreferenced texts of les from F N
-F iles  runSC P  F N
-foreach f ile in F iles do
-D  S
-foreach coref group  f ile do
-rep  ndRepresentativecoref group
-foreach coref word  coref group do
-replaceD coref word rep 
-Algorithm 1 Character extraction algorithm
-Algorithm 2 Decoreference algorithm
-Input  R Reverb command
-V  The version indicator True if long version false
-otherwise
-C Set of characters resulted from algorithm 1
-D Decoreferenced text resulted from algorithm 2
-Result P  String containing characters perspective in S
-RR  runR D
-if V  true then
-foreach c  C do
-foreach line  RR do
-sentence  getSentenceline
-if c  sentence then
-P  P  sentence
-foreach c  C do
-foreach line  RR do
-triplet  getTripletline
-if c  triplet then
-P  P  triplet
-Fig 6 Main execution phases
-The decoreferencing algorithm Alg 2 uses as input the
-processing pipeline and the folktale corpus The basic pro-
-cessing steps needed are the following tokenize ssplit pos
-lemma ner parse dcoref The decoreferencing algorithm is
-run on all stories at once but it generates different output le
-for each story represented by the lename In the rst step the
-Stanford parser applies the execution pipeline on the corpora
-of folktales For each resulted le the algorithm searches for
-coreference groups In order to be able to return the modied
-text the original text has to be stored in the returning argument
-of the algorithm For each coreference group found rstly
-the referenced word has to be processed and kept
-variable and then each coreferenced word found belonging
-to the group has to be replaced in the original text with the
-referenced variable In the end the decoreferenced text for
-each corpus le is obtained
-Algorithm 3 takes as input the result of algorithms 1 and
-alg 2 The set of characters is used as the input while the
-decoreferenced texts are used as an environment from which
-the algorithm extracts the perspective For each character in the
-set of characters resulted from the extraction algorithm alg 1
-each line that resulted from reverb execution is processed
-From each line the sentence is extracted based on the output
-Algorithm 3 Finding characters perspective
-format of the Reverb service presented in Table III If the
-character from the character set is mentioned in the sentence
-then the sentence is appended to the output variable These
-columns are combined in a triplet and it is checked to see
-whether the current character appears is present in this triplet
-In this case the triplet is appended to the output variable This
-algorithms score is represented by a subunitary number that
-represents the condence that the extraction was correct
-V EXPERIMENTAL RESULTS
-A Running scenario
-The system was tested against seven stories Table V This
-section illustrates the results of this pipeline for the secondary
-character Henry from the story The frog king The fragment
-on which the algorithms were applied is listed in Example 2
-Example 2 Then they went to sleep and next morning when
-the sun awoke them a carriage came driving up with eight
-white horses which had white ostrich feathers on their heads
-and were harnessed with golden chains and behind stood the
-young kings servant Faithful Henry Faithful Henry had been
-so unhappy when his master was changed into a frog that
-he had caused three iron bands to be laid round his heart
-lest it should burst with grief and sadness The carriage was
-to conduct the young king into his kingdom Faithful Henry
-helped them both in and placed himself behind again and
-was full of joy because of this deliverance And when they
-had driven a part of the way the kings son heard a cracking
-behind him as if something had broken So he turned round
-TABLE IV
-ELICITING KNOWLEDGE ABOUT HENRY
-Character Henry
-Henry master was changed into a frog
-Henry had caused three iron bands
-faithful Henry helped bands
-bands placed Henry
-Henry was full of joy
-the bands were springing from the heart of faithful Henry
-and cried Henry the carriage is breaking No master it
-is not the carriage It is a band from my heart which was put
-there in my great pain when you were a frog and imprisoned
-in the well Again and once again while they were on their
-way something cracked and each time the kings son thought
-the carriage was breaking but it was only the bands which
-were springing from the heart of Faithful Henry because his
-master was set free and was happy
-The method has two kind of results - one for the long
-version and one for the short version Firstly the results for
-the short version are listed in Table IV Note that the output
-text is the decoreferenced one - this is the reason why the
-character might talk about itself in third person Because of the
-de-coreferenced version of the stories part of text might not be
-correct from the human reader perspective But it is the easiest
-way to understand the context of a character Otherwise it
-would be hard to see that when the text says his master
-that his refers to Henry as Example 3 bears out
-Example 3 1 Then companion went
-to sleep and next
-morning when the sun awoke companion a band came driving
-up with eight white horses which had white ostrich feathers
-on companion heads and were harnessed with golden chains
-and behind stood the young kings servant faithful Henry
-2 Faithful Henry had been so unhappy when henry master
-was changed into a frog that Henry had caused three iron
-bands to be laid round henry heart lest heart should burst
-with grief and sadness
-3 Faithful Henry helped bands both in and placed Henry
-behind again and was full of joy because of this deliverance
-4 Again and once again while you were on you way
-something cracked and each time the kings son thought the
-band was breaking  but it was only the bands which were
-springing from the heart of faithful Henry because Henry
-master was set free and was happy
-There are some cases in which there will be no result for a
-character Example 4 Given that the character was extracted
-from the original le by using Algorithm 1 there is a certainty
-that the character exists in the story
-Example 4 When trying to search for the perspective of
-character waiting-maid in the story Faithful John the
-application will not be able to nd any solution In the un-
-modied text the son character is introduced in the following
-way She took him by the hand and led him upstairs for she
-was the waiting-maid
-TABLE V
-ACCURACY OF THE ALGORITHMS
-The Magic Swan-Geese
-The Frog King
-The Kings Son who Feared Nothing
-Faithful John
-The Twelve Brothers
-Rapunzel
-The Three Little Men in the Woods
-Average
-Accuracy
-This happens because when the anaphoric decoreference is
-run Algorithm 2 the le is changed in the following way
-Girl took oh by the hand and led oh upstairs  for girl was the
-girl  The change happened because the decoreferencing tool
-interpreted the waiting-maid as being tied up to the word
-she and which is tied to the girl from the following
-phrase Then said the girl  the princess must see these 
-girl has such great pleasure in golden things  that girl will
-buy all you have   In this way this characters part will
-be attributed to the girl which is the main character of
-the story This situation in which the story is talking about a
-general character but only after the main events the character
-is nally revealed is called cataphora 11
-B Accuracy of the method
-The accuracy of our method is inuenced by 1 accuracy
-of character identication 2 accuracy of identifying co-
-references 3 accuracy of Reverb when extracting triplets the
-condence indicator Each of this services has an accuracy
-error that will be propagated from one component to another
-We performed various tests on the corpus used for character
-identication and we obtained an average accuracy of 70
-Table V When calculating the accuracy 20 characters were
-taken into consideration meaning that for each story about
-3 characters were chosen These characters were manually
-selected from the set of characters output by the character
-extraction system presented in 17 19 The characters were
-selected by choosing 2 main characters and a secondary
-character for each story
-The testing was performed on seven different stories and
-for each story a set of main characters was chosen The
-obtained overall accuracy is 74 having an overall precision
-of 90 and a recall of 60 The results are presented in
-Fig 7 Figure 8 depicts the distribution of precision recall and
-accuracy over the stories The values were calculated using the
-following formulas
-precision 
-recall 
-accuracy 
-tpf ptnf n
-where tp means true positive and represents the number
-of sentences that are found both in the manually annotated
-set and the test set tn means true negative and represents the
-number of sentences that are neither in the manually annotated
-recall of 72 These scores do not inuence directly the
-algorithms performance but they have an effect on the number
-of characters for which the algorithm will try to nd the roles
-they have on the development of the story Together all these
-scores combined give the performance scores of the characters
-perspective in texts
-The current version does not extract information about the
-characters roles The information extracted consists of the
-character identication that is presented in 17 19 and
-the story involving the character The story can be presented
-in a standardized version
-VI DISCUSSION
-We can enact our solution in other domains instead of folk-
-tales We exemplify he following three domains a software
-requirements b marketing and c medical domain
-Consider the domain of software requirements where these
-requirements are written in natural language Our system will
-support the identication of various actors appearing in the
-requirements document First one needs to replace the folktale
-ontology with a requirement ontology that provides knowledge
-on use cases actors their roles etc The same pipeline will
-be used to 1 identify main actors admin various users etc
-and 2 extract knowledge about various actions these actors
-are supposed to perform
-Another domain that could benet from the same pipeline of
-execution would be the marketing domain Consider a dataset
-of product reviews or accommodation places in the tourism
-domain 20 The system would extract only the sentences
-that reference the mentioned item By having access to all
-the sentences of interest further analysis is facilitated without
-having to process the entire text
-Similar extraction systems have been proposed for the med-
-ical domain to extract information from clinical narratives In
-this line the MedEx system 21 aims to extract the medication
-information from clinical narratives Similarly there is also the
-OpenClinical system for assisting health care providers
-In our approach the extraction algorithm part is separated
-from the perspective searching part Therefore any ontology
-and any document can be used in order to nd the characters
-or objects perspective in the document
-We tested our method only on seven stories With a com-
-plexity of On3 in sentence length of syntactic parsing our
-syntactic based on Stanford parser might be too slow for large
-corpus as the one of 15099 narratives analysed in 4
-VII CONCLUSIONS
-Our method is able to extract knowledge on various char-
-acters Our current accuracy for information extraction in
-the folktale domain is 74 The experimental results were
-obtained for seven stories in the folktale domain The precision
-score is above 90 With an overall recall of only 60
-there are high chances that not all the information regarding
-a product was extracted
-The developed algorithms aggregate three different services
-the named entity recognition was implemented by
-Firstly
-Fig 7 Precision recall and accuracy for the seven folktales analyzed
-Fig 8 Comparing precision recall and accuracy for each story
-set nor in the test set f p means false positive and represents
-the number of sentences that are in the test set and not in
-the manually annotated set and f n means false negative and
-represents the number of sentences that are in the manually
-annotated set but not in the test set In the folktale context
-the tp represents the number of sentences that belong to the
-characters perspective all those sentences that involve the
-character in any way
-The average F-score for the Stanford-CoreNLP of 595
-inuences greatly the performance of the algorithm as the
-characters perspective cannot be extracted given that
-character is not seen as being part of the sentence The
-accuracy can be improved if a better decoreferencing tool
-will be used Other coreference tools are For the anaphoric
-decoreference there are several other tools BART JAVARAP
-GuiTar and ARKref but from all the Stanford-CoreNLP has
-be highest accuracy percentage
-There is ongoing research in the coreference resolution
-domain When calculating the performance scores the ex-
-traction of the correct sentence was considered and not on
-the correctness of the extracted sentence Even though the
-right sentence was extracted the information in the sentence
-will be according to the coreference resolution result Hence
-an error might be observed when reviewing the structure of
-the sentences The algorithms performance is also inuenced
-by the scores obtained by the Reverb tool Also the named
-entity recognition has an average precision of 79 and a
-20 B Varga and A Groza Integrating DBpedia and SentiWordNet for a
-tourism recommender system in Intelligent Computer Communication
-and Processing ICCP 2011 IEEE International Conference on
-2011 pp 133136
-21 H Xu S P Stenner S Doan K B Johnson L R Waitman and J C
-Denny Medex a medication information extraction system for clinical
-narratives Journal of the American Medical Informatics Association
-vol 17 no 1 pp 1924 2010
-using an ontology based on Propps formal model Based of
-this ontology and some implemented Jape rules the characters
-are extracted from a given story Secondly a coreference reso-
-lution tool was implemented by enacting anaphoric resolution
-to eliminate co-referenced words and to replace them with
-their representative Thirdly nding relationships between
-characters was integrated in order to link two noun phrases
-with a verbal phrase
-ACKNOWLEDGMENTS
-We thank the reviewers for their valuable comments Part
-of this work was supported by the Department of Computer
-Science of Technical University of Cluj-Napoca Romania
-REFERENCES
-1 A Agarwal S Balasubramanian J Zheng and S Dash Parsing
-screenplays for extracting social networks from movies EACL 2014
-pp 5058 2014
-2 A Agarwal A Corvalan J Jensen and O Rambow Social network
-analysis of Alice in Wonderland in Workshop on Computational
-Linguistics for Literature 2012 pp 8896
-3 F Baader The description logic handbook theory implementation and
-applications Cambridge university press 2003
-4 D Bamman T Underwood and N A Smith A bayesian mixed effects
-model of literary character in Proceedings of the 52st Annual Meeting
-of the Association for Computational Linguistics ACL14 2014
-5 K Bontcheva V Tablan D Maynard and H Cunningham Evolv-
-ing GATE to meet new challenges in language engineering Natural
-Language Engineering vol 10 no 3-4 pp 349373 2004
-6 D K Elson N Dames and K R McKeown Extracting social
-networks from literary ction in Proceedings of
-the 48th annual
-meeting of the association for computational linguistics Association
-for Computational Linguistics 2010 pp 138147
-7 A Fader S Soderland and O Etzioni Identifying relations for
-open information extraction in Proceedings of
-the Conference on
-Empirical Methods in Natural Language Processing Association for
-Computational Linguistics 2011 pp 15351545
-8 B Fisseni A Kurji and B Lowe Annotating with Propps morphology
-of the folktale reproducibility and trainability Literary and Linguistic
-Computing vol 29 no 4 pp 488510 2014
-9 H He D Barbosa and G Kondrak Identication of speakers in
-novels in ACL 1 2013 pp 13121320
-10 M Horridge and S Bechhofer The OWL API A Java API for OWL
-ontologies Semantic Web vol 2 no 1 pp 1121 2011
-11 N Kazanina and C Phillips Differential effects of constraints in the
-processing of Russian cataphora The Quarterly Journal of Experimen-
-tal Psychology vol 63 no 2 pp 371400 2010
-12 R Lang A declarative model for simple narratives in Proceedings of
-the AAAI fall symposium on narrative intelligence 1999 pp 134141
-13 G-M Park S-H Kim and H-G Cho Structural analysis on social
-network constructed from characters in literature texts Journal of
-Computers vol 8 no 9 pp 24422447 2013
-14 F Peinado P Gervas and B Daz-Agudo A description logic ontology
-the Workshop on Language
-for fairy tale generation in Procs of
-Resources for Linguistic Creativity LREC vol 4 2004 pp 5661
-15 V I Propp Morphology of the Folktale American Folklore Society
-1958 vol 9
-16 N Reiter A Frank and O Hellwig An NLP-based cross-document
-approach to narrative structure discovery Literary and Linguistic Com-
-puting vol 29 no 4 pp 583605 2014
-17 D Suciu and A Groza Interleaving ontology-based reasoning and
-natural language processing for character identication in folktales in
-IEEE 10th International Conference on Intelligent Computer Communi-
-cation and Processing ICCP2014 Cluj-Napoca Romania 2014 pp
-6774
-18 D Thakker T Osman and P Lakin Gate Jape grammar tutorial
-Nottingham Trent University UK Phil Lakin UK Version vol 1 2009
-19 K van Dalen-Oskam J de Does M Marx I Sijaranamual K Depuydt
-B Verheij and V Geirnaert Named entity recognition and resolution
-for literary studies
+Journal of Statistical Physics manuscript No
+will be inserted by the editor
+Stefano Bo  Antonio Celani
+Detecting concentration changes with
+cooperative receptors
+Received date  Accepted date
+Abstract Cells constantly need to monitor the state of the environment to
+detect changes and timely respond The detection of concentration changes of
+a ligand by a set of receptors can be cast as a problem of hypothesis testing
+and the cell viewed as a Neyman-Pearson detector Within this framework
+we investigate the role of receptor cooperativity in improving the cells abil-
+ity to detect changes We nd that cooperativity decreases the probability of
+missing an occurred change This becomes especially benecial when dicult
+detections have to be made Concerning the inuence of cooperativity on how
+fast a desired detection power is achieved we nd in general that there is an
+optimal value at nite levels of cooperation even though easy discrimination
+tasks can be performed more rapidly by noncooperative receptors
+Keywords Sensing  Cooperativity  Hypothesis Testing  Stochastic
+Processes
+1 Introduction
+The ability to acquire process and stock information is crucial for living
+beings Already at the level of a single cell the external environment is chem-
+ically sensed and the acquired information is processed to prepare a suitable
+response All the steps involved in these processes are permeated with noise
+Nordita
+KTH Royal Institute of Technology and Stockholm University Roslagstullsbacken
+23 SE-106 91 Stockholm Sweden E-mail stefanobonorditaorg
+A Celani
+Quantitative Life Sciences The Abdus Salam International Centre for Theoretical
+Physics ICTP Strada Costiera 11 I-34151 - Trieste Italy
+the arrival of the external stimulus through diusion is a stochastic process
+and so is the interaction with the receptors The successive biochemical steps
+for the signal transduction usually involve a limited amount of proteins so
+that uctuations play a prominent role In other words cells need to extract
+useful information from noisy inputs through noisy mechanisms a seemingly
+daunting task Despite these hurdles cells are able to sense the environment
+and make decisions with remarkable precision For a proper investigation of
+sensing it is fundamental to precisely characterize it and to assess its per-
+formance The rst step towards a quantitative understanding of this issue
+was taken by Berg and Purcell in their seminal paper in 1977 6 addressing
+the question of how precise can a cell be in determining the concentration
+of an external ligand Several studies have followed their line of reasoning
+and considered signal to noise ratios as a measure of the quality of sensing
+see eg
+1289171823243435424648 49 5051 A complementary
+approach within the framework of information theory has been taken in-
+vestigating the ability of signaling networks to acquire information about
+the environment and transmit it downstream see Ref 7 for a general dis-
+cussion 1128 for recent reviews and 101316 29 31353945525455
+5658596061 for a representative though necessarily incomplete list of re-
+cent contributions Furthermore the inuence of receptor cooperativity has
+been studied see eg
+1946484950 Quantifying the ability to sense
+transmit signals and respond to the external environment enables a quanti-
+tative comparison with its costs 34519202126 27 30333637404143
+444957 This contributes to the understanding of the trade-os which un-
+der evolutionary pressure may have shaped the signaling and transcriptional
+strategies which are presently observed
+Here we focus on a dierent task rather than precisely inferring the value
+of an external concentration cells have to eciently detect changes from a
+reference level Such systems include for instance the ones involved in en-
+forcing homeostasis which must monitor deviations from the physiological
+conditions the early stages of the immune response with the detection of
+an antigen and more generally signaling pathways downstream of receptors
+that undergo adaptation to the external stimuli The problem of detecting
+a change can be cast in terms of hypothesis testing Namely one tests the
+hypothesis that a change has occurred vs the null one This problem has
+been thoroughly studied in Ref 47 where it has been shown how the oc-
+cupation history of a single receptor can be used to perform a sequential
+probability ratio test In such dynamic formulation they derived how quickly
+a decision between two hypotheses can be made given an error threshold To
+carry out a statistical test exploiting the history of a receptor cells need to
+devise molecular strategies to record it and analyze it Refs 2547 suggested
+some possible mechanisms to encode statistical analysis in the level of some
+readout molecules which can be used to make decisions At variance with this
+approach which focuses on sequential testing and considers a single receptor
+here we study the case of parallel testing through the instantaneous occupa-
+tion state of a large pool of independent receptors This static approach no
+longer requires the presence of additional molecular layers as the receptors
+state at a given time can be used directly as a readout As a shortcoming
+restricting to the instantaneous receptors occupation provides a less powerful
+test than the one exploiting the full receptor history
+We then view the cell as a Neyman-Pearson detector which compares
+the likelihood of the observed receptor occupancy distribution under the
+two hypotheses the environment has not changed vs a change occurred
+Within this framework we quantify the detection performance in terms of
+the probability of missing the detection of a change
+The specic question that we address is whether cooperativity between
+the binding sites of a given receptor can be benecial for eectively detecting
+changes We nd that cooperativity indeed increases the detection sensitiv-
+ity making it the preferable mechanism when dicult detections have to be
+performed When considering the time needed to achieve a certain statistical
+power we unveil a trade-o which results in an optimal nite level of coopera-
+tivity which depends on the required sensitivity and on the number of binding
+sites present in each receptor In summary we nd that easy detections are
+often achieved more rapidly by receptors with low levels of cooperativity or
+even noncooperative binding sites whereas for dicult discrimination tasks
+a high cooperativity is mandatory
+2 Neyman-Pearson hypothesis testing for concentration
+discrimination
+To illustrate the main ideas of our approach let us start with a simple ex-
+ample Consider the case in which a cell has to determine whether the con-
+centration of a given ligand has changed or not by means of the occupation
+state of its receptors Such problem can be addressed in terms of testing
+the null hypothesis that no change occurred vs the alternative one that the
+concentration has changed For the sake of simplicity let us restrict to the
+specic case in which the concentration has been constant for a long time
+and the change is an instantaneous switch from a value c to ccid48 taking place
+at time t  0 If a cell is equipped with N cid29 1 independent receptors each
+with L dierent binding sites see gure 1 the state of the system at a
+given time is specied by L  l1 l2    lN where each ln  0 1    L denotes
+the number of occupied binding sites in receptor n Since the receptors are
+independent we have that L is a collection of N independent identically dis-
+tributed variables drawn from the probability of the occupation number of a
+single receptor ptl Inferring if the concentration of the external ligand has
+changed corresponds to choosing between two hypothesis
+H0  ptl  p0  pc
+H1  ptl  p1  pccid48
+where pc
+eql is the equilibrium probability of a receptor having l occupied
+binding sites when the concentration is c and pccid48
+t l is the time dependent one
+for a system that started in equilibrium with c but for which the concentration
+switched to ccid48 at t  0 Neyman-Pearson lemma ensures that for a given
+signicance  probability of mistakenly rejecting the null hypothesis when
+Fig 1 Schematic view of a cell and its sensing components The cartoon depicts
+a case with N  14 independent receptors each equipped with L  4 binding sites
+it is true type I error the most powerful test i e minimizing the probability
+ of discarding the alternative hypothesis when it is the correct one type II
+error is the likelihood ratio 12 Such test implies that for a single receptor
+the null hypothesis is rejected when l is such that
+where  determines the signicance
+  P rob  H0 
+eql
+l 
+pccid48
+cid16
+cid17
+pccid48
+t l  pc
+where  is the Heaviside step function ie x  1 if x  0 and x  0
+if x  0 According to Steins lemma when the number of independent
+receptors is large N cid29 1 the probability of not detecting the change when
+it has occurred decreases exponentially as   eN DKLp0p1 where the
+Kullback-Leibler divergence is dened as
+cid88
+cid88
+cid88
+DKLp0p1 
+p0l log
+which for this specic example reads
+eqpccid48
+eql log
+pccid48
+N 14L  45
+pccid48
+Fig 2 Time evolution of the Kullback Leibler divergence DKLp
+t  and of
+the associated miss probability  for N  1000 receptors The level of the divergence
+sets the detection sensitivity The shaded blue area refers to levels of sensitivity
+which can be reached by the system As discussed in the text the concentration
+change cannot be immediately detected as the initial divergence is zero As time
+goes by the discrimination power increases until an equilibrium value is reached
+If one is interested in a specic sensitivity thin black line in the plot set at a
+miss probability of 5 corresponding to DKL  0003 there is an associated time
+needed to cross the threshold t The plot is a numerical solution for the Pauling
+model described in section 3 for a receptor with L  3 binding sites cooperating
+with a coupling of J  1 The concentration change to detect is ccid48  09  c12
+ie about the time needed for a
+Time is expressed in units of
+un-binding event in the noncooperative case
+cid171
+ccid48c12
+cid113
+cid16
+The divergence and consequently the test sensitivity changes with time see
+g 2 At the very beginning the two distributions are equal and discrim-
+ination is therefore impossible For short times the likelihoods of the two
+hypotheses are still very similar and the Kullback-Leibler divergence grows
+quadratically in time due to probability conservation there is no linear con-
+tribution For long times the probability of the alternate hypothesis ap-
+proaches the equilibrium value limt pccid48
+eq and the divergence saturates
+at the value DKLpc
+sures that the Kullback-Leibler divergence grows monotonically in time This
+means that the asymptotic value DKLpc
+eq sets the maximum detection
+precision attainable for the given concentration change For intermediate
+times the divergence changes concavity at least once from positive to neg-
+eq The existence of a stationary distribution pccid48
+t  pccid48
+eqpccid48
+eqpccid48
+0123450000000100020003000400050006000750305101DKLtDKLeqRequiredsensitivityDKLN1000ttUnattainable sensitivityAttainable sensitivity6
+3 Pauling model of cooperative receptors
+Let us now take a closer look at the probability distribution of the occupation
+level of an individual receptor and study its dependence on the external
+concentration We consider each receptor to consist of L binding sites and its
+read-out to be given by its number of occupied binding sites l  0 1    L
+To investigate the role of cooperativity we choose the Pauling model in which
+each binding site of the receptor interacts with all the other ones 38 A given
+binding site i  1    L can be occupied i  0 1 with a probability that
+depends on the external concentration of the ligand on its binding energy
+and through cooperativity on the number of other sites of the receptor
+which are bound The system can be described in terms of an Ising model
+with Hamiltonian
+Lcid88
+H  h
+i  J
+cid88
+icid54j
+where for the sake of simplicity we have encoded in h both the contribution
+of the binding energy and the one of the chemical potential which is aected
+by the ligand concentration
+h  log
+where Kd is the dissociation constant for the noncooperative receptor and
+we have set kBT to unity for the rest of the paper We refer to 38 for a
+detailed connection between the statistical mechanical and the chemical de-
+scription of the systems Notice that in this system cooperativity is encoded
+in the fact that the probability of binding increases with the number of bound
+sites Such cooperativity grows with the number of interacting binding sites
+and with the coupling parameter J Setting J  0 corresponds to consider-
+ing the noncooperative case of independent binding sites The energy of a
+conguration depends only on the occupation number l cid80L
+cid1 The equilibrium occupation probability
+given by the binomial coecientcid0L
+cid1 expcid2hl  J
+cid0L
+cid0L
+cid1 expcid2hl  J
+cid80L
+Lcid88
+2 ll  1cid3
+2 ll  1cid3
+and the number of congurations with the same occupation number is simply
+and the average number of bound sites can be directly computed as
+Hl  hl  J
+i1 i giving
+ll  1
+then reads
+peql 
+cid104lcid105 
+lpeql 
+The cooperativity of the system allows to have sharp changes in the occupa-
+tion probability as the external concentration is varied The system is then
+said to be ultrasensitive around the value of the external eld for which half
+of the binding sites are bound on average h12 which we refer to as the tran-
+sition point Such value depends on the number of total binding sites L and
+the coupling J
+h12   J
+L  1
+and ensures that peql  peqL  l We note that for highly cooperative
+systems the equilibrium distribution at h  h12 is concentrated at the ex-
+tremes l  0 and l  L The transition point occurs at dierent values of
+concentration as the number of binding sites or the coupling are changed
+c12J L  Kde J
+2 L1 
+To proceed to a meaningful comparison between dierent cooperativities
+we need to consider systems that have to detect changes of the same rel-
+ative amplitude cc12 In general cooperative receptors with dierent num-
+bers of binding sites or cooperative strengths can set their transition point
+at the same concentration by tuning their dissociation constant This is a
+simple mechanism that implements sensorial adaptation Indeed by letting
+2 L1 the transition point is reached for the same concen-
+KdL J  K 0
+tration c12  K 0
+d  This means that in order to maintain ultra-sensitivity
+around a given concentration the receptor has to compensate for a higher co-
+operativity by evolving towards a higher dissociation constant lower anity
+with ligand
+31 Cooperativity and discrimination
+As discussed above around the transition point the distribution of the occu-
+pation number of the receptor exhibits a stronger dependence on concentra-
+tion as cooperativity is increased Such sharper dependence makes it easier
+to tell if the concentration has changed from the reference value set at the
+transition point Intuitively then cooperativity improves the discrimination
+ability of the receptor To check this intuition let us consider the behavior
+of the Kullback-Leibler distance between the equilibrium probability at the
+transition point and the one of a dierent concentration and its dependence
+on the degree of cooperativity see gure 3 We start by considering the
+asymptotic value of the divergence which corresponds to the largest possible
+discrimination Due to Steins lemma the Kullback-Leibler divergence de-
+scribes how the probability of missing a change in concentration decreases
+with the number of independent measurements N in the limit N   For
+instance to achieve a miss probability  cid39 5 we need a divergence between
+the two distributions of
+pccid48
+eq   log 
+cid39 3
+For a given number of independent receptors N the Kullback-Leibler diver-
+gence then sets the miss probability
+Fig 3 Long-time asymptotic Kullback Leibler divergence and miss probability
+for N  100 receptors as a function of binding sites numbers for ccid48  09  c12
+The full purple line is the divergence in the limit of innite coupling J  
+discussed in eq 17 and the full blue one is the noncooperative case J  0
+discussed in eq 15 The shaded blue area depicts the values of precision reachable
+with noncooperative binding sites the purple shaded one the values achievable by
+cooperative receptors The white area above the purple line refers to precisions
+which cannot be reached for the given number of binding sites The cyan points are
+numerically evaluated results for J  3 already approaching the innite coupling
+limit The red points refer to the case with J  1 and the green ones to J  05
+Let us start by considering the noncooperative case J  0 The system
+then simplies greatly and is just a collection of L independent two states
+processes with binomial distribution
+cid19 cid16 c
+cid18L
+cid16 c
+eq l 
+cid17l
+cid17L 
+  L log
+cid20
+The Kullback-Leibler divergence is then analytically accessible and consid-
+ering the two equilibrium distributions reads
+cid113 c12
+
+ccid48 
+cid113 ccid48
+cid18 hcid48  h12
+cid19cid21
+pccid48
+eq  L log
+where we shall recall that h12  0 The most relevant feature is that the
+divergence grows linearly with the number of binding sites present in the
+receptor
+We expect cooperativity to increase the Kullback-Leibler divergence and
+consequently decrease the probability of not detecting a concentration change
+1234567800000200400650305101LDKLN100IncreasingsensitivityJ1J05J3UnattainablesensitivityCooperativeNoncooperative9
+
+1  eLhcid48h12
+J pl  0 cid39
+cid17L
+cid16 ccid48
+cid17L
+cid16 ccid48
+cid17L
+cid16 ccid48
+J pl  L cid39 eLhcid48h12
+1  eLhcid48h12
+cid17L2
+cid16 ccid48
+cid1L2
+cid0 c12
+cid18 Lhcid48  h12
+cid19cid21
+
+cid20
+eq  log
+pccid48
+ccid48
+J DKLp
+In the limit of large coupling J   we can roughly estimate the occupa-
+tion probability by inspecting equation 9 around h12  JL  12 and
+observing that only states with l  0 and l  L will have a nite probability
+which for L  1 is larger than its noncooperative equivalent Hence for a
+xed L having a cooperative receptor allows to reach values of the Kullback-
+Leibler that cannot be approached by means of noncooperative binding
+sites resulting in higher detection sensitivities However the limit in eq 17
+cannot be exceeded and this sets an upper bound on the performance of a
+cooperative receptor following Pauling model
+311 Small concentration change limit
+The hypotheses we are testing have probability distributions that dier be-
+cause of the parameter c and ccid48 Obviously when the two concentrations
+are equal the Kullback-Leibler divergence is zero and is at a minimum since
+it is non-negative by denition Then for small concentration dierences
+cc cid28 1 the divergence is quadratic in the concentration dierence It is
+known that curvature of the divergence in c  ccid48 is equal to the Fisher infor-
+mation of the probability distribution with respect to the parameter c which
+is dened as
+eql 
+cid192
+cid18  log pc
+Lcid88
+Then by Taylor expansion the Kullback-Leibler for small concentration
+changes around c reads
+cc0
+eqpcc
+ cid39 1
+c2 Ic 
+Plugging relation 7 into the equilibrium probability 9 we can compute
+the derivative of the probability with respect to concentration and obtain
+l  cid104lcid105
+which means that the Fisher information is Ic  1
+Leibler for small concentration changes around the transition point c12
+c2 varl and the Kullback-
+cc0
+c12c
+ cid39 1
+varl 
+It is interesting to compare the two extremes of large cooperativity and
+vanishing cooperativity Taking the large coupling limit J   of the vari-
+ance we see that
+J lim
+cc0
+c12c
+ cid39 lim
+J
+varl cid39 1
+where two limits can be shown to commute by considering eq 17 For the
+noncooperative case one nds
+cid18 c
+cid192
+cid18 c
+cid192
+cid18 c
+cid192
+cid18 c
+cid192
+cc0
+c12c
+ cid39 1
+The strongly cooperative case displays a quadratic dependence on the num-
+ber of binding sites as opposed to the linear one of the noncooperative model
+The miss probability of the test then decreases exponentially with L2N for
+the cooperative case and simply as LN for the noncooperative one For nite
+couplings the variance has to be computed directly from the distribution and
+l  cid104lcid1052 peql
+Lcid88
+cid1 expcid2hl  J
+l0 l2cid0L
+cid80L
+cid1 expcid2hl  J
+cid0L
+cid80L
+varl 
+2 ll  1cid3cid332
+cid32cid80L
+l0 lcid0L
+2 ll  1cid3
+2 ll  1cid3
+2 ll  1cid3 
+cid0L
+cid80L
+2 ll  1cid3 does not display a simple
+Such expression due to the terms expcid2 J
+cid1 expcid2hl  J
+cid1 expcid2hl  J
+scaling in terms of L for nite couplings
+312 Connection between Hill coecient and Kullback-Leibler divergence
+The Hill coecient is a measure of the cooperativity of binding and can be
+dened see eg Ref 22 as
+cid104lcid105
+ log c
+cid104lcid105
+cid12cid12cid12cid12cc12
+cid12cid12cid12cid12cc12
+Performing the derivative of the mean value with the explicit expressions
+given in eqs 9 and 10 we see that1
+cid104lcid105
+ varl 
+1 This is simply the uctuation dissipation relation between the susceptibility
+and the magnetization variance for ferromagnetic systems
+Fig 4 Hill coecient as a function of binding sites per receptor L for dierent
+values of the coupling J For the noncooperative case the Hill coecient is 1 whereas
+it is L in the limit of strong cooperativity The parameters and color code are the
+same as for gure 3
+We can then write
+varl 
+As we have seen in eq 19 for small concentration changes the Kullback-
+Leibler divergence is proportional to the Fisher information which for the
+system we are considering is itself proportional to the variance of the dis-
+tribution I  varlc2 Hence for small concentration changes around the
+transition point we have that
+cid18 c
+cid192
+cid18 c
+cid192
+cc0
+c12c
+ cid39 1
+varl 
+linking the Kullback-Leibler divergence and the Hill coecient The Hill co-
+ecient ranges from 1 for noncooperative binding to a maximum of L ap-
+proached in the limit of innite cooperativity see g 4 This oers some
+insight on the scaling behavior of the Kullback-Leibler divergence for nite
+couplings Indeed for small concentration changes the Kullback-Leibler di-
+vergence scales as LnH where nH is the Hill coecient of the receptor
+32 How long does it take to detect a change
+From gure 2 we know that at the moment in which the concentration
+changes it is not possible yet to detect the change as the distributions of
+NoncooperativeCooperative2345678L2468nh12
+the two hypotheses are still equal Detection becomes possible as the like-
+lihood of the alternative hypothesis evolves in time We are interested in
+studying how long it takes before the distributions of the two hypotheses
+are dierent enough to allow a detection with a given sensitivity In order to
+do so let us now consider the kinetic behavior of a receptor whose binding
+sites follow the Pauling model In general the occupation probability evolves
+according to a master equation
+klcid48  lplcid48  kl  lcid48pl
+cid88
+where for the system to reach the correct equilibrium detailed balance must
+be satised by the rates
+kl  lcid48
+klcid48  l
+ eHlcid48Hl
+cid19
+cid18L
+cid19
+cid18L
+peqlcid48
+lcid48
+which for the two allowed transitions implies
+kl  l  1
+kl  1  l
+L  l
+ehJl 
+L  lc
+l  1c12J L
+eJl L1
+There is freedom in how to choose the individual rates still satisfying detailed
+balance We consider the case in which the rates are exponential in the energy
+dierence associated with the transition and to make contact with the non-
+cooperative binding we set them to
+kl  l  1  L  lku
+kl  l  1  l kue J
+2 l L1
+c12J L
+2 l L1
+where ku is the unbinding rate for noncooperative binding sites We can
+then proceed to the numerical solution of the master equation and obtain
+the time evolution of the system We shall focus on the case in which the
+system starts in equilibrium with the concentration at the transition point
+c12 and the concentration is switched to a dierent value ccid48 The most re-
+markable feature is that for xed ccid48c12 as cooperativity is increased both
+by having more binding sites or by a higher coupling J the system slows
+down The slowing down is more severe for small concentration changes
+This phenomenon is related to the critical slowing down discussed also in
+Ref 48 and is due to the fact that a system with strong interactions is
+locked into a conguration due to cooperativity and reacts more slowly to
+a change in the external eld
+Let us now investigate how this impacts on the time required by the pool
+of receptors to reach a certain detection sensitivity We need to consider the
+dynamic behavior of the Kullback-Leibler divergence during equilibration to
+the new concentration ccid48 and how rapidly it manages to reach the threshold
+associated with the desired sensitivity as sketched in gure 2 As we have
+Fig 5 Time needed to achieve a desired sensitivity in detecting a concentration
+change to ccid48  09  c12 for dierent numbers of binding sites and cooperativity
+pccid48
+This corresponds to time needed by the Kullback Leibler divergence DKLp
+to cross a given threshold a miss probability of 5 which for N  1000 recep-
+tors corresponds to DKL  0003 For J  081 the receptor with L  2 binding
+sites cannot reach a divergence of 0003 For L  3 the shortest time is obtained
+at nite coupling whereas for L  5  8 for the noncooperative case Notice the
+exponential slowing down observed for L  8 b miss probability of 01 corre-
+sponding for N  1000 receptors to DKL cid39 00069 Now the required sensitivity is
+unattainable with L  2 binding sites It requires a coupling J  137 for L  3
+and a weak J  01 for L  5 For the shown number of binding sites the desired
+precision is fastest reached for nite level of cooperativity Time is expressed in
+ie about the time needed for a un-binding event in
+cid16
+cid113
+cid171
+units of
+the noncooperative case
+ccid48c12
+discussed in the previous section and shown in gure 3 the divergence be-
+tween the equilibrium distribution in c12 and in ccid48 is higher for cooperative
+receptors consequently allowing to reach levels of sensitivity which are unfea-
+sible for noncooperative binding sites However a larger cooperativity slows
+down the dynamics When considering how fast a certain level is reached we
+are then facing a trade-o as shown in gure 5
+0005101520J246810tL2L3L5L8N1000           5      a0005101520J246810tL2L3L5L8N1000           01      b14
+pccid48
+To obtain some insight let us study a specic example Consider for in-
+stance the case in which we have N  1000 receptors the concentration
+decreases of about 10 from its transition value ccid48  09  c12 and we want
+to achieve a miss probability of  cid39 5 This sets the Kullback Leibler dis-
+tance between the equilibrium receptor distribution at the transition point
+and the evolving one at DKLp
+t   0003 From eq 15 we know that
+such sensitivity cannot be achieved by a receptor with 2 binding sites unless
+they operate in a cooperative fashion Then for small couplings a receptor
+with 2 binding sites will never reach the threshold As the coupling is in-
+creased the threshold becomes attainable and it progressively takes shorter
+times to approach it until an optimal value is reached When several binding
+sites can be employed the situation is quite the opposite as the threshold is
+largely exceeded also in the noncooperative case so that the main eect of
+cooperativity is the exponential slowing down of the dynamics In such case
+the required sensitivity is reached earlier by noncooperative binding sites
+For intermediate scenarios as for example with 3 binding sites the nonco-
+operative case is sucient to cross the threshold but its asymptotic value is
+not much larger Then a weak cooperativity is slightly faster as a result of
+the trade-o between a higher equilibrium limit and slower overall dynamics
+The representative cases of L  2 3 5  8 are plotted in gure 5 Let us study
+how requiring a higher sensitivity with a miss probability as low as  cid39 01
+impacts the trade-o We rst notice that such low miss probability is not
+achievable if each receptor has only 2 binding sites since N  1000 noncoop-
+erative such receptors can at most reach a miss probability of  cid39 07 For
+L  3 5 the required sensitivity can be attained only by cooperative recep-
+tors and it is most rapidly reached for intermediate coupling values Finally
+employing 8 binding sites cooperativity is no longer necessary to reach the
+threshold However a small coupling J cid39 014 allows to cross the desired
+value at slightly shorter times
+In general considering how cooperativity aects the time need for a sensi-
+tive detection we can identify three main classes which are determined by the
+level of desired sensitivity and the number of available binding sites Namely
+what matters is how large the long-time asymptotic discrimination power
+of the noncooperative receptors eq 15 is compared to the one we want
+to obtain If the required sensitivity is easily achievable by noncooperative
+receptors threshold much lower than the equilibrium value for the noncoop-
+erative receptors cooperativity is detrimental for a rapid decision see eg
+the case of L  8 binding sites and   5 depicted in cyan in gure 5a
+For more sensitive detections which are barely attainable by noncoopera-
+tive binding sites a small degree of cooperativity can slightly speed up the
+system as shown for instance for L  3 and   5 in blue in gure 5a For
+hard detections desired sensitivity higher than the one provided by nonco-
+operative receptors the system must be cooperative There is a large but
+nite coupling minimizing the time needed to achieved the threshold as re-
+ported for L  3 and L  5 for a miss probability of   01 in gure 5b
+respectively blue and green line
+So far we have considered the time needed to reach a certain level of
+precision as a function of the coupling intensity J for the case in which the
+reference concentration is set at the transition point c  c12 This is the value
+Fig 6 Time needed to reach a certain sensitivity as a function of the coupling
+coecient J and minus the external eld h  log Kd
+c  The solid line indicates
+h  JL  12 which corresponds to the values of the concentration set at the
+transition point that were used to draw gure 5 The top gures refer to the case
+with L  3 and the bottom ones to L  5 For each value the concentration
+change to be detected is such that ccid48c  09 corresponding to h  01 Time is
+expressed in units of k1
+for which the system is most sensitive to concentration changes In order to
+extend our reasonings to cases in which the system is not optimally tuned let
+us consider how the detection time depends on the reference concentration
+or equivalently on the dissociation constant The results are reported in
+g 6 For each level of concentration it is possible to determine the range
+of cooperativity that allows for a given sensitivity and the coupling intensity
+J that reaches it in the shortest time The fastest detections are achieved
+for combinations of concentration and coupling such that the system is close
+to the transition point but higher concentrations are favored This reects
+L3544257L30100051015200005101520J-h060708091121216162233L5500051015200005101520J-h1516182121333L50100051015200005101520J-h16
+the fact that the concentration change has to be within the dynamic range
+of the receptor and that higher concentrations imply a faster ligand binding
+consequently accelerating the dynamics
+33 Non-homogeneous coupling strength and ligand anity across the
+receptors
+In the previous sections we have considered the case in which each receptor
+has the same coupling strength and ligand anity In general it is possible
+that dierent receptors have dierent J and Kd Let us consider the case in
+which the J and Kd of each receptor are drawn from a distribution J Kd
+If the number of receptors N is large enough so that each value of the pair
+J Kd is sampled several times we can still exploit Steins lemma for each
+receptors subpopulation The overall miss probability is then an average over
+the dierent receptors subpopulations reading
+cid90
+cid16
+log   N
+J Kd DKL
+eqJ Kdpccid48
+t J Kd
+dJ dKd 
+cid17
+cid16
+As a specic example consider the case where the receptors are a mixture
+of two dierent subpopulations characterized by two dierent couplings Jw
+2 L1 so that the
+and Js with the respective Kd tuned as KdJ  K 0
+transition point is for both populations at c12  K 0
+Let us denote the probability of drawing the strongly cooperative Js
+receptor as q so that we have on average N q strongly cooperative receptors
+The miss probability then obeys
+eqJspccid48
+ 1  qDKL
+eqJwpccid48
+cid17cid105
+log   N
+cid16
+cid17
+cid104
+resulting in a linear combination of the two Kullback-Leibler divergences By
+varying the parameter q from 0 to 1 the curve smoothly varies between the
+weakly and the strongly cooperative cases In general such mixture of recep-
+tors displays a faster initial response compared to the strongly cooperative
+case and a higher asymptotic precision with respect to the weakly cooperative
+case see g 7 This allows for intermediate behaviors which can be tuned
+to satisfy dierent requirements by changing the sizes of the subpopulations
+4 Conclusions and discussion
+We have studied the problem of detecting a change in concentration of a
+ligand by means of a pool of receptors To investigate the detection perfor-
+mance we have addressed the problem in terms of hypothesis testing making
+use of the instantaneous occupancy We have focused on the probability of
+missing the detection of a change that actually occurred and employed it as
+a measure of the quality of the sensing system With this formalism we have
+considered the inuence of cooperativity on the sensing performance We
+Fig 7 In the case of non-homogeneous coupling strength across the receptors the
+miss probability is given by a linear combination of the various couplings The plot
+refers to the case in which a receptor is cooperative with J  1 with probability
+q  12 and is noncooperative with probability 1  q  12 with L  3 and
+ccid48  c e01 Time is expressed in units of
+cid171
+cid113
+cid16
+ccid48c12
+have identied a twofold eect of cooperativity a markedly improved sensi-
+tivity in the long time limit and a signicant slowing down of the receptors
+dynamics This is consistent with the ndings of Ref 48 in which the sensing
+performance of locally cooperative receptors was considered in terms of the
+precision with which they are able to determine a concentration change by
+time averaging their history We stress here that both the higher asymptotic
+sensitivity and the slowing down are separately relevant Most notably coop-
+erativity enables to detect changes with sensitivities that are not attainable
+by noncooperative receptors When considering the time from the concentra-
+tion change needed before the instantaneous receptor occupancy state can
+provide a given detection sensitivity the two eects of cooperativity trade
+o In the framework adopted by the authors of 48 the eect of the slow-
+down due to cooperativity on the time averaging procedure dominates the
+additional sensitivity and the authors concluded that noncooperative recep-
+tors perform better than cooperative ones On the contrary we have seen
+that casting the detection problem in terms of hypothesis testing by means
+of the instantaneous occupancy of a pool of receptors cooperativity can be
+benecial We have found that there is an optimal degree of cooperativity
+which depends on the required sensitivity level and on the number of binding
+0123450000000100020003000400050006000730105101timeDKLJ1MixtureJ018
+sites present in each receptor At given number of binding sites we can iden-
+tify three general scenarios depending on the required detection power For
+hard detections the system must be cooperative and the desired sensitivity
+is reached earlier at nite but large levels of cooperativity For intermediate
+cases the system can achieve the needed statistical power by noncooperative
+binding sites but moderately cooperative receptors are faster at approaching
+it Easy detections are performed more rapidly by noncooperative receptors
+It is interesting to consider how the cells detection ability scales with the
+numbers of receptors and binding sites For noncooperative binding sites the
+probability of missing the detection decreases exponentially with the total
+number of binding sites present in all the receptors N L We have shown
+that for cooperative receptors in the long-time limit the exponential decrease
+is more marked and in the innite coupling limit for small concentration
+changes depends quadratically on the number of binding sites present in
+each receptor N L2 Since it is costly to produce proteins see Refs15 19
+sensing mechanisms that improve the performances without increasing the
+number of required components may represent an advantage The dierent
+scaling in N and L can then impact on how to invest the limited resources
+favoring either solutions involving few receptors with many binding sites or
+the opposite The characterisation of the ensuing trade-os is an issue that
+surely deserves further study in the near future
+Acknowledgements
+SB acknowledges ICTP and the Physics Department and INFN of the
+University of Turin for hospitality
+References
+1 Aquino G Clausznitzer D Tollis S and Endres R G Optimal receptor-
+cluster size determined by intrinsic and extrinsic noisePhysical Review E832
+021914 2011
+2 Aquino G Tweedy L Heinrich D Endres R G Memory improves preci-
+sion of cell sensing in uctuating environments Scientic reports 4 2014
+3 Barato A C Hartich D Seifert U Information-theoretic vs thermody-
+namic entropy production in autonomous sensory networks Phys Rev E 87
+042104 2013
+4 Barato A C Hartich D Seifert U Eciency of cellular information pro-
+cessing New J Phys 16 103024 2014
+5 Barato A C Seifert U Thermodynamic uncertainty relation for biomolec-
+ular processes Phys Rev Lett 11415 158101 2015
+6 Berg H Purcell E Physics of chemoreception Biophys J 20 193 1977
+7 Bialek W Biophysics searching for principles Princeton University Press
+2012
+8 Bialek W Setayeshgar S Physical limits to biochemical signaling Proc
+Natl Acad Sci USA 102 10040 2005
+9 Bialek W Setayeshgar S Cooperativity sensitivity and noise in biochemical
+signaling Phys Rev Lett 10025 258101 2008
+10 Bowsher C G Swain P S Identifying sources of variation and the ow
+of information in biochemical networks Proc Natl Acad Sci USA 10920
+E1320-E1328 2012
+11 Bowsher C G Swain P S Environmental sensing information transfer and
+cellular decision-making Curr Opin Biotech 28 149-155 2014
+12 Cover T M Thomas J A Elements of information theory John Wiley 
+Sons 2012
+13 Cheong R Rhee A Wang C J Nemenman I Levchenko A Informa-
+tion transduction capacity of noisy biochemical signaling networks Science
+3346054 354-358 2011
+14 Diana G Esposito MMutual entropy production in bipartite systems J
+Stat Mech4 P04010 2014
+15 Dekel E Alon U Optimality and evolutionary tuning of the expression level
+of a protein Nature 4367050 588-592 2005
+16 Dubuis J O Tkacik G Wieschaus E F Gregor T Bialek W Positional
+information in bits Proc Natl Acad Sci USA 11041 16301-16308 2013
+17 Endres RG Wingreen N S Maximum likelihood and the single receptor
+Phys Rev Lett  10315 158101 2009
+18 Govern CC ten Wolde PR Fundamental limits on sensing chemical concen-
+trations with linear biochemical networks Phys Rev Lett 109218103 2012
+19 Govern CC ten Wolde PR Optimal resource allocation in cellular sensing
+systems Proc NatlAcad Sci USA 111 1748691 2014
+20 Govern CC ten Wolde PR Energy dissipation and noise correlations in
+biochemical sensing Phys Rev Lett 11325 258102 2014
+21 Hartich D Barato A C Seifert U Nonequilibrium sensing and its analogy
+to kinetic proofreading New J Phys 175 055026 2015
+22 Hill T L Cooperativity Theory in Biochemistry Steady-State and Equilib-
+rium Systems p 66 Springer- Verlag New York NY 1985
+23 Hu B Chen W Rappel W J Levine H Physical limits on cellular sensing
+of spatial gradients Phys Rev Lett  1054 048104 2010
+24 Kaizu K de Ronde W Paijmans J Takahashi K Tostevin F ten Wolde
+P R The berg-purcell limit revisited Biophys J 1064 976-985 2014
+25 Kobayashi T J Implementation of dynamic Bayesian decision making by
+intracellular kinetics Phys Rev Lett 10422 228104 2010
+26 Lan G Sartori P Neumann S Sourjik V and Tu Y The energy-speed-
+accuracy trade-o in sensory adaptation Nat Phys 85 422-428 2012
+27 Lang A H Fisher C K Mora T Mehta P Thermodynamics of statistical
+inference by cells Phys Rev Lett 113 148103 2014
+28 Levchenko A Nemenman I Cellular noise and information transmission
+Curr Opin Biotech 28 156-164 2014
+29 Mancini F Wiggins C H Marsili M Walczak A M Time-dependent
+information transmission in a model regulatory circuit Phys Rev E 882
+022708 2013
+30 Mancini F Marsili M Walczak A M Trade-os in delayed information
+transmission in biochemical networks arXiv preprint arXiv150403637 2015
+31 Martins B M Swain P S Trade-os and constraints in allosteric sensing
+PLoS Comput Biol 7 e1002261 2011
+32 Marzen S Garcia H G Phillips R Statistical mechanics of MonodWyman-
+Changeux MWC models J Mol Biol 4259 1433-1460 2013
+33 Mehta P Schwab D Energetic costs of cellular computation Proc Natl
+Acad Sci USA 109 17978 2012
+34 Mora T Wingreen N S Limits of sensing temporal concentration changes
+by single cells Phys Rev Lett 10424 248101 2010
+35 Mugler A Tostevin F ten Wolde P R Spatial partitioning improves the
+reliability of biochemical signaling Proc Natl Acad Sci USA 11015 5927-
+5932 2013
+36 Murugan A Huse D A Leibler S Speed dissipation and error in kinetic
+proofreading Proc Natl Acad Sci USA 1093012034-9 doi 101073Proc
+Natl Acad Sci USA1119911109 2012
+37 Ouldridge T Govern C  ten Wolde P R On the connection between com-
+putational and biochemical measurement arXiv preprint arXiv150300909
+2015
+38 Phillips R Kondev J Theriot J Garcia H Physical biology of the cell
+Garland Science 2012
+39 Rieckh G Tkacik G Noise and information transmission in promoters with
+multiple internal states Biophys J 1065 1194-1204 2014
+40 Qian H Reluga T C Nonequilibrium Thermodynamics and Nonlinear Ki-
+netics in a Cellular Signaling Switch Phys Rev Lett 94 028101 2005
+41 Qian H Reducing intrinsic biochemical noise in cells and its thermodynamic
+limit J Mol Biol 3623 387-392 2006
+42 Rappel W J Levine H Receptor noise and directional sensing in eukaryotic
+chemotaxis Phys Rev Lett 10022 228101 2008
+43 Sartori P Pigolotti S Kinetic versus Energetic Discrimination in Biological
+Copying Phys Rev Lett 110 188101 2013
+44 Sartori P Granger L Lee C F Horowitz J M Thermodynamic costs
+of information processing in sensory adaptation PLos Comput Biol 1012
+e1003974 2014
+45 Selimkhanov J Taylor B Yao J Pilko A Albeck J Homann A Tsim-
+ring L Wollman R Accurate information transmission through dynamic
+biochemical signaling networks Science 3466215 1370-1373 2014
+46 Sevier S A Levine H Properties of Cooperatively Induced Phases in Sensing
+Models Phys Rev E 915 052707 2015
+47 Siggia E D Vergassola M Decisions on the y in cellular sensory systems
+Proc Natl Acad Sci USA  11039 E3704-E3712 2013
+48 Skoge M Meir Y Wingreen N S Dynamics of cooperativity in chemical
+sensing among cell-surface receptors Phys Rev Lett 10717 178101 2011
+49 Skoge M Naqvi S Meir Y Wingreen N S Chemical Sensing by Nonequi-
+librium Cooperative Receptors Phys Rev Lett 110 248102 2013
+50 Sun J Grabe M Cooperativity Can Enhance Cellular Signal Detection
+arXiv preprint arXiv14013262 2014
+51 Tanase-Nicola S Warren P B ten Wolde P R Signal detection modu-
+larity and the correlation between extrinsic and intrinsic noise in biochemical
+networks Phys Rev Lett 976 068102 2006
+52 Tkacik G Callan J C G Bialek W Information ow and optimization in
+transcriptional regulation Proc Natl Acad Sci 105 1226512270 2008
+53 Tkacik G Walczak A M Bialek W Optimizing information ow in small
+genetic networks Phys Rev Lett 80 031920 2009
+54 Tkacik G Walczak A M Information transmission in genetic regulatory
+networks a review J Phys-Condens Matt 2315 153102 2011
+55 Tkacik G Walczak A M Bialek W Optimizing information ow in small
+genetic networks III A self-interacting gene Phys Rev E 854 041903
+2012
+56 Tostevin F Ten Wolde P R Mutual information between input and output
+trajectories of biochemical networks Phys Rev Lett 10221 218101 2009
+57 Tu Y The nonequilibrium mechanism for ultrasensitivity in a biologi-
+cal switch Sensing by Maxwells demons Proc Natl Acad Sci USA 105
+1173711741 2008
+58 Uda S Saito T H Kudo T Kokaji T Tsuchiya T Kubota H Ko-
+mori Y Ozaki Y Kuroda S Robustness and compensation of information
+transmission of signaling pathways Science 3416145 558-561 2013
+59 Voliotis M Perrett R M McWilliams C McArdle C A Bowsher C G
+Information transfer by leaky heterogeneous protein kinase signaling systems
+Proc Natl Acad Sci USA 1113 E326-E333 2014
+60 Walczak A M Tkacik G Bialek W Optimizing information ow in small
+genetic networks II Feed-forward interactions Phys Rev E 814 041905
+2010
+61 Ziv E Nemenman I Wiggins C H Optimal signal processing in small
+stochastic biochemical networks PLoS One 210 e1077 2007

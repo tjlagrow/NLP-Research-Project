@@ -1,1418 +1,320 @@
-SKOPE A connectionistsymbolic architecture of spoken Korean
-processing
-Geunbae Lee and Jong-Hyeok Lee
-Department of Computer Science  Engineering
-and Postech Information Research Laboratory
-Pohang University of Science  Technology
-San 31 Hoja-Dong Pohang 790-784 Korea
-gbleevisionpostechackr
-Abstract
-Spoken language processing requires speech and nat-
-ural language integration Moreover spoken Korean
-calls for unique processing methodology due to its lin-
-guistic characteristics This paper presents SKOPE a
-connectionistsymbolic spoken Korean processing en-
-gine which emphasizes that 1 connectionist and sym-
-bolic techniques must be selectively applied accord-
-ing to their relative strength and weakness and 2
-the linguistic characteristics of Korean must be fully
-considered for phoneme recognition speech and lan-
-guage integration and morphologicalsyntactic pro-
-cessing The design and implementation of SKOPE
-demonstrates how connectionistsymbolic hybrid ar-
-chitectures can be constructed for spoken agglutina-
-tive language processing Also SKOPE presents many
-novel ideas for speech and language processing The
-phoneme recognition morphological analysis and syn-
-tactic analysis experiments show that SKOPE is a vi-
-able approach for the spoken Korean processing
-Introduction
-Spoken language processing challenges for integration
-of speech recognition into natural language processing
-and must deal with multi-level knowledge sources from
-signal level to symbol level The multi-level knowledge
-integration and handling increase the technical di-
-culty of both the speech and the natural language pro-
-cessing In the speech recognition side the recognition
-must be at phoneme-level for large vocabulary contin-
-uous speech and the speech recognition module must
-provide right level of outputs to the natural language
-module in the form of not single solution but many
-alternatives of solution hypotheses The n-best list
- word-graph  and word-lattice 
-techniques
-are mostly used in this purpose The speech recogni-
-tion module can also ask the linguistic scores from the
-language processing module in a more tightly coupled
-bottom-uptop-down hybrid integration scheme  In
-the natural language side the insertion deletion and
-substitution errors of continuous speech must be com-
-pensated by robust parsing and partial parsing tech-
-Copyright ccid13 2014 American Association for Articial In-
-telligence wwwaaaiorg All rights reserved
-niques eg  Often the spoken languages are un-
-grammatical fragmentary and contain non-uencies
-and speech repairs and must be processed incremen-
-tally under the time constraints 
-Most of the speech and natural language systems
-which were developed for English and other Indo-
-European languages neglect the morphological process-
-ing and integrate speech and natural language at the
-word level   Often these systems employ a pro-
-nunciation dictionary for speech recognition and inde-
-pendent dictionaries for natural language processing
-However for the agglutinative languages such as Ko-
-rean and Japanese the morphological processing plays
-a major role in the language processing since these lan-
-guages have very complex morphological phenomena
-and relatively simple syntactic functionality Unfortu-
-nately even the Japanese researchers apply degenerated
-morphological techniques for the spoken Japanese pro-
-cessing   Obviously degenerated morphological
-processing limits the usable vocabulary size for the sys-
-tem and word-level dictionary results in exponential
-explosion in the number of dictionary entries For the
-agglutinative languages we need sub-word level inte-
-gration which leaves rooms for general morphological
-processing
-The spoken language processing calls for multi-
-strategic approaches in order to deal with signal level
-as well as symbol
-information in a symbiotic
-and unied way Recent development of connection-
-ist speech recognition  and connectionist natural
-language processing 
-shed lights on the connec-
-tionistsymbolic hybrid models of spoken language pro-
-cessing and some of the researches are already avail-
-able for English and other Indo-European languages 
- We feel that it is the right time to develop con-
-nectionistsymbolic hybrid spoken languages process-
-ing systems for the agglutinative languages such as Ko-
-rean and Japanese
-This paper presents one of the such endeavors
-SKOPE Spoken Korean Processing Engine that has
-the following unique features 1 The connectionist and
-symbolic techniques are selectively used according to
-their strength and weakness The learning capability
-fault-tolerant property and ability of simultaneous inte-
-gration of multiple signal-level sources make the connec-
-tionist techniques suitable to the phoneme recognition
-from the speech signals but the structure manipula-
-tion and powerful matching binding properties of the
-symbolic techniques are the better choices for the com-
-plex morphological processing of Korean However the
-parallel multiple constraint relaxation capability of the
-connectionist techniques are applied together with the
-symbolic structure binding techniques for the syntactic
-processing 2 The linguistic characteristics of Korean
-are fully considered in phoneme recognition speech and
-language integration and morphologicalsyntactic pro-
-cessing 3 The SKOPE provides multi-level applica-
-tion program interfaces APIs which can utilize the
-phoneme-level or the morphological level or the syn-
-tactic level services for the applications such as spoken
-language interface voice information retrieval and spo-
-ken language translation
-We hope the experience of SKOPE development pro-
-vide viable answers to some of the open questions to the
-speech and language processing such as 1 how learning
-and encoding can be synergetically combined in speech
-and language processing 2 which aspects of system
-architecture have to be considered in spoken language
-processing especially in connectionistsymbolic hybrid
-systems and nally 3 what are the most ecient way
-of speech and language integration especially for ag-
-glutinative languages
-Characteristics of spoken Korean
-This section briey explains the linguistic characterists
-of spoken Korean before describing the SKOPE sys-
-tem In this paper Yale romanization is used for rep-
-resenting the Korean phonemes 1 A Korean word
-called Eojeol consists of more than one morphemes
-with clear-cut morpheme boundaries
-2 Korean is
-a postpositional language with many kinds of noun-
-endings verb-endings and prenal verb-endings These
-functional morphemes determine the nouns case roles
-verbs tenses modals and modication relations be-
-tween Eojeols 3 Korean is a basically SOV language
-but has relatively free word order compared to the rigid
-word-order languages such as English except for the
-constraints that the verb must appear in a sentence-
-nal position However in Korean some word-order
-constraints do exist such that the auxiliary verbs repre-
-senting modalities must follow the main verb and the
-modiers must be placed before the word called head
-they modify 4 The unit of pause in speech which is
-called Eonjeol may be dierent from that of a written
-text an Eojeol The spoken morphological analysis
-must deal with an Eonjeol since no Eojeol boundary
-can be provided in the speech 5 Phonological changes
-can occur in a morpheme between morphemes in an
-Eojeol and even between Eojeols in an Eonjeol These
-changes include consonant and vowel assimilation dis-
-similation insertion deletion and contraction 6 Ko-
-rean has many rising diphthongs that are very similar to
-speech input
-phoneme
-recognition
-phoneme
-latttice
-morphological
-analysis
-analysis
-morpheme
-lattice
-morpheme
-sequence
-syntactic
-structure
-phoneme
-sequence
-Figure 1 The spoken Korean processing engine archi-
-tecture The architecture has two-level interfaces be-
-tween modules phoneme lattice and morpheme lattice
-for ecient and generalized speech and natural lan-
-guage integration
-mono-vowels at signal level Korean has well-developed
-syllable structures and unlike Japanese that has only
-CV1 type syllable Korean has all dierent types such
-as CV VC V CVC Moreover in CVC type syllable
-rst and second consonants are almost same in pronun-
-ciation These signal characteristics make it dicult to
-directly use phonemes or syllables as sub-word recogni-
-tion units
-The SKOPE architecture
-The above spoken Korean characteristics and the rel-
-ative strength and weakness of symbolicconnectionist
-techniques result in the general SKOPE architecture
-which is shown in gure 1 The architecture con-
-sists of three dierent but closely interrelated modules
-phoneme recognition morphological analysis and syn-
-tactic analysis module The phoneme recognition mod-
-ule processes the signal-level information and changes
-it to the symbol-level information phoneme lattice
-The morphological analysis begins the primitive lan-
-guage processing and connects the speech recognition
-to the language processing at the phoneme-level The
-syntactic analysis module nishes the language process-
-ing2 and produces the domain independent syntactic
-structures for application systems The following sub-
-sections briey describe each module
-1C consonant V vowel
-2We believe that the semantic and pragmatic processing
-should be integrated into the domain knowledge for prac-
-tical application under the current NLP technology so we
-excluded the semantic and pragmatic processing from our
-general model
-diphone 
-diphone
-numbers
-diphone 
-examples
-V                   21                        a o wu i u ye 
-C1V              378                       ha sa ka la ma kha 
-VC2              147                       an am eng em wun in 
-C2C1            126                       ngs nn ngt ngh 
-Figure 2 Four dierent Korean diphone types V
-vowel C1 syllable-rst consonant C2 syllable-nal
-consonant
-Diphone-based connectionist phoneme
-recognition
-The phoneme recognition is performed by developing
-the hierarchically organized group of TDNNs time de-
-lay neural networks  Considering the signal char-
-acteristics of the Korean phonemes we dene diphones
-as a new sub-word recognition unit The dened di-
-phones are shown in gure 2 and are classied into four
-dierent types The diphones have the co-articulation
-handling features similar to the popular triphones 
-but are much fewer in numbers
-Figure 3 shows the architecture of the component
-TDNNs in the phoneme recognition module The whole
-module consists of total 19 dierent TDNNs for recog-
-nition of the dened Korean diphones The top-level
-TDNN identies the 18 vowel groups of diphones we re-
-classied the total 672 diphones into 18 dierent groups
-according to the vowels that are contained in the di-
-phones The 18 dierent sub-TDNNs recognize the
-target diphones
-For the training of TDNNs we manually segment the
-digitized speech into 200 msec range which includes
-roughly left-context phoneme target diphone and right
-context phoneme and perform 512 order FFTs and
-16 step mel-scaling 
-to get the lter-bank coe-
-cients Each frame size is 10 msec so 20 frames by
-16 mel-scaling factor values are fed to the TDNNs
-with the proper output symbols that is vowel group
-name or target diphone names After the training of
-each TDNN the phoneme recognition is performed by
-feeding 200 msec signals to the vowel group identica-
-tion network and subsequently to the proper diphone
-recognition network The 200 msec signals are shifted
-by 30 msec steps and continuously fed to the networks
-to process the continuous speech in an Eonjeol From
-the resulting diphone sequences the necessary phoneme
-lattice has to be constructed We use a simple deter-
-ministic decoding heuristics and try to maintain all the
-possible diphone spotting results since the later phono-
-logicalmorphological processing can safely prune the
-incorrect recognitions The decoding begins by group-
-ing the diphones into the same types see gure 2 The
-frequency count for each diphone that is the number
-of specic diphones per 30 msec frame shift is utilized
-a e o ey i cc 
-a an ha sa ka la ma   am 
-20 frames
-20 frames
-Figure 3 a The TDNN architecture for the vowel
-group identication Note the cc group contains no
-vowels
-b The architecture of sub-TDNNs for a
-vowel group The other 17 sub-TDNNs have the same
-architecture but dierent number of output units ac-
-cording to the number of diphones in each of the vowel
-to x the insertion errors by deleting the lower fre-
-quency count diphones and nally the diphones are
-split into the constituent phonemes by merging the
-same phonemes in the neighboring diphones
-Table-driven morphological and
-phonological analysis
-The morphological analysis starts with the phoneme
-lattice The phoneme lattice delivers the alternative
-phonetic transcriptions3 of input speech which must be
-searched by the morphologicalphonological analyzer to
-reconstruct the orthographic morpheme strings The
-conventional morphological analysis procedure  that
-is morpheme segmentation morphotactics modeling
-and orthographic rule or phonological rule modeling
-must be augmented and extended as the followings 1
-The conventional morpheme segmentation is extended
-to deal with the exponential number of phoneme se-
-quences and between-morpheme phonological changes
-during the segmentation 2 the morphotactics model-
-ing is extended to cope with the complex verb and noun-
-endings or postpositions and 3 the orthographic rule
-modeling is combined with the phonological rule mod-
-eling to correctly transform the phonetic transcriptions
-to the orthographic morpheme sequences
-The central part of the morphological analysis lies
-in the dictionary construction In our dictionary each
-3Unlike English the Korean alphabet is truly phonetic
-in the sense that each phoneme is pronounced as it is writ-
-ten That is why we sometimes use phonetic and phonemic
-interchangeably
-phonetic
-transcription
-original
-morpheme
-morphological
-connectivity
-morphological
-connectivity
-phonemic
-connectivity
-ci-wu                 ci-wu                regular verb          regular verb          c sound
-no-change
-l                               l 
-adnominalizing
-verb-ending
-adnominalizing
-verb-ending
-l sound
-no-change
-sswu                  swu                     bound-noun          bound-noun       s sound
-change to ss 
-phonemic
-connectivity
-wu sound
-no-change
-l sound
-no-change
-wu sound
-no-change
-Figure 4 The morpheme-level phonetic dictionary
-ciwu l  swu
-ending position
-1       2        3        4         5            6 
-ciwulswu
-starting
-position
-c      i       wu     l        ss      wu
-Figure 5 Morphological parsing of the phoneme lattice
-from top output morpheme sequence in an Eonjeol
-triangular parsing table input phoneme lattice
-phonetic transcription of single morpheme has a sepa-
-rate dictionary entry Figure 4 shows the unied dic-
-tionary both for speech and language processing called
-morpheme-level phonetic dictionary with three dier-
-ent morpheme entries ci-wu l swu
-The extended morphological analysis is based on the
-well-known tabular parsing technique for context-free
-language  and augmented to handle the Korean
-phonological rules and phoneme-lattice input Figure 5
-shows our extended table-driven morphological anal-
-ysis process The example phoneme lattice was ob-
-tained from the input speech ci-wul-sswu removable
-and the morphological analysis produces ci-wulswu
-removeADNOMINALBOUND-NOUN where 
-is the morpheme boundary and - is the syllable bound-
-The extended morpheme segmentation is basically
-performed using the dictionary search During the left-
-to-right scan of the input phoneme lattice when a mor-
-pheme boundary is found in the lattice the morpheme
-is enrolled in the triangular table in an appropriate po-
-sition For example in gure 5 morphemes such as
-ci-wu l swu etc are enrolled in the table position
-13 44 56 etc The position ij designates
-the starting and ending position of the enrolled mor-
-phemes However since the input is a phoneme-lattice
-total exponential time is required to nd all the possible
-morpheme boundaries To cope with such exponential
-explosion the dictionary is organized as trie structure
- using the phonetic transcriptions as trie indices
-and breadth-rst search of the trie can prune the un-
-necessary phoneme sequences earlier in the search
-The morphotactics modeling is necessary after all
-the morphemes are enrolled in the table in order to
-combine only legal morphemes into an Eojeol Ko-
-rean word and the process is called morpheme-
-connectivity-checking Since Korean has well developed
-postpositions noun-ending verb-ending prenal verb-
-ending which play as grammatical functional mor-
-phemes we must assign each morpheme proper part-of-
-speech POS tags for the ecient connectivity check-
-ing Our more than 200 POS tags which are rened
-from the 13 major Korean lexical categories are hierar-
-chically organized and contained in the dictionary in
-the name of morphological connectivity see gure 4
-In the case of idiomatic expressions we place such id-
-ioms directly in the dictionary for eciency where two
-dierent POS tags are necessary for the left and the
-right morphological connectivity For single morpheme
-the left and the right POS tags are always same The
-separate morpheme-connectivity-matrix indicates the
-legal morpheme combinations and the morphotactics
-modeling is performed using the POS tags in the dic-
-tionary and morpheme-connectivity-matrix
-The orthographic rule modeling must be integrated
-with the phonological rule modeling in spoken language
-processing Since we must deal with the phoneme lat-
-tice the conventional rule-based modeling requires ex-
-ponential number of rule application  So our so-
-lution is based on the declarative modeling of both or-
-thographic and phonological rules in uniform way That
-is in our dictionary the conjugated verb forms as well
-as the original verb forms are enrolled and the same
-morphological connectivity information is applied The
-phonological rule modeling is also accomplished declar-
-atively by having the phonemic connectivity informa-
-tion in the dictionary The phonemic connectivity infor-
-mation for each morpheme declares the possible phone-
-mic changes in the rst left and last right positioned
-phonemes in the morpheme and the separate phoneme-
-connectivity-matrix indicates the legal sound combina-
-tions in Korean phonology For example in gure 5 the
-morpheme l can be combined with the morpheme swu
-during the morpheme connectivity checking even if swu
-is actually pronounced as sswu because the phoneme-
-connectivity-matrix supports the legality of the combi-
-nation of l sound with ss sound4 In this way we can
-declaratively model all the major Korean phonology
-rules such as second consonant standardization con-
-sonant assimilation palatalization glotalization inser-
-tion deletion and contraction
-Table-driven connectionistsymbolic
-syntax analysis
-The phoneme lattice-based morphological analysis pro-
-duces the morphologically analyzed segmented and
-stem reconstructed morpheme sequences Since there
-are usually more than one analysis results due to the
-errors of speech recognition process the outputs are
-usually organized as morpheme lattice For the seam-
-less integration of the morphological analysis with the
-syntax analysis we employ the same table-driven con-
-trol for the syntax analysis as well as the morphological
-analysis
-We extend the category formation and functional
-application rules in the previous categorial unication
-grammar  to deal with the word order variations
-in Korean
- if category a  C then a  C
- if category a  C and category set S  C then aS
- C and aS  C
-where S is an unordered set of categories
- left cancellation ai ba1a2
-    an results in
-ba1 a2     ai1 ai1     an
- right cancellation ba1a2     an ai results in
-ba1 a2     ai1 ai1     an
-The syntax analysis is performed by interactive relax-
-ation spreading activation parsing on the categorial
-grammar where the position of the functional applica-
-tions are controlled by a triangular table The original
-interactive relaxation parsing  was extended to pro-
-vide ecient constituent searching and expectation gen-
-eration through positional information provided by cat-
-egorical grammar and triangular table Figure 6 shows
-table-driven interactive relaxation parsing
-The interactive relaxation process consists of the fol-
-lowing three steps that are repetitively executed 1 add
-nodes 2 spread activation and 3 decay
-add nodes Grammar nodes syntactic categories from
-the dictionary are added for each sense of the
-morphemes when the parsing begins A grammar
-node which has more activation than the predened
-threshold  generates new nodes in the proper po-
-sitions to be discussed shortly The newly gener-
-ated nodes search for the constituents expectations
-which are in the appropriate table positions and are
-of proper function applicable categories For exam-
-ple in gure 6 when npnp22 res it generates
-4This legality comes from the Korean phonology rule
-glotalization one form of consonant dissimilation stating
-that s sound becomes ss sound after l sound
-ending position
-1         2           3           4               5 
-starting
-position
-ssubjobj
-commssubj
-phail       tul         ul            ciwu           ela
-Figure 6 Table-driven interactive relaxation parsing of
-a categorial grammar The input sentence is phai-l-tul-
-ul ciwu-ela delete the les Only single morpheme
-chain and only one sense for each morpheme is shown
-as input for clear illustration The subj obj comm in-
-dicate npsubj npobj scommand respectively The
-table contains only the nodes that participate in the
-nal parse trees
-np12 The generated np12 searches for the con-
-stituents np11 to be combined with npnp22
-spread activation The bottom-up spreading activa-
-tion is as follows
-n    a 
-where predened portion  of total activation a is
-passed upward to the node with activation ai among
-the n parents each with node activation aj In other
-words the node with large activation gets more and
-more activation and it gives an inhibition eects
-without explicit inhibitory links  The top-down
-spreading activation uniformly distributes
-  a
-among the children where  is predened portion of
-the source activation a
-decay The nodes activation is decayed with time The
-node with less constituents than needed gets penal-
-ties plus decays
-a  1  d  Ca
-where a is an activation value d is a decay ratio and
-Ca Cr is the actual and required constituents Af-
-ter the decay the node with less activation than the
-predened threshold  is removed from the table
-The node generation and constituent search positions
-are controlled by the triangular table When the node
-aij acts as an argument it generates node only in
-the position kj where 1  k  j and the generated
-node searches for the constituents functors only in the
-position ki-1 Or when the node is generated in the
-position ik where j  k  numberof morphemes
-it searches for the position j1k for its constituents
-When the node acts as a functor the same position re-
-strictions also apply for the node generation and the ar-
-gument searching The position control combined with
-the interactive relaxation guarantees an ecient lex-
-ically oriented and robust syntax analysis of spoken
-languages
-Implementation and experiments
-The SKOPE was fully implemented in UNIXC plat-
-form and have been extensively tested in practical do-
-mains such as natural language interface to operating
-systems The phoneme recognition module targets 1000
-morpheme continuous speech currently speaker depen-
-dent due to the short of standard speech database for
-Korean The unied morpheme-level phonetic dictio-
-nary has about 1000 morpheme entries and compiled
-into the trie structure The morpheme-connectivity-
-matrix and phoneme-connectivity-matrix are encoded
-with the special Korean POS part-of-speech symbols
-and compressed
-This section demonstrates the SKOPEs performance
-in continuous diphone recognition morphological anal-
-ysis and syntax analysis experiments For the con-
-tinuous diphone recognition experiment we generated
-about 5500 diphone patterns from the 990 Eojeol pat-
-terns 66 Eojeols 15 times pronunciation for the train-
-ing of TDNNs
-In the performance phase the new
-2600 test Eojeol patterns 260 Eojeol 10 times pro-
-nunciation are continuously shifted with 30 msec step
-and generate 7772 test diphone patterns disjoint from
-the training patterns Figure 7-a shows the continu-
-ous diphone recognition performance The correct des-
-ignates that the correct target diphones were spotted
-in the testing position and the delete designates the
-other case The insert designates that the non-target
-diphones were spotted in the testing position To com-
-pare the ability of handling the continuous speech we
-also tested the diphone recognition using the hand-
-segmented test patterns with the same 7772 target di-
-phones Figure 7-b shows the segmented diphone recog-
-nition performance Since the test data are already
-hand-segmented before input there are no insertion and
-deletion errors in this case The fact that the segmented
-speech performance is not much better than the contin-
-uous one 938 vs 934 demonstrates the diphones
-suitability to handling the continuous speech
-For the morphological analysis performance we used
-the same 990 Eojeol patterns to train the phoneme
-recognition module and the 2600 Eojeol patterns to
-test the morphological analysis performance directly
-from the speech input Figure 8 shows the results
-This experiment shows that most of the morphologi-
-cal errors are propagated from the incorrect deleted or
-spurious inserted phoneme recognition results To see
-the original performance of the morphological and syn-
-tactic analysis modules assuming no speech recognition
-a continuous diphones
- total            correct           delete            insert
-7772        7259 934     513 66    3000 386
-pattern size
-rec rate
-b segmented diphones
-vowel group    sub-TDNNs average     total average
-rec rate        948                        982                               938 
-Figure 7 a Continuous diphone recognition versus b
-segmented diphone recognition
-total         correct         deleted        inserted
-number of
-morphemes
-9605        7696
-           1909              7182
- 801        198
-Figure 8 Morphological analysis from continuous
-speech signals The table indicates that among the to-
-tal 9605 morphemes in 2600 Eojeol patterns the 801
-are correctly recognized and analyzed and 198 can-
-not be analyzed for deletion errors The 7182 spurious
-morphemes are also generated due to the speech inser-
-tion errors
-error we articially made the phoneme lattices by mu-
-tating the correctly recognized phoneme sequences ac-
-cording to the phoneme recognizers confusion matrix
-Each phoneme lattice was made to contain at least one
-correct recognition result so the phoneme recognition
-performance is assumed to be perfect except the arti-
-cially made insertion errors mutations In this way
-we made 6 or 7 lattices for each of the 50 sentences
-altogether 330 phoneme lattices The average phoneme
-alternatives per single correct phoneme in the lattice
-are 23 and average sentence length is 31 phonemes
-This means there are average 2331 phoneme chains in
-each lattice The used sentences are natural language
-commands to UNIX  and are fairly complex which
-have one or two embedded sentences or conjunctions
-Figure 9 shows the morphological and syntactic analy-
-sis results for these articially made phoneme lattices
-For the syntactic level interactive relaxation we used
-the following parameters which are experimentally de-
-termined upward propagation portion  005 down-
-ward propagation portion  003 decay ratio d 087
-the node generation threshold  051 and the node
-removal threshold  0066
-The morphological analysis was perfect as shown in
-the table Since the phoneme lattice was made to con-
-tain at least one correct phoneme recognition result
-the morphological analysis must be perfect as long as
-the morpheme is enrolled in the dictionary and the con-
-nectivity information can cover all the morpheme com-
-binations This was possible due to the small number
-of tested sentences 50 sentences This results verify
-approaches to the advanced spoken language process-
-ing model including optimizing TDNN-based phoneme
-recognition module integrating HMM-based morpheme
-recognition module into the connectionist phoneme
-recognition and incorporating probabilistic searches
-into the morphological analysis process as well as the
-syntactic analysis process We are also developing ap-
-plications on top of our SKOPE including speech-to-
-speech translation system and intelligent interface agent
-for UNIX operating system We hope our approach
-could be extended to other agglutinative languages such
-as Japanese Finish and Turkish and also to the lan-
-guages that have complex morphological phenomena
-such as German and Dutch
-Acknowledgments
-This research was supported partly by a grant from
-KOSEF Korea Science and Engineering Foundation
-and PIRL Postech Information Research Laboratory
-The SKOPEs various modules were programmed by
-our students
-the phoneme recognition module by
-Kyunghee Kim  Kyubong Baac the morphological
-analysis module by EunChul Lee  Wonil Lee and -
-nally the syntax analysis module by Wonil Lee
-total sentences             correctly analyzed sentences
-morphological
-syntactic
-1-best
-117 355 
-Figure 9 The morphological and syntactic analysis
-from the articially made phoneme lattices
-that most of the morphological analysis errors from real
-speech input are actually propagated from the phoneme
-recognition errors as discussed before However the
-syntax analysis results are marginal here since we only
-count the single best scored tree and we dont use yet
-any semantic feature in the analysis The syntax anal-
-ysis failures mainly come from 1 the insertion errors
-articial mutations in the phoneme lattices5 which
-result in ambiguous morpheme lattice and nally pro-
-duce redundant syntax trees and 2 the inherent struc-
-tural ambiguities in the sentence These failures should
-be greatly reduced if we generate n-best scored parse
-trees and let the semantic processing module select the
-correct ones as is usually done in most of the probabilis-
-tic parsing schemes
-Conclusions and future works
-This paper explains the design and implementation
-of spoken Korean processing engine which is a con-
-nectionistsymbolic hybrid model of spoken language
-processing by utilizing the linguistic characteristics of
-Korean The SKOPE model demonstrates the syner-
-getic integration of connectionist and symbolic tech-
-niques by considering the relative strength and weak-
-ness of two dierent techniques and also demonstrates
-the phoneme level speech and language integration for
-general morphological processing for agglutinative lan-
-guages Besides the above two major contributions
-the SKOPE architecture has the following unique fea-
-tures in spoken language processing 1 the diphones
-are newly developed as a sub-word recognition unit for
-connectionist Korean speech recognition 2 the mor-
-phological and syntactic analysis are tightly coupled by
-using the uniform table-driven control 3 the phonolog-
-ical and orthographic rules are uniformly co-modeled
-declaratively and 4 the table-driven interactive relax-
-ation parsing and extension of the categorial grammar
-can provide robust handing of word-order variations in
-Korean
-However current implementation of the system still
-suers from excessive continuous speech recognition er-
-rors Since the large vocabulary continuous speech
-recognition is still an open problem we cannot hope
-for the 100 correct speech recognition results in the
-near future Currently we are pursuing multi-strategic
-5Recall we generated average 23 phonemes per single
-correct phoneme
-SKOPE A connectionistsymbolic architecture of spoken Korean
-processing
-Geunbae Lee and Jong-Hyeok Lee
-Department of Computer Science  Engineering
-and Postech Information Research Laboratory
-Pohang University of Science  Technology
-San 31 Hoja-Dong Pohang 790-784 Korea
-gbleevisionpostechackr
-Abstract
-Spoken language processing requires speech and nat-
-ural language integration Moreover spoken Korean
-calls for unique processing methodology due to its lin-
-guistic characteristics This paper presents SKOPE a
-connectionistsymbolic spoken Korean processing en-
-gine which emphasizes that 1 connectionist and sym-
-bolic techniques must be selectively applied accord-
-ing to their relative strength and weakness and 2
-the linguistic characteristics of Korean must be fully
-considered for phoneme recognition speech and lan-
-guage integration and morphologicalsyntactic pro-
-cessing The design and implementation of SKOPE
-demonstrates how connectionistsymbolic hybrid ar-
-chitectures can be constructed for spoken agglutina-
-tive language processing Also SKOPE presents many
-novel ideas for speech and language processing The
-phoneme recognition morphological analysis and syn-
-tactic analysis experiments show that SKOPE is a vi-
-able approach for the spoken Korean processing
-Introduction
-Spoken language processing challenges for integration
-of speech recognition into natural language processing
-and must deal with multi-level knowledge sources from
-signal level to symbol level The multi-level knowledge
-integration and handling increase the technical di-
-culty of both the speech and the natural language pro-
-cessing In the speech recognition side the recognition
-must be at phoneme-level for large vocabulary contin-
-uous speech and the speech recognition module must
-provide right level of outputs to the natural language
-module in the form of not single solution but many
-alternatives of solution hypotheses The n-best list
- word-graph  and word-lattice 
-techniques
-are mostly used in this purpose The speech recogni-
-tion module can also ask the linguistic scores from the
-language processing module in a more tightly coupled
-bottom-uptop-down hybrid integration scheme  In
-the natural language side the insertion deletion and
-substitution errors of continuous speech must be com-
-pensated by robust parsing and partial parsing tech-
-Copyright ccid13 2014 American Association for Articial In-
-telligence wwwaaaiorg All rights reserved
-niques eg  Often the spoken languages are un-
-grammatical fragmentary and contain non-uencies
-and speech repairs and must be processed incremen-
-tally under the time constraints 
-Most of the speech and natural language systems
-which were developed for English and other Indo-
-European languages neglect the morphological process-
-ing and integrate speech and natural language at the
-word level   Often these systems employ a pro-
-nunciation dictionary for speech recognition and inde-
-pendent dictionaries for natural language processing
-However for the agglutinative languages such as Ko-
-rean and Japanese the morphological processing plays
-a major role in the language processing since these lan-
-guages have very complex morphological phenomena
-and relatively simple syntactic functionality Unfortu-
-nately even the Japanese researchers apply degenerated
-morphological techniques for the spoken Japanese pro-
-cessing   Obviously degenerated morphological
-processing limits the usable vocabulary size for the sys-
-tem and word-level dictionary results in exponential
-explosion in the number of dictionary entries For the
-agglutinative languages we need sub-word level inte-
-gration which leaves rooms for general morphological
-processing
-The spoken language processing calls for multi-
-strategic approaches in order to deal with signal level
-as well as symbol
-information in a symbiotic
-and unied way Recent development of connection-
-ist speech recognition  and connectionist natural
-language processing 
-shed lights on the connec-
-tionistsymbolic hybrid models of spoken language pro-
-cessing and some of the researches are already avail-
-able for English and other Indo-European languages 
- We feel that it is the right time to develop con-
-nectionistsymbolic hybrid spoken languages process-
-ing systems for the agglutinative languages such as Ko-
-rean and Japanese
-This paper presents one of the such endeavors
-SKOPE Spoken Korean Processing Engine that has
-the following unique features 1 The connectionist and
-symbolic techniques are selectively used according to
-their strength and weakness The learning capability
-fault-tolerant property and ability of simultaneous inte-
-gration of multiple signal-level sources make the connec-
-tionist techniques suitable to the phoneme recognition
-from the speech signals but the structure manipula-
-tion and powerful matching binding properties of the
-symbolic techniques are the better choices for the com-
-plex morphological processing of Korean However the
-parallel multiple constraint relaxation capability of the
-connectionist techniques are applied together with the
-symbolic structure binding techniques for the syntactic
-processing 2 The linguistic characteristics of Korean
-are fully considered in phoneme recognition speech and
-language integration and morphologicalsyntactic pro-
-cessing 3 The SKOPE provides multi-level applica-
-tion program interfaces APIs which can utilize the
-phoneme-level or the morphological level or the syn-
-tactic level services for the applications such as spoken
-language interface voice information retrieval and spo-
-ken language translation
-We hope the experience of SKOPE development pro-
-vide viable answers to some of the open questions to the
-speech and language processing such as 1 how learning
-and encoding can be synergetically combined in speech
-and language processing 2 which aspects of system
-architecture have to be considered in spoken language
-processing especially in connectionistsymbolic hybrid
-systems and nally 3 what are the most ecient way
-of speech and language integration especially for ag-
-glutinative languages
-Characteristics of spoken Korean
-This section briey explains the linguistic characterists
-of spoken Korean before describing the SKOPE sys-
-tem In this paper Yale romanization is used for rep-
-resenting the Korean phonemes 1 A Korean word
-called Eojeol consists of more than one morphemes
-with clear-cut morpheme boundaries
-2 Korean is
-a postpositional language with many kinds of noun-
-endings verb-endings and prenal verb-endings These
-functional morphemes determine the nouns case roles
-verbs tenses modals and modication relations be-
-tween Eojeols 3 Korean is a basically SOV language
-but has relatively free word order compared to the rigid
-word-order languages such as English except for the
-constraints that the verb must appear in a sentence-
-nal position However in Korean some word-order
-constraints do exist such that the auxiliary verbs repre-
-senting modalities must follow the main verb and the
-modiers must be placed before the word called head
-they modify 4 The unit of pause in speech which is
-called Eonjeol may be dierent from that of a written
-text an Eojeol The spoken morphological analysis
-must deal with an Eonjeol since no Eojeol boundary
-can be provided in the speech 5 Phonological changes
-can occur in a morpheme between morphemes in an
-Eojeol and even between Eojeols in an Eonjeol These
-changes include consonant and vowel assimilation dis-
-similation insertion deletion and contraction 6 Ko-
-rean has many rising diphthongs that are very similar to
-speech input
-phoneme
-recognition
-phoneme
-latttice
-morphological
-analysis
-analysis
-morpheme
-lattice
-morpheme
-sequence
-syntactic
-structure
-phoneme
-sequence
-Figure 1 The spoken Korean processing engine archi-
-tecture The architecture has two-level interfaces be-
-tween modules phoneme lattice and morpheme lattice
-for ecient and generalized speech and natural lan-
-guage integration
-mono-vowels at signal level Korean has well-developed
-syllable structures and unlike Japanese that has only
-CV1 type syllable Korean has all dierent types such
-as CV VC V CVC Moreover in CVC type syllable
-rst and second consonants are almost same in pronun-
-ciation These signal characteristics make it dicult to
-directly use phonemes or syllables as sub-word recogni-
-tion units
-The SKOPE architecture
-The above spoken Korean characteristics and the rel-
-ative strength and weakness of symbolicconnectionist
-techniques result in the general SKOPE architecture
-which is shown in gure 1 The architecture con-
-sists of three dierent but closely interrelated modules
-phoneme recognition morphological analysis and syn-
-tactic analysis module The phoneme recognition mod-
-ule processes the signal-level information and changes
-it to the symbol-level information phoneme lattice
-The morphological analysis begins the primitive lan-
-guage processing and connects the speech recognition
-to the language processing at the phoneme-level The
-syntactic analysis module nishes the language process-
-ing2 and produces the domain independent syntactic
-structures for application systems The following sub-
-sections briey describe each module
-1C consonant V vowel
-2We believe that the semantic and pragmatic processing
-should be integrated into the domain knowledge for prac-
-tical application under the current NLP technology so we
-excluded the semantic and pragmatic processing from our
-general model
-diphone 
-diphone
-numbers
-diphone 
-examples
-V                   21                        a o wu i u ye 
-C1V              378                       ha sa ka la ma kha 
-VC2              147                       an am eng em wun in 
-C2C1            126                       ngs nn ngt ngh 
-Figure 2 Four dierent Korean diphone types V
-vowel C1 syllable-rst consonant C2 syllable-nal
-consonant
-Diphone-based connectionist phoneme
-recognition
-The phoneme recognition is performed by developing
-the hierarchically organized group of TDNNs time de-
-lay neural networks  Considering the signal char-
-acteristics of the Korean phonemes we dene diphones
-as a new sub-word recognition unit The dened di-
-phones are shown in gure 2 and are classied into four
-dierent types The diphones have the co-articulation
-handling features similar to the popular triphones 
-but are much fewer in numbers
-Figure 3 shows the architecture of the component
-TDNNs in the phoneme recognition module The whole
-module consists of total 19 dierent TDNNs for recog-
-nition of the dened Korean diphones The top-level
-TDNN identies the 18 vowel groups of diphones we re-
-classied the total 672 diphones into 18 dierent groups
-according to the vowels that are contained in the di-
-phones The 18 dierent sub-TDNNs recognize the
-target diphones
-For the training of TDNNs we manually segment the
-digitized speech into 200 msec range which includes
-roughly left-context phoneme target diphone and right
-context phoneme and perform 512 order FFTs and
-16 step mel-scaling 
-to get the lter-bank coe-
-cients Each frame size is 10 msec so 20 frames by
-16 mel-scaling factor values are fed to the TDNNs
-with the proper output symbols that is vowel group
-name or target diphone names After the training of
-each TDNN the phoneme recognition is performed by
-feeding 200 msec signals to the vowel group identica-
-tion network and subsequently to the proper diphone
-recognition network The 200 msec signals are shifted
-by 30 msec steps and continuously fed to the networks
-to process the continuous speech in an Eonjeol From
-the resulting diphone sequences the necessary phoneme
-lattice has to be constructed We use a simple deter-
-ministic decoding heuristics and try to maintain all the
-possible diphone spotting results since the later phono-
-logicalmorphological processing can safely prune the
-incorrect recognitions The decoding begins by group-
-ing the diphones into the same types see gure 2 The
-frequency count for each diphone that is the number
-of specic diphones per 30 msec frame shift is utilized
-a e o ey i cc 
-a an ha sa ka la ma   am 
-20 frames
-20 frames
-Figure 3 a The TDNN architecture for the vowel
-group identication Note the cc group contains no
-vowels
-b The architecture of sub-TDNNs for a
-vowel group The other 17 sub-TDNNs have the same
-architecture but dierent number of output units ac-
-cording to the number of diphones in each of the vowel
-to x the insertion errors by deleting the lower fre-
-quency count diphones and nally the diphones are
-split into the constituent phonemes by merging the
-same phonemes in the neighboring diphones
-Table-driven morphological and
-phonological analysis
-The morphological analysis starts with the phoneme
-lattice The phoneme lattice delivers the alternative
-phonetic transcriptions3 of input speech which must be
-searched by the morphologicalphonological analyzer to
-reconstruct the orthographic morpheme strings The
-conventional morphological analysis procedure  that
-is morpheme segmentation morphotactics modeling
-and orthographic rule or phonological rule modeling
-must be augmented and extended as the followings 1
-The conventional morpheme segmentation is extended
-to deal with the exponential number of phoneme se-
-quences and between-morpheme phonological changes
-during the segmentation 2 the morphotactics model-
-ing is extended to cope with the complex verb and noun-
-endings or postpositions and 3 the orthographic rule
-modeling is combined with the phonological rule mod-
-eling to correctly transform the phonetic transcriptions
-to the orthographic morpheme sequences
-The central part of the morphological analysis lies
-in the dictionary construction In our dictionary each
-3Unlike English the Korean alphabet is truly phonetic
-in the sense that each phoneme is pronounced as it is writ-
-ten That is why we sometimes use phonetic and phonemic
-interchangeably
-phonetic
-transcription
-original
-morpheme
-morphological
-connectivity
-morphological
-connectivity
-phonemic
-connectivity
-ci-wu                 ci-wu                regular verb          regular verb          c sound
-no-change
-l                               l 
-adnominalizing
-verb-ending
-adnominalizing
-verb-ending
-l sound
-no-change
-sswu                  swu                     bound-noun          bound-noun       s sound
-change to ss 
-phonemic
-connectivity
-wu sound
-no-change
-l sound
-no-change
-wu sound
-no-change
-Figure 4 The morpheme-level phonetic dictionary
-ciwu l  swu
-ending position
-1       2        3        4         5            6 
-ciwulswu
-starting
-position
-c      i       wu     l        ss      wu
-Figure 5 Morphological parsing of the phoneme lattice
-from top output morpheme sequence in an Eonjeol
-triangular parsing table input phoneme lattice
-phonetic transcription of single morpheme has a sepa-
-rate dictionary entry Figure 4 shows the unied dic-
-tionary both for speech and language processing called
-morpheme-level phonetic dictionary with three dier-
-ent morpheme entries ci-wu l swu
-The extended morphological analysis is based on the
-well-known tabular parsing technique for context-free
-language  and augmented to handle the Korean
-phonological rules and phoneme-lattice input Figure 5
-shows our extended table-driven morphological anal-
-ysis process The example phoneme lattice was ob-
-tained from the input speech ci-wul-sswu removable
-and the morphological analysis produces ci-wulswu
-removeADNOMINALBOUND-NOUN where 
-is the morpheme boundary and - is the syllable bound-
-The extended morpheme segmentation is basically
-performed using the dictionary search During the left-
-to-right scan of the input phoneme lattice when a mor-
-pheme boundary is found in the lattice the morpheme
-is enrolled in the triangular table in an appropriate po-
-sition For example in gure 5 morphemes such as
-ci-wu l swu etc are enrolled in the table position
-13 44 56 etc The position ij designates
-the starting and ending position of the enrolled mor-
-phemes However since the input is a phoneme-lattice
-total exponential time is required to nd all the possible
-morpheme boundaries To cope with such exponential
-explosion the dictionary is organized as trie structure
- using the phonetic transcriptions as trie indices
-and breadth-rst search of the trie can prune the un-
-necessary phoneme sequences earlier in the search
-The morphotactics modeling is necessary after all
-the morphemes are enrolled in the table in order to
-combine only legal morphemes into an Eojeol Ko-
-rean word and the process is called morpheme-
-connectivity-checking Since Korean has well developed
-postpositions noun-ending verb-ending prenal verb-
-ending which play as grammatical functional mor-
-phemes we must assign each morpheme proper part-of-
-speech POS tags for the ecient connectivity check-
-ing Our more than 200 POS tags which are rened
-from the 13 major Korean lexical categories are hierar-
-chically organized and contained in the dictionary in
-the name of morphological connectivity see gure 4
-In the case of idiomatic expressions we place such id-
-ioms directly in the dictionary for eciency where two
-dierent POS tags are necessary for the left and the
-right morphological connectivity For single morpheme
-the left and the right POS tags are always same The
-separate morpheme-connectivity-matrix indicates the
-legal morpheme combinations and the morphotactics
-modeling is performed using the POS tags in the dic-
-tionary and morpheme-connectivity-matrix
-The orthographic rule modeling must be integrated
-with the phonological rule modeling in spoken language
-processing Since we must deal with the phoneme lat-
-tice the conventional rule-based modeling requires ex-
-ponential number of rule application  So our so-
-lution is based on the declarative modeling of both or-
-thographic and phonological rules in uniform way That
-is in our dictionary the conjugated verb forms as well
-as the original verb forms are enrolled and the same
-morphological connectivity information is applied The
-phonological rule modeling is also accomplished declar-
-atively by having the phonemic connectivity informa-
-tion in the dictionary The phonemic connectivity infor-
-mation for each morpheme declares the possible phone-
-mic changes in the rst left and last right positioned
-phonemes in the morpheme and the separate phoneme-
-connectivity-matrix indicates the legal sound combina-
-tions in Korean phonology For example in gure 5 the
-morpheme l can be combined with the morpheme swu
-during the morpheme connectivity checking even if swu
-is actually pronounced as sswu because the phoneme-
-connectivity-matrix supports the legality of the combi-
-nation of l sound with ss sound4 In this way we can
-declaratively model all the major Korean phonology
-rules such as second consonant standardization con-
-sonant assimilation palatalization glotalization inser-
-tion deletion and contraction
-Table-driven connectionistsymbolic
-syntax analysis
-The phoneme lattice-based morphological analysis pro-
-duces the morphologically analyzed segmented and
-stem reconstructed morpheme sequences Since there
-are usually more than one analysis results due to the
-errors of speech recognition process the outputs are
-usually organized as morpheme lattice For the seam-
-less integration of the morphological analysis with the
-syntax analysis we employ the same table-driven con-
-trol for the syntax analysis as well as the morphological
-analysis
-We extend the category formation and functional
-application rules in the previous categorial unication
-grammar  to deal with the word order variations
-in Korean
- if category a  C then a  C
- if category a  C and category set S  C then aS
- C and aS  C
-where S is an unordered set of categories
- left cancellation ai ba1a2
-    an results in
-ba1 a2     ai1 ai1     an
- right cancellation ba1a2     an ai results in
-ba1 a2     ai1 ai1     an
-The syntax analysis is performed by interactive relax-
-ation spreading activation parsing on the categorial
-grammar where the position of the functional applica-
-tions are controlled by a triangular table The original
-interactive relaxation parsing  was extended to pro-
-vide ecient constituent searching and expectation gen-
-eration through positional information provided by cat-
-egorical grammar and triangular table Figure 6 shows
-table-driven interactive relaxation parsing
-The interactive relaxation process consists of the fol-
-lowing three steps that are repetitively executed 1 add
-nodes 2 spread activation and 3 decay
-add nodes Grammar nodes syntactic categories from
-the dictionary are added for each sense of the
-morphemes when the parsing begins A grammar
-node which has more activation than the predened
-threshold  generates new nodes in the proper po-
-sitions to be discussed shortly The newly gener-
-ated nodes search for the constituents expectations
-which are in the appropriate table positions and are
-of proper function applicable categories For exam-
-ple in gure 6 when npnp22 res it generates
-4This legality comes from the Korean phonology rule
-glotalization one form of consonant dissimilation stating
-that s sound becomes ss sound after l sound
-ending position
-1         2           3           4               5 
-starting
-position
-ssubjobj
-commssubj
-phail       tul         ul            ciwu           ela
-Figure 6 Table-driven interactive relaxation parsing of
-a categorial grammar The input sentence is phai-l-tul-
-ul ciwu-ela delete the les Only single morpheme
-chain and only one sense for each morpheme is shown
-as input for clear illustration The subj obj comm in-
-dicate npsubj npobj scommand respectively The
-table contains only the nodes that participate in the
-nal parse trees
-np12 The generated np12 searches for the con-
-stituents np11 to be combined with npnp22
-spread activation The bottom-up spreading activa-
-tion is as follows
-n    a 
-where predened portion  of total activation a is
-passed upward to the node with activation ai among
-the n parents each with node activation aj In other
-words the node with large activation gets more and
-more activation and it gives an inhibition eects
-without explicit inhibitory links  The top-down
-spreading activation uniformly distributes
-  a
-among the children where  is predened portion of
-the source activation a
-decay The nodes activation is decayed with time The
-node with less constituents than needed gets penal-
-ties plus decays
-a  1  d  Ca
-where a is an activation value d is a decay ratio and
-Ca Cr is the actual and required constituents Af-
-ter the decay the node with less activation than the
-predened threshold  is removed from the table
-The node generation and constituent search positions
-are controlled by the triangular table When the node
-aij acts as an argument it generates node only in
-the position kj where 1  k  j and the generated
-node searches for the constituents functors only in the
-position ki-1 Or when the node is generated in the
-position ik where j  k  numberof morphemes
-it searches for the position j1k for its constituents
-When the node acts as a functor the same position re-
-strictions also apply for the node generation and the ar-
-gument searching The position control combined with
-the interactive relaxation guarantees an ecient lex-
-ically oriented and robust syntax analysis of spoken
-languages
-Implementation and experiments
-The SKOPE was fully implemented in UNIXC plat-
-form and have been extensively tested in practical do-
-mains such as natural language interface to operating
-systems The phoneme recognition module targets 1000
-morpheme continuous speech currently speaker depen-
-dent due to the short of standard speech database for
-Korean The unied morpheme-level phonetic dictio-
-nary has about 1000 morpheme entries and compiled
-into the trie structure The morpheme-connectivity-
-matrix and phoneme-connectivity-matrix are encoded
-with the special Korean POS part-of-speech symbols
-and compressed
-This section demonstrates the SKOPEs performance
-in continuous diphone recognition morphological anal-
-ysis and syntax analysis experiments For the con-
-tinuous diphone recognition experiment we generated
-about 5500 diphone patterns from the 990 Eojeol pat-
-terns 66 Eojeols 15 times pronunciation for the train-
-ing of TDNNs
-In the performance phase the new
-2600 test Eojeol patterns 260 Eojeol 10 times pro-
-nunciation are continuously shifted with 30 msec step
-and generate 7772 test diphone patterns disjoint from
-the training patterns Figure 7-a shows the continu-
-ous diphone recognition performance The correct des-
-ignates that the correct target diphones were spotted
-in the testing position and the delete designates the
-other case The insert designates that the non-target
-diphones were spotted in the testing position To com-
-pare the ability of handling the continuous speech we
-also tested the diphone recognition using the hand-
-segmented test patterns with the same 7772 target di-
-phones Figure 7-b shows the segmented diphone recog-
-nition performance Since the test data are already
-hand-segmented before input there are no insertion and
-deletion errors in this case The fact that the segmented
-speech performance is not much better than the contin-
-uous one 938 vs 934 demonstrates the diphones
-suitability to handling the continuous speech
-For the morphological analysis performance we used
-the same 990 Eojeol patterns to train the phoneme
-recognition module and the 2600 Eojeol patterns to
-test the morphological analysis performance directly
-from the speech input Figure 8 shows the results
-This experiment shows that most of the morphologi-
-cal errors are propagated from the incorrect deleted or
-spurious inserted phoneme recognition results To see
-the original performance of the morphological and syn-
-tactic analysis modules assuming no speech recognition
-a continuous diphones
- total            correct           delete            insert
-7772        7259 934     513 66    3000 386
-pattern size
-rec rate
-b segmented diphones
-vowel group    sub-TDNNs average     total average
-rec rate        948                        982                               938 
-Figure 7 a Continuous diphone recognition versus b
-segmented diphone recognition
-total         correct         deleted        inserted
-number of
-morphemes
-9605        7696
-           1909              7182
- 801        198
-Figure 8 Morphological analysis from continuous
-speech signals The table indicates that among the to-
-tal 9605 morphemes in 2600 Eojeol patterns the 801
-are correctly recognized and analyzed and 198 can-
-not be analyzed for deletion errors The 7182 spurious
-morphemes are also generated due to the speech inser-
-tion errors
-error we articially made the phoneme lattices by mu-
-tating the correctly recognized phoneme sequences ac-
-cording to the phoneme recognizers confusion matrix
-Each phoneme lattice was made to contain at least one
-correct recognition result so the phoneme recognition
-performance is assumed to be perfect except the arti-
-cially made insertion errors mutations In this way
-we made 6 or 7 lattices for each of the 50 sentences
-altogether 330 phoneme lattices The average phoneme
-alternatives per single correct phoneme in the lattice
-are 23 and average sentence length is 31 phonemes
-This means there are average 2331 phoneme chains in
-each lattice The used sentences are natural language
-commands to UNIX  and are fairly complex which
-have one or two embedded sentences or conjunctions
-Figure 9 shows the morphological and syntactic analy-
-sis results for these articially made phoneme lattices
-For the syntactic level interactive relaxation we used
-the following parameters which are experimentally de-
-termined upward propagation portion  005 down-
-ward propagation portion  003 decay ratio d 087
-the node generation threshold  051 and the node
-removal threshold  0066
-The morphological analysis was perfect as shown in
-the table Since the phoneme lattice was made to con-
-tain at least one correct phoneme recognition result
-the morphological analysis must be perfect as long as
-the morpheme is enrolled in the dictionary and the con-
-nectivity information can cover all the morpheme com-
-binations This was possible due to the small number
-of tested sentences 50 sentences This results verify
-approaches to the advanced spoken language process-
-ing model including optimizing TDNN-based phoneme
-recognition module integrating HMM-based morpheme
-recognition module into the connectionist phoneme
-recognition and incorporating probabilistic searches
-into the morphological analysis process as well as the
-syntactic analysis process We are also developing ap-
-plications on top of our SKOPE including speech-to-
-speech translation system and intelligent interface agent
-for UNIX operating system We hope our approach
-could be extended to other agglutinative languages such
-as Japanese Finish and Turkish and also to the lan-
-guages that have complex morphological phenomena
-such as German and Dutch
-Acknowledgments
-This research was supported partly by a grant from
-KOSEF Korea Science and Engineering Foundation
-and PIRL Postech Information Research Laboratory
-The SKOPEs various modules were programmed by
-our students
-the phoneme recognition module by
-Kyunghee Kim  Kyubong Baac the morphological
-analysis module by EunChul Lee  Wonil Lee and -
-nally the syntax analysis module by Wonil Lee
-total sentences             correctly analyzed sentences
-morphological
-syntactic
-1-best
-117 355 
-Figure 9 The morphological and syntactic analysis
-from the articially made phoneme lattices
-that most of the morphological analysis errors from real
-speech input are actually propagated from the phoneme
-recognition errors as discussed before However the
-syntax analysis results are marginal here since we only
-count the single best scored tree and we dont use yet
-any semantic feature in the analysis The syntax anal-
-ysis failures mainly come from 1 the insertion errors
-articial mutations in the phoneme lattices5 which
-result in ambiguous morpheme lattice and nally pro-
-duce redundant syntax trees and 2 the inherent struc-
-tural ambiguities in the sentence These failures should
-be greatly reduced if we generate n-best scored parse
-trees and let the semantic processing module select the
-correct ones as is usually done in most of the probabilis-
-tic parsing schemes
-Conclusions and future works
-This paper explains the design and implementation
-of spoken Korean processing engine which is a con-
-nectionistsymbolic hybrid model of spoken language
-processing by utilizing the linguistic characteristics of
-Korean The SKOPE model demonstrates the syner-
-getic integration of connectionist and symbolic tech-
-niques by considering the relative strength and weak-
-ness of two dierent techniques and also demonstrates
-the phoneme level speech and language integration for
-general morphological processing for agglutinative lan-
-guages Besides the above two major contributions
-the SKOPE architecture has the following unique fea-
-tures in spoken language processing 1 the diphones
-are newly developed as a sub-word recognition unit for
-connectionist Korean speech recognition 2 the mor-
-phological and syntactic analysis are tightly coupled by
-using the uniform table-driven control 3 the phonolog-
-ical and orthographic rules are uniformly co-modeled
-declaratively and 4 the table-driven interactive relax-
-ation parsing and extension of the categorial grammar
-can provide robust handing of word-order variations in
-Korean
-However current implementation of the system still
-suers from excessive continuous speech recognition er-
-rors Since the large vocabulary continuous speech
-recognition is still an open problem we cannot hope
-for the 100 correct speech recognition results in the
-near future Currently we are pursuing multi-strategic
-5Recall we generated average 23 phonemes per single
-correct phoneme
+An Eective Membrane Model of the Immunological Synapse
+Subhadip Raychaudhuri1 Arup K Chakraborty123 and Mehran Kardar 4
+1Department of Chemical Engineering
+2Department of Chemistry
+3Material Sciences and Physical Biosciences Divisions
+Lawrence Berkeley National Laboratory
+University of California Berkeley Berkeley CA 94720
+4 Department of Physics
+Massachusetts Institute of Technology
+Cambridge MA 02139
+Dated February 2 2008
+The immunological synapse is a patterned collection of dierent types of receptors and ligands
+that forms in the intercellular junction between T Cells and antigen presenting cells APCs during
+recognition The synapse is implicated in information transfer between cells and is characterized
+by dierent spatial patterns of receptors at dierent stages in the life cycle of T cells We obtain
+a minimalist model that captures this experimentally observed phenomenology A functional RG
+analysis provides further insights
+PACS numbers 8716Dg6460-i
+T lymphocytes T cells are the orchestrators of the adaptive immune response in complex organisms A key event
+during activation of the immune response is T cell recognition of cells that display peptides derived from foreign
+antigens on their surface 1 Recent experiments 2 3 4 5 6 have vividly demonstrated that during this recognition
+process a highly organized pattern of dierent types of receptors and ligands forms in the intercellular junction between
+T cells and antigen presenting cells This recognition motif is several microns in diameter and since it is implicated
+in information transfer between the cells it is called the immunological synapse Formation of a synapse is also
+characteristic of an earlier stage in the life cycle of T cells Immature T cells thymocytes are selected in the thymus
+so that they are not activated by peptides derived from the organism itself 1 In the thymus thymocytes interact
+with cells that display self peptides on their surface Thymocytes that bind strongly are deleted by apoptosis The
+synapses formed during thymocyte selection are distinctly dierent in character 7 8 from those observed during
+mature T cell activation Understanding the mechanisms via which synapses form under dierent circumstances and
+the biological purpose of creating dierent spatial patterns of cell surface receptors are active areas of research In
+addition to the biological signicance an understanding of these issues may also inspire the creation of synthetic
+mimics that could carry out biomimetic recognition tasks which could be useful in applications such as targeted drug
+delivery
+In this letter starting from a model proposed by Qi et al 9 we develop a minimalist model that captures some of
+the essential physics of synapse formation when apposing membranes contain complementary pairs of receptors and
+ligands The model allows us to calculate a phase diagram which delineates the conditions that lead to a transition
+from synaptic patterns characteristic of mature T cells to those observed during thymocyte selection This phase
+diagram may serve as a guide for the design of synthetic analogs
+Consider two membranes containing complementary pairs of receptors and ligands The intramembrane motion of
+receptors and ligands is determined either by diusion or a directed velocity toward the center of the junction 10
+Complementary receptors and ligands can bind to each other if apposed Dierent receptor-ligand complexes have
+dierent topographical size 11 and hence the rate of association depends upon local intermembrane separation
+The receptor-ligand complexes also dissociate at a prescribed rate For the case where there are only two types of
+receptors-ligand pairs TCR-MHCp and LFA1-ICAM1 in the case of the T cell immunological synapse the pertinent
+equations are
+CT M
+ DT2CT  konzCT CM  kof f CT M    V CT 
+ DM2CM  konzCT CM  kof f CT M 
+ DT M cid20CT M 
+ DL2CL  k
+onzCLCI  k
+of f CLI 
+CT M
+CT Mcid21  konzCT CM  kof f CT M 
+onzCLCI  k
+of f CLI 
+ DI2CI  k
+ DLI cid20CLI 
+CLIcid21  k
+onzCLCI  k
+of f CLI 
+Here C represents the concentration of a given molecule and z is the separation of the T cell membrane from the
+APC membrane The abbreviations used for dierent protein molecules are TCR  T MHCp  M TCR-MHCp 
+TM LFA1  L ICAM1  I and LFA1-ICAM1  LI The dierent species diuse with the corresponding diusion
+coecients D V is a directed velocity of TCR due to cytoskeletal motion 10 Since small values of V do not change
+the qualitative physics 12 for simplicity we do not consider this further in this letter The binding and dissociation
+chemical reactions are controlled by the rate constants konz and kof f  The local intermembrane separation z
+evolves according to a time-dependent Ginzburg-Landau equation
+M 1 z
+where M is a phenomenological parameter for the rate at which membrane shapes respond to changes in the free
+2 z2  
+energy F R d2xcid2 
+with deforming the membranes If one of the membranes is supported and undeformed  and  are the surface tension
+and bending rigidity of the free membrane for similar membranes they are half the corresponding parameters for each
+membrane BT M z and BLIz denote respectively the bond energy gained from forming TM and LI complexes for
+a specic intermembrane separation z
+2 2z2  CT M BT M z  CLI BLI zcid3 The rst two terms are due to costs associated
+The time scales associated with large-scale membrane shape changes can be much slower than those associated with
+binding kinetics and protein mobility In such cases for a given membrane shape the local species concentrations are
+related by
+CT M z
+CLI z
+expcid20
+expcid20
+BT M z
+kBT cid21 
+kBT cid21 
+Substituting Eq 3 in Eq 2 obtains the following eective dynamical equation for z
+M 1 z
+ 2z  4z
+CT CM expcid18
+CLCI expcid18
+BT M z
+kBT cid19 B 
+kBT cid19 B 
+BLI z
+T M z
+LI z  
+This corresponds to model A dynamics Eq 2 for the order parameter z with an eective free energy functional
+F Z d2x 
+z2 
+2z2  kBT
+CT CM e
+BT M z
+kB T  kBT
+CLCI e
+BLI z
+kB T  
+The reduction of the full set of equations to one determining the separation z is reminiscent of the elimination of
+counter-ions in constructing the PoissonBoltzmann equation where the concentration of counter-ions is obtained
+from the Boltzmann weight of a potential itself determined self-consistently from the counterion charge prole Here
+z plays the role of the potential while the protein complexes are analogous to the counterions
+Bound receptor-ligand complexes do not favor membrane shape changes that deform the bond from its natural
+length We thus use a harmonic approximation for the functional form of the bond elasticity energy ie Biz 
+i  iz  zi22 with i  1 2 for the two possible complexes9 The maximal bond energies B0
+i can be absorbed
+into KonKof f  and shall be ignored henceforth The natural lengths of receptor-ligand proteins are taken to be those
+appropriate for the T cells z1  zT M  15nm and z2  zLI  42nm 11 13 with corresponding spring constants
+of i given below With this approximation the dynamical Eq 4 takes the form measuring time in units such that
+z cid26Z d2xh 
+z2 
+2z2  V zicid27  
+with an eective potential
+V z  kBT  C 
+1 expn zz12
+for z  0
+1 o  C 
+2 expn zz22
+for z  0
+1  KonKof f CT CM and C 
+In writing Eq 7 we have assumed that 2  kBT  which is appropriate if the curvature of the receptor-ligand
+interaction potential is the same in the bound state and at the activation barrier Other assumptions do not alter the
+qualitative physics The parameters C 
+of f CLCI represent the number of
+complexes TM and LI respectively formed if the intermembrane separation equals the corresponding optimal bond
+separation As depicted in Fig 1 the eective potential has two minima corresponding to the two possible bonds
+Negative separations are prevented by a large energy cost kBT c  1 hard wall in simulations
+Eq 6 was solved numerically by a nite dierence method Initially the upper membrane was assigned a parabolic
+shape in the contact region and the intermembrane distance was kept constant  50nm outside the contact region
+For the membrane parameters we use experimentally determined values 14 of   700kBT m2 and   400kBT 
+and for the bond elasticity we take 1  13nm and 2  5nm 9 Simulations were carried out for various ratios
+of C 
+2  and local concentrations of the TCR-MHCp and LFA1-ICAM1 were obtained from the intermembrane
+separation using Eqs 3
+2  K 
+onK 
+1 C 
+Zero Noise In the absence of noise   0 Eq 6 is a relaxational dynamics toward the minimum of the potential
+V z subject to the imposed boundary conditions For C 
+2 the minimum at zT M is deeper and indeed in the
+numerical simulations a central cluster of TCR-MHCp complex forms quickly in the intercellular contact area As
+the boundary of the contact region is kept at a constant height close to zLI the longer LFA1-ICAM1 moves toward
+the boundary giving rise to a structure very similar to the nal synaptic pattern obtained in the experimental and
+numerical studies 3 9 15 16
+1  C 
+1 is below C 
+When the concentration C 
+2  the global minimum of V z switches to zLI  In this regime the receptor-
+ligand complex LFA1-ICAM1 concentration dominates the entire intercellular junction and no synaptic pattern is
+In the noise-less mean-eld limit the location of the transition between the two patterns is always at
+formed
+1 C 
+2  1 The patterns obtained and the conditions for transitions between them are quite dierent when  is
+nite
+Finite Noise In this case numerical simulations of Eq 6 are performed with a random  with zero mean and
+variance equal to kBT to mimic thermal noise Starting with suciently large values of C 
+2  we again nd
+that TCR-MHCp aggregates at the center of the intercellular junction at long times In Fig 2a a cross section of
+the upper membrane and the associated protein concentrations are shown Very similar synaptic patterns have been
+observed 2 3 4 5 6 for in vivo and in vitro experiments with mature T cells
+1  C 
+For double positive DP thymocytes the TCR concentration is much lower compared to mature T-cells 7 This
+2  fc the mature
+1  When we numerically solve Eq 6 with C 
+experimental fact corresponds to lower values of C 
+1 C 
+  Z   Z1
+ Z   Z2
+FIG 1 The eective potential V z in Eq 7
+FIG 2 Right panel a Structure of a mature synapse TCR-MHCp occupies the central region represented in green
+surrounded by a ring of LFA1-ICAM1 shown in red b Dynamic accumulation of TCR-MHCp green at random places in
+a sea of LFA1-ICAM1 red molecules as observed for thymocytes Left panel Height uctuations corresponding to a and
+b The green zT M  15nm and red zLI  42nm lines are meant to guide the eye
+1 C 
+synapse is never formed Rather we observe see Fig 2b uctuating patterns with eeting clusters of TCR-MHCp
+forming at various locations in a sea of LFA1-ICAM1 Note that this pattern is dierent in character from the one
+observed for C 
+2  1 in the noiseless case Such dynamic patterns have been observed in recent experiments using
+DP thymocytes 7 8 and can be understood using the simple picture of relaxational motion in a potential with
+two minima As we lower the TCR concentration the minimum at z  zT M becomes shallower and eventually the
+minimum near z  zLI corresponds to the global equilibrium However thermal uctuations allow sampling of the
+region near the minimum at z  zT M  This will favor sporadic aggregation of TCR-MHCp at random places As long
+as the barrier between the two minima is not very large such transient uctuations will be frequent
+The eects of thermal uctuations can be estimated by expanding V z to quadratic order around each of its
+minima The total energy cost of a deformation of wavenumber p is given by Eip cid0kBT C 
+Integrating out these Gaussian uctuations yields a free energy per unit area of
+i 2
+i  p2  p4cid1zp2
+ C 
+2Z dp p
+lncid18 kBT C 
+i 2
+i  p2  p4
+cid19 
+The location of the transition between the two classes of patterns can now be estimated from F 
+2  Thermal noise
+enhances the minimum with larger  width because of its larger entropy Hence the more exible bond is formed
+more easily when thermal noise is present 17 Fig 3 shows that the larger the temperature the smaller the value of
+fc This phase diagram could serve as a guide for the design of synthetic systems as it shows how to manipulate
+conditions such that synaptic patterns characteristic of mature T cells or thymocytes are realized
+1  F 
+Self consistency of the above quadratic expansion requires that the extent of the uctuations should be less than
+the corresponding variance of the bond The mean square width of the interface trapped around z  zi is given by
+i Z dp p
+i  p2  p4
+i 2
+kBT C 
+1 range from O10m2 for thymocytes to O100m2 in mature T cells For this range of
+Typical values of C 
+parameters the constant term in the denominator of Eq 9 dominates until it is cut-o by the bending rigidity at
+distances of the order of 1m The overall size of the synapse is of the order of 10m 3 It is then easy to estimate
+the value of the integral and we nd that the ratios W11 and W22 are of the order of 01 While these estimated
+uctuations are smaller than the width of the attractive potentials they are signicant enough to make nonlinear
+corrections to the above quadratic expansion important Thus the phase diagram in Fig 3 using Eq 8 should be
+regarded as an approximation
+thymocytelike
+     synapse
+  mature
+T celllike
+   synapse
+T37 oC
+T27 oC
+FIG 3 Phase diagram projection on the C 
+T  27oC C 
+conjectured as explained in the text
+1 and C 
+2 are measured in units of m2 The dotted portion of the curves for low values of C 
+2 plane for physiological temperature T  37oC and room temperature
+1 -C 
+1 -C 
+When anharmonic corrections are signicant an alternative approach is to employ a functional renormalization
+group RG scheme used 18 19 20 in the context of wetting transitions It consists of the following steps 1
+The uctuating eld zx is divided into two parts corresponding to small wavenumbers 0  p  b and large
+wavenumbers b  p   2 The large wavenumber uctuations b  p   are integrated out to yield a
+coarse grained Hamiltonian and 3 The system is rescaled to new coordinates x  xb and z x  zx The eld
+z does not need to be scaled in two dimensions The second step can only be done approximately and a rst order
+expansion of the potential V z leads to the linear approximation18
+Vbz  LV z  b2Z 
+2b
+expcid20
+z  z 2
+22b cid21 V z 
+The width of the convolution b is
+2b Z 
+p2  p4 
+4 cid202 ln b  lncid18 1  2
+1  2b2cid19cid21 
+Note that  is an irrelevant operator in the RG sense vanishing as b2 under scaling Indeed the second term in the
+above equation can be ignored asymptotically for b  1 but may be important for quantitative comparisons when
+the bending rigidity is large
+Applying Eq 10 to the potential in Eq 7 yields the renormalized potential
+Vbz  b2kBT 
+1C 
+1  2
+zz12
+2  
+2C 
+2  2
+zz22
+2   c erf z  
+The soft wall renormalizes into an error function of width  while the variance of the Gaussian potential is increased
+by 2 Thus the bigger the width of the potential the deeper it gets due to the uctuations as it allows more
+exibility entropy in bond formation For large values of the width  highly uctuating surfaces the location of
+2  fc  21  038 Due to the factor of b2 in Eq 12 the net potential
+the transition point is shifted to C 
+gets stronger under RG and the linear approximation eventually breaks down
+The RG transformation should be extended to a rescaling factor b at which the curvature at the minimum of the
+renormalized potential is such that the resulting uctuations in width are comparatively small Beyond this scale
+a quadratic expansion around the minimum of the eective potential should be valid As demonstrated previously
+typical parameters for the synapse yield a bare potential at which the above criterion is barely satised Thus the
+1 C 
+1 C 
+1 and C 
+1 C 
+linear RG approximation is of limited practical value in this context It may however yield interesting information
+about the global form of the phase diagram as the concentrations C 
+2 are further reduced From the double
+well shape of the potential we anticipate that the overall phase diagram consists of a line of discontinuous transitions
+separating preferences in the synapse for TM or LI bonds This line is located at C 
+2  1 for large concentrations
+and moves to C 
+2  12 at lower concentrations It presumably terminates at an Ising critical point when the
+uctuations in width become of the order of the separation zT M  zLI between the two minima Suciently small
+2 2  pkBT 
+2 should also result in an unbinding transition which is located at C 
+values of C 
+It is thus useful to make a more detailed study of the phase diagram of the model synapse as well as the dynamic
+trajectories as various phase boundaries are approached
+1 and C 
+1 1  C 
+1 A K Abbas A H Lictman and J S Prober Cellular and Molecular Immunology WB Saunders Philadelphia 2000
+2 C R F Monks B A Frieberg H Kupfer N Sciaky and A Kupfer Nature 395 82 1998
+3 A Grakoui S K Bromley C Saumen M M Davis A S Shaw P M Allen and M L Dustin Science 285 221 1999
+4 M F Krummel M D Sjaastad C Wulng and M M Davis Science 289 1349 2000
+5 K H Lee A D Holdorf M L Dustin A C Chan P M Allen and A S Shaw Science 295 1539 2002
+6 S Stoll J Delon T M Brotz and R N Germain Immunity 15 691 2001
+7 E Hailman W R Burack A S Shaw M L Dustin and P M Allen Immunity 16 1 2002
+8 L I Ritchie P J R Ebert L C Wu M F Krummel J T Owen and M M Davis Immunity 16 595 2002
+9 S Qi J T Groves and A K Chakraborty Proc Natl Acad Sci USA 98 6548 2001
+10 C Wulng and M M Davis Science 283 2266 1998
+11 M L Dustin and A S Shaw Science 283 649 1999
+12 Y Hori S Raychaudhuri and A K Chakraborty J Chem Phys 117 9491 2002
+13 D N Garboczi P Ghosh U Utz Q R Fan W E Biddison and D C Wiley Nature 384 134 1996
+14 R Simson E Wallra J Faix J Niewohner G Gerisch and E Sackmann Biphys J 74 514 1998
+15 A K Chakraborty Science STKE 2002 PE10 2002
+16 T R Weikl J T Groves and R Lipowsky Europhys Lett 59 916 2002
+17 H-Y Chen cond-mat0210398 2002
+18 D S Fisher and D A Huse Phys Rev B 32 247 1985
+19 R Lipowsky and M E Fisher Phys Rev Lett 10 2411 1986
+20 R Lipowsky and M E Fisher Phys Rev B 36 2126 1987

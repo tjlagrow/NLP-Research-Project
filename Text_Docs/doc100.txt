@@ -1,835 +1,396 @@
-Fast Statistical Parsing of Noun Phrases
-for Document Indexing
-Chengxiang Zhai
-Laboratory for Computational Linguistics
-Carnegie Mellon University
-Pittsburgh PA 15213
-cz25andrewcmuedu
-Abstract
-Information Retrieval IR is an important
-application area of Natural Language Pro-
-cessing NLP where one encounters the
-genuine challenge of processing large quan-
-tities of unrestricted natural language text
-While much eort has been made to apply
-NLP techniques to IR very few NLP tech-
-niques have been evaluated on a document
-collection larger than several megabytes
-Many NLP techniques are simply not ef-
-cient enough and not robust enough to
-handle a large amount of text This pa-
-per proposes a new probabilistic model for
-noun phrase parsing and reports on the
-application of such a parsing technique to
-enhance document indexing The eective-
-ness of using syntactic phrases provided by
-the parser to supplement single words for
-indexing is evaluated with a 250 megabytes
-document collection The experiments re-
-sults show that supplementing single words
-with syntactic phrases for indexing consis-
-tently and signicantly improves retrieval
-performance
-1 Introduction
-Information Retrieval IR is an increasingly impor-
-tant application area of Natural Language Process-
-ing NLP An IR task can be described as to nd
-from a given document collection a subset of docu-
-ments whose content is relevant to the information
-need of a user as expressed by a query As the doc-
-uments and query are often natural language texts
-an IR task can usually be regarded as a special NLP
-task where the document text and the query text
-need to be processed in order to judge the relevancy
-A general strategy followed by most IR systems is
-to transform documents and the query into certain
-level of representation A query representation can
-then be compared with a document representation
-to decide if the document is relevant to the query In
-practice the level of representation in an IR system
-is quite shallow  often merely a set of word-like
-strings or indexing terms The process to extract in-
-dexing terms from each document in the collection
-is called indexing A query is often subject to simi-
-lar processing and the relevancy is judged based on
-the matching of query terms and document terms
-In most systems weights are assigned to terms to
-indicate how well they can be used to discriminate
-relevant documents from irrelevant ones
-The challenge in applying NLP to IR is to deal
-with a large amount of unrestricted natural lan-
-guage text The NLP techniques used must be very
-ecient and robust since the amount of text in
-the databases accessed is typically measured in gi-
-gabytes
-In the past NLP techniques of dierent
-levels including morphological syntacticsemantic
-and discourse processing were exploited to enhance
-retrieval Smeaton 92 Lewis and Sparck Jones 96
-but were rarely evaluated using collections of docu-
-ments larger than several megabytes Many NLP
-techniques are simply not ecient enough or are
-too labor-intensive to successfully handle a large size
-document set However there are some exceptions
-Evans et al used selective NLP techniques that are
-especially robust and ecient for indexing Evans
-et al 91 Strzalkowski reported a fast and robust
-parser called TTP in Strzalkowski 92 Strzalkowski
-and Vauthey 92 These NLP techniques have been
-successfully used to process quite large collections
-as shown in a series of TREC conference reports by
-the CLARITT M 1 system group and the New York
-University later GENYU group cf for example
-Evans and Leerts 95 Evans et al 96 and Strza-
-lkowski 95 Strzalkowski et al 96 These research
-1CLARIT is a registered trademark of CLARITECH
-Corporation
-eorts demonstrated the feasibility of using selec-
-tive NLP to handle large collections A special NLP
-track emphasizing the evaluation of NLP techniques
-for IR is currently held in the context of TREC Har-
-man 96
-In this paper a fast probabilistic noun phrase
-parser is described The parser can be exploited to
-automatically extract syntactic phrases from a large
-amount of documents for indexing A 250-megabyte
-document set2 is used to evaluate the eectiveness of
-indexing using the phrases extracted by the parser
-The experiments results show that using syntactic
-phrases to supplement single words for indexing im-
-proves the retrieval performance signicantly This
-is quite encouraging compared to earlier experiments
-on phrase indexing The noun phrase parser pro-
-vides the possibility of combining dierent kinds of
-phrases with single words
-The rest of the paper is organized as follows Sec-
-tion 2 discusses document indexing and argues for
-the rationality of using syntactic phrases for index-
-ing Section 3 describes the fast noun phrase parser
-that we use to extract candidate phrases Section 4
-describes how we use a commercial IR system to per-
-form the desired experiments Section 5 reports and
-discusses the experiment results Section 6 summa-
-rizes the conclusions
-2 Phrases for Document Indexing
-In most current IR systems documents are primarily
-indexed by single words sometimes supplemented by
-phrases obtained with statistical approaches such as
-frequency counting of adjacent word pairs However
-single words are often ambiguous and not specic
-enough for accurate discrimination of documents
-For example only using the word bank and ter-
-minology for indexing is not enough to distinguish
-bank terminology from terminology bank More
-specic indexing units are needed Syntactic phrases
-ie phrases with certain syntactic relations are al-
-most always more specic than single words and thus
-are intuitively attractive for indexing For example
-if bank terminology occurs in the document then
-we can use the phrase bank terminology as an ad-
-ditional unit to supplement the single words bank
-and terminology for indexing In this way a query
-with terminology bank will match better with the
-document than one with bank terminology since
-the indexing phrase bank terminology provides ex-
-tra discrimination
-Despite the intuitive rationality of using phrases
-2the Wall Street Journal database in Tipster Disk2
-Harman 96
-for indexing syntactic phrases have been reported
-to show no signicant improvement of retrieval per-
-formance Lewis 91 Belkin and Croft 87 Fagan
-87 Moreover Fagan Fagan 87 found that syn-
-tactic phrases are not superior to simple statistical
-phrases Lewis discussed why the syntactic phrase
-indexing has not worked and concluded that the
-problems with syntactic phrases are for the most
-part statistical Lewis 91 Indeed many perhaps
-most syntactic phrases have very low frequency and
-tend to be over-weighted by the normal weighting
-method However the size of the collection used in
-these early experiments is relatively small We want
-to see if a much larger size of collection will make a
-dierence It is possible that a larger document col-
-lection might increase the frequency of most phrases
-and thus alleviate the problem of low frequency
-We only consider noun phrases and the sub-
-phrases derived from them Specically we want to
-obtain the full modication structure of each noun
-phrase in the documents and query From the view-
-point of NLP the task is noun phrase parsing ie
-the analysis of noun phrase structure When the
-phrases are used only to supplement not replace
-the single words for indexing some parsing errors
-may be tolerable This means that the penalty for
-a parsing error may not be signicant The chal-
-lenge however is to be able to parse gigabytes of
-text in practically feasible time and as accurately
-as possible The previous work taking on this chal-
-lenge includes Evans et al 91 Evans et al 96
-Evans and Zhai 96 Strzalkowski and Carballo 94
-Strzalkowski et al 95 among others Evans et
-exploited the attestedness of subphrases to
-partially reveal the structure of long noun phrases
-Evans et al 91 Evans et al 96 Strzalkowski et
-al adopted a fast Tagged Text Parser TTP to ex-
-tract head modier pairs including those in a noun
-phrase Strzalkowski 92 Strzalkowski and Vauthey
-92 Strzalkowski and Carballo 94 Strzalkowski et
-al 95 In Strzalkowski et al 95 the structure
-of a noun phrase is disambiguated based on certain
-statistical heuristics but there seems to be no ef-
-fort to assign a full structure to every noun phrase
-Furthermore manual eort is needed in constructing
-grammar rules Thus the approach in Strzalkowski
-et al 95 does not address the special need of scal-
-ability and robustness along with speed Evans and
-Zhai explored a hybrid noun phrase analysis method
-and used a quite rich set of phrases for document in-
-dexing Evans and Zhai 96 The indexing method
-was evaluated using the Associated Press newswire
-89 AP89 database in Tipster Disk1 and a general
-improvement of retrieval performance over the in-
-dexing with single words and full noun phrases was
-reported However the phrase extraction system
-as reported in Evans and Zhai 96 is still not fast
-enough to deal with document collections measured
-by gigabytes3
-We propose here a probabilistic model of noun
-phrase parsing A fast statistical noun phrase parser
-has been developed based on the probabilistic model
-The parser works fast and can be scaled up to parse
-gigabytes text within acceptable time4 Our goal
-is to generate dierent kinds of candidate syntactic
-phrases from the structure of a noun phrase so that
-the eectiveness of dierent combinations of phrases
-and single words can be tested
-3 Fast Noun Phrase Parsing
-A fast and robust noun phrase parser is a key to
-the exploration of syntactic phrase indexing Noun
-phrase parsing or noun phrase structure analy-
-sis  also known as compound noun analysis5
-is itself an important research issue in computa-
-tional linguistics and natural language processing
-Long noun phrases especially long compound nouns
-such as information retrieval technique generally
-have ambiguous structures For instance informa-
-tion retrieval technique has two possible structures
-information retrieval technique and informa-
-tion retrieval technique A principal diculty
-in noun phrase structure analysis is to resolve such
-structural ambiguity When a large corpus is avail-
-able which is true for an IR task statistical prefer-
-ence of word combination or word modication can
-be a good clue for such disambiguation As summa-
-rized in Lauer 95 there are two dierent models
-for corpus-based parsing of noun phrases the adja-
-cency model and the dependency model The dier-
-ence between the two models can be illustrated by
-the example compound noun information retrieval
-technique
-In the adjacency model the structure
-would be decided by looking at the adjacency as-
-sociation of information retrieval and retrieval
-technique information retrieval will be grouped
-rst if information retrieval has a stronger as-
-sociation than retrieval technique otherwise re-
-trieval technique will be grouped rst In the de-
-3It was reported to take about 35 hours to process
-20 MB documents
-4With a 133MH DEC alpha workstation it is esti-
-mated to parse at a speed of 4 hoursgigabyte-text or
-8 hoursgigabyte-nps after 20 hours of training with 1
-gigabyte text
-5Strictly speaking however compound noun analysis
-is a special case of noun phrase analysis but the same
-technique can often be used for both
-pendency model however the structure would be
-decided by looking at the dependency between in-
-formation and retrieval ie the tendency for
-information to modify retrieval and the depen-
-dency between information and technique
-information has a stronger dependency associa-
-tion with retrieval than with technique infor-
-mation retrieval will be grouped rst otherwise
-retrieval technique will be grouped rst The ad-
-jacency model dates at least from Marcus 80 and
-has been explored recently in Liberman and Sproat
-92 Pustejovsky et al 93 Resnik and Hearst 93
-Lauer 95 Strzalkowski et al 95 Evans and Zhai
-96 The dependency model has mainly been stud-
-ied in Lauer 94 Evans and Zhai Evans and Zhai
-96 use primarily the adjacency model but the as-
-sociation score also takes into account some degree
-of dependency Lauer Lauer 95 compared the ad-
-jacency model and the dependency model for com-
-pound noun disambiguation and concluded that the
-dependency model provides a substantial advantage
-over the adjacency model
-We now propose a probabilistic model in which the
-dependency structure or the modication structure
-of a noun phrase is treated as hidden similar to
-the tree structure in the probabilistic context-free
-grammar Jelinek et al 90 The basic idea is as
-follows
-A noun phrase can be assumed to be generated
-from a word modication structure ie a depen-
-dency structure Since noun phrases with more
-than two words are structurally ambiguous if we
-only observe the noun phrase then the actual struc-
-ture that generates the noun phrase is hidden We
-treat the noun phrases with their possible structures
-as the complete data and the noun phrases occur-
-ring in the corpus without the structures as the
-observed incomplete data In the training phase an
-Expectation Maximization EM algorithm Demp-
-ster et al 77 can be used to estimate the parame-
-ters of word modication probabilities by iteratively
-maximizing the conditional expectation of the likeli-
-hood of the complete data given the observed incom-
-plete data and a previous estimate of the parameters
-In the parsing phase a noun phrase is assigned the
-structure that has the maximum conditional proba-
-bility given the noun phrase
-Formally assume that each noun phrase is gener-
-ated using a word modication structure For exam-
-ple information retrieval technique may be gener-
-ated using either the structure X1X2X3 or the
-structure X1X2X3 The log likelihood of gen-
-erating a noun phrase given the set of noun phrases
-observed in a corpus N P  npi can be written as
- 1
-cnpi X
-Pnsjnpicu v npi sj
-L  X
-cnpilog X
-Pnpi sj
-npi N P
-sj S
-Pn1sk
-npiN P
-sj S
-where S is the set of all the possible modication
-structures cnpi is the count of the noun phrase npi
-in the corpus and Pnpi sj gives the probability of
-deriving the noun phrase npi using the modication
-structure sj
-With the simplication that generating a noun
-phrase from a modication structure is the same as
-generating all the corresponding word modication
-pairs in the noun phrase and with the assumption
-that each word modication pair in the noun phrase
-is generated independently Pnpi sj can further
-be written as
-Pnpi sj  Psj Y
-Pu vcuvnpisj 
- 1
-cnpiPnsknpi
-npiN P
-where 1 and 2 are the Lagrange multipliers cor-
-responding to the two constraints mentioned above
-and are given by the following formulas
-1  X
-cnpi X
-uvW P
-npi N P
-sj S
-Pnsjnpicu v npi sj
-2  X
-sk S
-npiN P
-cnpiPnsknpi
-where W P is the set of all possible word pairs
-uvMnpisj 
-Pnsj npi can be computed as
-where M npi sj is the set of all word pairs u v
-in npi such that u modies ie depends on v ac-
-cording to sj6
-cu v npi sj is the count of the
-modication pairs u v being generated when npi
-is derived from sj Psj is the probability of struc-
-ture sj while Pu v is the probability of generat-
-ing the word pair u v given any word modica-
-tion relation Psj and Pu v are subject to the
-constraint of summing up to 1 over all modication
-structures and over all possible word combinations
-respectively7
-The model is clearly a special case of the class of
-the algebraic language models in which the proba-
-bilities are expressed as polynomials in the param-
-etersLaerty 95 For such models the M-step in
-the EM algorithm can be carried out exactly and
-the parameter update formulas are
-Pn1u v
-6For example if npi is information retrieval tech-
-is X1X2X3 then M npi sj 
-nique and sj
-inf ormation retrieval retrieval technique
-7One problem with such simplication is that the
-model may generate a set of word modication pairs that
-do not form a noun phrase although such illegal noun
-phrases are never observed A better model would be
-to write the probability of each word modication pair
-as the conditional probability of the modier ie the
-modifying word given the head ie the word being
-modied That is
-Pnpi sj  
-PsjPhnpisj Y
-Puvcuvnpisj 
-uvM npisj 
-Pnsjnpi
-Pnnpi sj
-Pnnpi
-Pnnpi sj
-Psk S Pnnpi sk
-Pnsj QuvM npisj  Pnu vcuvnpisj 
-Psk SPnsk QuvM npisk  Pnu vcuvnpisk
-The EM algorithm ensures that Ln1 is greater
-than Ln In other words every step of parameter
-update increases the likelihood Thus at the time of
-training the parser can rst randomly initialize the
-parameters and then iteratively update the param-
-eters according to the update formulas until the in-
-crease of the likelihood is smaller than some pre-set
-threshold8 In the implementation described here
-the maximum length of any noun phrase is limited
-to six In practice this is not a very tight limit since
-simple noun phrases with more than six words are
-quite rare Summing over all the possible structures
-for any noun phrase is computed by enumerating all
-the possible structures with an equal length as the
-noun phrase For example in the case of a three-
-word noun phrase only two structures need to be
-enumerated
-At the time of parsing noun phrases the structure
-of any noun phrase np Snp is determined by
-Snp  argmaxsP snp
- argmaxsP npsP s
- argmaxs Y
-uvMnps
-P u vP s
-where hnpi is the head ie the last word of the noun
-phrase npiLaerty 96
-8For the experiments reported in this paper the
-threshold is 2
-We found that the parameters may easily be bi-
-ased owing to data sparseness For example the
-modication structure parameters naturally prefer
-left association to right association in the case of
-three-word noun phrases when the data is sparse
-Such bias in the parameters of the modication
-structure probability will be propagated to the word
-modication parameters when the parameters are
-iteratively updated using EM algorithm In the ex-
-periments reported in this paper an over-simplied
-solution is adopted We simply xed the modica-
-tion structure parameter and assumed every depen-
-dency structure is equally likely
-Fast training is achieved by reading all the noun
-phrase instances into memory9 This forces us to
-split the whole noun phrase corpus into small chunks
-for training
-In the experiments reported in this
-paper we split the corpus into chunks of a size of
-around 4 megabytes Each chunk has about 170000
-or about 100000 unique raw multiple word noun
-phrases The parameters estimated on each sub-
-corpus are then merged averaged We do not know
-how much the merging of parameters aects the pa-
-rameter estimation but it seems that a majority of
-phrases are correctly parsed with the merged param-
-eter estimation based on a rough check of the pars-
-ing results With this approach it takes a 133-MHz
-DEC Alpha workstation about 5 hours to train the
-parser over the noun phrases from a 250-megabyte
-text corpus Parsing is much faster taking less than
-1 hour to parse all noun phrases in the corpus of
-a 250-megabyte text The parsing speed can be
-scaled up to gigabytes of text even when the parser
-needs to be re-trained over the noun phrases in the
-whole corpus However the speed has not taken into
-account the time required for extracting the noun
-phrases for training In the experiments described
-in the following section the CLARIT noun phrase
-extractor is used to extract all the noun phrases from
-the 250-megabyte text corpus
-After the training on each chunk the estimation
-of the parameter of word modications is smoothed
-to account for the unseen word modication pairs
-Smoothing is made by dropping a certain number
-of parameters that have the least probabilities tak-
-ing out the probabilities of the dropped parameters
-and evenly distributing these probabilities among
-all the unseen word pairs as well as those pairs of
-the dropped parameters It is unnecessary to keep
-the dropped parameters after smoothing thus this
-method of smoothing helps reduce the memory over-
-9An alternative way would be to keep the corpus in
-In this way it is not necessary to split the
-the disk
-corpus unless it is extremely large
-load when merging parameters In the experiments
-reported in the paper nearly half of the total num-
-ber of word pairs seen in the training chunk were
-dropped Since word pairs with the least probabil-
-ities generally occur quite rarely in the corpus and
-usually represent semantically illegal word combina-
-tions dropping such word pairs does not aect the
-parsing output so signicantly as it seems In fact it
-may not aect the parsing decisions for the majority
-of noun phrases in the corpus at all
-The potential parameter space for the probabilis-
-tic model can be extremely large when the size of
-the training corpus is getting larger One solution
-to this problem is to use a class-based model similar
-to the one proposed in Brown et al 92 or use pa-
-rameters of conceptual association rather than word
-association as discussed in Lauer 94Lauer 95
-4 Experiment Design
-We used the CLARIT commercial retrieval system
-as a retrieval engine to test the eectiveness of dier-
-ent indexing sets The CLARIT system uses the vec-
-tor space retrieval modelSalton and McGill 83 in
-which documents and the query are all represented
-by a vector of weighted terms either single words or
-phrases and the relevancy judgment is based on the
-similarity measured by the cosine measure between
-the query vector and any document vectorEvans et
-al 93 Evans and Leerts 95 Evans et al 96 The
-experiment procedure is described by Figure 1
-First the original database is parsed to form dif-
-ferent sets of indexing terms say using dierent
-combination of phrases Then each indexing set is
-passed to the CLARIT retrieval engine as a source
-document set The CLARIT system is congured to
-accept the indexing set we passed as is to ensure that
-the actual indexing terms used inside the CLARIT
-system are exactly those generated
-generate
-is possible
-three dierent
-kindslevels of indexing units from a noun phrase
-1 single words 2 head modier pairs ie any
-word pair in the noun phrase that has a linguis-
-tic modication relation and 3 the full noun
-phrase For example from the phrase structure
-heavyconstructionindustrygroup a real
-example from WSJ90 it is possible to generate the
-following candidate terms
-SINGLE WORDs
-heavy construction industry group
-HEAD MODIFIERS
-construction industry industry group
-heavy construction
-FULL NP
-Original Document Set
-CLARIT NP Extractor
-Raw Noun Phrases
-Statistical NP Parser
-Phrase Extractor
-Indexing Term Set
-CLARIT Retrieval Engine
-Figure 1 Phrase indexing experiment procedure
-heavy construction industry group
-Dierent combinations of the three kinds of terms
-can be selected for indexing In particular the in-
-dexing set formed solely of single words is used as a
-baseline to test the eect of using phrases In the ex-
-periments reported here we generated four dierent
-combinations of phrases
--- WD-SET
-single word only no phrases baseline
--- WD-HM-SET
-single word  head modifier pair
--- WD-NP-SET
-single word  full NP
--- WD-HM-NP-SET
-single word  head modifier  full NP
-The results from these dierent phrase sets are
-discussed in the next section
-5 Results analysis
-We used as our document set the Wall Street Jour-
-nal database in Tipster Disk2 Harman 96 the size
-of which is about 250 megabytes We performed
-the experiments by using the TREC-5 ad hoc topics
-ie TREC topics 251-300 Each run involves an
-automatic feedback with the top 10 documents re-
-turned from the initial retrieval The CLARIT au-
-tomatic feedback is performed by adding terms from
-a query-specic thesaurus extracted from the top N
-documents returned from the initial retrievalEvans
-and Leerts 95 The results are evaluated using
-the standard measures of recall and precision Re-
-call measures how many of the relevant documents
-have actually been retrieved Precision measures
-how many of the retrieved documents are indeed rel-
-evant They are calculated by the following simple
-formulas
-Recall 
-number of relevant items retrieved
-total number of relevant items in collection
-P recision 
-number of relevant items retrieved
-total number of items retrieved
-We used the standard TREC evaluation package
-provided by Cornell University and used the judged-
-relevant documents from the TREC evaluations as
-the gold standardHarman 94
-In Table 1 we give a summary of the results and
-compare the three phrase combination runs with the
-corresponding baseline run In the table Ret-rel
-means retrieved-relevant and refers to the total
-number of relevant documents retrieved Init Prec
-means initial precision and refers to the highest
-level of precision over all the points of recall Avg
-Prec means average precision and is the average
-of all the precision values computed after each new
-relevant document is retrieved
-It is clear that phrases help both recall and pre-
-cision when supplementing single words as can be
-seen from the improvement of all phrase runs WD-
-HM-SET WD-NP-SET WD-HM-NP-SET over
-the single word run WD-SET
-Recall Ret-Rel
-Init Prec
-Avg Prec
-Experiments
-WD-HM-SET
-inc over WD-SET
-WD-NP-SET
-inc over WD-SET
-WD-HM-NP-SET
-inc over WD-SET
-056597
-060 638 
-058613
-063666
-Total relevant documents 1064
-Table 1 Eects of Phrases with feedback and
-TREC-5 topics
-It can also be seen that when only one kind of
-phrase either the full NPs or the head modiers is
-used to supplement the single words each can lead
-to a great improvement in precision However when
-we combine the two kinds of phrases the eect is a
-greater improvement in recall rather than precision
-The fact that each kind of phrase can improve pre-
-cision signicantly when used separately shows that
-these phrases are indeed very useful for indexing
-The combination of phrases results in only a smaller
-precision improvement but causes a much greater
-increase in recall This may indicate that more ex-
-periments are needed to understand how to combine
-and weight dierent phrases eectively
-The same parsing method has also been used
-to generate phrases from the same data for the
-CLARIT NLP track experiments in TREC-5Zhai
-et al 97 and similar results were obtained al-
-though the WD-NP-SET was not tested The results
-in Zhai et al 97 are not identical to the results
-here because they are based on two separate train-
-ing processes It is possible that dierent training
-processes may result in slightly dierent parameter
-estimations because the corpus is arbitrarily seg-
-mented into chunks of only roughly 4 megabytes for
-training and the chunks actually used in dierent
-training processes may vary slightly
-6 Conclusions
-Information retrieval provides a good way to quanti-
-tatively although indirectly evaluate various NLP
-techniques We explored the application of a fast
-statistical noun phrase parser to enhance document
-indexing in information retrieval We proposed a
-new probabilistic model for noun phrase parsing and
-developed a fast noun phrase parser that can han-
-dle relatively large amounts of text eciently The
-eectiveness of enhancing document indexing with
-the syntactic phrases provided by the noun phrase
-parser was evaluated on the Wall Street Journal
-database in Tipster Disk2 using 50 TREC-5 ad hoc
-topics Experiment results on this 250-megabyte
-document collection have shown that using dier-
-ent kinds of syntactic phrases provided by the noun
-phrase parser to supplement single words for index-
-ing can signicantly improve the retrieval perfor-
-mance which is more encouraging than many early
-experiments on syntactic phrase indexing Thus us-
-ing selective NLP such as the noun phrase parsing
-technique we proposed is not only feasible for use in
-information retrieval but also eective in enhancing
-the retrieval performance10
-There are two lines of future work
-First the results from information retrieval ex-
-periments often show variances on dierent kinds
-of document collections and dierent sizes of collec-
-tions It is thus desirable to test the noun phrase
-parsing technique in other and larger collections
-10Whether such syntactic phrases are more eective
-than simple statistical phrases eg high frequency word
-bigrams remains to be tested
-More experiments and analyses are also needed to
-better understand how to more eectively combine
-dierent phrases with single words In addition it
-is very important to study how such phrase eects
-interact with other useful IR techniques such as rel-
-evancy feedback query expansion and term weight-
-Second it is desirable to study how the parsing
-quality eg in terms of the ratio of phrases parsed
-correctly would aect the retrieval performance It
-is very interesting to try the conditional probabil-
-ity model as mentioned in a footnote in section 3
-The improvement of the probabilistic model of noun
-phrase parsing may result in phrases of higher qual-
-ity than the phrases produced by the current noun
-phrase parser
-Intuitively the use of higher qual-
-ity phrases might enhance document indexing more
-eectively but this again needs to be tested
-7 Acknowledgments
-The author is especially grateful to David A Evans
-for his advising and supporting of this work Thanks
-are also due to John Laerty Natasa Milic-Frayling
-Xiang Tong and two anonymous reviewers for their
-useful comments Naturally the author alone is re-
-sponsible for all the errors
-References
-Belkin and Croft 87 Belkin N and Croft B
-1987 Retrieval techniques In Williams Martha
-EEd Annual Review of Information Science
-Technology Vol 22 Amsterdam NL Elsevier Sci-
-ence Publishers 1987 110145
-Brown et al 92 Brown P et al 1992 Class-based
-n-gram models of natural
-language Computa-
-tional Linguistics 184 December 1992 467
-Dempster et al 77 Dempster A P et al 1977
-Maximum likelihood from incomplete data via the
-EM algorithm Journal of the Royal Statistical So-
-ciety 39 B 1977 138
-Evans et al 91 Evans D A Ginther-Webster K
- Hart M Leerts R Monarch I 1991 Au-
-tomatic indexing using selective NLP and rst-
-order thesauri In A Lichnerowicz ed Intel-
-ligent Text and Image Handling Proceedings of a
-Conference RIAO 91  Amsterdam NL Elsevier
-1991 pp 624644
-Evans et al 93 Evans D A Leerts R G
-Grefenstette G Handerson S H Hersh W
-R and Archbold A A 1993 CLARIT TREC
-design experiments and results In Donna K
-Harman ed The First Text REtrieval Confer-
-ence TREC-1 NIST Special Publication 500-
-207 Washington DC US Government Printing
-Oce 1993 pp 251286 494501
-Lewis 91 Lewis D 1991 Representation and Learn-
-ing in Information Retrieval PhD thesis COINS
-Technical Report 91-93 Univ of Massachusetts
-Evans and Leerts 95 Evans David A and Lef-
-ferts Robert G 1995 CLARITTREC experi-
-ments Information Processing and Management
-Vol 31 No 3 1995 385395
-Lewis and Sparck Jones 96 Lewis D and Sparck
-Jones K 1996 Applications of natural language
-processing in information retrieval Communica-
-tions of ACM Vol 39 No 1 1996 92101
-Evans et al 96 Evans D Milic-Frayling N and
-Leerts R 1996 CLARIT TREC-4 Experiments
-in Donna K Harman Ed The Fourth Text RE-
-trieval Conference TREC-4 NIST Special Pub-
-lication 500-236 Washington DC US Govern-
-ment Printing Oce 1996 pp 305321
-Evans and Zhai 96 Evans D and Zhai C 1996
-Noun-phrase analysis in unrestricted text for in-
-formation retrieval Proceedings of the 34th An-
-nual meeting of Association for Computational
-Linguistics Santa Cruz University of California
-June 24-28 1996 1724
-Fagan 87 Fagan Joel L 1987 Experiments in Auto-
-matic Phrase Indexing for Document Retrieval A
-Comparison of Syntactic and Non-syntactic meth-
-ods PhD thesis Dept of Computer Science Cor-
-nell University Sept 1987
-Harman 94 Harman D 1994 The Second Text RE-
-trieval Conference TREC-2 NIST Special pub-
-lication 500-215 National Institute of Standards
-and Technology 1994
-Harman 96 Harman D 1996 TREC 5 Conference
-Notes Nov 20-22 1996
-Jelinek et al 90 Jelinek F Laerty JD and
-Mercer R L 1990 Basic methods of probabilistic
-context free grammars Yorktown HeightsNY
-IBM TJ Watson Research Center 1990 Re-
-search report RC 16374
-Laerty 95 Laerty J 1995 Notes on the EM Algo-
-rithm Information Theory course notes Carnegie
-Mellon University
-Laerty 96 Laerty J 1996 Personal Communica-
-Lauer 94 Lauer Mark 1994 Conceptual associa-
-tion for compound noun analysis Proceedings of
-the 32nd Annual Meeting of the Association for
-Computational Linguistics Student Session Las
-Cruces NM 1994 337339
-Lauer 95 Lauer Mark 1995 Corpus statistics meet
-with the noun compound Some empirical results
-Proceedings of the 33th Annual Meeting of the As-
-sociation for Computational Linguistics 1995
-Liberman and Sproat 92 Liberman M and Sproat
-R 1992 The stress and structure of modied noun
-phrases in English In Sag I and Szabolcsi A
-Eds Lexical Matters CSLI Lecture Notes No
-24 University of Chicago Press 1992 131181
-Marcus 80 Marcus Mitchell 1980 A Theory of
-Syntactic Rec ognition for Natural Language MIT
-Press Cambridge MA 1980
-Pustejovsky et al 93 Pustejovsky J Bergler S
-and Anick P 1993 Lexical semantic techniques
-for corpus analysis In Computational Linguis-
-tics Vol 19 2 Special Issue on Using Large Cor-
-pora II 1993 331358
-Resnik and Hearst 93 Resnik P and Hearst M
-1993 Structural ambiguity and conceptual rela-
-tions In Proceedings of the Workshop on Very
-Large Corpora Academic and Industrial Perspec-
-tives June 22 1993 Ohio State Un iversity 58-64
-Salton and McGill 83 Salton G and McGill M
-1983 Introduction to Modern Information Re-
-trieval New York NY McGraw-Hill 1983
-Smeaton 92 Smeaton Alan F 1992 Progress in ap-
-plication of natural language processing to infor-
-mation retrieval The Computer Journal  Vol 35
-No 3 1992 268278
-Strzalkowski 92 Strzalkowski T 1992 TTP A fast
-and robust parser for natural language processing
-Proceedings of the 14th International Conference
-on Computational Linguistics COLINGNantes
-France July 1992 198204
-Strzalkowski and Vauthey 92 Strzalkowski T and
-Vauthey B 1992 Information retrieval using ro-
-bust natural language processing Proceedings of
-the 30th ACL Meeting Neward DE June-July
-1992 104111
-Strzalkowski and Carballo 94 Strzalkowski T and
-Carballo J 1994 Recent developments in natu-
-ral language text retrieval In Harman D Ed
-The Second Text REtrieval Conference TREC-
-2 NIST Special Publication 500-215 1994 123
-Strzalkowski 95 Strzalkowski T 1995 Natural lan-
-guage information retrieval Information Process-
-ing and Management Vol 31 No 3 1995 397-
-Strzalkowski et al 95 Strzalkowski T et al 1995
-Natural language information retrieval TREC-3
-report In Harman D Ed The Third Text RE-
-trieval Conference TREC-3 NIST Special Pub-
-lication 500-225 1995 3953
-Strzalkowski et al 96 Strzalkowski T et al 1996
-Natural language information retrieval TREC-4
-report In Harman D Ed The Fourth Text
-REtrieval Conference TREC-4 NIST Special
-Publication 500-236 Washington DC US Gov-
-ernment Printing Oce 1996 pp 245258
-Zhai et al 97 Zhai C Tong X Milic-Frayling N
-and Evans D 1997 Evaluation of syntactic phrase
-indexing  CLARIT TREC5 NLP track report
-to appear in The Fifth Text REtrieval Conference
-TREC-5 NIST special publication 1997 forth-
-coming
+Physical Sciences Chemistry 
+Carbon Nanotubes as Multifunctional Biological Transporters and Near 
+Infrared Agents For Selective Cancer Cell Destruction 
+Nadine Wong Shi Kam 1 Michael OConnell 1 Jeffrey A Wisdom2 Hongjie Dai1 
+1Department of Chemistry and Laboratory for Advanced Materials Stanford University 
+Stanford CA 94305 USA 
+2 Department of Applied Physics Stanford University Stanford CA 94305 USA 
+ Correspondence to hdaistanfordedu 
+Tel 650-723-4518 
+Fax 650-725-0259 
+Manuscript Information 16 pages of text and 5 figures 
+Abstract 160 words 
+Manuscript 24528 characters 
+Abstract 
+Biological systems are known to be highly transparent to 700-1100nm near-infrared 
+NIR light  It is shown here that the strong optical absorbance of single-walled carbon 
+nanotubes SWNTs in this special spectral window an intrinsic property of SWNTs can 
+be utilized for optical stimulation of nanotubes inside living cells to afford 
+multifunctional nanotube biological transporters  For oligonucleotides transported inside 
+living cells by nanotubes the oligos can translocate into cell nucleus upon endosomal 
+rupture triggered by NIR laser pulses Continuous NIR radiation can cause cell death due 
+to excessive local heating of SWNT in vitro  Selective cancer cell destruction can be 
+achieved via functionalization of SWNT with a folate moiety selective internalization of 
+SWNTs inside cells labeled with folate receptor tumor-markers and NIR triggered cell 
+death without harming receptor-free normal cells  Thus the transporting capabilities of 
+carbon nanotubes combined with suitable functionalization chemistry and their intrinsic 
+optical properties can lead to new classes of novel nanomaterials for drug delivery and 
+cancer therapy 
+Introduction 
+The introduction and delivery of DNA proteins or drug molecules into living 
+cells is important to therapeutics 1  Inorganic nanomaterials including nanocrystals 
+nanotubes and nanowires exhibit advanced physical properties promising for various 
+biological applications 2-6 including new molecular transporters  Single-walled carbon 
+nanotubes SWNTs have been shown to shuttle various cargos across cellular membrane 
+without cytotoxicity 7-9  Much remains to be done to exploit the intrinsic physical 
+properties of SWNTs 10 and thus impart unique features to nanotube bio-carriers  
+Here we show that while biological systems are transparent to 700-1100nm near-infrared 
+NIR light 11 the strong absorbance of SWNTs in this window 12 can be utilized for 
+optical stimulation of nanotubes inside living cells to afford various useful functions  For 
+oligonucleotides transported inside cells by nanotubes the oligos can translocate into cell 
+nucleus upon endosomal rupture triggered by NIR laser pulses Continuous NIR radiation 
+can cause cell death due to excessive local heating of SWNT in vitro Selective cell 
+destruction can be achieved via functionalization of SWNT with a folate moiety targeted 
+internalization of SWNTs inside cells labeled with folate receptor tumor-markers 13 
+and NIR triggered cell death without harming receptor-free normal cells The intrinsic 
+physical properties of SWNTs can thus be exploited to afford new types of biological 
+transporters with useful functionalities 
+Materials and Methods 
+Water Soluble Cy3-DNA-SWNT Conjugates and Characterization  As-grown Hipco 
+14 SWNTs were mixed with a 20 M aqueous solution of Cy3 labeled single-stranded 
+DNA and the initial concentration of SWNTs was  250 mgL  The DNA sequence was 
+TGGACAAGTGGAATGX where X denoted the fluorescent label Cy3 and was 
+purchased from the PANfacility at Stanford University  The nanotubes and DNA 
+solution were sonicated for  45 min to 1 hr and centrifuged at 22 000 g for  6 hrs  
+The pellet comprising of impurities aggregates and bundles of nanotubes at the bottom of 
+the centrifuge tube was discarded and the supernatant was collected and underwent an 
+additional centrifugation round The resulting supernatant consisted of a solution of 
+SWNT functionalized by Cy3-DNA via non-covalent adsorption 15  The solubilized 
+SWNTs were mostly individual tubes few bundles as revealed by spectroscopy and 
+microscopy using a Cary 6000i UV-VIS-NIR spectrophotometer and atomic force 
+microscopy AFM respectively  The SWNT concentration in the solution after this 
+process was estimated to be  25mgL 10 of the starting nanotube suspension  
+Samples for AFM analysis were prepared by depositing  50 L of the SWNT 
+suspension on a SiO2 substrate and allowed to stand for 45 min  The substrate was then 
+thoroughly rinsed with distilled water and dried with a N2 stream   
+SWNTs Functionalized by Various Phospholipids PL   
+PL with a PEG moiety and Folic Acid Terminal Group PL-PEG-FA  35 mM of 
+folic acid FA Aldrich and 5 mM of 1-ethyl-3-3-dimethylamino-propyl carbodiimide 
+EDC  Fluka  were  added  to  a  solution  of  035mM  NH2-PEG-PL  2-Distearoyl-sn-
+Glycero-3-Phosphoethanolamine-N-AminoPolyethylene  Glycol2000  purchased  from 
+Avanti Polar Lipids in 10 mM phosphate buffer at pH 75  After reaction the solution 
+was dialyzed against phosphate buffer using a membrane MWCO 1000 Spectrapor to 
+remove un-reacted FA and EDC The dialysis was carried out for 3 days with frequent 
+replacement of the buffer  After dialysis the absorbance of the PL-PEG-FA solution was 
+recorded using a HP-8453 spectrophotometer to ensure that excess free FA was removed 
+from the solution 
+PL with a PEG Moiety and Fluorescein Tag PL-PEG-FITC  3 mg of NH2-PEG-PE 
+was dissolved in 15mL of 01 M carbonate buffer solution pH 80  To this solution 100 
+L  of  13mM  solution  of  fluorescein  isothiocyanate  FTIC  in  DMSO  Aldrich  was 
+added  The mixture was allowed to react overnight at room temperature and protected 
+from  light    Purification  by  gel  chromatography  was  achieved  by  loading  1  mL  of  the 
+solution  to  a  Sephadex  G-25  column  Aldrich    As  elution  solvent  H2O  was  flown 
+through  the  column  the  formation  of  two  separate  yellow  bands  was  observed    The 
+fractions were collected and the absorbance of various fractions was measured at 488 nm 
+using a HP-8453 spectrophotometer  Fractions from the first elution peak were pooled as 
+they  were  attributed  to  the  higher  molecular  weight  PL-PEG-FITC  conjugate  also 
+confirmed  by  fluorescence  measurement  and  subsequently  used  for  solubilization  of 
+SWNTs   
+Solutions of SWNTs Functionalized with One or Two PL-PEG Molecules One or 
+Two Cargos  PL-PEG-FA one cargo used later in Fig5b5c or a 11 mixture of PL-
+PEG-FA and PL-PEG-FITC two cargos used for Fig 5d5e were used to functionalize 
+and  solubilize  Hipco  SWNTs  using  the  same  sonication  and  centrifuging  procedure  as 
+described for Cy3-DNA above The SWNTs functionalized by PL-PEG molecules were 
+also individual tubes characterized by UV-Vis-NIR spectroscopy and AFM 
+Cell Culture and Cellular Incubation in SWNT Solutions  HeLa cells an adherent 
+cell line were cultured in Dubelccos modified eagles medium DMEM supplemented 
+with 10  of fetal bovine serum FBS and 1  penicillin-streptomycin all reagents 
+from Invitrogen  The incubations of Cy3-DNA-SWNT with HeLa cells were carried out 
+done for Fig 234 in 12 well plates with the cells having been seeded for a period of 
+ 18hrs prior to incubation  Cy-DNA-SWNT was added to each well  4x105 cellswell 
+at a final concentration of  25  5 mgL  The incubations were carried out at 37 C 
+except for low temperature incubation where the temperature was 4 C in Fig 2c and 
+in 5 CO2 atmosphere for a period of  12 hrs After incubation the cell medium was 
+removed from the well the cells were washed and detached from the surface by the 
+addition of trypsin-EDTA solution Invitrogen for various characterization or laser 
+radiation steps  Similar steps were used for incubating cells in PL-PEG functionalized 
+SWNTs for Fig5  Note that all cells were washed with excess SWNTs in the solution 
+removed and placed in fresh solutions after the incubation step and before any of the in-
+vitro laser radiation experiments described in this work  
+FRCells and Normal Cells  HeLa cells were cultured in DMEM medium with folic 
+acid FA depleted from the cell medium  It is known that the FA-starved cells over-
+express folate receptors FRs on the cell surfaces   HeLa cells were passaged for at least 
+4 rounds in the FA-free medium before use to ensure over-expression of FR on the 
+surface of the cells FRcells  Normal cells were all cultured in DMEM medium with 
+abundant folic acid and few available free-FRs on the cell surfaces   
+808nm Laser Radiation  Detached HeLa cells with or without incubation treatment in 
+SWNT solutions were transferred to a circular quartz cuvette diameter  3 cm thickness 
+or optical path length  1 cm and exposed to an 808nm laser source a fiber coupled 
+diode laser bar  Note that all cells were washed with excess SWNTs in the solution 
+removed and placed in fresh solutions after incubation in SWNT solutions and before any 
+of the in-vitro laser radiation experiments described in this work  The diode laser bar was 
+coupled into a 1 meter long 200m core fiber with a numerical aperture of 022  The bare 
+fiber end was imaged to the size of the cuvette using a 50 mm anti-reflection coated bi-
+convex lens  The center wavelength varied from 806-810 nm depending on the current 
+level while maintaining a width of 2 nm  A closed loop cooling system suppressed 
+temperature transients to below 02C to eliminate power and wavelength variations 
+during exposures  Power calibration was performed using a thermal power meter placed 
+after the imaging lens and before the sample  The laser beam size was about 3 cm fully 
+covering the area of the cuvette for radiation of the cells  The power density was tunable 
+up to a maximum of  35 Wcm2 and the exposure was carried out either continuously 
+for several minutes or over several 10 sec pulses   
+Confocal Microscopy  The cells were imaged by a Zeiss LSM 510 confocal 
+microscope  Prior to analysis the detached HeLa cells with and without laser exposure 
+were seeded in chambered coverslides for  12 hrs  For nuclear staining DRAQ5 
+Axxora LLC was added to each well and allowed to incubate for 5 min at room 
+temperature before confocal imaging 
+Ex-Vitro Measurement of Heating of a SWNT Solution by NIR Radiation  A DNA-
+SWNT solution nanotube concentration 25 mgL was irradiated by the 808 nm laser at 
+14 Wcm2  Temperature was measured Fig 3c at 20 s intervals with a thermocouple 
+placed inside the solution for a total period of 2 min  Care was taken to avoid exposure 
+of the thermocouple in the beam path to minimize any direct heating of the thermocouple 
+by the laser  Longer time radiation caused formation of gas bubbles in the solution and 
+eventual boiling of the water solution as a result of light absorption by SWNTs in the 
+solution  Without nanotubes an aqueous solution is transparent without heating under 
+the same radiation conditions 
+Cell Proliferation Assay  CellTiter A96 Promega an MTS based assay was used to 
+monitor cell viability and proliferation after various treatments including internalization 
+of SWNTs and laser radiation  The CellTiter 96 assay uses the tetrazolium compound 3-
+45-dimethylthiazol-2-yl-5-3-carboxymethoxyphenyl-2-4-sulfophenyl-2H-
+tetrazolium inner salt MTS and the electron coupling reagent phenazine methosulfate 
+PMS MTS is chemically reduced by cells into formazan whose concentration and 
+optical absorbance at 490nm can provide a measure of the metabolically active live cells   
+Control cells or cells treated with SWNT andor laser treatment were left to 
+incubate for a period of up to 15 days at 37C and 5 CO2 in DMEM  The CellTiter A96 
+solution was added to each cell sample and allowed to react for 2 h at 37C and 5 CO2  
+Colorimetric detection and absorbance at 490 nm were used to determine the proliferation 
+profile of different samples   
+Results and Discussion 
+The nanotube samples used here were Hipco SWNTs 14 solubilized in the 
+aqueous phase by non-covalently adsorbing either 15-mer fluorescently Cy3-labeled 
+single-stranded DNA 15 Fig 1a or polyethylene glycol PEG-grafted phospholipids 
+PL-PEG Fig 5a These nanotube solutions were highly stable in buffer solutions Fig 
+1c insert consisting of very pure short average length150nm and individualized 
+SWNTs by sonication and centrifugation 12 rather than bundles as evidenced by UV-
+Vis-NIR absorbance Fig 1b and atomic force microscopy AFM Fig 1d data The 
+molar extinction coefficient of the solubilized SWNTs molecular weight MW170kD 
+for length150nm diameter  12nm measured at 808nm in the NIR was   79 x 106 
+M-1cm-1 Fig 1c The high absorbance of SWNTs in the NIR originates from electronic 
+transitions between the first or second van Hove singularities of the nanotubes 1216 
+High optical absorbance of SWNTs in the 700-1100nm NIR window transparent to 
+biological systems 11 is exploited in the current work at a single wavelength by using a 
+808 nm laser beam size  3cm and power density up to 35Wcm2 for in-vitro 
+radiation  
+By confocal fluorescence microscopy imaging we observed that upon exposure 
+of HeLa cells to a Cy3-DNA-SWNT solution at 37 C the DNA-SWNT conjugates were 
+internalized Fig 2a2b inside the cells with nanotubes as the transporters The green 
+color in Fig 2a corresponds to Cy3 labels on DNA-SWNTs inside HeLa cells  After 
+staining the cell nucleus with a DRAQ5 dye we carried out dual color detection and 
+observed accumulation of DNA-SWNT in the cytoplasm region with little colocalization 
+of Cy3-DNA in the nucleus Fig 2b This suggested lack of nuclear translocation for the 
+DNA molecules carried across the cell membranes by nanotubes Experiments carried out 
+at 4C found no uptake of Cy3-DNA-SWNT conjugates inside cells Fig 2c suggesting 
+an energy-dependent endocytosis mechanism 17 for the uptake observed at 37C 
+Endocytosis is known to rely on enclosure of molecules inside endosomes or lipid 
+vesicles during and after cell entry 17  Motivated by the need of endosomal rupture for 
+efficient molecular releasing and delivery 18 we explore the effects of NIR light on 
+DNA-SWNTs after endocytosis We first note that control experiments find that cells 
+without nanotubes are highly transparent to NIR and exhibit no ill effect after radiation 
+for up to 5 min by a 35 Wcm2 808 nm coherent laser light laser beam diameter 3 
+cm uniformly radiating over the entire area of the cuvette containing the cells  For HeLa 
+cells after DNA-SWNT uptake we have experimented with the NIR radiation conditions 
+and found that six 10s on-and-off pulses of 14 Wcm2 laser radiation can afford releasing 
+effects without causing cell death After such treatment confocal imaging reveals 
+colocalization of fluorescence of Cy3-DNA in the cell nucleus Fig 3a indicating 
+releasing of DNA cargos from SWNT transporters and nuclear translocation after the 
+laser pulses 
+To glean the effects of NIR optical excitation of SWNTs inside living cells we 
+carried out a control experiment by radiating an aqueous solution of Cy3-DNA 
+functionalized SWNTs ex-vitro  We observed that radiation of a SWNT aqueous 
+solution nanotube concentration 25mgL by 14Wcm2  808 nm laser continuously for 
+2 min caused heating of the solution to 70 C Fig 3c boiling of solution was observed 
+for even longer radiations  Without solubilized nanotubes the solution was transparent 
+to 808 nm light with little heating detected These clearly showed that optically 
+stimulated electronic excitations of SWNTs rapidly transferred to molecular vibration 
+energies and caused heating Another phenomenon was that after ex-vitro NIR radiation 
+of a Cy3-DNASWNT solution without cells an apparent increase in the Cy3 
+fluorescence was observed Fig 3b indicating unwrapping and releasing of Cy3-DNA 
+strands from nanotubes and thus reduced quenching of Cy3 by nanotubes  Taken 
+together the results suggest that SWNTs internalized in living cells can act as tiny NIR 
+heaters or antennas Opto-electronic excitations of nanotubes inside cells by NIR 
+radiation can trigger endosomal rupture and releasing of non-covalent molecular cargos 
+from nanotube carriers Once detached from nanotubes and freed into the cytoplasm the 
+DNA molecules diffuse freely across the nuclear membrane 19 into the nucleus 
+No apparent adverse toxicity effects were observed with cells after SWNT 
+endocytosis and NIR-pulse 14Wcm2 activated DNA releasing and nuclear 
+translocation in terms of short term viability Fig 4a and Supp Info and long term cell 
+proliferation Supp Info  In a control experiment cells without exposure to SWNTs 
+survived continuous 35Wcm2 808 nm laser radiation for 5 min Fig4b clearly 
+illustrating high transparency of bio-systems to NIR light  In stark contrast for cells with 
+internalized SWNTs extensive cell death was observed after 2 min radiation under a 
+14Wcm2 power as evidenced by cell morphology changes Fig 4c vs Fig 4a4b loss 
+of adherence to substrates and aggregation of cell debris Fig 4c Extensive local 
+heating of SWNTs inside living cells due to continuous NIR absorption was the most 
+likely origin of cell death Interestingly we observed that the dead cells released 
+SWNTs to form black aggregates floating in the cell-medium solution visible to the 
+naked eye approximately 24 h following irradiation Fig 4e inset black specks Raman 
+spectroscopy and scanning electron microscopy SEM identified SWNTs mixed with 
+cell debris in the black aggregates The 266cm-1 Raman signal corresponded to 
+aggregated SWNT bundles 20 while a broad photoluminescence peak observed around 
+3200 cm-1 1050 nm Fig4c corresponded to individual tubes still in existence SEM 
+of the black aggregates after drying revealed tube-like strands stretched across cell debris 
+or residues from the cell culture medium Fig 4d inset Cracks appeared in the 
+nanotube-cell debris structures during drying causing the aggregated bundles of 
+nanotube to stretch across the cracks Thus we clearly observed that accompanied by cell 
+death extensive NIR radiation caused molecular-detachment or de-functionalization of 
+SWNTs inside cells leading to nanotube aggregation 
+The result above hinted that if SWNTs can be selectively internalized into cancer 
+cells with specific tumor markers NIR radiation of the nanotubes in-vitro can then 
+selectively activate or trigger cell death without harming normal cells This important 
+goal prompted us to develop SWNT functionalization schemes with specific ligands for 
+recognizing and targeting tumorous cell types Folate receptors FR are common tumor 
+markers expressed at high levels on the surfaces of various cancer cells and facilitate 
+cellular internalization of folate-containing species via receptor-mediated endocytosis 
+13 To exploit this system we obtained highly water soluble individualized SWNTs 
+non-covalently functionalized by phospholipids PL-PEG-folic acid PL-PEG-FA 
+Fig5a  FR-positive HeLa cells FRcells with over-expressed FRs on the cell surfaces 
+were obtained by culturing cells in folic acid-depleted cell medium Both FRcells and 
+normal-cells without abundant free FRs were exposed to PL-PEG-FA-SWNTs for 12-
+18h washed and then radiated by 808 nm laser 14 Wcm2 continuously for 2 min After 
+the NIR radiation we observed extensive cell death for the FRcells evidenced by drastic 
+cell morphology changes Fig 5b while the normal-cells remained intact Fig 5c and 
+exhibited normal proliferation behavior over  2 weeks that was the longest period 
+monitored The selective destruction of FRcells suggested that PL-PEG-FA-SWNTs 
+were efficiently internalized inside FRcells confirmed by fluorescence in Fig5d for 
+SWNTs with FA cargo and FITC labels and not inside normal-cells confirmed by the 
+lack of fluorescence inside cells in Fig5e The former was a result of selective binding 
+of FA-functionalized SWNTs and FRs on FRcell surfaces and receptor-mediated 
+endocytosis The latter was due to the inertness or blocking of non-specific binding of 
+SWNTs imparted by the PEG moiety 6 on SWNTs and the lack of available FRs on the 
+normal cells   
+It is shown here that single walled carbon nanotubes are molecular transporters or 
+carriers with very high optical absorbance in the near-infrared regime where biological 
+systems are transparent This intrinsic property stems from the electronic band structures 
+of nanotubes and is unique among transporters Our current work exploits this property 
+with a 808 nm laser and can be extended to using light sources spanning the entire 
+700-1100 nm range transparent to biosystems for more efficient in-vitro excitations of 
+SWNTs with various chiralities to obtain enhanced biological effects NIR pulses can 
+induce local heating of SWNTs in vitro for endosomal rupture and molecular cargo 
+releasing for reaching intended targets without harming cells  On the other hand 
+selective killing of cells over-expressing tumor markers can be achieved by selective 
+delivery of nanotubes inside the cells via receptor-mediated uptake pathways and NIR 
+triggered death  The scheme of SWNT functionalization by PEG-ligands can be 
+generalized to various ligands or antibodies targeting very specific types of cells  While 
+the PEG-moiety imparts inertness and little non-specific binding of nanotubes to normal 
+cells the ligands can recognize cells with complementary receptors for SWNT 
+internalization and subsequent cell destruction by NIR radiation Specifically 
+functionalized nanotubes could then be a generic killer of various types of cancer cells 
+without harming normal cells Thus the transporting capabilities of carbon nanotubes 
+combined with suitable functionalization chemistry and the intrinsic optical properties of 
+SWNTs can open up exciting new venues for drug delivery and cancer therapy 
+References and Notes 
+C M Henry 2004 Chem Eng News 82 37-42 
+P Alivisatos 2004 Nature Biotech 22 47-52 
+S Kim et al 2004 Nature Biotech 22 93-97 
+T Taton C Mirkin R Letsinger 2000 Science 289 1757-1760 
+Y Cui Q Wei H Park C Lieber 2001 Science 293 1289-1292 
+R J Chen et al 2003 Proc Nat Acad Sci USA 100 4984-4989 
+A Bianco K Kostarelos C D Partidos M Prato 2005 Chem Comm 5 571-
+N W S Kam T C Jessop P A Wender H J Dai 2004 J Am Chem Soc 
+126 6850-6851  
+P Cherukuri S M Bachilo S H Litovsky R B Weisman 2004 J Am Chem 
+Soc 126 15638-15639 
+10  M Dresselhaus H Dai Eds 2004 MRS 2004 Carbon Nanotube Special Issue 
+vol 29 
+K Knig 2000 J Microscopy 200 83-104 
+12  M J OConnell et al 2002 Science 297 593-6 
+Y J Lu E Sega C P Leamon P S Low 2004 Adv Drug Delivery Rev 56 
+1161-1176 
+P Nikolaev et al 1999 Chem Phys Lett 313 91-97  
+15  M Zheng et al 2003 Nature Materials 2 338-342 
+S M Bachilo et al 2002 Science 298 2361-236  
+S Mukherjee R N Ghosh F R Maxfield 1997 Physiol Rev 77 759-803 
+Y W Cho J D Kim K Park 2003 J Pharm Pharmacol 55 721-734 
+O Boussif et al 1995 Proc Nat Acad Sci USA 92 7297-7301 
+20  M J OConnell S Sivaram S K Doorn 2004 Phys Rev B 69 235415-1-15 
+Acknowledgments We are grateful to Dunwei Wang for SEM analysis This work was 
+supported by the Stanford NSF CPIMA 
+Figure Captions 
+Figure 1  Carbon nanotubes with high NIR absorbance solubilized in water  a 
+schematic of a Cy3-DNA functionalized SWNT  b UV-Vis spectra of solutions of 
+individual-SWNTs functionalized non-covalently by 15-mer Cy3 labeled-DNA at various 
+nanotube concentrations top curve SWNT concentration  25mgL in H2O lower 
+curves correspond to consecutive 3 reduction in SWNT concentration The well-
+defined peaks in the UV-Vis spectra suggest individual SWNTs in the solutions obtained 
+by removing bundles via centrifugation c Absorbance A at 808 nm vs SWNT 
+concentration optical path  1cm  Solid line is Beers law fit to obtain molar extinction 
+coefficient of SWNT 79 x 106 M-1 cm-1  Inset a photo of a DNA functionalized 
+SWNT solution d Atomic force microscopy AFM image of DNA functionalized 
+individual SWNTs height 1-15nm deposited on a SiO2 substrate scale bar  200 nm   
+Figure 2  Transporting DNA inside living cells by SWNTs  a A confocal fluorescence 
+image excitation 548 nm emission detected at 560 nm showing the internalization 
+and accumulation of Cy3-DNA-SWNT around the nucleus circular regions surrounded 
+by green fluorescence corresponding to Cy3 of HeLa cells after incubation of cells  
+4x105 cellswell in 12-well plates for 12 h at 37C in a 25 to 5 mgL Cy3-DNA-SWNT 
+solution  b Dual detection of Cy3-DNA-SWNT green internalized into a HeLa cell 
+with the nucleus stained by DRAQ5 red  c A confocal image of HeLa cells after 
+incubation in a Cy3-DNA-SWNT solution at a low temperature of 4C  Only DRAQ5 
+stained nucleus red color of HeLa is seen The lack of green fluorescence detected 
+indicates that there is minimal cellular uptake of the Cy3-DNA-SWNT conjugates at the 
+low temperature 
+Figure 3  In-vitro near-infrared excitation of SWNT transporters for DNA cargo 
+releasing and nuclear translocation a A confocal image of HeLa cells after 12h 
+incubation in a 25 to 5 mgL Cy3-DNA-SWNT solution for internalization and radiation 
+by 6 NIR 808 nm 10s-pulses 14Wcm2 power density Colocalization yellow 
+color of Cy3-DNA green in cell nucleus red was detected indicating translocation of 
+Cy3-DNA to the nucleus After incubation the cells were washed and re-suspended in 
+cell medium in a quartz cuvette for NIR radiation laser beam diameter  3cm power 
+10W optical path 1cm  b Cy3 fluorescence emission spectra of a Cy3-DNA-SWNT 
+solution 25 mgL before blue curve and after red curve laser radiation 14 Wcm2 
+for 2 min excitation  550 nm and emission  563 nm  c An ex-vitro control experiment 
+Temperature evolution of a DNA-SWNT solution 25 mgL during continuous 
+radiation by a 808nm laser 14 Wcm2 for 2 min This result clearly reveals heating of 
+solution due to absorption of 808 nm laser light by SWNTs in the solution   
+Figure 4  Fate of cells with internalized SWNTs after NIR laser pulses or extensive 
+radiations a Optical image of HeLa cells after DNA-SWNT uptake and 6 pulses of 10s-
+long 808nm laser radiations 14 Wcm2 Cells retained normal morphology with no 
+apparent death observed Inset photo of the cell solution taken 12 h after laser pulses 
+Pink color due to phenol red in the well HeLa cells remained adhered to the bottom of 
+the container b Image of HeLa cells without internalized SWNTs after continuous 
+808nm laser radiation 35 W cm2  for 5 min  No cell death was observed c Image of 
+dead and aggregated cells after internalization of DNA-SWNT and laser radiation 14 
+Wcm2 for 2 min  The dead cells showed rounded and aggregated morphology as 
+opposed to live cells in a stretched form in ab Inset photo of the cell solution 24 h 
+after laser activated cell death No live cells adherent to the bottom of the container was 
+observed Black aggregates containing SWNTs released from dead cells floating on water 
+were visible indicated by arrow to the naked eye d Raman data and SEM image 
+inset of the black aggregates after drying   
+Figure 5  Selective targeting and killing of cancer cells a Chemical structure of PL-
+PEG-FA and PL-PEG-FITC synthesized by conjugating PL-PEG-NH2 with folic-acid 
+or FITC respectively for solubilizing individual SWNTs b Top panel schematic of 
+selective internalization of PL-PEG-FA-SWNTs into folate-over-expressing FR cells 
+via receptor binding and then undergoing NIR 808 nm laser radiation Lower panel 
+image showing death of FRcells with rounded cell morphology after the process in the 
+top panel 808nm laser radiation at 14Wcm2 for 2 min Higher magnification image 
+inset shows details of the killed cells c Top panel schematic of no internalization of 
+PL-PEG-FA-SWNTs into normal cells without available FRs Lower panel image 
+showing normal cells with no internalized SWNTs are unharmed by the same laser 
+radiation condition as in b Higher magnification image inset shows a live normal cell 
+in stretched shape  d Confocal image of FRcells after incubation in a solution of 
+SWNTs with two cargos PL-PEG-FA and PL-PEG-FITC  The strong green FITC 
+fluorescence inside cells confirms the SWNT uptake with FA and FITC cargos e Same 
+as d for normal cells without abundant FRs on cell surfaces There is little green 
+fluorescence inside cells confirming little uptake of SWNTs with FA and FITC cargos   
+SWNT conc mgL
+Wavelength nm
+Figure 1 
+Figure 2 
+36E05
+32E05
+28E05
+24E05
+20E05
+16E05
+12E05
+wavelength nm
+Time s
+Figure 3 
+Raman Shift cm-1
+Figure 4 
+OCH2CH2
+Phospholipid  PL 
+Ligand 
+R  folic acid FA or fluorescent tag FITC 
+ PL-PEG-FA
+Normal 
+Figure 5 

@@ -1,407 +1,505 @@
-On the Development of Text Input Method                             
-- Lessons Learned 
-Tian-Jian Jiang1 Deng Liu2 Meng-Juei Hsieh3 and Wen-Lian Hsu1 
-1 Institute of Information Science Academia Sinica 
-No 128 Sec 2 Academia Road 
-115 Nan-kang Taipei Taiwan 
-2 Founder the OpenVanilla Project 
-3 School of Information and Computer Sciences University of California Irvine 
-tmjiang hsuiissinicaedutw 
-lukhnosopenvanillaorg 
-mengjueiuciedu 
-Abstract Intelligent Input Methods IM are essential for making text entries in 
-many  East  Asian  scripts  but their  application to other  languages  has  not  been 
-fully  explored  This  paper  discusses  how  such  tools  can  contribute  to  the 
-development of computer processing of other oriental languages We propose a 
-design  philosophy  that  regards  IM  as  a  text  service  platform  and  treats  the 
-study  of  IM  as  a  cross  disciplinary  subject  from  the  perspectives  of  software 
-engineering  human-computer 
-language 
-processing NLP We discuss these three perspectives and indicate a number of 
-possible future research directions 
-HCI  and  natural 
-interaction 
-Keywords 
-human-computer interaction software engineering 
-input  method 
-text  entry  natural 
-language  processing 
-Introduction 
-To date most papers on text entry and Input Methods IM have focused on automatic 
-conversion  from  Chinese  syllables  to  words  Chang  et  al  1  proposed  a  system  of 
-constraint satisfaction Kuo 2 developed an application called Hanin using syntactic 
-connection  tables  and  semantic  distances  while  Hsu  3  presented  an  application 
-called  GOING  based  on  a  semantic  template  matching  approach  The  latter  has 
-become  one  of  the  most  widely  used  IMs  in  Taiwan  In  addition  papers  indirectly 
-related  to  automatic  Chinese  syllable-to-word  conversion  have  been  presented  at 
-ICCPOL conferences for example Tatuoka and LIPSs 4 Vietnamese input system 
-and Zhangs 5 web-based Chinese character input system used in Hong Kong In this 
-paper  we  review  these  methods  and  discuss  the  lessons  we  have  learned  from 
-implementing  them  Our  goal  is  to  share  these  experiences  with  both  the  academic 
-and industrial communities and thereby help meet the challenges ahead 
-The  remainder  of  the  paper  is  divided  into  three  sections  software  engineering 
-human-computer  interaction  and  natural  language  processing  We  conclude  by 
-discussing possible future research directions 
-On the Development of Text Input Method                              - Lessons Learned      2 
-IM as a Software Engineering Subject 
-Every  modern  GUI-based  desktop  environment  is  equipped  with  sets  of  API  for 
-developing  IMs  that  meet  the  needs  of  East  Asian  markets  6  However  these  API 
-sets  are  primitive  in  nature  A  developer  who  wishes  to  build  a  fully  functional  IM 
-system  must  to  handle  a  myriad  of  UI  events  and  presentation  task  This  task  has 
-become increasingly difficult for more advanced operating systems such as Microsoft 
-Windows  and  Apples  Mac  OS  X  as  the  number  of  features  and  possible  UI  events 
-grows For X11-based desktops the XIM Framework 7 has long been the standard 
-but building IM modules with it is no easier than building one for Windows or OS X 
-A modern IM framework must have certain features First it must provide a set of 
-abstract API There has to be a dynamic-loading or server-like middle layer between 
-applications  The framework  must also implement a set of  platform-specific  widgets 
-and  event  handlers  With  such  a  framework  a  third-party  IM  developer  can  then 
-concentrate  on  algorithm  design  without  being  distracted  by  platform  dependent 
-features 
-In general the API of the middle layer should follow the Open-Closed principle 8 
-which states that software entities modules should be open for extensions but closed 
-to  modifications  Being  the  system  software  IM  frameworks  make  extensive  use  of 
-services provide by modern operating systems IIIMF is designed with a socket-based 
-client-server  architecture  and  IM  modules  must  follow  its  protocol  to  provide 
-services OpenVanilla 9 and SCIM 10 are based on the dynamic-loading approach 
-Their  IM  modules  as  dynamically  loaded  libraries  and  middle-layers  stay  in  the 
-same  address  space  and  modules  are  loaded  Although  such  a  design  reduces  the 
-communication complexity substantially it is limited to a single address space Thus 
-modules  available  on  one  machine  cannot  provide  services  to  modules  on  other 
-machines Recently there has been a trend towards client-server based designs Both 
-OpenVanilla and SCIM now use IPC to talk to their respective  UI servers  though 
-modules are not yet affected 
-Fig 1    Architecture of OpenVanilla platform 
-Isokoski  and  Raisamo  11  developed  a  Java-based  client-server  architecture  that 
-integrates different text entry applications on handheld devices They compared their 
-On the Development of Text Input Method                              - Lessons Learned      3 
-work  with  the  Java  Input  Method  Framework  Java  IMF  12  the  Microsoft  Text 
-Service  Framework  MS  TSF  13  and  the  Internet-Intranet  Input  Method 
-Framework  IIIMF  14  and  focused  on  adapting  a  given  text  entry  application  to 
-different  devices  However  the  authors  overlooked  an  important  point  about 
-bandwidth  people  who  want  to  enter  text  quickly  and  continuously  find  excessive 
-network  latency  a  burden  For  someone  using  Traditional  Chinese  a  speed  of  60 
-characters per second  with an average of four  keystrokes to compose a character is 
-not  uncommon  This  means  that  any  response  must  be  within  250  ms  including  UI 
-event handling and information retrieval time Experienced users can type faster thus 
-better response times are necessary Wang and Mankoff 15 proposed an information 
-theory-based  model  that  can  quantitatively  evaluate  relative  bandwidth  usage  It 
-provides  theoretical  and  architectural  support  for  better  device  adaptation  for  IMs 
-with high bandwidth usage However despite these developments the majority of IM 
-modules  and  frameworks  are  still  limited  to  a  single  address  space  or  use  the 
-inter-process communication IPC schemes at most The remote procedure call RPC 
-based design remains impractical 
-Another area of interest is the nature of IMs East Asian text entry is in fact a series 
-of  transformations  whereby  several  keystrokes  are  transformed  into  a  character  In 
-software  engineering  terms  therefore  IM  modules  can  be  regarded  as  filters 
-However filtering does not have to stop at keystroke-to-character transformation We 
-can apply or even connect a series of filters so that the output of an IM module can 
-be converted according to the user s needs 9 One example which is now a common 
-feature in Chinese IM frameworks is that users can apply a  Traditional to Simplified 
-Chinese  filter to an IM so that the script of the typed text is converted on the fly 
-Fig 2 An IM involves a chain of transformations and events 
-Even  with  the  IM  frameworks  cited  above  IM  modules  are  very  difficult  to  port 
-and  debug  IM  frameworks  are  even  more  difficult  to  develop  and  maintain  as  the 
-slowness of porting IIIMF SCIM and OpenVanilla demonstrates Companies such as 
-Microsoft  Apple  and  Sun  also  face  the  problem  of  a  shortage  of  engineering 
-expertise 
-large  number  of 
-under-maintained legacy codex This is exemplified by the fact that Apples Mac OS 
-the  complexity  posed  by  a 
-this  field  and 
-On the Development of Text Input Method                              - Lessons Learned      4 
-X now a mature system still keeps an IM component architecture dated back to the 
-mid-1990s 16 Aside from raising possible security issues this poses another major 
-development problem in terms of maintenance cost 
-Human-Computer Interaction Principles 
-In  the  foreseeable  future  the  keyboard  will  remain  the  primary  text  entry  device 
-though  other  concepts  such  as  voice  recognition  could  be  potential  alternatives 
-Portable devices such as mobile phones present new challenges in keyboard and IM 
-framework  design  Fortunately  developments  in  human-computer  interaction  HCI 
-research can help meet these challenges 
-Text  entry  on  handheld  devices  requires  a  different  approach  to  keyboard  design 
-and layout since such devices are limited by their size Mobile phones are the  most 
-notable  examples  With  only  twelve  numeric  keys  even  Latin  alphabets  have  to  be 
-re-mapped  Fitts   Law  17  which  is  one  of  the  fundamental  principles  of  HCI 
-research determines the cost of movements and is usually used to evaluate solutions 
-in this domain It measures the efficiency of an interface given that users are familiar 
-A great deal of research in the usability of different text entry methods is based on 
-distance  MSD  or  other  related  metrics  18  Input  methods  like  T9  19  or 
-LetterWise 20 are more successful than MultiTap as they have achieved a balance 
-between  the  number  of  keystrokes  and  the  collision  rate  of  keystroke-character 
-conversion  Many  users  of  Traditional  Chinese  are  familiar  with  Hsus  keyboard 
-layout  ref  which  maps  Chinese  bo-po-mo-fo  symbols  to  26  keys  according  to 
-phonetic  rules  and  shape  similarity  It  is  more  efficient  than  any  traditional  42-key 
-layout 
-For  many  European  users  there  are  two  ways  to  type  characters  with  diacritic 
-marks  They  can  either  use  a  language-specific  keyboard  or  labor  with  a  set  of 
-key-combinations  that  usually  involves  the  use  of  CTRL  or  ALT  keys  These  key 
-combinations  are  often  called  the  dead  keys  as  they  are  fixed  and  have  to  be 
-learned Given the size limitation of some devices such as mobile phones the use of 
-dead  keys  are  obviously  impractical  During  the  text  entry  process  a  sequence  of 
-keystrokes will probably map to multiple characters phrases or candidates A user 
-must then pick the exact characterphrase that he or she wants from a list of  possible 
-choices Such interaction requires that candidate charactersphrases be displayed on a 
-screen 
- before a choice can be made Such a special purpose 
-UI  widget  is  indispensable  for  Asian  language  text  entry  However  it  can  have 
-applications  other  than  picking  a  proper  character  In  fact  it  can  serve  both  as  an 
-on-the-fly  spelling  checker  for  many  European  languages  and  as  an  alternative  to 
-dead keys an example is to have a choice between  la  and  l  when one types  la  
-In  other  words  a  candidate  list  is  a  context-sensitive  UI  widget  for  any  type  of  text 
-service  Such  text-parsing  modules  have  many  practical  uses  For  example  a 
-dictionarythesaurus agent 9 can offer people writing aides 
-On the Development of Text Input Method                              - Lessons Learned      5 
-Fig 3 A WordNet input method module as a thesaurus agent 
-The  design  of  most  text  entry  methods  in  handheld  devices  is  based  on  the  same 
-concept of context-sensitive UI widgets Many designs are now available that use UI 
-widgets to show candidates A pie menu 21 has proved to be better UI then a linear 
-menu  but  only  a  few  PDA  devices  have  implemented  it  so  far  This  is  due  to  the 
-difficulty of developing a round widget in most GUI environments and the lack of a 
-pointer device such as a mouse or a pen Difficulty also arise when such widgets are 
-deployed on desktop systems as users using keyboards may not like to take an extra 
-step to use a mouse to click on a pie menu The GOING team has developed a matrix 
-style  widget  that  displays  a  hierarchical  candidate  list  so  that  users  can  choose 
-Chinese words with alphabets rather than numbers on the forth row of the keyboard 
-This approach considers both UI widget design and finger movement costs and only 
-uses  half  of  the  alphabets  on  the  left  side  of  an  English  keyboard  An  example  of 
-GOINGs matrix widget is shown in figure 4 
-Fig 4 The second-level candidate windows of GOING 
-When designing a more accessible interface for elderly or disabled people simpler 
-movement  should  be  more  important  than  faster  typing  The  Dasher  22  and  the 
-Minimal Device Independent Text Input Method MDITIM 23 are two examples of 
-such devices As mentioned in the previous section Wang and Mankoffs architecture 
-15 which provides a model for low bandwidth devices is also useful for designing 
-interfaces  The  model  is  based  on  Shannons  noisy  channel  model  ref  which  has 
-been widely adopted in language modeling In addition both Dasher and T9 also used 
-simplified  uni-gram  language  models  Clearly  more  natural  language  processing 
-NLP techniques are being utilized in HCI research into to design various methods of 
-text entry which is discussed in the next section 
-How Natural Language Processing Can Enhance Text Entry 
-In this section we discuss how advances in natural language processing can help the 
-development  of  better  text  entry  systems  and  how  such  development  in  turn  affects 
-the direction of NLP research 
-The  semantic  template  matching  approach  used  in  GOING  has  achieved  95 
-accuracy  However  the  approach  is  labor-intensive  The  GOING  team  have  studied 
-different  language  modeling  techniques  and  attempted  to  integrate  known  semantic 
-templates with GOING in order to take advantage of a number of strategies 
-As  a  syllable-to-word  conversion  mechanism  an  IM  can  be  seen  as  the  last 
-component of automatic speech recognition ASR systems that use an n-gram model 
-to  predict  appropriate  words  for  input  keystrokes  For  example  Microsoft  Pinyin 
-MSPY   24 and New Zhuyin  are based on a unified language 
-On the Development of Text Input Method                              - Lessons Learned      6 
-model  in  tri-gram  and  both  perform  well  25  Such  models  however  are  usually 
-quite involved in terms of time and space complexity Often a simpler solution can be 
-considered For example T9 19 only adopts a uni-gram model with a smaller set of 
-lexicons A recent work on Chinese frequent strings 26 showed that it is possible to 
-extract frequent patterns using common information retrieval techniques such as the 
-Pat-tree algorithm and then adjust the pattern frequencies to fit the uni-gram model 
-SCIMs  Smart  Pinyin    employs  a  similar  approach  except  that  it  also 
-implements  some  heuristic  rules  of  known  patterns  Chewing    27  which 
-maps bo-po-mo-fo sequences to Chinese characters by matching the longest path in a 
-suffix tree of the directory can be reprogrammed to use a uni-gram model 
-For an IM to adapt to or learn the behavior of different users online learning is 
-necessary  MSPY  collects  character-based  tri-grams  to  adjust  its  original  model 
-whereas  Chewing  updates  its  suffix  tree  with  an  external  hash  table  The  concept 
-behind  these  adaptation  mechanisms  is  the  cache-based  language  modeling  strategy 
-28 It is similar to the held-out training method 29 On the other hand the adaptive 
-learning 30 approach which is based on a Bayesian classification is often used for 
-more sophisticated mechanisms with cached texts This is also relevant to other areas 
-of research such as speaker adaptation in the ASR system 31 
-In  IM  research  one  of  the  most  important  issues  is  wordphrase  identification 
-which  is  not  easy  in  any  domain  or  language  A  known  set  of  syntactic  rules 
-implemented  using  LISP  has  helped  Japanese  IM  modules  detect  word  boundaries 
-and forms 32 Since the Chinese language lacks similar deterministic rules Chinese 
-IMs  must  depend  more  on  contextual  information  To  deal  with  the  ambiguity  of 
-Chinese  word  boundaries  in  language  modeling  iterative  training  procedures  25 
-put language back into language modeling 33 many researchers have attempted to 
-combine  statistical  models  and  linguistic  knowledge  especially  for  long  distance 
-linguistic  constraints  For  example  both  the  trigger  pair  34  and  meaningful  word 
-pair  35  approaches  try  to  increase  the  weights  of  co-occurring  grams  in  language 
-models  Rosenfelds  survey  33  on  the  other  hand  has  covered  latent  semantic 
-analysis link grammar dependency grammar and probabilistic context free grammar 
-These  methods  are  used  to  build  semantic  and  syntactic  knowledge  into  language 
-models  Models  such  as  maximum  entropy  30  and  conditional  random  field  36 
-currently  considered  the  state-of-the-art  combine  all  of  the  above  techniques  into  a 
-unified language model 
-It  is  conceivable  that  the  more  complex  a  model  is  the  better  accuracy  can  be 
-achieved  likely  at  the  expense  of  extraordinary  computational  costs  For  most  IM 
-implementations  which  are  expected  to  be  lightweight  and  highly  responsive  these 
-models  may  not  be practical from  an  engineering  point  of  view  In  the  next  section 
-we propose several possible solutions to this problem 
-Directions for Future Research and Development 
-Many  Chinese  words  are  single  characters  which  create  a  lot  of  difficulty  in  the 
-identification  of  unknown  words  and  unseen  events  in  language  modeling  For  the 
-On the Development of Text Input Method                              - Lessons Learned      7 
-latter  problem  Chen-Goodman  modified  Kneser-Ney  29  and  other  smoothing 
-techniques  have  been  proved  useful  in  Western  languages  Yet  they  usually  fail  in 
-oriental  languages  because  segmented  training  corpus  could  often  combine  these 
-single character  words into  multiple character  words there is no consistent standard 
-for  Chinese  word  segmentation 1   The  situation  can  be  even  worse  in  the 
-syllable-to-word conversion employed by Chinese IMs as multiple homonyms can be 
-represented  alone  or  within  other  lexicons  under  certain  morphological  rules  For 
-example  in  some  phonetic-based 
-intelligent   IMs  the  syllables  yi  yang4   are 
-automatically converted into    whereas    is expected This problem is not 
-only  affected  by  the  tone  features  of  the  Chinese  language  but  also  by  word 
-boundaries  In  an  attempt  to  resolve  this  problem  the  GOING  team  used  Chen  and 
--Ney  smoothing  technique  with  word  pairs  interpolated 
-35  With  the  help  of  meaningful  word  pairs     is  picked  only  if    
-followed This is less complicated than the above-mentioned approaches Preliminary 
-results demonstrate that the syllable-to-word conversion accuracy is improved 35 
-Furthermore  the  GOING  team  is  experimenting  with  encoding  word  pairs  and 
-semantic  templates  into  language  models  based  on  Bayesian  prior  probabilities  as 
-suggested by Rosenfeld 33 The computational cost is expected to be less than that 
-of  exponential  models  or  linear  discriminant  models  37  To  accomplish  this  a 
-mathematical model compatible with n-grams and long-distance Bayesian priors must 
-be developed Our experience in information retrieval research 38 has shown that a 
-hybrid system of Bayesian inference network and language model like Lemur 39 is 
-a good starting point This concept can be applied to language models for IMs as well 
-as to online and offline incremental learning mechanisms 
-We  have  integrated  various  ideas  from  related  research  and  applications  of 
-network  systems  To  follow 
-the  Open-Closed  Principle  more  closely  an 
-implementation  that  embeds  tiny  HTTP daemons  httpd  into  the  IM  platform  could 
-be a promising solution Meanwhile to avoid the problem in response latency in most 
-thin client architectures an elegant caching mechanism similar to the one used in the 
-language  model  but  closer  to  the  hardware  architecture  design  including  instruction 
-caching  may  be  useful  If  such  a  platform  were  to  be  implemented  writing  IMs  in 
-different programming languages other than CC would no longer be difficult just 
-as http has enabled other languages to be used in web applications This roadmap also 
-suggests  plausible  HCI  studies  including  making  good  UI  ubiquitous  and  reducing 
-design  constraints  through  the  integration  of  web  browsers  such  as  JavaScript 
-XMLHttpRequest  or  even  Flash  applets  The  OpenVanilla  teams  prototype  is  an 
-example of such a development as shown in figure 
-                                                           
-documents httpsighancsuchicagoedubakeoff2005 
-On the Development of Text Input Method                              - Lessons Learned      8 
-Fig 5 A Web IM bookmarklet 
-Since  GOING  has  introduced  a  two-level  candidate  window  with  a  matrix  in  the 
-second level we shall try to apply both Hicks law 40 and Accot-
-41 The former describes the time it takes for a user to make a decision as a function 
-of  the  possible  choices  the  latter  predicts  a  users  performance  in  navigating  a 
-hierarchical  cascading  menu  Menus  or  candidate  lists  are  not  the  only  UI  widgets 
-used  in  IM  design  Status  windows  or  other  widget  forms  can  also  be  useful 
-According  to  a  Microsoft  technical  report  13  even  in  the  East  Asian  region 
-different  languages  Japanese  Korean  Chinese  employ  different  UI  schemes  ie 
-different combinations of status window or text buffer window called a composition 
-window  by  Microsoft  It  is  funny  that  even  Traditional  Chinese  and  Simplified 
-Chinese  IMs  employ  different  schemes  To  explain  why  different  languages  use 
-different  schemes  one  may  point  to  differences  in  language  and  culture  but  this 
-subject  requires  further  investigation  We  should  also  consider  the  traits  common  to 
-East Asian languages 
-Conclusion 
-In this paper we have covered three major aspects of IM design and implementation 
-namely  software  engineering  human-computer  interaction  and  natural  language 
-processing  Various  design  concepts  such  as  Lees  NGASR  42  Changs  Open 
-Machine  Translation  community  43  and  the  OpenVanilla  platform  could  help 
-researchers and engineers evaluate their work for real world applications Ultimately 
-such research will create more efficient text entry methods for the users 
-References 
-1  Chang  J  S  Chen  S  D  Chen  C  D  Conversion  of  Phonemic-input  to  Chinese  Text 
-through  Constraint  Satisfaction  Proceedings  of  1991  International  Conference  on 
-Computer Processing of Chinese and Oriental Languages 1991 30 36 
-2  Kuo  J  J  Phonetic-Input-to-Character  Conversion  System  for  Chinese  Using  Syntactic 
-Connection  Table  and  Semantic  Distance  Computer  Processing  of  Chinese    Oriental 
-Languages Vol 10 No 2 1996 195 210 
-On the Development of Text Input Method                              - Lessons Learned      9 
-3  Hsu  W  L  Chinese  parsing  in  a  phoneme-to-character  conversion  system  based  on 
-semantic pattern matching International Journal on Computer Processing of Chinese and 
-Oriental Languages Vol 40 1995 227 236 
-4  Tatuoka H LIPS K K An Input System for Vietnamese Language Text Proceedings of 
-1994 International Conference on Computer Processing of Chinese and Oriental Languages 
-1994 37 44 
-5  Zhang  X  AllBalanced  A  Web-Based  Chinese  Character  Input  System  to  Meet  Hong 
-Kongs Needs Proceedings of 2001 International Conference on Computer Processing of 
-Chinese and Oriental Languages 2001 333-338 
-6  Hensch K Igi T Iwao M Oda A Takeshita T IBM History of Far Eastern Languages in 
-Computing IEEE Annals of the History of Computing Vol 27 No 1 2005 17 55 
-7  MasahikoN Hideki H The Input Method Protocol X Consortium Standard for X11 r63 
-1994 
-8  Martin R C The open-closed principle C Report Vol8 1996 
-9  Chiang T C Liu D Liu K M Yang W Z Tan P T Hsieh M J Chang T H Hsu 
-W  L  OpenVanilla  -  A  Non-Intrusive  Plug-In  Framework  of  Text  Services 
-httparxivorgpdfcsHC0508042 2005 
-10  Su Z Smart Common Input Method httpwwwscim-imorg 
-11  Isokoski P Raisamo R Architecture for Personal Text Entry Methods Closing the Gap 
-Software Engineering and Human-Computer Interaction IFIP 2003 1 8 
-Methods 
-Microsystems 
-12  Sun 
-Framework 
-httpjavasuncomj2se14docsguideimf 2003 
-13  Rolfe  R  What  is  an  IME  Input  Method  Editor  and  how  do  I  use  it  Microsoft 
-httpwwwmicrosoftcomglobaldevhandsonuserIMEPapermspxjpnime 2003 
-14  Hiura  H  InternetIntranet  Input  Method  Architecture  Sun  Microsystems  Inc 
-httpwwwli18nuxorgsubgroupsimIIIMFwhitepaperwhitepaperhtml 1999 
-15  Wang  J  Mankoff  J  Theoretical  and  architectural  support  for  input  device  adaptation 
-Proceedings of the 2003 Conference on Universal Usability 2003 85 92 
-16  Kida et al Text services manager United States Patent 1997 5659769 
-17  Fitts P  and Peterson  J  Information  Capacity  of  Discrete  Motor  Responses  Journal  of 
-Experimental Psychology Vol 67 1964 103-112 
-18  Soukoreff R W MacKenzie I S Metrics for text entry research an evaluation of MSD 
-and  KSPC  and  a  new  unified  error  metric  Proceedings  of  the  SIGCHI  Conference  on 
-Human Factors in Computing Systems 2003 113-120 
-19  James  C  and  Long  M  Bringing  text  input  beyond  the  desktop  CHI  00  Extended 
-Abstracts on Human Factors in Computing Systems 2000 49-50 
-20  MacKenzie  I  S  Kober  H  Smith  D  Jones  T  Skepner  E  LetterWise  prefix-based 
-disambiguation for mobile text input Proceedings of the 14th Annual ACM Symposium on 
-User interface Software and Technology 2001 111-120 
-21  Callahan J Hopkins D Weiser M Shneiderman B An empirical comparison of pie vs 
-linear  menus  Proceedings  of  the  SIGCHI  Conference  on  Human  Factors  in  Computing 
-Systems 1988 95-100 
-22  Ward  D  J  Blackwell  A  F  MacKay  D  J  Dasher
-a  data  entry  interface  using 
-continuous  gestures  and  language  models  Proceedings  of  the  13th  Annual  ACM 
-Symposium on User interface Software and Technology 2000 129-137 
-23  Isokoski  P  Raisamo  R  Device  independent  text  input  a  rationale  and  an  example 
-Proceedings of the Working Conference on Advanced Visual Interfaces 2000 76-83 
-24  Chen Z Lee K F A new statistical approach to Chinese pinyin input The 38th Annual 
-Meeting of the Association for Computational Linguistics 2000 
-25  Gao  J  F  Wang  H  F  Li  M  J  Lee  K  F  A  unified  approach  to  statistical  language 
-modeling for Chinese ICASSP2000 2000 
-On the Development of Text Input Method                              - Lessons Learned      10 
-26  Lin Y J Yu M S The Properties and Further Applications of Chinese Frequent Strings 
-International Journal of Computational Linguistics  Chinese Language Processing Vol 9 
-No 1 2004 113-128 
-27  Kung  L  C  Chen  K  P  Technical  Report  on  Chewing 
-Input  Method 
-httpchewingcsienetdocchewing-reportpdf 2002 
-28  Kuhn R de Mori R A Cache-Based Natural Language Model for Speech Recognition 
-IEEE Transactions on Pattern Analysis  and Machine Intelligence Vol 12 No 6 1990 
-570 583 
-29  Chen  S  F  Goodman  J  An  Empirical  Study  of  Smoothing  Techniques  for  Language 
-Modeling  Proceedings  of  the  34th  conference  on  Association  for  Computational 
-Linguistics 1996 310-318 
-30  Rosenfeld  R  A  maximum  entropy  approach  to  adaptive  statistical  language  modelling 
-Computer Speech and Language Vol 10 No 3 1996 187-228 
-31  Digalakis  V  Neumeyer  L  Speaker  Adaptation  Using  Combined  Transformation  and 
-Bayesian  Methods  IEEE  International  Conference  on  Acoustics  Speech  and  Signal 
-Processing Vol 1 1995 
-32  Sato M SKK Simple Kana to Kanji conversion program httpopenlabjpskk 1987 
-33  Rosenfeld R Two decades of statistical language modeling where do we go from here 
-Proceedings of the IEEE 2000 
-34  Lau R Rosenfeld R and Roukos S Trigger-based language models a maximum entropy 
-approach  1993  IEEE  International  Conference  on  Acoustics  Speech  and  Signal 
-Processing Vol 2 1993 45-48 
-35  Tsai  J  L  Chiang  T  J  Hsu  W  L  Applying  Meaningful  Word-Pair  Identifier  to  the 
-Chinese Syllable-to-Word Conversion Problem Proceedings of ROCLING2004 2004 
-36  Lafferty J McCallum A Pereira F Conditional Random Fields Probabilistic Models for 
-Segmenting and Labeling Sequence Data Proceedings for 18th International Conference on 
-Machine Learning 2001 
-37  Gao  J  F  Qi  H  L  Xia  X  S  Nie  J  Y  Linear  Discriminant  Model  for  Information 
-Retrieval The 28th Annual International ACM SIGIR Conference 2005 
-38  Lee C W Shih C W Day M Y Tsai T H Jiang T J Wu J W Sung C L Chen Y 
-R  Wu  S  H  Hsu  W  L  ASQA  Academia  Sinica  Question  Answering  System  for 
-NTCIR-5 CLQA Proceedings of NTCIR-5 Workshop 2005 202-208 
-39  Metzler D Croft W B Combining the language model and inference network approaches 
-to retrieval Information Processing and Management an International Journal Vol 40 No 
-5 2004 735-750 
-40  Hick  W  E  On  the  rate  of  gain  of  information  Quarterly  Journal  of  Experimental 
-Psychology Vol 4 1952 11-26 
-41  Accot J Zhai S Beyond Fitts law models for trajectory-based HCI tasks Proceedings of 
-the SIGCHI Conference on Human Factors in Computing Systems 1997 295-302 
-42  Lee  L  S  et  al  A  Study  on  the  Next-Generation  Automatic  Speech  Recognition 
-httpdianaeenthuedutw 
-43  Chang J S    20 Free Software Brings Forth the Next Wave of 
-Machine Translation Scientific American Taiwanese Edition Vol 4 2006 
+Autocrine  signaling  and  quorum  sensing  Extreme  ends  of  a 
+common spectrum  
+Berkalp A Doaner12 Lawrence K Q Yan12 and Hyun Youk123 
+1Department of Bionanoscience  
+2Kavli  Institute  of  Nanoscience  Delft  University  of  Technology  Delft  2628CJ  the 
+Netherlands 
+3Correspondence to hyouktudelftnl 
+Keywords  
+Multicellular  communication  Cell  signaling  Cell  circuits  Paracrine  signaling 
+Multicellular systems Secrete-and-sense cells 
+  CellsoftensecreteandsenseasignalingmoleculetotalktoeachotherAutocrine
+signalingisoneofthemainformsofsuchcommunicationAutocrinecellreferstoa
+cellthatsecretesasignalingmoleculeandmakesitscognatereceptor
+  Recentstudieshaveshownthatanautocrinecellcancommunicatewithitselfself-
+communicationandcommunicatewithothercellsneighbor-communication
+  Quorumsensinginvolvesautocrinecellsdeterminingtheirpopulationdensityduetothe
+cellsengaginginneighbor-communicationwithoutself-communication
+  Aubiquitousgeneticcircuitcalledsecrete-and-sensecircuitcontrolstheautocrine
+cellsabilitytoachieveself-communicationneighbor-communicationincludingquorum
+sensingandamixtureofthetwo
+  Autocrinesignalingandquorumsensingaretwoofmanysignalingmodesenabledby
+thesecrete-and-sensecircuit
+ABSTRACT 
+Secrete-and-sense  cells  can  communicate  by  secreting  a  signaling  molecule  while  also 
+producing  a  receptor  that  detects  the  molecule    The  cell  can  potentially  talk  to  itself  self-
+communication  or 
+to  neighboring  cells  with 
+the  same 
+receptor 
+neighbor-
+communication  The  predominant  forms  of  secrete-and-sense  cells  are  self-communicating 
+autocrine  cells  that  are  largely  found  in  animals  and  neighbor-communicating  quorum 
+sensing cells that are mostly associated with bacteria While assumed to function independent 
+of one another recent studies have discovered quorum sensing organs and autocrine signaling 
+microbes  Moreover  similar  types  of  genetic  circuits  control  many  autocrine  and  quorum 
+sensing cells We outline these recent findings and explain how autocrine and quorum sensing 
+are two sides of a many-sided dice created by the versatile secrete-and-sense cell  
+Secreting signaling molecules A fundamental mode of communication 
+Cells  can  communicate  with  each  other  by  secreting  signaling  molecules  that  diffuse 
+between  them  Cells  use  a  variety  of  receptors  to  detect  the  type  and  concentration  of  each 
+extracellular signaling molecule When the receptors bind to their cognate signaling molecules 
+they trigger cascades of intracellular signaling events that regulate diverse processes such as 
+the growth and death of cells 1-3 differentiation 4-8 and gene expression 9-20 We usually 
+categorize cells that secrete signaling molecules into two types those that engage in autocrine 
+signaling and those that engage in paracrine signaling Figure 1 In autocrine signaling a cell 
+secretes a signaling molecule and simultaneously makes a receptor for that molecule Paracrine 
+signaling  involves  two  types  of  cells  One  type  of  cell  secretes  a  molecule  without  making  a 
+receptor for it and the other type of cell makes a receptor for the molecule without secreting the 
+molecule Along with contact-mediated signaling called juxtacrine signaling 21 autocrine and 
+paracrine signaling are responsible for almost all known cell-cell communications in multicellular 
+systems  22  These  modes  of  signaling  have  primarily  been  studied  in  mammalian  systems 
+But recently much progress has been made on studying paracrine signaling in populations of 
+microbial cells such as bacterial biofilms and then extracting quantitative principles that apply to 
+both  mammalian  systems  eg  tissues  and  microbial  systems  eg  biofilms  23  However 
+many studies of autocrine signaling still mainly focus on mammalian systems and they typically 
+exclude  discussions  on  microbial  cells  notably  on  how  autocrine  signaling  may  be  related  to 
+quorum sensing Quorum sensing which allows the cells to measure their population density 
+in  order  to  make  collective  decisions  is  one  of  the  most  well-known  and  ubiquitous  forms  of 
+microbial communication  
+While  autocrine  signaling  and  quorum  sensing  both  involve  cells  that  secrete  a  signaling 
+molecule and express its cognate receptors they have long been thought to be two disparate 
+forms  of  signaling  likely  because  the  two  have  seemingly  different  functions  and  purposes 
+Autocrine  signaling  has  been  historically  understood  albeit  only  recently  demonstrated  in  live 
+cells 24 to enable a single cell to talk to itself 25 whereas quorum sensing is designed for 
+multiple cells to talk to each other but not for each cell to talk to itself 26 In this sense quorum 
+sensing is similar to paracrine signaling in terms of its function because paracrine signaling is 
+designed for a cell to talk to other cells but not to itself On the other hand quorum sensing is 
+more similar to autocrine signaling than paracrine signaling in terms of its molecular parts ie 
+the same cell produces the receptor and the signaling molecule Given these observations it is 
+natural to ask how autocrine signaling and quorum sensing might be related to each other both 
+functionally and through evolution Recently researchers have begun to concretely connect the 
+two  in  terms  of  their  common  functions  and  features  of  the  genetic  circuits  that  control  them 
+24  Indeed  quorum  sensing  in  mammalian  organs  27  and  autocrine  signaling  in  microbes 
+have  been  discovered  24  while  additional  work  has  shown  that  autocrine  signaling  and 
+quorum sensing are two ends of a continuous spectrum of signaling modes that is spanned by a 
+generic secrete-and-sense cell - a cell that secretes a signaling molecule and simultaneously 
+makes  its  cognate  receptor  but  can  talk  to  itself  like  autocrine  signaling  and  talk  to  its 
+neighbors  like  quorum  sensing  and  paracrine  signaling  24  28  These  recent  findings  are 
+causing  a  dismantling  of  the  historically  established  barrier  between  researchers  who  have 
+mainly studied quorum sensing in microbes eg bacteria yeasts and researchers who have 
+investigated autocrine signaling in metazoan cells eg tumors T-cells embryos 24 Below 
+we  review  how  researchers  have  traditionally  thought  about  autocrine  signaling  and  quorum 
+sensing and describe recent studies that connect the two 
+Autocrine signaling A cell that talks to itself 
+One  of  the  first  descriptions  of  autocrine  signaling  arose  when  researchers  proposed 
+how tumor cells could originate in epithelial tissues in the 1980s 25 It was known that many 
+types of cells in healthy tissues secreted signaling molecules called Epidermal Growth Factors 
+EGFs to regulate their proliferation Figure 2A It was hypothesized and later confirmed that 
+when  this  autocrine  signaling  which  causes  each  healthy  cell  to  stimulate  its  own  growth  by 
+sensing its own growth factor molecule is mis-regulated and thus over stimulates the cells cells 
+can  grow  uncontrollably  and  initiate  tumors  Since  then  researchers  have  found  many 
+examples  of  autocrine  signaling  in  various  mammalian  cells  2  29-34  Figure  2B-D    In  the 
+human  immune  system  the  naive  T-helper  cells  use  the  molecules  Interleukin  IL-4  and 
+interferon-  for  autocrine  signaling  in  order  to  differentiate  into  one  of  two  cell  states  Th1  or 
+Th2  cells  35  36    The  CD4  T-cells  use  autocrine  signaling  through  IL-2  to  control  their 
+proliferation  and  apoptosis  2  Figure  2B  In  early  mammalian  embryos  including  human 
+embryos a decreased level of autocrine signaling through the Platelet Activating Factor PAF 
+ligand  decreases  the  embryos  chances  of  survival  Figure  2C  31-33  Faulty  regulations  of 
+autocrine signaling turn healthy cells into cancer cells and initiate the growth of tumors 29 For 
+example  renegade  autocrine  signaling  through  IL-6  can  trigger  lung  adenocarcinoma  in  mice 
+and  humans  The  somatic  mutations  in  epidermal  growth  factor  receptor  EGFR  in  initially 
+healthy mammary and lung cells cause the cells to secrete IL-6 at an abnormally high rate The 
+IL-6  then  bind  to  the  EGFRs  on  these  cells  which  then  leads  to  highly  activated  STAT3 
+signaling in them This in turn causes the cells to divide at an abnormally high rate which leads 
+to tumors 29 Figure 2D  
+Based  on  these  examples  the  prevailing  belief  has  been  that  the  primary  purpose  of 
+autocrine signaling is for a cell to use its receptors to capture the signaling molecule that it had 
+secreted so that it can talk to itself which we call self-communication instead of sending the 
+molecule  to  its  neighboring  cells  to  communicate  with  them  which  we  call  neighbor-
+communication  The  reasoning  behind  this  is  that  for  autocrine  signaling  cells  typically 
+express  a  high  abundance  of  receptors  that  have  a  high  binding  affinity  for  the  signaling 
+molecule 37 Thus such a cell would have a high probability of capturing the molecules that it 
+had just secreted Since the molecule returns to the cell after being secreted the cell would not 
+be  able  to  communicate  with  its  neighboring  cells  According  to  this  scenario  autocrine 
+signaling would require only a single cell and such a cell would be able to rapidly respond to its 
+own signaling molecule 38-40 Moreover this scenario could provide a plausible reason for why 
+autocrine signaling is ubiquitous in controlling proliferation of cells through growth factors and in 
+embryogenesis  In  both  embryogenesis  and  signaling  through  growth  factors  cells  have  to 
+rapidly  undergo  changes  in  their  growth  gene  expression  and  differentiation  A  cell  that  can 
+quickly  capture  its  own  signaling  molecule  would  be  able  to  more  rapidly  respond  to  the 
+molecule than a cell that relied on a molecule from other cells ie a receiver cell in paracrine 
+signaling  because  the  molecule  would  need  a  shorter  distance  to  travel  than  in  paracrine 
+signaling However this idea of pure self-communication has persistently posed two questions 
+that are only now being resolved i why would a cell go through the many steps of producing 
+and secreting a molecule if it only wanted to communicate with itself ii Why does the cell not 
+rely entirely on intracellular signals The other challenge has been that for many years it was 
+difficult to experimentally show that autocrine signaling involved self-communication in individual 
+cells  It  was  not  until  recently  that  researchers  performed  measurements  of  gene  expression 
+with  single  cell  resolution  to  definitively  prove  that  autocrine  signaling  enables  pure  self-
+communication  without  any  neighbor-communication  24  These  measurements  and  nascent 
+theoretical studies 41-43 are now beginning to resolve the aforementioned two questions We 
+will elaborate these resolutions after first reviewing some basics of quorum sensing 
+Quorum sensing A cell that talks to other cells 
+Quorum sensing is a form of signaling in which a cell secretes a signaling molecule in 
+order to communicate with other cells ie engaging in a pure neighbor-communication in a 
+way that depends on the density of the cell population It has been the main paradigm for 
+understanding multicellular behaviors and communication among bacteria and microbial 
+eukaryotes 26 Quorum sensing triggers coordinated and collective actions such as all cells in 
+the population turning on the same gene once the cell population density is above a certain 
+threshold value In this way one can consider quorum sensing to be paracrine signaling that is 
+activated by cells when the density of the cell population is above a certain threshold whereas 
+the cells do not communicate with self or neighbors when the population density is below the 
+threshold Quorum sensing is usually used when the benefits of cooperative actions outweigh 
+the benefits of each cell acting autonomously 26 
+Microbial  cells  rather  than  being  just  autonomous  individuals  use  quorum  sensing  to 
+accomplish tasks as a collective entity For example the marine bacteria Vibrio fischeri reside 
+inside  the  light  organ  of  the  Hawaiian  Bobtail  Squid  Euprymna  scolopes  and  uses  quorum 
+sensing through the secreted molecule AHL Acyl Homoserine Lactone to produce light inside 
+the  squid  a  phenomenon  called  bioluminescence  Figure  3A  44-47  When  the  population 
+density of the Vibrio fischeri cells is low the concentration of the secreted AHLs remains low As 
+the  population  density  increases  so  does  the  concentration  of  AHL  At  a  certain  population 
+density the concentration of AHL goes above a genetically encoded threshold which then turns 
+on  downstream  genes  that  lead  to  bioluminescence  26  Researchers  have  also  engineered 
+genetic circuits in Escherichia coli cells so that the cells can quorum sense through AHL which 
+has provided investigation into population-level behaviors such as population density control of 
+E colis rate of death 48 49  
+Over  the  last  decade  numerous  studies  have  combined  mathematical  modeling  with 
+fluorescence based methods such as time-lapse microscopy for measuring gene expression in 
+single cells to reveal how individual cells encode the threshold for quorum sensing and the kinds 
+of genetic circuits that can achieve quorum sensing 50-53  In the soil amoeba Dictyostelium 
+discoideum  a  special  form  of  quorum  sensing  called  dynamic  quorum  sensing  causes  the 
+cells to transition from unicellular individuals to macroscopic aggregates called fruiting bodies 
+Figure  3B  54-57  For  example  amoeba  cells  continuously  secrete  Pre-Starvation  Factor 
+PSF The concentration of PSF increases as the density of starving cells increases 57 When 
+the  PSF  concentration  reaches  a  certain  threshold  the  cells  respond  by  turning  on  the 
+expression  of  a  set  of  genes  that  eventually  trigger  secretion  of  the  chemo-attractant  cyclic 
+Adenosine Mono-Phosphate cAMP cAMP secretion is dynamically regulated by the density of 
+the amoeba with a positive feedback that regulates the secretion of cAMP ie cells increase 
+their  average  secretion  rate  of  cAMP  as  they  sense  more  cAMP  This  regulation  eventually 
+leads  to  the  aggregation  of  cells  into  fruiting  bodies  7  57  58  This  example  suggests  that 
+quorum sensing may have been crucial in the evolution of multicellularity 
+Quorum  sensing  is  also  seen  in  cooperative  and  commensal  relationships  among 
+different species 59-63 Moreover researchers are currently investigating inhibitors that disrupt 
+quorum sensing in bacteria ie quorum quenching as an alternative to antibiotics to which 
+many bacteria have developed resistance 60-65 to treat cancer 60 66 and to treat wounds 
+67  
+Based on these examples quorum sensing can be considered a form of paracrine 
+signaling that depends on the density of the cell population despite that quorum sensing cells 
+produce both a signaling molecule and its receptor which is more similar to autocrine cells 
+Typically receptors for the signaling molecule used in quorum sensing have a low binding 
+affinity for the molecule 26 Moreover these receptors tend to be expressed in low abundance 
+Thus microbes that quorum sense would only be able to detect the presence of the signaling 
+molecule when there is a sufficiently high density of it which would occur only when the cell 
+population density is sufficiently high 26 
+A secrete-and-sense cell uses one molecule to talk to itself and to other cells  
+One of the main goals of systems biology is to connect seemingly disparate biological 
+systems under common quantitative principles Recent studies of quorum sensing and autocrine 
+signaling are pointing towards such unification  between the two modes For one researchers 
+are now discovering quorum sensing in metazoan cells and in animal populations Figure 3C-
+D For example researchers have recently found that hair follicles underneath the mouse skin 
+regenerate damaged hairs only if the density of damaged hairs is above a certain threshold ie 
+number of plucked hairs per unit area of skin Figure 3C 27 This constitutes an example of 
+quorum sensing at the level of a whole organ hair follicle Researchers have also found that 
+the ants Temnthorax albipennis use quorum sensing to migrate to their nest Namely each ant 
+counts  the  rate  at  which  it  encounters  other  ants  as  the  ants  roam  about  in  search  of  a  new 
+nest  Once  each  ants  rate  of  encounter  goes  above  a  certain  threshold  the  ants  collectively 
+migrate to the region where each of them and thus everyone experiences an encounter rate 
+that  is  above  the  threshold  This  rate  informs  their  new  nesting  site  Figure  3D  68  Similar 
+group decisions have been observed in honeybees migrating to their nests 69 
+Adding towards the trend of unification has been the recent demonstration of autocrine 
+signaling  in  microbial  cells  24  A  recent  study  has  demonstrated  autocrine  signaling  in 
+engineered  budding  yeasts  and  in  the  process  proposed  a  fundamental  connection  between 
+autocrine signaling and quorum sensing 24 The study engineered a simple genetic circuit in 
+budding yeast cells that caused the cells to secrete a mating pheromone -factor and express 
+a receptor Ste2 for that pheromone 70 The different concentrations of the mating pheromone 
+caused the cells to express different amounts of a fluorescent protein but not mate with each 
+other Four parts of the secrete-and-sense genetic circuit could also be tuned independently 
+of  each  other  over  a  wide  range  and  demonstrated  various  social  behaviors  that  the 
+engineered yeast cells could achieve Figure 4  These factors were i The expression level of 
+the receptor ii Secretion rate of the -factor iii The expression level of a protease that actively 
+degraded the -factor outside the cell and iv The strength of a positive feedback that caused 
+the  cells  to  increase  the  secretion  rate  of  the  -factor  as  the  sensed  concentration  of  the  -
+factor  increased  Through  this  tuning  the  study  showed  that  autocrine  signaling  and  quorum 
+sensing  are  merely  two  extreme  ends  of  a  continuous  spectrum  of  a  signaling  modality  and 
+proposed  that  a  more  generic  secrete-and-sense  cell  could  span  this  sociability  spectrum 
+Figure  4  Namely  autocrine  signaling  is  the  asocial  end  of  the  sociability  spectrum  while 
+quorum sensing is the social end of the sociability spectrum Figure 4 The generic secrete-
+and-sense  cell  which  is  any  cell  mammalian  or  bacterial  whose  genetic  circuit  contains  the 
+four parts mentioned above would span the rest of this spectrum by tuning these four parts of 
+the secrete-and-sense circuit 24  
+In  other  recent  studies  28  42  researchers  have  developed  mathematical  models  to 
+reveal  how  the  parameters  of  secrete-and-sense  circuits  could  be  tuned  to  allow  the  cells  to 
+communicate with each other thus achieving efficient neighbor-communication that is the basis 
+of  quorum  sensing  In  a  recent  study  42  researchers  developed  a  mathematical  model  to 
+analyze the secrete-and-sense circuit in the T-cells of our immune system Their model showed 
+that a group of secrete-and-sense T-cells can compete for the same global pool of the secreted 
+IL-2 Their model predicted this by tuning the activation threshold which is the concentration 
+of the IL-2 at which the cells can switch on their genes that affect their proliferation rate Thus 
+the  researchers  showed  that  in  a  population  of  polyclonal  T-cells  with  distinct  activation 
+thresholds the cells could either compete or cooperate with each other Recent experiments 2 
+24  have  confirmed  key  predictions  of  this  model  and  affirmed  that  secrete-and-sense  cells 
+could achieve density dependent paracrine signaling ie quorum sensing 
+These and other recent studies use experiments 2 24 and mathematical models 28 
+42 to show that the secrete-and-sense circuit motif Figure 4 allows cells to realize autocrine 
+signaling and density-dependent paracrine signaling ie quorum sensing at different times to 
+achieve  distinct  goals  They  demonstrate  that  there  is  no  rigid  boundary  between  quorum 
+sensing and autocrine signaling This division is an historical artifact of researchers in different 
+disciplines having studied quorum sensing and autocrine signaling as separate phenomena By 
+considering both quorum sensing and autocrine signaling at the same time recent studies have 
+shown that there is a continuous spectrum between the two modes of signaling 2 24 28 42 A 
+mammalian or microbial cell can use autocrine signaling and quorum sensing simultaneously 
+Cells can tune their degree of autocrine signaling and their degree of quorum sensing by tuning 
+each  of  the  four  elements  of  its  genetic  circuit  to  regulate  respectively  the  amount  of  self-
+communication  and  neighbor-communication  Figure  4  The  cell  can  continuously  tune  these 
+two  degrees  of  communication  to  realize  a  spectrum  of  signaling  modes  ie  a  self-
+communication  and  neighbor-communication  A  fundamental  trade-off  in  this  spectrum 
+however  is  that  a  high  degree  of  neighbor-communication  comes  at  the  cost  of  lowering  the 
+degree of self-communication and vice versa 24 
+Concluding Remarks 
+We  have  outlined  nascent  studies  that  demonstrated  autocrine  signaling  to  be  more 
+closely  related  to  quorum  sensing  than  was  previously  thought  We  can  consider  quorum 
+sensing to arise from the ability of cells that are conventionally called autocrine cells to engage 
+in  pure  neighbor-communication  Figure  4  as  in  paracrine  signaling  Conversely  cells  that 
+quorum sense can engage in self-signaling as in autocrine signaling by tuning their secretion 
+and sensing of the signaling molecule Importantly both autocrine signaling cells and quorum 
+sensing  cells  can  tune  their  genetic  circuits  to  realize  a  mixture  of  self-communication  and 
+neighbor-communication  Figure  4  This  unified  view  of  autocrine  signaling  and  quorum 
+sensing  shows  the  deficiency  of  the  term  autocrine  signaling  as  it  is  conventionally  used  in 
+literature  and  textbooks  71  72  which  refers  to  cells  that  secrete  a  signaling  molecule  and 
+express  its  cognate  receptor  but  does  not  distinguish  between  whether  such  a  cell 
+communicates  with  itself  andor  with  its  neighbors  Cells  that  have  been  traditionally  called 
+autocrine cell can engage in paracrine signaling including its density dependent form that we 
+call quorum sensing 24 28  But in light of the recent findings outlined in this review we should 
+focus  on  which  cell  communicates  with  which  other  cell  when  referring  to  metazoan  and 
+bacterial autocrine cells
+Despite 
+these  recent  progresses  many 
+important  questions  still  remain  see 
+Outstanding  Questions  An  outstanding  question  is  the  evolutionary  origin  of  autocrine 
+signaling One possible answer is that quorum sensing first originated in bacteria and then the 
+early  forms  of  multicellular  organisms  ie  animals  inherited  the  secrete-and-sense  circuit  of 
+the bacteria that was tuned for quorum sensing The animals could have then tuned each of the 
+four  main  elements  of  the  secrete-and-sense  circuit  eg  through  mutations  in  the  regulatory 
+regions to achieve pure autocrine signaling or a mixture of self- and neighbor-communication 
+Future  work  that  investigates  this  possibility  will  likely  yield  a  more  comprehensive  view  of 
+secrete-and-sense cells 
+It is also interesting to investigate the possibility that microbial and metazoan cells might 
+tune  their  levels  of  autocrine  signaling  and  quorum  sensing  at  different  times  to  suit  different 
+needs For example at the beginning of the development of an embryo or a tissue autocrine 
+signaling may be used in order to achieve a great biomass and population density within a short 
+time  period  and  then  switch  to  quorum  sensing  to  enable  the  cells  within  the  embryo  or  the 
+tissue to coordinate their behaviors The different time scales involved in the effects of autocrine 
+signaling and quorum sensing may be worth investigating in the future 
+Finally many mammalian tissues for example the islets of Langerhans of the pancreas 
+consist of defined spatial arrangements of distinct cell types that engage in both autocrine and 
+paracrine  signaling  eg  the  beta-cells  of  pancreas  use  insulin  for  autocrine  signaling  73 
+Therefore  an  interesting  question  is  how  the  physical  structures  of  various  tissues  affect  the 
+degree of autocrine and potentially of quorum sensing in the tissues  
+We envision that the above types of studies will reveal deep quantitative principles that 
+govern secrete-and-sense cells and cellular communication in general 
+ACKNOWLEDGMENTS 
+We thank D Gomez-Alvarez E Helguero and A Ravensbergen for insightful suggestions HY 
+is supported by a NWO NanoFront Grant We apologize to researchers whose work we have 
+missed in citing 
+REFERENCES 
+D A Cantrell K A Smith The interleukin-2 T-cell system a new cell growth  
+model Science 224 1312-1316 1984 
+Hart Y et al Paradoxical signaling by a secreted molecule leads to homeostasis of cell 
+levels Cell 2014 1585 p 1022-32 
+Y Hart Y E Antebi A E Mayo N Friedman U Alon Design principles of cell circuits 
+with paradoxical components Proc Natl Acad Sci USA 109  
+8346-8351 2012 
+T A Waldmann The biology of interleukin-2 and interleukin-15 Implications for cancer 
+therapy and vaccine design Nat Rev Immunol 6 595-601 2006 
+5  O Feinerman et al Single-cell quantification of IL-2 response by effector and 
+regulatory T cells reveals critical plasticity in immune response Mol Sys Biol 
+6437 2010 
+J Y Chen J R Lin K A Cimprich T Meyer A two-dimensional ERK-AKT  
+signaling code for an NGF-triggered cell-fate decision Mol Cell 45 196-209  
+2012 
+T Gregor K Fujimoto N Masaki S Sawai The onset of collective behavior in social 
+amoebae Science 328 1021-1025 2010 
+8  G Seydoux I Greenwald Cell autonomy of lin-12 function in a cell fate decision in C 
+elegans Cell 57 1237-1245 1989 
+T Long et al Quantifying the integration of quorum-sensing signals with  
+single-cell resolution PLoS Biol 7 e68 2009 
+10  K C Tu T Long S L Svenningsen N S Wingreen B L Bassler Negative  
+11  L Lum P A Beachy The hedgehog response network Sensors switches and routers 
+feedback loops involving small regulatory RNAs precisely control the Vibrio 
+harveyi quorum-sensing response Mol Cell 37567-79 2010 
+Science 304 1755-1759 2004 
+12  T Gregor E F Wieschaus D W Tank W Bialek Probing the limits to positional 
+information Cell 130 153-164 2007 
+13  F Liu A H Morrison T Gregor Dynamic interpretation of maternal inputs by the 
+Drosophila segmentation gene network Proc Natl Acad Sci USA 110 6724-6729 
+2013 
+gradient in Xenopus embryos Nature 453 1205-1211 2008 
+polarity in the early drosophila embryo Cell 150 1016-1028 2012 
+14  M Haskel-Ittah et al Self-organized shuttling Generating sharp dorsoventral  
+15  D Ben-Zvi B-Z Shilo A Fainsod N Barkai Scaling of the BMP activation  
+16  S Basu Y Gerchman C H Collins F H Arnold R Weiss A synthetic  
+17  J J Tabor et al A synthetic genetic edge detection program Cell 137 272-1281 2009 
+18  F K Balagadde et al A synthetic Escherichia coli predator-prey ecosystem Mol Syst 
+multicellular system for programmed pattern formation Nature 434 1130-1134  
+2005 
+Biol 4 1-8 2008 
+networks Nature 469 207- 211 2011 
+genetically encoded NOR gates and chemical wires Nature 469 212-215 2011 
+19  A Tasmir J J Tabor C A Voigt Robust multicellular computing using  
+20  S Regot et al Distributed biological computation with multicellular engineered  
+21  D Sprinzak et al Cis-interactions between notch and delta generate mutually 
+22  H Lodish et al Molecular cell biology 7th edition W H Freeman  Company 2012 
+23  J Liu et al Metabolic co-dependence gives rise to collective oscillations within biofilms 
+exclusive signaling states Nature 465 86 2010 
+Nature 523 2015 
+24   Youk H and WA Lim Secreting and sensing the same molecule allows cells to achieve 
+versatile social behaviors Science 2014 3436171 p 1242782 
+25   Sporn MB and GJ Todaro Autocrine secretion and malignant transformation of cells N 
+Engl J Med 1980 30315 p 878-80 
+26   Ng WL and BL Bassler Bacterial quorum-sensing network architectures Annu Rev 
+Genet 2009 43 p 197-222 
+27  Chen CC et al Organ-level quorum sensing directs regeneration in hair stem cell 
+populations Cell 2015 1612 p 277-90 
+28  A Pai and L You Optimal tuning of bacterial sensing potential Mol Syst Biol 5286 
+2009 
+29  Grivennikov S and M Karin Autocrine IL-6 signaling a key event in tumorigenesis 
+Cancer Cell 2008 131 p 7-9 
+30  Schlange T et al Autocrine WNT signaling contributes to breast cancer cell proliferation 
+via the canonical WNT pathway and EGFR transactivation Breast Cancer Res 2007 
+95 p R63 
+31  ONeill C Autocrine mediators are required to act on the embryo by the 2-cell stage to 
+promote normal development and survival of mouse preimplantation embryos in vitro Biol 
+Reprod 1998 585 p 1303-9 
+32   ONeill C The role of paf in embryo physiology Hum Reprod Update 2005 113 p 
+33  Gopichandran N and HJ Leese The effect of paracrineautocrine interactions on the in 
+vitro culture of bovine preimplantation embryos Reproduction 2006 1312 p 269-77 
+34  ONeill C Evidence for the requirement of autocrine growth factors for development of 
+mouse preimplantation embryos in vitro Biol Reprod 1997 561 p 229-37 
+35  Y E Antebi et al Mapping differentiation under mixed culture conditions reveals a tunable 
+continuum of T cell fates PLoS Biol 11 e1001616 2013 
+215-28 
+36  M Fang H Xie S K Dougan H Ploegh A van Oudenaarden Stochastic cytokine 
+expression induces mixed T helper cell states PLoS Biol  11 e1001618 2013 
+37  A E DeWitt J Y Dong H S Wiley D A Lauffenburger Quantitative analysis of the 
+EGF receptor autocrine system reveals cryptic regulation of cell response by ligand 
+capture J Cell Sci 114 2301-2313 2001 
+38  M Coppey A M Berezhovskii S C Sealfon S Y Shvartsman Time and length scales 
+of autocrine signals in three dimensions Biophysical Journal 93 1917-1922 2007 
+39  S Y Shvartsman H S Wiley W M Deen D A Lauffenburger Spatial range of 
+autocrine signaling modeling and computational analysis Biophys J 81 1854-1867 
+2001 
+40  S Y Shvartsman et al Autocrine loops with positive feedback enable context- 
+41  E Hoyos et al Quantitative variation in autocrine signaling and pathway crosstalk in the 
+dependent cell signaling Am J Physiol Cell Physiol 282 C545-559 2002 
+Caenorhabditis vulval network Curr Biol 21 527-538 2011 
+42  Y Savir N Waysbort Y E Antebi T Tlusty N Friedman Balancing speed and 
+accuracy of polyclonal T cell activation a role for extracellular feedback 
+BMC Sys Biol 6111 2012 
+43  O Feinerman et al Single-cell quantification of IL-2 response by effector and 
+regulatory T cells reveals critical plasticity in immune response Mol Sys Biol 
+6437 2010 
+44   Kempner ES and FE Hanson Aspects of light production by Photobacterium fischeri J 
+Bacteriol 1968 953 p 975-9 
+45   Ruby EG and KH Nealson Symbiotic association of Photobacterium fischeri with the 
+marine luminous fish Monocentris japonica a model of symbiosis based on bacterial 
+studies Biol Bull 1976 1513 p 574-86 
+46   Ruby EG and MJ McFall-Ngai Oxygen-utilizing reactions and symbiotic colonization of 
+the squid light organ by Vibrio fischeri Trends Microbiol 1999 710 p 414-20 
+47   Nealson KH T Platt and JW Hastings Cellular control of the synthesis and activity of 
+the bacterial luminescent system J Bacteriol 1970 1041 p 313-22 
+48   Wang Z et al Artificially constructed quorum-sensing circuits are used for subtle control 
+of bacterial population density PLoS One 2014 98 p e104578 
+49  L You R S Cox R Weiss F H Arnold Programmed population control by  
+cell-cell communication and regulated killing Nature 428 868-871 2004 
+I B Bischofs J A Hug A W Liu D M Wolf A P Arkin Complexity in bacterial cell-cell 
+communication quorum signal integration and subpopulation signaling in the Bacillus 
+subtilis phosphorelay Proc Natl Acad Sci USA 106 6459-6464 2009 
+51  P Mehta S Goyal T Long B L Bassler NS Wingreen Information processing and 
+signal integration in bacteria quorum sensing Mol Sys Biol 5325 2009 
+52  A Pai Y Tanouchi L You Optimality and robustness in quorum sensing QS-mediated 
+regulation of a costly public good enzyme Proc Natl Acad Sci USA 109 19810 
+2012  
+53  S Teng et al Active regulation of receptor ratios controls integration of quorum-sensing 
+signals in Vibrio harveyi Mol Sys Biol 7491 2011 
+54  S De Monte F dOvidio S Dano P Graae Sorensen Dynamical quorum  
+sensing Population density encoded in cellular dynamics Proc Natl Acad  
+Sci USA 104 18377-18381 2007 
+55  D J Schwab A Baetica P Mehta Dynamical quorum-sensing in oscillators  
+56   Shank EA and R Kolter Extracellular signaling and multicellularity in Bacillus subtilis 
+coupled through an external medium Physica D 241 1782-1788 2012  
+Curr Opin Microbiol 2011 146 p 741-7 
+57   Loomis WF Cell signaling during development of Dictyostelium Dev Biol 2014 3911 
+p 1-16 
+58  A E Sgro et al From intracellular signaling to population oscillations bridging size- and 
+time-scales in collective behavior Mol Sys Biol 11 779 2015 
+59  Atkinson S and P Williams Quorum sensing and social networking in the microbial 
+world J R Soc Interface 2009 640 p 959-78 
+60  Garg N G Manchanda and A Kumar Bacterial quorum sensing circuits and 
+applications Antonie Van Leeuwenhoek 2014 1052 p 289-305 
+61  Bhardwaj AK K Vinothkumar and N Rajpara Bacterial quorum sensing inhibitors 
+attractive alternatives for control of infectious pathogens showing multiple drug resistance 
+Recent Pat Antiinfect Drug Discov 2013 81 p 68-83 
+62  Kalia VC Quorum sensing inhibitors an overview Biotechnol Adv 2013 312 p 224-
+63  Singh G et al Bioactive proteins from Solanaceae as quorum sensing inhibitors against 
+virulence in Pseudomonas aeruginosa Med Hypotheses 2015 846 p 539-42 
+64  Garcia-Contreras R T Maeda and TK Wood Can resistance against quorum-sensing 
+interference be selected ISME J 2015 
+65  Maeda T et al Quorum quenching quandary resistance to antivirulence compounds 
+ISME J 2012 63 p 493-501 
+66  Brucher BL and IS Jamall Cell-cell communication in the tumor microenvironment 
+carcinogenesis and anticancer treatment Cell Physiol Biochem 2014 342 p 213-43 
+67  De Ryck T et al Microbial inhibition of oral epithelial wound recovery potential role for 
+quorum sensing molecules AMB Express 2015 5 p 27 
+68  Pratt SC Quorum sensing by encounter rates in the ant Temnothorax albipennis 
+Behavioral Ecology 2005 162 p 488-496 
+69  Seeley TD and PK Visscher Group decision making in nest-site selection by honey 
+bees Apidologie 2004 35 p 101-116 
+70  L Bardwell A walk-through of the yeast mating pheromone responsive pathway Peptides 
+25 1465-1476 2004  
+71  B Alberts A Johnson J Lewis D Morgan M Raff K Roberts and P Walter Molecular 
+Biology of the Cell 6th Edition Garland Science 2014 
+72  H Lodish A Berk and C A Kaiser Molecular Cell Biology 6th Edition WH Freeman 
+2007 
+I B Leibiger B Leibiger P-O Berggren Insulin signaling in the pancreatic -cell Annu 
+Rev Nutr 28 233-251 2008 
+ Two fundamental modes
+of cellular communication
+ signaling 
+molecule
+receptor
+EGF signaling
+Proliferation and death of T-cells
+EGF receptor
+embryonic development
+tumor growth
+healthy cells 
+cancer cell
+Figure captions 
+Figure  1  Autocrine  and  paracrine  signaling  as  two  fundamental  means  of  cellular 
+communication  Cells  often  communicate  by  secreting  a  signaling  molecule  Autocrine 
+signaling  and  paracrine  signaling  are  the  two  fundamental  and  ubiquitous  modes  of 
+communication through a secreted signaling molecule In autocrine signaling a cell secretes a 
+signaling  molecule  and  simultaneously  makes  a  receptor  that  captures  the  molecule  In 
+paracrine signaling one type of cell secretes a signaling molecule without making its cognate 
+receptor while another type of cell makes the cognate receptor without secreting the molecule 
+Figure  2  Examples  of  autocrine  signaling  A  Epidermal  growth  factor  EGF  and  its 
+receptor EGFR in epithelial cells B The CD4 T cells use autocrine signaling through IL-2 to 
+control  their  proliferation  and  apoptosis  C  Autocrine  signaling  for  example  through  the 
+Platelet  Activating  Factor  PAF  plays  an  important  role  in  the  development  of  mammalian 
+embryos  A  decreased  amount  of  the  PAF  ligand  reduces  the  embryos  chances  of  surviving 
+through development D Faulty autocrine signaling through IL-6 causes uncontrolled growth in 
+healthy cells and initiates tumor formation in the early stages of breast and lung cancers  
+Figure  3  Examples  of  quorum  sensing  A  When  the  population  density  of  the  marine 
+bacteria  Vibrio  fischeri  is  small  the  concentration  of  the  secreted  AHL  Acyl  Homoserine 
+Lactones  is  low  An  increase  in  the  cell  population  density  causes  the  extracellular 
+concentration of AHL to rise When the concentration of AHL goes above a certain threshold 
+the  cells  generate  light  through  the  Lux  system  B  The  soil  amoeba  D  discoideum 
+continuously  secrete  Pre-starvation  factor  PSF  The  concentration  of  PSF  increases  as  the 
+density  of  starving  cells  rises  When  the  PSF  concentration  reaches  a  certain  threshold  the 
+amoeba respond by secreting cyclic Adenosine Mono-Phosphate cAMP This eventually leads 
+to the cells aggregating into fruiting bodies C Hair follicles regenerate damaged hairs if and 
+only  if  the  density  of  damaged  hairs  is  above  a  certain  threshold  D  The  ant  Temnthorax 
+albipennis counts the rate at which it encounters other ants as it walks around in search of a 
+new nesting site Once the rate at which each ant encounters other ants goes above a certain 
+threshold the ants collectively migrate to the region in which the encounter rate is above the 
+threshold to establish their new nest 
+Figure 4  Autocrine signaling and quorum sensing are two extreme ends of a spectrum 
+of signaling modalities that secrete-and-sense cells can realize A secrete-and-sense cell 
+can  tune  each  of  the  four  main  elements  of  its  genetic  circuit  to  control  its  degree  of  self-
+communication  ie  extent  of  autocrine  signaling  and  its  degree  of  neighbor-communication 
+ie  extent  of  quorum  sensing  The  cell  can  continuously  tune  these  two  degrees  of 
+communication to realize a spectrum of signaling modes ie a mixture of autocrine signaling 
+and  quorum  sensing  A  fundamental  trade-off  is  inherent  in  this  spectrum  A  high  degree  of 
+neighbor-communication comes at the cost of lowering the degree of self-communication and 
+vice versa 

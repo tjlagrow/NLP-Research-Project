@@ -1,928 +1,540 @@
-The Role of the Gricean Maxims
-in the Generation of Referring Expressions
-Robert Dale
-Microsoft Institute
-65 Epping Road
-North Ryde
-Sydney nsw 2113
-Australia
-Ehud Reiter
-Department of Computer Science
-Kings College
-University of Aberdeen
-Aberdeen ab9 2ue
-Scotland
-rdalempcemqeduau
-ereitercsdabdnacuk
-Abstract
-Adequate and Ecient Referring
-Grices maxims of conversation Grice 1975 are framed
-as directives to be followed by a speaker of the lan-
-guage This paper argues that when considered from
-the point of view of natural language generation such a
-characterisation is rather misleading and that the de-
-sired behaviour falls out quite naturally if we view lan-
-guage generation as a goal-oriented process We argue
-this position with particular regard to the generation
-of referring expressions
-Introduction
-The position taken in this paper can be summarised as
-follows
-1 Grices maxims Grice 1975 are framed as directives
-to the speaker and so it is natural to consider how
-they might impact on the task of natural language
-generation nlg
-2 A number of the maxims can collectively be expressed
-by the imperative Dont say too much and dont
-say too little This focusses our attention on the
-language generation subtask of content determi-
-nation and one of the more constrained and well-
-explored aspects of content determination is the gen-
-eration of referring expressions However if we look
-at this task in detail it becomes clear that there are
-problems with enforcing a literal interpretation of the
-maxims
-3 We review some of our previous work that has tried
-to address this problem but go on to suggest a rather
-more radical position that Grices maxims are un-
-necessary directives from the point of view of refer-
-ring expression generation and that provided the
-register and sublanguage conventions of the genre in
-force are conformed to the behaviour the maxims
-characterise actually falls out quite naturally from
-viewing nlg as a goal-oriented process
-Under this view the maxims are no more than post hoc
-characterisations of the way language works and their
-framing as directives is ultimately rather misleading
-Copyright ccid13 2008 American Association for Articial In-
-telligence wwwaaaiorg All rights reserved
-Expressions
-Grice and Reference Deciding What To
-It has become commonplace to view language genera-
-tion as encompassing two kinds of concerns deciding
-what to say and deciding how to say it1 The con-
-siderations that arise in deciding what to say are often
-expressed in terms that echo Grices Maxims of Quan-
-tity dont say too much and dont say too little There
-are many reasons why such imperatives are worth at-
-tending to in the development of algorithms to be used
-by computational systems which generate natural lan-
-guage for example we want to make sure that we have
-given the hearer the information that she needs but
-we dont want to bore her with a ood of unnecessary
-statements From the point of view of implicatures
-however an additional concern is that saying too much
-might lead the hearer to read between the lines in ways
-that were unintended by the underlying system Ulti-
-mately language generation systems should be as ca-
-pable of exploiting the notion of conversational impli-
-cature as much as people do but before we can achieve
-goals of that kind its important that we know when
-we are obeying the maxims In other words our rst
-priority is to ensure that the generated text does not
-unintentionally contain false implicatures
-The task of generating referring expressionsand
-in particular anaphoric referring expressionsprovides
-an arena where we can move towards a more formal
-specication of what this really involves Given some
-internal symbol that corresponds to an intended refer-
-ent the job of a referring expression generator is to de-
-termine the semantic content of a noun phrase that will
-identify the intended referent to the hearer The rst
-serious consideration of this issue in the nlg literature
-was probably McDonalds 1980 discussion of potential
-distractorsother entities in the context we might mis-
-takenly refer towhen deciding whether or not it was
-safe to use a pronoun to refer to an entity Appelt 1982
-1We take no particular stance in the present discussion
-as to how this distinction impacts on the modularity of the
-architecture of a language generation system
-and Novak 1988 looked at determining the content of
-denite noun phrase referring expressions in situations
-where for whatever reason a pronoun could not be
-used In Dale 1989 one of us characterised the task of
-determining the content of a referring expression as be-
-ing constrained by three Grice-like principles the prin-
-ciple of sensitivity which states that the referring
-expression chosen should take account of the state of
-the hearers knowledge the principle of adequacy
-which states that the referring expression chosen should
-be sucient to identify the intended referent and the
-principle of efficiency which states that the re-
-ferring expression chosen should provide no more infor-
-mation than is necessary for the identication of the
-intended referent
-An Algorithm for Saying The Right
-Suggestions that referring expression generation should
-be governed by principles like those just described are
-common but detailed algorithms that meet the speci-
-ed goals are somewhat rarer Dale 1989 proposed an
-algorithm which assumes the following scenario
-Suppose that we have a set of entities C called
-the context set such that C  a1 a2     an
-and our task is to distinguish from this context
-set some intended referent r where r  C Sup-
-pose also that each entity ak is described in the
-systems knowledge base by means of a set of prop-
-erties pk1  pk2      pkm In order to distinguish our
-intended referent r from the other entities in C we
-need to nd some set of properties which are to-
-gether true of r but of no other entity in C The
-linguistic realisation of this set of properties con-
-stitutes a distinguishing description dd of r
-with respect to the context C A minimal dis-
-tinguishing description is then the linguistic
-realisation of the smallest such set of properties
-The detail of the algorithm is unimportant for present
-purposes basically it consists of three steps as follows
-1 Check Success see if the description we have con-
-structed so far picks out only one entity in the con-
-text If it does stop If not go to Step 2
-2 Choose Property determine which property of the
-intended referent would rule out the largest number
-of other entities in the context Go to Step 3
-3 Extend Description add the chosen property to the
-description being constructed and remove the enti-
-ties it rules out from the context Go to Step 1 with
-this extended description and the reduced context
-Reiter 1990 noted a serious deciency of this algo-
-it will not in fact always produce a minimal
-distinguishing description and indeed nding a mini-
-mal distinguishing description is equivalent to solving a
-minimal set-cover problem which is np-hard The com-
-putational complexity of this task raises the question of
-whether it is appropriate to insist on an algorithm that
-creates minimal distinguishing descriptions
-In other
-words it may be unreasonable to try to construct max-
-imally adequate and ecient referring expressions or
-more to the point meeting Grices requirements of say-
-ing neither too much nor too little if taken literally
-may be computationally unachievable
-Cooperative Behaviour as an
-Epiphenomenon
-Allowing in Redundancy
-One response to Reiters objection is to take the view
-that the notion of minimality sought in the algorithm
-above is too strong In subsequent work we took a step
-back and asked what do people actually do when they
-construct referring expressions It is very dicult to
-make any strong claims on the basis of the experiments
-that have been done but it does seem to be the case
-that people do not build minimal distinguishing descrip-
-tions in the strong sense suggested above We explored
-these considerations in more detail in Dale and Reiter
-1995 where we proposed a revised algorithm which is
-computationally ecient at the cost of producing some
-informational redundancy in the referring expressions
-it generates
-Implicit vs Explicit Pursuance of the
-So obeying the Gricean maxims looks computationally
-problematic and it seems not to be what people do
-with some caveats we are assuming a literal interpre-
-tation of the maxims and assuming that it is possible
-to generalise from the experimental results
-for example
-Our early attempts to generate referring expressions
-as presented
-in Dale 1989 and Re-
-iter 1990 explicitly enforced variants of the Gricean
-Maxim of Quantity However our current hypothesis is
-that this is in fact unnecessary We now take the view
-that it is a mistake to view the Gricean Maxims as di-
-rectives they are really no more than post hoc charac-
-terisations of what is going on They may even mislead
-us in the construction of mechanisms that cooperate
-conversationally
-It is generally accepted that language generation can
-fruitfully be viewed as a goal-oriented process In other
-words a natural language generation system may be
-given as input an agenda of goals that are to be satis-
-ed in the text being constructed the systems task is
-to nd linguistic devices that satisfy each goal remov-
-ing the goal from the agenda once it has been achieved
-There are a wide variety of goals that might appear in
-such a mechanism In the context of referring expres-
-sion generation typical goals could include
- Getting the hearer to identify the intended referent
- Alerting the hearer to the fact that r has the property
-represented by the attribute value pair ha vi
-A goal of the form of the rst of these will give rise to
-the construction of a distinguishing description a goal
-of the form of the second of these might result in the
-inclusion of information beyond that required for refer-
-ent identication Robin 1994 is a good discussion of
-some of the issues that arise in developing algorithms
-to achieve such goals This information could be ex-
-pressed in a separate clause but could equally well be
-folded into the same referring expression that is being
-used for the referent identication in the rst goal Ap-
-pelt 1982 provides a very nice example of this
-The fact that information can appear in a noun
-phrase for purposes other than referent identication
-means of course that the hearer has to do some work
-in determining what the role of each provided descrip-
-tor is In the case of an utterance like Give me the red
-pen the speaker may be providing the term red in order
-to distinguish the intended referent from another pen
-which is green It is equally possible though that there
-is only one pen in the context and red is included in the
-description because colour has special salience it may
-be easier for the speaker to rst look for red objects
-and then nd the particular red object which is a pen
-Another possibilityperhaps a little tenuous in the cur-
-rent example but clearly a possibility nonethelessis
-that the hearer may be redgreen colour blind and the
-speaker is imparting additional information about the
-colour of the pen which the hearer may be able to make
-use of later A more common clue to descriptor pur-
-pose is that fact that some properties are more likely to
-be used for referent identication than others In the
-utterance Sit by the newly-painted table for example
-the property newly-painted could be being used to dis-
-tinguish the intended referent from other tables in the
-context but it is rather more likely that its purpose is
-to warn the hearer not to put her elbows on the table2
-In addition to goal orientation aspects of genre such
-as register and sublanguage also play an important
-role in determining appropriate referring expressions
-In particular whether a specic referring expression is
-interpreted by the hearer as being purely for identi-
-cation or not may depend on the current genre For
-example in casual conversation a hearer might inter-
-pret Give me the Staedtler pen as having some purpose
-beyond simple identication perhaps informing the
-hearer that the speaker prefers pens made by Staedtler
-since manufacturer is not a commonly used attribute in
-identication-only referring expressions in this genre
-In an inventory-stocking context on the other hand
-Give me the Staedtler pens might be construed as purely
-referential since manufacturer is often used as an iden-
-tifying attribute in this genre Consequently an nlg
-system that is generating an identication-only refer-
-ring expression should if possible use only those at-
-tributes that are typically used for identication in the
-target genre otherwise false implicatures may arise
-However again we believe that there is no need to ex-
-2This example is due to Bonnie Webber
-plicitly model this phenomenon as an implicature it is
-sucient to design the system so that it uses the identi-
-fying attributes preferred in its target genre as is done
-via the PreferredAttributes list in the algorithm
-of Dale and Reiter 1995
-Although in the above examples the hearer may have
-to perform some potentially complex inferencing to de-
-termine what the speakers goals are note that there
-is no need for the speaker to do anything other than
-satisfy the list of goals using resources appropriate to
-the current genre Nowhere is there an explicit attempt
-to adhere to the maxims
-Reassessing the Maxims
-In the light of the above discussion we revisit Grices
-maxims in this section and comment on how each might
-be best interpreted in the context of natural language
-generation
-The Maxim of Quality
-Try to make your contribution one that is true More
-specically
-1 Do not say what you believe to be false
-2 Do not say that for which you lack adequate evidence
-No natural language generation systems that we are
-aware of deliberately say things that are false this can
-happen by accident of course but then it is not inten-
-tional
-An arguable exception to this claim is the work of
-Jameson 1987 whose Imp system injects bias into its
-utterances in order to mislead but even here this is not
-done by telling lies Certainly in principle one could
-construct a generation system that lied for purposes
-such as advertising or manipulation or that produced
-descriptions that were correct relative to the hearers
-knowledge even if they were untrue in the world for
-example we might want to build a system which could
-generate the man drinking a martini to refer to a man
-who was actually drinking water from a martini glass
-This would require explicit programming however the
-default behaviour of all systems we are aware of is to
-automatically obey the Maxim of Quality
-The Maxim of Quantity
-1 Make your contribution as informative as is required
-for the current purposes of the exchange
-2 Do not make your contribution more informative
-than is required
-The rst part of the Maxim of Quantity is automatically
-fullled by a goal-oriented system the goal will not be
-satised until sucient information is provided What
-we should say about the second part of the maxim how-
-ever depends on how strongly or literally we choose to
-interpret it
-If we insist that referring expressions or
-other utterances contain no unnecessary words then we
-will probably have to explicitly enforce this as a con-
-straint in our nlg system in general nlg systems will
-not automatically obey this rule On the other hand if
-we interpret the second part of the Maxim of Quality
-as meaning do not go out of your way to add extra in-
-formation that is not needed then this behaviour once
-more comes for free with goal-orientation Our experi-
-ence suggests that at least for the task of generating
-referring expressions the second interpretation is the
-best one
-The Maxim of Relevance
-Be relevant
-Yet again this follows directly from goal-oriented be-
-haviour there is no reason why the system should con-
-sider saying something that is not relevant It is possi-
-ble of course that an algorithm might unintentionally
-include irrelevant information this is also true of hu-
-man linguistic behaviour
-The Maxim of Manner
-Be perspicuous More specically
-1 Avoid obscurity of expression
-2 Avoid ambiguity
-3 Be brief avoid unnecessary prolixy
-4 Be orderly
-These are places where an anticipation feedback mech-
-anism of the kind proposed by Jameson and Wahlster
-1982 might be appropriate ie we might like a system
-to subject its proposed utterance to a self-monitoring
-stage to make sure that it is not ambiguous and so on
-Of all the maxims it is perhaps these with the excep-
-tion of the brevity submaxim to which our response is
-the same as our response to the Maxim of Quantity
-which are most amenable to explicit modelling in the
-generation process but even here it is equally possible
-that over time we learn heuristics that do the job for us
-so that the generation task more or less naturally pro-
-duces results that have the required characteristics see
-Levelts 1989 comments on this as a possible charac-
-teristic of the human language production mechanism
-Exploiting Violations
-The goal-oriented approach has the additional benet
-that using violations of the maxims in order to get some
-other point across falls out as part of the same mecha-
-nism again see Jamesons 1987 work in this regard
-From the point of view of the generator they are not
-violations at all
-Conclusions
-We have argued that Grices Maxims do not need to be
-explicitly enforced or modelled in a natural language
-generation system Instead they should be replaced by
-the following system construction principles
-Grice and Generation
-A generation system should be goal-driven and con-
-form to the current genre As a general architecture
-this suggests a process which builds an agenda of goals
-and then searches for communicative and linguistics re-
-sources in the target genre which can be used to realize
-these goals There is the possibility that such a sys-
-tem may end up saying something beyond what was
-intended That is acceptable Minimality is not neces-
-sary provided the information that is provided is there
-because it serves some purpose hearers will not make
-inappropriate inferences
-Grice and Interpretation
-As a corollary to the goal-oriented view of generation
-the hearer should assume that every informational ele-
-ment in the speakers utterance is there with some in-
-tended purpose The hearers job is then to work out
-what the speakers intended purpose is
-If we are in
-a context for example where referent identication is
-obviously the task and the expression contains infor-
-mation unnecessary for identication the hearer must
-consider the possibility that this information has been
-provided by the speaker for some other purposebut
-note that it might not be it might have been put in
-to help with identication even if it turns out that the
-hearer did not make use of it for that purpose3 Prop-
-erties which are clearly not able to help us in identi-
-fying the intended referent must be doing something
-else In the context of our newly-painted table example
-it many cases it will be impossible to determine that
-something is newly-painted simply by looking and it is
-unlikely that the speaker intends us to go around ac-
-tually touching all the tables to identify which one has
-that property so it is reasonable to assume that the
-property has been provided for some other purpose
-In Summary
-Ultimately for the generator Grices maxims taken col-
-lectively mean Dont include elements that dont do any-
-thing Our position is that under a goal-oriented view
-of language generation there is no need to explicitly
-follow such a directive at all the desired behaviour just
-falls out of the mechanism We have argued in the
-present paper that this is true of the referring expres-
-sion generation task it remains to be seen whether the
-same story can be told of all language generation and
-what the impact of this is on models of language un-
-derstanding
-3Returning to our earlier red pen example suppose the
-hearer just happens to be focussed on the red pen when
-the utterance is produced Then the property of redness
-may have been included by the speaker in order to help the
-hearer identify the intended referent even if it is not used
-for this purpose
-References
-Douglas Appelt 1982 Planning Natural Language Ut-
-terances to Satisfy Multiple Goals Technical Note
-259 SRI International Menlo Park California
-Robert Dale 1989 Cooking Up Referring Expressions
-In Proceedings of 27th Annual Meeting of the Associ-
-ation for Computational Linguistics Vancouver bc
-Robert Dale and Ehud Reiter 1995 Computational
-Interpretations of the Gricean Maxims in the Gen-
-eration of Referring Expressions Cognitive Science
-192 pp233263
-H Paul Grice 1975 Logic and conversation In P Cole
-and J Morgan editors Syntax and Semantics Vol
-3 Speech Acts pages 4358 New York Academic
-Anthony Jameson 1987 How to Appear to be Con-
-forming to the Maxims Even if you Prefer to Violate
-Them Chapter 2 in G Kempen ed Natural Lan-
-guage Generation Dordrecht Martinis Nijho Pub-
-lishers
-Anthony Jameson and Wolfgang Wahlster 1982 User
-Modelling in Anaphora Generation Ellipsis and Def-
-inite Description In Proceedings of the Fifth Euro-
-pean Conference on Articial Intelligence Pisa Italy
-Willem Levelt 1989 Speaking From Intention to Ar-
-ticulation Cambridge ma mit Press
-David McDonald 1980 Natural Language Generation
-as a Process of Decision Making Under Constraints
-PhD Thesis mit
-Hans-Joachim Novak 1988 Generating
-ring Phrases in a Dynamic Environment Chapter
-5 in M Zock and G Sabah eds Advances in Natu-
-ral Language Generation Volume 2 pp7685 Pinter
-Publishers
-Ehud Reiter 1990 Generating Appropriate Natural
-Language Object Descriptions PhD Thesis Harvard
-University
-Jacques Robin 1994 Revision-Based Generation of
-Natural Language Summaries Providing Historical
-Background PhD Thesis Columbia University
-The Role of the Gricean Maxims
-in the Generation of Referring Expressions
-Robert Dale
-Microsoft Institute
-65 Epping Road
-North Ryde
-Sydney nsw 2113
-Australia
-Ehud Reiter
-Department of Computer Science
-Kings College
-University of Aberdeen
-Aberdeen ab9 2ue
-Scotland
-rdalempcemqeduau
-ereitercsdabdnacuk
-Abstract
-Adequate and Ecient Referring
-Grices maxims of conversation Grice 1975 are framed
-as directives to be followed by a speaker of the lan-
-guage This paper argues that when considered from
-the point of view of natural language generation such a
-characterisation is rather misleading and that the de-
-sired behaviour falls out quite naturally if we view lan-
-guage generation as a goal-oriented process We argue
-this position with particular regard to the generation
-of referring expressions
-Introduction
-The position taken in this paper can be summarised as
-follows
-1 Grices maxims Grice 1975 are framed as directives
-to the speaker and so it is natural to consider how
-they might impact on the task of natural language
-generation nlg
-2 A number of the maxims can collectively be expressed
-by the imperative Dont say too much and dont
-say too little This focusses our attention on the
-language generation subtask of content determi-
-nation and one of the more constrained and well-
-explored aspects of content determination is the gen-
-eration of referring expressions However if we look
-at this task in detail it becomes clear that there are
-problems with enforcing a literal interpretation of the
-maxims
-3 We review some of our previous work that has tried
-to address this problem but go on to suggest a rather
-more radical position that Grices maxims are un-
-necessary directives from the point of view of refer-
-ring expression generation and that provided the
-register and sublanguage conventions of the genre in
-force are conformed to the behaviour the maxims
-characterise actually falls out quite naturally from
-viewing nlg as a goal-oriented process
-Under this view the maxims are no more than post hoc
-characterisations of the way language works and their
-framing as directives is ultimately rather misleading
-Copyright ccid13 2008 American Association for Articial In-
-telligence wwwaaaiorg All rights reserved
-Expressions
-Grice and Reference Deciding What To
-It has become commonplace to view language genera-
-tion as encompassing two kinds of concerns deciding
-what to say and deciding how to say it1 The con-
-siderations that arise in deciding what to say are often
-expressed in terms that echo Grices Maxims of Quan-
-tity dont say too much and dont say too little There
-are many reasons why such imperatives are worth at-
-tending to in the development of algorithms to be used
-by computational systems which generate natural lan-
-guage for example we want to make sure that we have
-given the hearer the information that she needs but
-we dont want to bore her with a ood of unnecessary
-statements From the point of view of implicatures
-however an additional concern is that saying too much
-might lead the hearer to read between the lines in ways
-that were unintended by the underlying system Ulti-
-mately language generation systems should be as ca-
-pable of exploiting the notion of conversational impli-
-cature as much as people do but before we can achieve
-goals of that kind its important that we know when
-we are obeying the maxims In other words our rst
-priority is to ensure that the generated text does not
-unintentionally contain false implicatures
-The task of generating referring expressionsand
-in particular anaphoric referring expressionsprovides
-an arena where we can move towards a more formal
-specication of what this really involves Given some
-internal symbol that corresponds to an intended refer-
-ent the job of a referring expression generator is to de-
-termine the semantic content of a noun phrase that will
-identify the intended referent to the hearer The rst
-serious consideration of this issue in the nlg literature
-was probably McDonalds 1980 discussion of potential
-distractorsother entities in the context we might mis-
-takenly refer towhen deciding whether or not it was
-safe to use a pronoun to refer to an entity Appelt 1982
-1We take no particular stance in the present discussion
-as to how this distinction impacts on the modularity of the
-architecture of a language generation system
-and Novak 1988 looked at determining the content of
-denite noun phrase referring expressions in situations
-where for whatever reason a pronoun could not be
-used In Dale 1989 one of us characterised the task of
-determining the content of a referring expression as be-
-ing constrained by three Grice-like principles the prin-
-ciple of sensitivity which states that the referring
-expression chosen should take account of the state of
-the hearers knowledge the principle of adequacy
-which states that the referring expression chosen should
-be sucient to identify the intended referent and the
-principle of efficiency which states that the re-
-ferring expression chosen should provide no more infor-
-mation than is necessary for the identication of the
-intended referent
-An Algorithm for Saying The Right
-Suggestions that referring expression generation should
-be governed by principles like those just described are
-common but detailed algorithms that meet the speci-
-ed goals are somewhat rarer Dale 1989 proposed an
-algorithm which assumes the following scenario
-Suppose that we have a set of entities C called
-the context set such that C  a1 a2     an
-and our task is to distinguish from this context
-set some intended referent r where r  C Sup-
-pose also that each entity ak is described in the
-systems knowledge base by means of a set of prop-
-erties pk1  pk2      pkm In order to distinguish our
-intended referent r from the other entities in C we
-need to nd some set of properties which are to-
-gether true of r but of no other entity in C The
-linguistic realisation of this set of properties con-
-stitutes a distinguishing description dd of r
-with respect to the context C A minimal dis-
-tinguishing description is then the linguistic
-realisation of the smallest such set of properties
-The detail of the algorithm is unimportant for present
-purposes basically it consists of three steps as follows
-1 Check Success see if the description we have con-
-structed so far picks out only one entity in the con-
-text If it does stop If not go to Step 2
-2 Choose Property determine which property of the
-intended referent would rule out the largest number
-of other entities in the context Go to Step 3
-3 Extend Description add the chosen property to the
-description being constructed and remove the enti-
-ties it rules out from the context Go to Step 1 with
-this extended description and the reduced context
-Reiter 1990 noted a serious deciency of this algo-
-it will not in fact always produce a minimal
-distinguishing description and indeed nding a mini-
-mal distinguishing description is equivalent to solving a
-minimal set-cover problem which is np-hard The com-
-putational complexity of this task raises the question of
-whether it is appropriate to insist on an algorithm that
-creates minimal distinguishing descriptions
-In other
-words it may be unreasonable to try to construct max-
-imally adequate and ecient referring expressions or
-more to the point meeting Grices requirements of say-
-ing neither too much nor too little if taken literally
-may be computationally unachievable
-Cooperative Behaviour as an
-Epiphenomenon
-Allowing in Redundancy
-One response to Reiters objection is to take the view
-that the notion of minimality sought in the algorithm
-above is too strong In subsequent work we took a step
-back and asked what do people actually do when they
-construct referring expressions It is very dicult to
-make any strong claims on the basis of the experiments
-that have been done but it does seem to be the case
-that people do not build minimal distinguishing descrip-
-tions in the strong sense suggested above We explored
-these considerations in more detail in Dale and Reiter
-1995 where we proposed a revised algorithm which is
-computationally ecient at the cost of producing some
-informational redundancy in the referring expressions
-it generates
-Implicit vs Explicit Pursuance of the
-So obeying the Gricean maxims looks computationally
-problematic and it seems not to be what people do
-with some caveats we are assuming a literal interpre-
-tation of the maxims and assuming that it is possible
-to generalise from the experimental results
-for example
-Our early attempts to generate referring expressions
-as presented
-in Dale 1989 and Re-
-iter 1990 explicitly enforced variants of the Gricean
-Maxim of Quantity However our current hypothesis is
-that this is in fact unnecessary We now take the view
-that it is a mistake to view the Gricean Maxims as di-
-rectives they are really no more than post hoc charac-
-terisations of what is going on They may even mislead
-us in the construction of mechanisms that cooperate
-conversationally
-It is generally accepted that language generation can
-fruitfully be viewed as a goal-oriented process In other
-words a natural language generation system may be
-given as input an agenda of goals that are to be satis-
-ed in the text being constructed the systems task is
-to nd linguistic devices that satisfy each goal remov-
-ing the goal from the agenda once it has been achieved
-There are a wide variety of goals that might appear in
-such a mechanism In the context of referring expres-
-sion generation typical goals could include
- Getting the hearer to identify the intended referent
- Alerting the hearer to the fact that r has the property
-represented by the attribute value pair ha vi
-A goal of the form of the rst of these will give rise to
-the construction of a distinguishing description a goal
-of the form of the second of these might result in the
-inclusion of information beyond that required for refer-
-ent identication Robin 1994 is a good discussion of
-some of the issues that arise in developing algorithms
-to achieve such goals This information could be ex-
-pressed in a separate clause but could equally well be
-folded into the same referring expression that is being
-used for the referent identication in the rst goal Ap-
-pelt 1982 provides a very nice example of this
-The fact that information can appear in a noun
-phrase for purposes other than referent identication
-means of course that the hearer has to do some work
-in determining what the role of each provided descrip-
-tor is In the case of an utterance like Give me the red
-pen the speaker may be providing the term red in order
-to distinguish the intended referent from another pen
-which is green It is equally possible though that there
-is only one pen in the context and red is included in the
-description because colour has special salience it may
-be easier for the speaker to rst look for red objects
-and then nd the particular red object which is a pen
-Another possibilityperhaps a little tenuous in the cur-
-rent example but clearly a possibility nonethelessis
-that the hearer may be redgreen colour blind and the
-speaker is imparting additional information about the
-colour of the pen which the hearer may be able to make
-use of later A more common clue to descriptor pur-
-pose is that fact that some properties are more likely to
-be used for referent identication than others In the
-utterance Sit by the newly-painted table for example
-the property newly-painted could be being used to dis-
-tinguish the intended referent from other tables in the
-context but it is rather more likely that its purpose is
-to warn the hearer not to put her elbows on the table2
-In addition to goal orientation aspects of genre such
-as register and sublanguage also play an important
-role in determining appropriate referring expressions
-In particular whether a specic referring expression is
-interpreted by the hearer as being purely for identi-
-cation or not may depend on the current genre For
-example in casual conversation a hearer might inter-
-pret Give me the Staedtler pen as having some purpose
-beyond simple identication perhaps informing the
-hearer that the speaker prefers pens made by Staedtler
-since manufacturer is not a commonly used attribute in
-identication-only referring expressions in this genre
-In an inventory-stocking context on the other hand
-Give me the Staedtler pens might be construed as purely
-referential since manufacturer is often used as an iden-
-tifying attribute in this genre Consequently an nlg
-system that is generating an identication-only refer-
-ring expression should if possible use only those at-
-tributes that are typically used for identication in the
-target genre otherwise false implicatures may arise
-However again we believe that there is no need to ex-
-2This example is due to Bonnie Webber
-plicitly model this phenomenon as an implicature it is
-sucient to design the system so that it uses the identi-
-fying attributes preferred in its target genre as is done
-via the PreferredAttributes list in the algorithm
-of Dale and Reiter 1995
-Although in the above examples the hearer may have
-to perform some potentially complex inferencing to de-
-termine what the speakers goals are note that there
-is no need for the speaker to do anything other than
-satisfy the list of goals using resources appropriate to
-the current genre Nowhere is there an explicit attempt
-to adhere to the maxims
-Reassessing the Maxims
-In the light of the above discussion we revisit Grices
-maxims in this section and comment on how each might
-be best interpreted in the context of natural language
-generation
-The Maxim of Quality
-Try to make your contribution one that is true More
-specically
-1 Do not say what you believe to be false
-2 Do not say that for which you lack adequate evidence
-No natural language generation systems that we are
-aware of deliberately say things that are false this can
-happen by accident of course but then it is not inten-
-tional
-An arguable exception to this claim is the work of
-Jameson 1987 whose Imp system injects bias into its
-utterances in order to mislead but even here this is not
-done by telling lies Certainly in principle one could
-construct a generation system that lied for purposes
-such as advertising or manipulation or that produced
-descriptions that were correct relative to the hearers
-knowledge even if they were untrue in the world for
-example we might want to build a system which could
-generate the man drinking a martini to refer to a man
-who was actually drinking water from a martini glass
-This would require explicit programming however the
-default behaviour of all systems we are aware of is to
-automatically obey the Maxim of Quality
-The Maxim of Quantity
-1 Make your contribution as informative as is required
-for the current purposes of the exchange
-2 Do not make your contribution more informative
-than is required
-The rst part of the Maxim of Quantity is automatically
-fullled by a goal-oriented system the goal will not be
-satised until sucient information is provided What
-we should say about the second part of the maxim how-
-ever depends on how strongly or literally we choose to
-interpret it
-If we insist that referring expressions or
-other utterances contain no unnecessary words then we
-will probably have to explicitly enforce this as a con-
-straint in our nlg system in general nlg systems will
-not automatically obey this rule On the other hand if
-we interpret the second part of the Maxim of Quality
-as meaning do not go out of your way to add extra in-
-formation that is not needed then this behaviour once
-more comes for free with goal-orientation Our experi-
-ence suggests that at least for the task of generating
-referring expressions the second interpretation is the
-best one
-The Maxim of Relevance
-Be relevant
-Yet again this follows directly from goal-oriented be-
-haviour there is no reason why the system should con-
-sider saying something that is not relevant It is possi-
-ble of course that an algorithm might unintentionally
-include irrelevant information this is also true of hu-
-man linguistic behaviour
-The Maxim of Manner
-Be perspicuous More specically
-1 Avoid obscurity of expression
-2 Avoid ambiguity
-3 Be brief avoid unnecessary prolixy
-4 Be orderly
-These are places where an anticipation feedback mech-
-anism of the kind proposed by Jameson and Wahlster
-1982 might be appropriate ie we might like a system
-to subject its proposed utterance to a self-monitoring
-stage to make sure that it is not ambiguous and so on
-Of all the maxims it is perhaps these with the excep-
-tion of the brevity submaxim to which our response is
-the same as our response to the Maxim of Quantity
-which are most amenable to explicit modelling in the
-generation process but even here it is equally possible
-that over time we learn heuristics that do the job for us
-so that the generation task more or less naturally pro-
-duces results that have the required characteristics see
-Levelts 1989 comments on this as a possible charac-
-teristic of the human language production mechanism
-Exploiting Violations
-The goal-oriented approach has the additional benet
-that using violations of the maxims in order to get some
-other point across falls out as part of the same mecha-
-nism again see Jamesons 1987 work in this regard
-From the point of view of the generator they are not
-violations at all
-Conclusions
-We have argued that Grices Maxims do not need to be
-explicitly enforced or modelled in a natural language
-generation system Instead they should be replaced by
-the following system construction principles
-Grice and Generation
-A generation system should be goal-driven and con-
-form to the current genre As a general architecture
-this suggests a process which builds an agenda of goals
-and then searches for communicative and linguistics re-
-sources in the target genre which can be used to realize
-these goals There is the possibility that such a sys-
-tem may end up saying something beyond what was
-intended That is acceptable Minimality is not neces-
-sary provided the information that is provided is there
-because it serves some purpose hearers will not make
-inappropriate inferences
-Grice and Interpretation
-As a corollary to the goal-oriented view of generation
-the hearer should assume that every informational ele-
-ment in the speakers utterance is there with some in-
-tended purpose The hearers job is then to work out
-what the speakers intended purpose is
-If we are in
-a context for example where referent identication is
-obviously the task and the expression contains infor-
-mation unnecessary for identication the hearer must
-consider the possibility that this information has been
-provided by the speaker for some other purposebut
-note that it might not be it might have been put in
-to help with identication even if it turns out that the
-hearer did not make use of it for that purpose3 Prop-
-erties which are clearly not able to help us in identi-
-fying the intended referent must be doing something
-else In the context of our newly-painted table example
-it many cases it will be impossible to determine that
-something is newly-painted simply by looking and it is
-unlikely that the speaker intends us to go around ac-
-tually touching all the tables to identify which one has
-that property so it is reasonable to assume that the
-property has been provided for some other purpose
-In Summary
-Ultimately for the generator Grices maxims taken col-
-lectively mean Dont include elements that dont do any-
-thing Our position is that under a goal-oriented view
-of language generation there is no need to explicitly
-follow such a directive at all the desired behaviour just
-falls out of the mechanism We have argued in the
-present paper that this is true of the referring expres-
-sion generation task it remains to be seen whether the
-same story can be told of all language generation and
-what the impact of this is on models of language un-
-derstanding
-3Returning to our earlier red pen example suppose the
-hearer just happens to be focussed on the red pen when
-the utterance is produced Then the property of redness
-may have been included by the speaker in order to help the
-hearer identify the intended referent even if it is not used
-for this purpose
-References
-Douglas Appelt 1982 Planning Natural Language Ut-
-terances to Satisfy Multiple Goals Technical Note
-259 SRI International Menlo Park California
-Robert Dale 1989 Cooking Up Referring Expressions
-In Proceedings of 27th Annual Meeting of the Associ-
-ation for Computational Linguistics Vancouver bc
-Robert Dale and Ehud Reiter 1995 Computational
-Interpretations of the Gricean Maxims in the Gen-
-eration of Referring Expressions Cognitive Science
-192 pp233263
-H Paul Grice 1975 Logic and conversation In P Cole
-and J Morgan editors Syntax and Semantics Vol
-3 Speech Acts pages 4358 New York Academic
-Anthony Jameson 1987 How to Appear to be Con-
-forming to the Maxims Even if you Prefer to Violate
-Them Chapter 2 in G Kempen ed Natural Lan-
-guage Generation Dordrecht Martinis Nijho Pub-
-lishers
-Anthony Jameson and Wolfgang Wahlster 1982 User
-Modelling in Anaphora Generation Ellipsis and Def-
-inite Description In Proceedings of the Fifth Euro-
-pean Conference on Articial Intelligence Pisa Italy
-Willem Levelt 1989 Speaking From Intention to Ar-
-ticulation Cambridge ma mit Press
-David McDonald 1980 Natural Language Generation
-as a Process of Decision Making Under Constraints
-PhD Thesis mit
-Hans-Joachim Novak 1988 Generating
-ring Phrases in a Dynamic Environment Chapter
-5 in M Zock and G Sabah eds Advances in Natu-
-ral Language Generation Volume 2 pp7685 Pinter
-Publishers
-Ehud Reiter 1990 Generating Appropriate Natural
-Language Object Descriptions PhD Thesis Harvard
-University
-Jacques Robin 1994 Revision-Based Generation of
-Natural Language Summaries Providing Historical
-Background PhD Thesis Columbia University
+Extrinsic and intrinsic correlations in molecular information transmission
+Vijay Singh1 2 Martin Tchernookov1 3 and Ilya Nemenman1 4
+1Department of Physics Emory University Atlanta GA 30322 USA
+2Computational Neuroscience Initiative University of Pennsylvania Philadelphia PA 19104 USA
+3Department of Physics Lamar University Beaumont TX 77710
+4Department of Biology Emory University Atlanta GA 30322 USA
+Cells measure concentrations of external ligands by capturing ligand molecules with cell surface
+receptors The numbers of molecules captured by dierent receptors co-vary because they depend on
+the same extrinsic ligand uctuations However these numbers also counter-vary due to the intrinsic
+stochasticity of chemical processes because a single molecule randomly captured by a receptor cannot
+be captured by another Such structure of receptor correlations is generally believed to lead to an
+increase in information about the external signal compared to the case of independent receptors
+We analyse a solvable model of two molecular receptors and show that contrary to this widespread
+expectation the correlations have a small and negative eect on the information about the ligand
+concentration Further we show that measurements that average over multiple receptors are almost
+as informative as those that track the states of every individual one
+Keywords sign rule cellular information processing two receptors
+Introduction Information processing is a crucial func-
+tion of life 1 It typically involves representing exter-
+nal signals by activities of biological elements such as
+cell receptors genes or neurons A lot is known about
+information processing by such individual elements 2
+10 However the fascinating phenomena emerging in
+information processing by many interacting biological el-
+ements are only beginning to be uncovered 1 1117
+A particularly well-developed example of multivariate
+biological information processing is population coding by
+neurons 11 16 1825 Here many neurons often het-
+erogeneous and interacting are treated as conveying in-
+formation about the same stimulus A celebrated gen-
+eral property of such networks is the sign rule 11 16
+which suggests that if uctuations of neural activities due
+to changes in the signal are orthogonal to uctuations due
+to intrinsic coupling among the neurons then the collec-
+tive of neurons has more information about the stimulus
+than a collective of noninteracting neurons would have
+Deriving the sign rule requires making serious though
+often implicit assumptions about the structure of uc-
+tuations in populations of sensors Verifying these as-
+sumptions is hard for networks as complex as those in
+the brain In contrast multiple receptors on the cell sur-
+face are a cellular biology equivalent of population coding
+in neuroscience with an advantage that the structure of
+correlations among the sensors receptors does not have
+to be postulated a priori but can be derived analytically
+from biophysically plausible molecular interactions We
+use this advantage to study collective information pro-
+cessing in an analytically solvable model of two recep-
+tors interacting via binding to the same chemical ligand
+species We show in particular that the sign rule is vio-
+lated in this system and the information gathered about
+the stimulus by the interacting receptors is smaller than
+in the noninteracting case This suggests that studies
+of population codes based on correlations are insucient
+including in computational neuroscience where they are
+common since eects of the correlations depend on fea-
+tures of biophysical mechanisms that establish them
+In addition to its illumination of the limitations of the
+general sign rule the two receptors model addresses an
+important question specic to cellular information pro-
+cessing Estimation of a chemical signal concentration
+by cells has been studied since the seminal work of Berg
+and Purcell 26 with notable new recent results 17 27
+33 However most of these formulations consider the
+combined or averaged response of all receptors on the
+cell surface for estimating the concentration Keeping
+track of responses of individual receptors would provide
+extra information about the concentration stored in the
+receptor-to-receptor variability Our model quanties
+how useful it is for the cell to keep track of such data
+We show that for large observation times the average
+population response is almost as informative about the
+stimulus as the set of activities of all individual receptors
+Background We introduce the sign rule with the fol-
+lowing simple yet instructive model 11 16 Imagine a
+Gaussian signal s with the mean s and the variance 2
+It is measured by two responses r1 and r2 ring rates
+of neurons or receptor activity For simplicity these are
+assumed linearly and equivalently dependent on s or the
+response to small uctuations is linearized such that
+r1  as  1
+r2  as  2
+where a is the gain and 12 are Gaussian noises with
+cid104icid105  0 and var i  cid1042
+i cid105  2
+We estimate the signal from the responses as sest 
+r1  r22a Then the estimation error variance is
+var sest  s  2
+1  
+Here 2
+  cov 1 2 stands for the covariance of
+the two noises or the noise-induced covariance 11 and
+ is the corresponding correlation coecient By anal-
+ogy with the intrinsic noise in systems biology 34 
+can also be called the intrinsic noise correlation When
+  0 Eq 2 reduces to the usual decrease of the error
+variance by a factor of two for two independent mea-
+surements However when   0 the error variance
+is smaller In particular if   1 the signal can be
+estimated with no error Generalizing this simple ob-
+servation one can dene the stimulus-induced response
+covariance 11 or the extrinsic noise covariance 34 as
+the covariance between mean responses to stimuli aver-
+aged over all stimuli cov r1 r2  sa22
+s  Then our
+example illustrates the sign rule 16
+if s and  are
+of opposite signs then the stimulus can be inferred from
+the two responses with a smaller error compared to the
+conditionally independent responses   0 The same
+result can restated using mutual information between the
+two responses and the stimulus 1 9 35 36 
+cid20
+cid21
+Ir1 r2 s 
+1  2
+For Eq 1 s  1  0 and then   0 corresponds to
+increase in the information
+In the case of a chemical ligand being absorbed by two
+identical receptors the mean values of r1 and r2 change
+in the same way with the ligand concentration so that
+s  1  0 At the same time a molecule absorbed
+at one receptor cannot be absorbed at the other which
+should give   0 and hence will increase the mea-
+sured information according to the sign-rule However
+in computational neuroscience where these ideas origi-
+nated noise co-variances are inferred empirically and
+are in principle unconstrained In contrast in cell biol-
+ogy intrinsic noises are generated from the discreteness
+and stochasticity of individual chemical reaction events
+3739 which constrains relations among these quanti-
+ties In particular  may depend on  and then it is
+unclear if the sign rule would hold in Eq 3 Indeed
+the primary contribution of this Letter is to show that
+measuring the ligand concentration with two identical re-
+ceptors does not obey the sign rule
+The Model We consider two identical receptors that
+can bind ligand molecules with a rate kin Fig 1 No
+more than one molecule can be bound to each receptor
+at the same time with no restrictions on the number of
+bound molecules the dynamics is linear the receptors
+are conditionally independent The bound molecule can
+be absorbeddeactivated with the rate kabs freeing the
+receptor absorbing receptors collect more information
+about the stimulus compared to binding-unbinding re-
+ceptors 29 Alternatively it can unbind and leave the
+vicinity of receptors with the rate ko  Finally it can
+leave one receptor and diuse to the other We model this
+as a hop between the receptors with the rate khop which
+in reality would depend on the diusion constant and the
+FIG 1 Model schematics Receptors 1 and 2 bind ligands
+with rate kin and the bound molecules can detach and diuse
+away to innity with the rate ko  The bound ligands also
+can be absorbed with the rate kabs or they can dissociate and
+diuse to the other receptor hop with the rate khop Qi is
+the number of ligands absorbed at the receptor i
+distance between the receptors The number of molecules
+absorbed on both receptors over time t Q1t Q2t
+carries information about the binding rate kin Since kin
+is proportional to the ligand concentration such counting
+of the absorbed molecules measures the concentration
+Within this setup we investigate how the ligand-
+induced interaction between the two receptors aects
+the information about the concentration IQ1 Q2 kin
+cf Eq 3 Note that the hopping can change the con-
+ditional distribution P Q1 Q2kin which can aect the
+information but it cannot change the conditional distri-
+bution of the total number of captured molecules Q 
+Q1  Q2 Thus the change in the information if any can
+come only from the dependence between Q  Q1  Q2
+and kin This expands the molecular sensing literature
+26 28 29 where one typically estimates kin based only
+on the integrated number of observed ligands Q
+other words together with our main question we will
+quantify if the set of individual responses of all recep-
+tors Q1 Q2 or Q Q is more informative about
+the concentration than the integrated response alone
+Solution To calculate the distribution P Q1 Q2kin
+we start with the master equation describing the dynam-
+ics of the vector of probabilities of having 0 or 1 molecules
+bound to each of the receptors P  Pij i j  0 1T 
+P00 P01 P10 P11T 
+Pt  H Pt
+Here the generator matrix is
+ 2kin ko  kabs ko  kabs
+khop
+khop
+ 
+kabs  ko
+kabs  ko
+2ko  2kabs
+with ktot  kin  ko  kabs  khop
+To nd the probability distribution of Q1 and Q2
+we use the generating functional technique 36 4044
+Namely we separate out the parts of H that correspond
+1 2 kabs khop Q1 Q2 kin koff koff to the absorption events
+H  H0  Habs1  Habs2
+0 kabs 0
+0 0 kabs
+0 kabs
+kabs
+ 
+ 
+Habs1 
+Habs2 
+Then we tag the terms corresponding to the absorption
+reactions by counting elds e1 and e2 forming the
+tagged generator matrix
+H1 2  H0  Habs1e1  Habs2e2 
+Finally we
+realize
+of moment
+generating
+functions
+transforms
+of P Q1 Q2kin i j
+denoted as Z1 2 t 
+Z00 Z01 Z10 Z11 satises the tagged master equation
+the vector
+the Laplace
+Z1 2 t   H1 2Z1 2 t
+We are interested in the long-time asymptotic where
+each receptor has had many absorption events Q1 Q2 cid29
+1 Then the solution of Eq 10 can be approximated as
+Z1 2 t  Z0 expmin1 2 t
+where min is the smallest real part eigenvalue of H
+From here one can read o the cumulant generating
+functions conditional on the occupancy of the receptors
+to the leading order in t Fij1 2 t  min1 2 t
+As expected the leading order is the same for any value of
+i j Thus the means and the covariances of the num-
+bers of absorbed molecules conditional on kin all scale
+linearly with time They can be obtained by dierenti-
+ating min1 2 with respect to 1 and 2 Denoting
+by cid104  kincid105 expectations conditional on kin we write
+cid104Qikincid105  t
+min1 2 t
+cid104QiQjkincid105  t
+2min1 2 t
+ij
+cid12cid12cid12cid12cid12120
+cid12cid12cid12cid12cid12120
+In its turn the eigenvalue min can be obtained using
+non-Hermitian perturbation theory considering i as the
+perturbation parameters around the eignevalue min  0
+of the unperturbed Hamiltonian 36 For compactness
+of notation we dene kioa  kin  ko  kabs This gives
+cid104Qikincid105 
+kinkabs t
+cid18
+cid104QiQikincid105  cid104Qikincid105
+1  2kinkabs
+2khopkinkabs
+ioaktot  khop
+cid104Q1Q2kincid105  2cid104Qikincid105
+khopkinkabs
+ioaktot  khop
+cid19
+These expressions fully dene the conditional distribu-
+tion P Q1 Q2kin to the leading Gaussian order No-
+tice that cid104Q1Q2kincid105  0 as long as khop cid54 0 and thus
+according to the sign rule we expect more information
+from the two correlated receptors than the two indepen-
+dent ones with khop  0
+In the basis of Q  Q1  Q2 the covariance matrix
+diagonalizes and we get
+cid104Qkincid105 
+cid104Qkincid105  0
+2 kinkabs t
+cid11  cid104Qkincid105 k2
+cid11  cid104Qkincid105 k2
+cid10Q2
+cid10Q2kin
+Since neither cid104Qkincid105 nor cid10Q2
+cid104QQkincid105  0
+ioa  2kinkabs
+ioa  2kinkabs  2khopkioa
+kioaktot  khop
+cid11 depend on khop
+cid90
+cid34
+cid35
+these expressions clearly show that the total number of
+molecules absorbed by the two receptors is not aected
+by the interaction parameter khop as we alluded to pre-
+viously The coupling between the receptors only aects
+the variance of the dierence of the number of molecules
+coming from each receptor
+so that cid104Jkincid105  cid104Qkincid105 t and cid10J 2kin
+cid10Q2kin
+cid11 
+cid11 t2 Now assuming a Gaussian marginal dis-
+We now dene the absorption currents J  Qt
+tribution of kin with the mean kin and the variance 2
+we write down the marginal distribution of absorption
+currents averaged over the external signal concentrations
+P J J 
+cid21
+2cid104J 2
+2cid104J 2kincid105
+ kin  kin2
+cid11cid10J 2kin
+cid11
+dkin
+2kin
+ Jcid104Jkincid1052
+kincid105 
+cid20
+cid113cid10J 2
+cid11  1t for large t This is the usual
+cid11 depend on kin We as-
+Note thatcid10J 2kin
+Both cid104Jkincid105 and cid10J 2kin
+manifestation of the law of large numbers so that the
+ratio of the standard deviation of the currents to their
+means decreases as  1t12
+sume that 2
+is small so that this dependences can be
+written to the rst order in kin  kin  kin Then the
+dependence of the mean currents on kin preserves the
+Gaussian form of Eq 22 while the dependence of the
+variance manifests itself in sub-Gaussian orders To the
+leading order in small 2
+ the marginal distribution of
+the currents is still a product of two Gaussians
+P J J 
+2
+ Jcid104Jcid1052
+ J2
+22  with
+2 kinkabs
+cid104Jcid105 
+kin
+ cid10J 2
+2 cid10J 2kin
+cid11cid34
+cid11 
+cid18  cid104Jcid105
+cid192
+cid10J 2
+kin
+cid11cid35
+The mutual
+information we
+IQ1 Q2 kin  SQ1 Q2  cid104SQ1 Q2kincid105kin
+ where S
+are the marginal and the conditional entropies In the
+limit of small 2
+k entropies are given by logarithms of
+the corresponding variances so that
+seeking
+cid34
+cid18  cid104Jcid105
+cid192
+cid10J 2
+kin
+cid11cid35
+IQ1 Q2 kin 
+which is independent of khop
+  cid10J 2
+cid11 in Eq 3 is inde-
+The mutual information in Eq 27 is independent of
+the interaction between the receptors violating the sign
+rule The reason for the violation is easy to trace al-
+though the intrinsic receptor correlations are negative
+the quantity 1  2
+pendent of khop The biophysics of the problem conspires
+to ensure that the variance of the number of the absorbed
+ligands on the individual receptors increases by exactly
+the amount to counteract the receptor correlations to the
+Gaussian order in uctuations The eect of the corre-
+lations can only be seen in the higher order corrections
+This answers our main question about the generality of
+the sign rule Further we note that the information in
+Eq 27 is independent of J This answers the second
+question to the Gaussian order and for large t keeping
+track of dierences between the individual receptors does
+not change the amount of available information
+To study non-Gaussian eects of hopping we eval-
+Q1 Q2 kin 
+uate Ikin kabs khop  Ikinkabskhop
+Ikinkabs0Q1 Q2 kin where the second term is equiva-
+lent to two independent receptors We simulate the sys-
+tem using the Gillespie algorithm 45 As illustrated in
+Fig 2 I  0 so that the receptor coupling through
+hopping reduces the mutual information contradicting
+the very sign of the sign rule This is because the hopping
+introduces another stochastic process into the system in-
+creasing the overall noise Further at t   I  0 for
+all hopping rates indicating that the receptor coupling
+does not provide extra information at large t compared
+to independent receptors even to non-Gaussian orders
+Discussion We have analyzed a simple model of two
+identical receptors that are coupled through interactions
+with the same ligand Our main nding is that in this
+FIG 2 Correlations due to molecular hopping reduce in-
+formation about the signal We plot the reduction in the
+information compared to two non-interacting receptors for
+kin  kabs  10 We use Gillespie 45 algorithm for simula-
+tions and NSB entropy estimator 46 to evaluate information
+from data Each point is obtained from 106 samples from the
+steady state of the system dynamics for 17 values of kin
+system the variance and the co-variance of the recep-
+tor activities both depend on the interactions between
+the receptors in such a way that the interactions do not
+aect the amount of information between the receptor
+activities and the ligand concentration to the Gaussian
+order in uctuations We additionally discovered that
+the interactions have a negative eect on the amount of
+available information in sub-Gaussian orders though the
+eect disappears at long observation time These obser-
+vations violate the well-known sign rule 11 16
+contrast in most previous analyses the variances of the
+individual sensors have been assumed independent of the
+interactions between the sensors 11 18 20 21 47 lead-
+ing to the sign rule We show that biophysical interac-
+tions do not necessarily obey such assumptions We ex-
+pect that similar concerns will be valid beyond receptors
+in individual cells in applications such as neural popu-
+lation coding or multicellular molecular communication
+17 48 Thus such mechanistic considerations must en-
+ter analyses of multivariate information processing
+In studies of cellular sensing one often make an as-
+sumption that cells are only aected by the population-
+averaged activities of their receptors
+In principle ad-
+ditional information about the external ligand can be
+encoded in dierences of activities of individual recep-
+tors since these dierences depend on the concentrations
+kin Our analysis provides a solid basis for
+this assumption by showing that for long observation
+times the cell has as much information about the signal
+when it tracks the sum of activities of its receptors as if
+it were to track activities of every individual receptor
+Q1  Q2  
+Acknowledgements This work was supported in
+part by James S McDonnell Foundation grant 220020321
+and NSF grants IOS-1208126 and PoLS-1410978
+012345002001500100050  Ibitstkhop10khop1005
+Lett 105 048104 2010
+32 K Kaizu W de Ronde J Paijmans K Takahashi
+F Tostevin and P R ten Wolde Biophys J 106 976
+2014
+33 V Singh and I Nemenman Accurate sensing of multiple
+ligands with a single receptor arXiv150600288 2015
+34 P Swain M Elowitz and E Siggia Proc Natl Acad Sci
+USA 99 12795 2002
+35 C Shannon and W Weaver The mathematical theory
+of communication University of Illinois Press Urbana
+36 Online supplementary information
+37 M Elowitz A Levine E Siggia and P Swain Science
+297 1183 2002
+38 J Paulsson Physics of Life Reviews 2 157 2005
+39 N Van Kampen Stochastic Processes in Physics and
+Chemistry Elsevier 2011
+40 D Bagrets and Y Nazarov Phys Rev B 67 085316
+2003
+41 A Jordan E Sukhorukov and S Pilgram J Math Phys
+45 4386 2004
+42 I Gopich and A Szabo J Chem Phys 124 154712
+2006
+43 N Sinitsyn and I Nemenman EPL Europhysics Let-
+ters 77 58001 2007
+44 N Sinitsyn and I Nemenman Phys Rev Lett 99 220408
+2007
+45 D Gillespie Annu Rev Phys Chem 58 35 2007
+46 I Nemenman F Shafee and W Bialek in Advances in
+Neural Information Processing Systems NIPS edited
+by T Dietterich S Becker and Z Gharamani MIT
+Press 2002
+47 S Seung and H Sompolinsky Proc Natl Acad Sci USA
+90 10749 1993
+48 T Taillefumier and N Wingreen PLoS Comput Biol 11
+e1004238 2015
+1 G Tkaik and W Bialek Annu Rev Cond Matt Phys 7
+101146annurev 2016
+2 W Bialek F Rieke R de Ruyter van Steveninck and
+D Warland Science 252 1854 1991
+3 E Ziv I Nemenman and C Wiggins PLoS One 2
+e1077 2007
+4 G Tkacik C Callan and W Bialek Phys Rev E 78
+011910 2008
+5 G Tkacik C Callan and W Bialek Proc Natl Acad Sci
+USA 105 12265 2008
+6 F Tostevin and P-R ten Wolde Phys Rev Lett 102
+218101 2009
+7 G Tkacik and A Walczak J Phys-Cond Matt 23 153102
+2011
+8 R Cheong A Rhee C Wang I Nemenman and
+A Levchenko Science 334 354 2011
+9 I Nemenman in Quantitative Biology From Molecu-
+lar to Cellular Systems edited by M Wall CRC Press
+2012 p 73
+10 A Fairhall E Shea-Brown and A Barreiro Curr Opin
+Neurobiol 22 653 2012
+11 B Averbeck P Latham and A Pouget Nat Rev Neu-
+rosci 7 358 2006
+12 A Walczak G Tkacik and W Bialek Phys Rev E 81
+041905 2010
+13 G Tkacik J Prentice V Balasubramanian and
+E Schneidman Proc Natl Acad Sci USA 107 14419
+2010
+14 R da Silveira and M Berry PLoS Comp Bio 2014
+15 S Hormoz Biophys J 104 1170 2013
+16 Y Hu J Zylberberg and E Shea-Brown PLoS Comput
+Biol 10 e1003469 2014
+17 A Mugler A Levchenko and I Nemenman Proc Natl
+Acad Sci USA p 201509597 2016
+18 I Ginzburg and H Sompolinsky Physical review E 50
+3171 1994
+19 H Sompolinsky H Yoon K Kang and M Shamir Phys
+Rev E 64 051904 2001
+20 H Yoon and H Sompolinsky in Advances in Neural In-
+formation Processing Systems NIPS MIT Press 1999
+vol 11 p 167
+21 L Abbott and P Dayan Neural computation 11 91
+1999
+22 G Pola A Thiele K Homann and S Panzeri
+Network-Computation in Neural Systems 14 35 2003
+23 R A da Silveira and M J Berry II PLoS Comput Biol
+10 e1003970 2014
+24 M Shamir Curr Opinion Neurobiol 25 140 2014
+25 R Moreno-Bote J Beck I Kanitscheider X Pitkow
+P Latham and A Pouget Nature Neurosci 17 1410
+2014
+26 H Berg and E Purcell Biophys J 20 193 1977
+27 D Bray M D Levin and C J Morton-Firth Nature
+393 85 1998
+28 W Bialek and S Setayeshgar Proc Natl Acad Sci USA
+102 10040 2005
+29 R Endres and N Wingreen Proc Natl Acad Sci USA
+105 15749 2008
+30 R G Endres and N S Wingreen Phys Rev Lett 103
+158101 2009
+31 B Hu W Chen W-J Rappel and H Levine Phys Rev
+Extrinsic and intrinsic correlations in molecular information transmissionVijay Singh12 Martin Tchernookov13 and Ilya Nemenman141Department of Physics Emory University Atlanta GA 30322 USA 2Computational Neuroscience Initiative University of Pennsylvania Philadelphia PA 19104 USA 3Department of Physics Lamar University Beaumont TX 777104Department of Biology Emory University Atlanta GA 30322 USA1 DERIVATION OF EQUATION 3MUTUAL INFORMATION BETWEEN SIGNAL AND RESPONSE OF TWO INTERACTING UNITSAssume that the signal s and the responses of the two units r1 and r2 conditional on s are all Gaussian ie Psss2Pr1r2sr1r2here s and s2 are the mean and variance of the signal r1r2 are the mean responses given the signal s 2112 is the response variance conditional on the stimulus s and  is the conditional correlation coefficient of the two responsesAssuming that  s2 is small such that  can be regarded as a constant andris  ris  sris s-sthe joint distribution isPr1r2dsPr1r2sPsr1sr2swhere1s2sr1ssr2s-1sr1ssr2ssFor a normal distribution    the entropy is 12log  up to an additive constant so we have the mutual information asIr1r2sSr1r2-Sr1r2ss12log1srs22s12swhere we have chosen  r1r2rfor identical unitsFor response linearly depending on s this is equivalent to Eq 4 in the main text7
+2 Solution of the model using perturbation theory1 The Generator Matrix and its Eigen-systemThe tagged generator matrix is given asTildeH12kinkoffkabskhop-1-2kinkabsExp1koffkabsExp2koff0kin-kin-kabs-koff-khopkhopkabsExp2koffkinkhop-kin-kabs-koff-khopkoffkabsExp10kinkin-2kabs-2koffMatrixFormTildeH12kinkoffkabskhop2kin-1kabs-koff-2kabs-koff0-kinkabskhopkinkoff-khop-2kabs-koff-kin-khopkabskhopkinkoff-1kabs-koff0-kin-kin2kabs2koff The original generator matrix isHTildeH00kinkoffkabskhopMatrixFormH2kin-kabs-koff-kabs-koff0-kinkabskhopkinkoff-khop-kabs-koff-kin-khopkabskhopkinkoff-kabs-koff0-kin-kin2kabs2koffThe left and right Eigen-systems of the generator matrix isEREigensystemHELEigensystemTransposeH0kabskinkoff2kabskinkoffkabs2khopkinkoff--kabs2-2kabskoff-koff2kin2--kabs-koffkin--kabs-koffkin1-kabskoffkin--kabskin-koff2kin--kabskin-koff2kin11-1-110-1100kabskinkoff2kabskinkoffkabs2khopkinkoff1111-kinkabskoff--kabskin-koff2kabskoff--kabskin-koff2kabskoff1kin2kabskoff2-kinkabskoff-kinkabskoff10-110The perturbative part to the original generator matrix can be obtained by taking the difference between the tagged generator matirix and the original generator martrix The difference defined as delTildeH is delTildeHTildeH12kinkoffkabskhop-TildeH00kinkoffkabskhopMatrixFormdelTildeH0kabs-1kabskabs-2kabs0000kabs-2kabs000kabs-1kabs00002 SIMathematicanb8
+2 Corrected Eigenvalues and EigenvectorsUsing the eigensystem of the generator matrix and delTildeH we can get the correction to the eigenvalues and eigenvectors usign pertuebation theory The corrected eigenvalues areDoiSimplifyPartER1i1PartEL2iPartER2iPartEL2idelTildeHPartER2iSumPartEL2idelTildeHPartER2jPartEL2jdelTildeHPartER2iPartEL2jPartER2jIfji01PartER1i-PartER1jj14i14Similarly the corrected left and right eigen-vectors areDoRiSimplify1SqrtPartEL2iPartER2iPartER2iSumPartER2jPartEL2jdelTildeHPartER2iPartEL2jPartER2jIfji01PartER1i-PartER1jj14LiSimplify1SqrtPartEL2iPartER2iPartEL2iSumPartEL2idelTildeHPartER2jPartEL2jPartEL2jPartER2jIfji01PartER1i-PartER1jj14i143 Steady state occupation of the receptors Equilibrium conditionsThe probability of occupation is given by the vector P00P01P10P11 In steady state the probabity of occupation can be determined by solving the equation PtH0The solution isP0SimplifyPartP00P01P10P11Solve2kinP00-kabs-koffP01-koff-kabsP100-kinP00koffkhopkinkabsP01-khopP10-koff-kabsP110-kinP01-kinP102koff2kabsP110P00P01P10P111P00P01P10P111kabskoff2kabskinkoff2kinkabskoffkabskinkoff2kinkabskoffkabskinkoff2kin2kabskinkoff24 Probablity generating function for Q1Q2GenFunSimplify1111SumExp-itLiP0Rii145 Mean and Variance of Q1Q2By taking the derivative of the cumulant generating function LogGenFun one can get the mean and the variancesMean number of accumulated molecules Q1 kin or Q2 kin SIMathematicanb 39
+QmeanSimplifyDLogGenFun11020kabskintkabskinkoffVariance Q21 kin or Q22 kinQsq11FullSimplifyDDLogGenFun111020-kabs2khopkinkofftkabskinkabs2khopkinkofftkabs5tkabs2khopkinkofftkinkoff32khopkinkoff2tkabs2khopkinkofftkabs44khop3kin5kofft-kabskinkinkoff22khoptkin2khopkinkoff2-kabs2khopkinkofftkinkoff2khopkinkoffkinkoff3kin5koffkhop4kin6kofft-2kabs2kinkinkoff2khoptkin2khopkinkoff-kabs2khopkinkofft6khopkinkoffkin2koffkinkoff22kin5koffkhop24kin6kofftkabs3-12khoptkin2kabs2khopkinkofft2khop2kinkoff2kin5koffkhop5kin8kofftkabskinkoff4kabs2khopkinkoff2Covariance Q1Q2 kinQsq12FullSimplifyDDLogGenFun121020-kabs2khopkinkofftkabs2kin2kinkoff2-2khopt2khopkinkoff2-2kabs2khopkinkofftkhopkinkoff2khopkinkofft-kabs2-12khopt2kabs2khopkinkofftkhopt2kabskinkoff-2khopt2khopkinkoff-2kabs2khopkinkofftkhopkhopkinkofftkabskinkoff4kabs2khopkinkoff2Covariance matrixSigQsq11Qsq12Qsq12Qsq116 Transformation from Q1Q2 to QQ-Let us first express Q1Q2 in terms of QQ-SolveQQ1Q2-2QmeanQ-Q1-Q2Q1Q2Q1kabskintkabskinkoffQ-2Q2Q2--2kabskintkabsQ-kinQ-koffQ--kabsQ-kinQ-koffQ2kabskinkoffNow the term inside the exponential of the gaussian can be written asexponentQ1-QmeanQ2-QmeanInverseSigQ1-QmeanQ2-QmeanQ1kabskintkabskinkoffQ-2Q2Q2--2kabskintkabsQ-kinQ-koffQ--kabsQ-kinQ-koffQ2kabskinkoffNext we express the term inside the exponential in terms of Q and Q- and collect the terms corresponding to Q2 and Q2-4 SIMathematicanb10
+exponentSimplifiedSimplifyNormalSeriesexponentQ0312kabskinkabs2khopkinkofftkabskinkoff2kabs2khopkinkoff2Q-2kabs2khopkinkofftkabs3tkabs2khopkinkofftkinkoff2khopkinkoff2tkabs2khopkinkofftkabs24khopkin3kofftkabskabs2khopkinkofftkin2tkabs2khopkinkofft4khop28khopkoff3koff2tkin-24kabs2khopkinkofftkhopkofftkabskinkoff2Q2-22khoptkabskinkabs2khopkinkofftkabs3kinkoff3kabs2kin3koffkabskin24kinkoff3koff2tQ2kin can be obtained as the inverse of the coefficient of the term corresponding to Q2 varQsum1CoefficientexponentSimplifiedQ21kabskinkoff42-kabs2khopkinkofftkabskin-22khoptkabskinkabs2khopkinkofftkabs3kinkoff3kabs2kin3koffkabskin24kinkoff3koff2tQ2-kin can be obtained as the inverse of the coefficient of the term corresponding to Q2- varQdiff1CoefficientexponentSimplifiedQ-22-kabs2khopkinkofftkabskinkabs2khopkinkofftkabs3tkabs2khopkinkofftkinkoff2khopkinkoff2tkabs2khopkinkofftkabs24khopkin3kofftkabskabs2khopkinkofftkin2tkabs2khopkinkofft4khop28khopkoff3koff2tkin-24kabs2khopkinkofftkhopkofftkabskinkoff2kabs2khopkinkoff2In the long time limit t -  these can be written as Assumingkin0kabs0khop0koff0LimitvarQsumtt2kabskinkabs22kabskoffkinkoff2kabskinkoff3Assumingkin0kabs0khop0koff0LimitvarQdifftt2kabskinkabs22kabskhopkoffkinkoff2khopkinkoffkabskinkoff2kabs2khopkinkoffThe last two expressions are the variance of J and J- as given in the main textSIMathematicanb 5

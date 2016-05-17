@@ -1,2416 +1,1520 @@
-Description Logics based Formalization of Wh-Queries 
-Sourish Dasgupta 
-DA-IICT India 
-sourishdasgupta 
-daiictacin 
-       Rupali KaPatel 
-        DA-IICT India 
-       rupaliit08 
-      gmailcom 
-   Ankur Padia 
-     DA-IICT India 
-  padiaankur 
-    gmailcom 
-Kushal Shah  
-DA-IICT India 
-kushalshah40 
-daiictacin  
-ABSTRACT 
-The problem of Natural Language Query Formalization NLQF is 
-to  translate  a  given  user  query  in  natural  language  NL  into  a 
-formal  language     so  that  the     semantic  interpretation  has 
-equivalence  with  the  NL  interpretation  Formalization  of  NL 
-queries  enables 
-information 
-retrieval  database  query  question-answering  etc  Formalization 
-also helps in Web query normalization and indexing query intent 
-analysis etc In this paper we are proposing a Description Logics 
-based formal methodology for wh-query intent also called desire 
-identification and corresponding formal translation We evaluated 
-the scalability of our proposed formalism using Microsoft Encarta 
-98 query dataset and OWL-S TC v40 dataset  
-logic  based  reasoning  during 
-Categories and Subject Descriptors 
-I24  Knowledge  Representation  Formalism  and  Methods 
-Representation procedural and rule-based  
-General Terms 
-Theory Measurement Performance 
-Keywords 
-Query Formalization Description Logics Semantic Web 
-rigorous 
-1  INTRODUCTION 
-Natural  Language  Query  Formalization  NLQF  is  a  formal  and 
-systematic  procedure  of  translating  a  user  query  in  natural 
-language  into  an  expression  in  a  formal  language  without  losing 
-the semantics of the user query The choice of a formal language 
-can  range  from  SQL  used  in  conventional  DBMS  to  more 
-advanced  SPARQL  for  RDF  graph  based  databases  designed  to 
-support  the  Semantic  Web  However  any  translation  process 
-involves 
-linguistic  analysis  of  NL  queries  and 
-constructing a formal semantic interpretation that is equivalent to 
-the original query semantics NLQF has a twofold effect First it 
-helps  in  proper  identification  of  the  query  intent  also  called 
-desire  Secondly  it  formally  defines  the  query  intent  in  relation 
-to  other  linguistic  constituents  of  the  query  thereby  providing  a 
-platform  for 
-information 
-retrieval  and  question  answering  1-2  The  biggest  challenge 
-involved  in  NLQF  is  to  efficiently  and  accurately  identify  the 
-innate  desire  and  to  understand  the  linguistic  nuances  during  a 
-translation process A query  may bear the same semantic content 
-but may be structurally different For an example the query Who 
-is  the  greatest  crime  novel  writer  is  semantically  equivalent  to 
-the  query  What  is  the  name  of  the  greatest  author  of  crime 
-novel It may also have the same grammatical structure but bear 
-different semantics  
-logical  reasoning  based  semantic 
-NLQF  has  been  a  topic  of  intensive  research  in  the  database 
-community Most of the effort was concentrated in translating NL 
-queries  into  formal  representations  suitable  for  database  retrieval 
-such as SQL 3-4 More recent researches have shown a growing 
-interest  in  mining  graph  databases  represented  in  RDF-like 
-format As a result several works have been proposed to translate 
-NL query into SPARQL-like formalism 5-7 18 However many 
-of these works support at the most shallow lexico-syntactic query 
-analysis extracting heuristic patterns which are then translated into 
-SPARQL like queries Many other approaches are ontology based 
-where  an  external  set  of  ontologies  are  required  for  mapping 
-query  tokens  to  the  most  probable  formal  concept  mostly 
-RDFRDFSOWL  represented  so  as  to  link  together  the  mapped 
-tokens into a formal semantic graph structure such as SPARQL 
-nRQL 5-6 18 The graph structure is then matched with similar 
-graphical 
-for  query 
-answering However ontology assisted NLQF heavily depends on 
-the  correctness  and  completeness  of  the  external  ontologies  and 
-may  not  be  very  accurate  if  the  target  information  source  is 
-independent  of  the  imported  ontology  set  Moreover  such  RDF 
-databases  are  nothing  more  than  very    light-weight  knowledge 
-bases with no high-end reasoning support required for knowledge 
-discovery Hence if the target corpus is a formal knowledge base 
-then SPARQL cannot serve as a suitable formal query language 
-representations  of  document  content 
-Other  distributional  hypothesis  8  based  purely  statistical 
-approaches  has  also  been  proposed  mostly  for  NL  query 
-processing which can hardly  fall under NLQF 9-11 One of the 
-intrinsic  problems  of  statistical  approaches  is  that  query  goal  or 
-desireintention detection is very difficult if linguistic analysis is 
-ignored  Also  information  retrieval  largely  depends  on  similarity 
-measure  models  that  are  mostly  token  co-occurrence  based  12-
-13  Such  co-occurrence  analysis  cannot  guarantee  semantic 
-similarity with the query goal 
-syntactic 
-structure 
-In this paper we propose a deep linguistic analysis based semantic 
-formalization  framework  for  NL  wh-queries  in  English  DL 
-representation  of  queries  provides  the  support  to  perform  formal 
-subsumption  based  reasoning  over  DL  based  knowledgebase  for 
-knowledge  discovery  We  show  that  such  queries  can  be  neatly 
-called  Query 
-characterized 
-Characterization  Template  QCT  covering  most  possible 
-linguistically  valid  query  variations  The  primary  aim  of  QCT  is 
-to identify the query desire and the relationship of the desire with 
-the  query  input  This  leads  to  the  next  step  of  accurate  query 
-formalization  However  such  characterization  is  non-trivial  and 
-involves  capturing  positional  nuances  of  query  tokens  correctly 
-We  also  show  that  a  Description  Logic  DL  25  sub-language 
-exists that has  semantic  equivalency  with that of  wh-queries We 
-have  presented  the  salient  rules  for  NL  query  to  DL  query 
-translation  The  proposed  methodology  is  independent  of  any 
-external ontology assistance The scope of this paper is limited to 
-wh- queries of six kinds i what ii which iii who iv when 
-v  where  and  vi  non-procedural  how  Our  contribution  in  this 
-paper is as follows 
-Table 11 
-System 
-Target 
-Triple 
-AquaLog 
-Triple 
-Querix 
-Triple 
-Triple 
-NL docs 
-mark-up 
-Distr 
-Selected 
-set of 
-Masque 
-PRECISE 
-based2 
-corpus 
-NL docs 
-1  A  novel  query  desire-input  dependency  analysis  theory 
-termed QCT is proposed 
-2  Proposing  DL  has  a  suitable  candidate  formal  semantic 
-theory for query formalization 
-3  Evaluation  in  terms  of  characterization  accuracy  using 
-Microsoft  Encarta  query  dataset  and  query  dataset  built  on 
-OWL-S TC v40 dataset 
-The  paper  is  organized  into  the  following  sections  i  related 
-work  outlining  some  of  the  major  contributions  in  NL  query 
-processing ii problem statement defining the problem of NLQF 
-formally  iii  Approach  where  query  characterization  and  DL 
-                                                                 
-1  NLQP  Natural  Language  Query  Processing  FL  Formal 
-Language  L-SPL  Lexico-Syntactic  Pattern  Learning  C Voc 
-Controlled  Vocabulary  PTr  Parse  Tree  Ann  Annotation 
-DB  Database  Ont  Ontology  Lex  Lexicon  Corps  Corpus 
-LA Linguistic Analysis Sem Semantic 
-2 proposed DL based framework 
-formalization has been discussed at length and iv Evaluation in 
-terms of characterization accuracy 
-2  RELATED WORKS 
-Various  approaches  for  NL  Query  Formalization  can  be  broadly 
-classified  into  two  main  categories  i  statistical  learning  based 
-analysis and iii lexico-syntactic analysis Table 1 is an overview 
-of  various  approaches  for  developing  NLQP  systems  We  have 
-categorized  them  on  the  basis  of  various  parameters  which 
-differentiate them One of those parameters is query nature which 
-can  be  of  two  types  i  restricted  R  NL  and  ii  unrestricted 
-UR  NL  Restricted  NL  based  systems  cannot  accept  queries  of 
-all  linguistics  forms  and  hence  provide  query  formulation  only 
-for NL queries that can be given through some sort of controlled 
-vocabulary Ontology aided systems import external ontologies as 
-input  for  aiding  NL  queries 
-their  respective  formal 
-representations  Lexicon  aided  systems  use  lexicons  or  thesauri 
-for  enriching  NL  query  vocabulary  which  in  turn  aids  in 
-normalized  query  formalization  By  target  corpus  we  mean  the 
-resource from which the answer is expected We see that systems 
-in  this  respect  can  be  either  NL  document  corpus  based  or 
-ontology based  
-In 10 author has tried to detect goal ie desire from the users 
-NL  query  using  Tree-Augmented  Naive  Bayes  networks  TANs 
-for  goal  detection  but  this  work  is  domain  specific  and  semantic 
-values  are  compromised  here  In  14  a  conversion  tool  which 
-takes  queries  expressed  in  NL  and  an  ontology  as  input  and 
-returns  the  appropriate  formal  queries  It  uses  WordNet  to 
-disambiguate the words and triple based model for formalization  
-The  generated  queries  are  then  sent  to  the  reasoner  for  querying 
-the  knowledge  bases  In  this  work  ontology  to  be  queried  is 
-required  to  be  chosen  by  user  and  it  doesnt  support  complex 
-query  formulation  In  15  an  approach  to  Semantic  Information 
-Retrieval  of  semantically  annotated  documents  based  on  NL 
-understanding  of  query  has  been  proposed  This  work 
-incorporates  an  OWL  query  ontology  for  SPARQL  based 
-inference  In  16  a  nested  CG  Conceptual  Graph  language  for 
-formal  representations  of  natural  language  queries  has  been 
-proposed  In  17  a  formal  semantic  analysis  of  object  queries  
-required  for  the  modern  object-oriented  databases  has  been 
-proposed  Unlike  other  object  query  languages  a  number  of 
-realistic  features  including  object  identity  object  creation  and 
-invocation of  methods  that  need  not  terminate  has  been  covered 
-A  translation  procedure  from  NL  query  into  a  formal  language 
-query such as SPARQL has been described in 18 In this paper a 
-user  query  is  translated  into  SPARQL  by  choosing  the  most 
-appropriate  query  from  the  prepared  queries  Queries  for  the 
-knowledge base and a set of corresponding normalized queries for 
-the  problem  has  been  prepared  beforehand  and  users  query  is 
-mapped to one of query  which is obtainable from the knowledge 
-base  For  relatively  large  knowledge  base  such  WWW  this  may 
-not be  scalable  approach  In 19  models  of  DP  services  as  RDF 
-views  over  a  mediated  domain  ontology  has  been  proposed 
-Each  RDF  view  contains  concepts  and  relations  from  the 
-mediated  ontology  to  capture  the  semantic  relationships  between 
-input  and  output  parameters  Query  rewriting  algorithms  for 
-processing  queries  over  DP  services  and  query  mediator  which 
-automatically  transforms  a  users  query  during  the  query 
-rewriting stage into a composition of DP services 
-START 20 was the first online question-answering system which 
-uses  statistical  NLP  techniques  and  lexico-syntactic  pattern 
-matching Another system called NLP-Reduce 21 was proposed 
-which  is  also  based  on  lexico-syntactic  pattern  matching  In  this 
-system query keywords are mapped with synonym enhanced triple 
-stores in the target corpus A key feature was that user queries can 
-be  phrases  or  complete  queries  and  also  need  not  be 
-grammatically  correct  A  domain-independent  system  called 
-Querix  was  proposed  in  6  where  full  English  questions  had  to 
-be  given  which  were  then  parsed  for  extracting  triple  patterns 
-These triples are extracted out of a prior query skeleton which is 
-generated based on word categories These triple patterns are then 
-mapped onto the target knowledge base for match A guided input 
-NL search engine called Ginseng was proposed in 22  
-3  PROBLEM OVERVIEW  
-The problem of NLQF involves 3 core tasks 
-Task  1  To  choose  a  formal  grammar    that  can  generate  the 
-dependency structure ex parse tree of the linguistic components 
-of a given NL query accurately 
-language     that  has  an 
-Task  2  To  select  a 
-interpretation    such 
-to  one 
-correspondence  with  the  semantic  interpretation  of  the  formal 
-grammar   
-formal 
-a  one 
-exists 
-Task  3  To  model  a  representational  equivalence  function 
-    that takes in a query Q in     and maps it to an expression   
-in    such that maximum semantic preservation is achieved Such 
-semantic  preservation  can  be  achieved  through  model-theoretic 
-semantic constructions      should be consistent and should not 
-generate expressions that are mutually inconsistent 
-Task 1 involves syntactic parsing of all valid NL queries This is a 
-challenging task since NL queries can be of varied forms with a 
-similar syntactic structures but different semantics ex Where is 
-the  capital  of  Florida  -  Answer  285N  813W  vs  What  is 
-the  capital  of  Florida  -  Answer  Orlando  and  b  similar 
-semantics  but  different  syntactic  structures  ex  Where  is  the 
-capital  of  Florida  vs  What  is  Orlandos  location  -  Answer 
-for  both  285N  813W  In  the  former  case  the  queries  should 
-be  characterized  such  that  they  have  their  corresponding  formal 
-language  translation  unique  while  in  the  latter  case  both  the 
-queries  should  have  the  same  normalized  formal  language 
-translation  Moreover  queries  may  not  always  be  simple  ie  no 
-clausal  constraint  ex  Who  are  Alexandars  favorite  Greek 
-mythological  heroes  but  can  be  complex  ex  Who  are  the 
-heroes of Greek mythology who were Alexanders favorite and 
-compound  Who  are  the  heroes  of  Greek  mythology  and 
-Alexander  Although  structurally  the  queries  are  simple 
-complex and compound yet semantically they  are the  equivalent 
-Hence  they  should  have  the  same  answer  Achilles  This 
-requires  accurate  part-of-speech  tagging  POS  tagger  and  parse 
-tree  generation  based  on  which  a  given  NL  query  is  fitted  into  a 
-chosen characterization grammar  
-Task  2  consists  of  translation  of  the  parsed  queries  into  a  formal 
-language  representation  usually  the  model-theoretic  style  Just 
-like task 1 formal translation is also not trivial since it involves i 
-resolution of several ambiguities and linguistic nuances including 
-re-formulation  and  normalization  of  semantically  equivalent  NL 
-queries  having  different  structures  ii  computational  query 
-resolution  ex  How  far  is  New  York  from  Orlando  iii 
-comparativesuperlative query resolution ex What is the highest 
-mountain in Asia The scope of this paper is limited to the wh-
-queries  of  the  kinds  i  whatwhich  ii  whowhomwhose  iii 
-where iv when and v how much  
-     in  English  model  a  transformation 
-31  Problem Definition 
-Given  an  NL  wh-query     
-function     such that 
-        
-          
-         
-where 
-     
-    is the formalization of    
-    in the formal language   
-    is the linguistic reading of English 
-    is the semantic interpretation function of    
-4  APPROACH 
-41  Characterization Task 1 
-Any user query has two primary linguistic components - i desire 
-or intent of the query and ii input of the query While the query 
-desire  is  essentially  what  an  answer  needs  to  satisfy  the  query 
-input  provides  the  satisfiability  constraint  on  the  desire  For  an 
-example  in  the  query  What  is  the  capital  of  USA  while  the 
-desire is an instance of the entity Capital the input is USA acts as 
-a  constraint  imposed  on  the  instance  relating  it  to  USA  and  not 
-just any other countryprovince  For task 1 described in section 
-31  choosing  a  formal  grammar  theory  serves  as  a  basis  for 
-generating  the  parse  tree  of  a  query  Constructing  semantics  by 
-applying a particular semantic theory over complicated although 
-sophisticated  parse  trees  is  computationally  expensive  We 
-observed  that  since  our  chosen  semantic  theory  is  Description 
-Logics  DL  where  concepts  are  defined  in  terms  of  roles  and 
-their  associations  with  other  concepts  thus  forming  subject-
-predicate-object  triples  the  primary  objective  of  query  parsing 
-should be to identify the desire which is the subject of the query 
-predicate  and  input  which  is  the  object  of  the  query  Hence  a 
-full-fledged parse tree is not necessary for the case We developed 
-a  pseudo-grammar  structure  called  Query  Characterization 
-Template 
-intrinsic  desire-input 
-dependency  structure  in  all  forms  of  English  factual  queries 
-simple  complex  and  compound  This  dependency  generates  a 
-unique  QCT  for  each  of  the  three  forms  QCT  is  a  pseudo-
-grammar in several senses i the sequence of the lexicons of the 
-original query can get changed after the characterization process 
-ii  lexicons  can  get  normalized  into  a  standard  form  after 
-characterization and iii it does not give a generic set of rules to 
-combine  or  split  phrase  structures  but  rather  fits  in  queries  of 
-equivalent  grammatical  structure  into  one  fixed  template  We 
-hereby define the wh-query and its three forms of as follows 
-that  captures 
-QCT 
-Definition 1 Wh-Query A Wh-Query is a query that contains at 
-least one of the following query tokens or their equivalent lexical 
-variations  what  which  who  whose  whom  when  where  how 
-What  query  can  be  i  definitional  such  as  What  is  a  cat 
-expected  answer  class  definition  ii  inclusion  such  as  What 
-animals  are  mammals  expected  answer  sub  classes  of 
-mammal  iii  instance  retrieval  such  as  What  is  the  capital  of 
-USA expected answer a city instance iv class retrieval such 
-as  What  is  Taj  Mahal  expected  answer  class  of  instance  Taj 
-Mahal  and  v  instance  associated  concept  retrieval  such  as 
-What  does  John  drink  in  the  morning  expected  answer  sub 
-classes of drink that John has for morning  
-Which  query  is  similar  to  What  queries  except  that  such  queries 
-cannot be definitional  
-Who  query  behaves  sometimes  as  a  Which  query  and  sometimes 
-as  a  What  query  with  the  special  underpinning  that  the  expected 
-answer is related to either a named animal or a person or person 
-grouporganization  
-Definition  6  Compound  Query  Wh-Query    A  Compound  Wh-
-Query  is  a  wh-query  that  consists  of  conjunctivedisjunctive 
-lexicons between one or more simple wh-queries or complex wh-
-queries  
-When  query  can  be  i  absolute  temporal  such  as  When  is 
-Thanksgiving  expected  answer  a  particular  day  of  a  month 
-and  ii  relative  temporal  such  as  When  will  John  arrive 
-expected answer can be afterbefore some event  
-Example  of  compound  wh-query  is  What  are  the  available  car 
-models  of  Volkswagen  and  their  respective  prices  In  the 
-following  sub-sections  the  QCT  of  each  of  the  three  forms  of 
-sentences has been discussed at length  
-Where  query  can  be  i  absolute  spatial  such  as  Where  is  the 
-leaning tower of Pisa expected answer geographical location 
-and  ii  relative  spatial  such  as  Where  is  the  ball  expected 
-answer can be onunderbelowat some object  
-How  query  can  be  i  procedural  such  as  How  is  a  flan 
-madeexpected  answer  recipe  or  step-wise  set  of  actions  ii 
-state  based  such  as  How  is  Joe  expected  answer  current 
-health status of Joe iii quantitative such as How much does the 
-bag cost expected answer price or iv computational such as 
-How  far  is  Tampa  from  Miami  expected  answer  computed 
-distance We do not consider procedural how in the scope of this 
-paper 
-Why query is causal in nature such as Why is the grass green 
-We also leave out why queries from the scope of this paper  
-Definition  2  Simple  Wh-Query  A  Simple  Wh-Query  is  a  wh-
-query  that  consists  of  a  single  and  non-clausal  query  desire 
-explicit  or  implicit  and  a  single  unconstrained  and  explicit 
-query input 
-Example simple wh-query is What is the capital of USA In this 
-case  the  desire  Capital  is  explicit  single  and unconstrained  by 
-any  clausal  phrase  The  input  USA  is  also  explicit  single  and 
-unconstrained  by  any  clausal  phrase  It  should  be  noted  that  as 
-remarked earlier the input is an implied constraint over the desire 
-which is different than clausal constraint Also the desire may be 
-implicit  sometimes  For  an  example  in  the  query  What  is  a 
-tomb  the  implicit  desire  is  the  definition  of  Tomb  ie 
-description of the class Tomb while the unconstrained and single 
-input is Tomb  
-Definition  3  Complex  Wh-Query  A  Complex  Wh-Query  is  a 
-wh-query  that  consists  of  a  single  query  desire  explicit  or 
-implicit and multiple explicit query input 
-Definition  4  Complex  Non-Clausal  Wh-Query  A  Complex 
-Non-Clausal  Wh-Query  is  a  complex  wh-query  that  is  clausal 
-constraint  free  on  both  the  query  desire  and  the  multiple  query 
-input 
-Example  complex  non-clausal  query  is  In  which  country  is  the 
-state  capital  of  Missouri  located  In  this  query  the  desire 
-Country is unconstrained There are two input State Capital and 
-Missouri each of which is also unconstrained  
-Definition  5  Complex  Clausal  Wh-Query  A  Complex  Clausal 
-Wh-Query  is  a  complex  wh-query  that  consists  of  at  least  one 
-clausal constraint on either the query desire or query input or both 
-Example complex clausal wh-query is Who was the British Prime 
-Minister  who  was  elected  two  times  one  of  which  was  during 
-World  War  II  In  this  query  the  single  explicit  desire  is  the 
-instance  of  the  class  British  Prime  Minister  having  no  clausal 
-constraint  There  are  two  query  input  two  times  and  World  War 
-II Also the  first input two times has a  clausal constraint one of 
-which was during   
-411  QCT of Simple Wh-Query 
-A  simple  wh-query  can  be  characterized  according  to  the 
-following structure  
-                                                         
- where 
-   second square bracket indicates optional component 
-     Query  desire  classinstance  -  value  restricted  to  NN  NNP 
-JJ RB VBG3 
-    Query input classinstance - value restricted to NN NNP JJ 
-RB VBG 
-     Auxiliary relation - includes variations of the set is is kind 
-of much might be does 
-      Relation that acts as i predicate of D as the subject and I 
-as the object or ii action role of I as the actor - value restricted to 
-VB PP VB-PP1 
-        Quantifier  of  D  or  I  -  values  restricted  to  DT1  The   
-indicates that Q can recur before D or I 
-        Modifier  of  D  or  I  -  value  restricted  to  set  NN  JJ  RB 
-VBG The  indicates that M can recur before D or I 
-We can observe that this QCT can cover all the linguistically valid 
-180  questions  excluding  quantifiers  and  modifiers  according  to 
-the given definition of simple wh-query    is auxiliary role in the 
-sense  that  it  cannot  act  as  a  predicate  of  either  the  D  or  the  I 
-However      serves  as  a  good  indicator  for  resolving  several 
-linguistic  ambiguities  For  an  example  in  a  how  query  if     is 
-much or its lexical variations then it is a quantitative query while 
-in  a  who  query  if     is  does  or  its  lexical  variations  then  the 
-associated  verb  is  an  activity  ie  Gerund  ex  Who  does 
-singing - Singing is an activity in this case 
-   is a relation that can either be associated with D as the subject 
-or I as the subject but not both If    is positioned after D in the 
-original  query  then     s  subject  is  D  For  an  example  in  the 
-simple query What is the capital of USA the subject of    of 
-is D Capital and the object is I USA If    is positioned after I 
-in  the  original  query  then  its  subject  is  I  For  an  example  in  the 
-query Which country is California located in the subject of    
-located  in  is  I  California  and  object  is  D  Country  Table  2 
-lists some of the important simple wh-query characterization  
-4111  Implicit Desire Identification 
-Implicit query desire implies that  D is empty This can happen if 
-and only if the following query structures are found 
-               
-                     
-                                                                 
-3  Abbreviations  follow  the  conventions  of  Penn  Treebank  POS 
-tags 30 
-Natural Language 
-Wh-Simple Query 
-What  is  the  capital 
-of Gujarat 
-Which  is  the  highest 
-mountain in world 
-How many legs does 
-a millipede have 
-dangerous plants 
-California 
-Table 2 
-Wh-Simple Query Characterization 
-        What        is        the 
-capital       of      Gujarat  
-       Which        is         the 
-highest  mountain       
-in       
-world  
-    How many      countlegs 
-     does have      millipede  
-      
-are     
-dangerous plants  
-       
-California  
-Where         
-is       
-      
-What 
-Table 3 
-What  is  most  populous 
-democracy 
-Caribbean  which 
-geographically 
-largest as well 
-the  distance 
-between  Missouri  and 
-Texas 
-    what    is   themostp
-opulousdemocracy 
-    in   
-       which 
-geographicallythelargest 
-   theCaribbean 
-      is    
-    what    is    thedistance
-     null  between 
-    and    
-   Misssouri 
-   Texas 
-          
-                             
-                             
-If     does  not  exist  then  D  is  empty  If     does  not  exist  while 
-   exists then D is empty For an example in the query What is 
-converted into diamond    is identified to be  is by default and 
-   is  detected  to  be  is  converted  into  However  there  is  no 
-lexicon in between    and    structure 3 Therefore D is empty 
-Another  case  in  which  D  always  remains  empty  is  when  the  wh-
-query  is  a  where  or  a  when  query  This  also  holds  true  for 
-complex  and  compound  queries  For  an  example  in  the  query 
-When is the next solar eclipse the query characterization is as 
-                                                                 
-4112  Explicit Desire Identification 
-As  an  extension  to  the  observation  the  previous  section  we  can 
-conclude  that  any  lexicon  between     and     is  D  For  an 
-example in the simple query What is the capital of USA    is 
-identified  to  be  is  and     is  detected  to  be  of  Therefore  D  is 
-Capital After D is identified the remaining lexicon is I    
-412  QCT of Complex Wh-Query 
-A complex Wh-query can be characterized according to4  
-                                    
-             
-         
-                    
-             
-         
-                         
-             
-             
-Natural 
-Compound  Wh-Query 
-language 
-What  happens  when  you 
-potassium 
-permanganate 
-glycerin 
-How  long  will  an  electric 
-car run and how fast can it 
-What  is  shape  and  size  of 
-baloon  when  air  comes 
-charge 
-hotelrent in Bombay 
-travelling 
-to  Bombay  and 
-foremost 
-Who  were 
-authorities  in  discovering 
-formulas 
-algebraic 
-theorems 
-andor 
-expressions 
-Which volcanoes are active 
-and  which  is  which  ones 
-are dormant 
-Table 4 
-Wh-Query 
-  happ
-   mix
-   null   
-  potassium 
-   when    
-Compound 
-Characterization 
-     what   
-ensimplicit 
-activity    
-permanganate    and   
-glycerine       null  
-     Howlong   
-ountimplicit 
-   null    
-um  permanganate    and   
-glycerine 
-     What   
-    and   
-   null   
-   when 
-   comesout   
-   size 
-   of   
-   will   
-   mix    
-  baloon
-   is   
-  shape
-   air      
-  potassi
-     What   
-vellingcharge 
-    and   
-   in   
-ull   
-      null 
-     Who   
-oremostauthorities 
-   is   
-  thetra
-   hotelrent    
-  bombay 
-   were   
-  thef
-   indiscoverying
-     theorems       
-   null   
-  algebraicformulas 
-        
-        
-expressions      null 
-     Which   
-anoes 
-   null   
-  volc
-   null   
-ull           
-     Which   
-anoes 
-   areactive   
-  null   
-  volc
-  null   
-  dormant   
-  nul
-where 
-    clausal lexicon constraining D 
-    second clausal lexicon constraining I1  
-    clausal lexicon associated with structure     
-             
-       
-      conjunctivedisjunctive lexicon for I 
-                                                                 
-4 Modifiers and quantifiers are not associated with  D and I They 
-are  associated  in  exactly  the  same  way  as  QCT  of  simple 
-queries 
-     query desire - value restricted to NN NNP JJ RB VBG 
-      l-th  query  input  k-th    structure  -  value  restricted  to  NN 
-NNP JJ RB VBG 
-        relation  associated  with  the  k-th  clause  that  acts  as  i 
-predicate of D as the subject and I as the object or ii action role 
-of I as the actor - value restricted to VB PP VB-PP 
-       modifier of the D or the I - value restricted to set NN JJ 
-RB VBG The  indicates that M can recur before D or I 
-             
-In  this  QCT  we  see    the  possible  repetition  of  the  structure 
-      Within this structure there is an optional sub-
-       that  may  add  to  the  number  of  input 
-structure            
-within  each  of  such  structures  A  clausal  lexicon  in  a  complex 
-clausal  wh-query  is  always  associated  with  such  a  structure  The 
-number  of  clausal  lexicons  is  the  same  as  the  number  of  such 
-structures in a given query It should be noted that there must be at 
-least two such structures for a query to qualify as complex Also 
-clausal  lexicons  in  the  general  case  is  optional  and  hence  the 
-QCT also holds true for complex non-clausal wh-query We name 
-the following structure as clausal structure CS 
-                  
-             
-         
-                    
-             
-         
-                         
-             
-            
-Example  complex  query  characterization  is  given  in  table  3  The 
-given  QCT  can  cover  1800  linguistically  valid  complex  queries 
-excluding quantifiers and modifiers 
-413  QCT of Compound Wh-Query 
-A compound Wh-query can be characterized according to  
-          
-       
-            
-                 
-            
-       
-            
-                 
-              
-       
-            
-                   
-where 
-       Conjunctivedisjunctive lexicon for D  
-       Conjunctivedisjunctive lexicon for wh-sub-query 
-Compound query characterization example has been given in table 
-42  DL as Formal Query Language Task 2 
-In  our  approach  we  choose  the  formal  language     to  be 
-Description Logics DL As mentioned earlier we argue that most 
-factual  IS-A  sentences  have  expressive  equivalency  in  the  DL 
-language                      where 
-     Attributive  Language    supports  atomic  concept  definition 
-concept intersection full value restriction limited role restriction 
-and atomic concept negation 
-     Union  supports concept union 
-     Existential  supports full role restriction 
-     Complement  supports concept negation 
-     Role Hierarchy  supports inclusion axioms of roles 
-    Nominal  supports concept creation of unrecognized Named 
-Entity 
-    Role Inversion - supports inverse roles  
-  Data Type  supports range concepts to be data type 
-The  choice  of  DL  over  other  semantic  theories  has  several 
-reasons i DL is equivalent to the guarded    fragment of FOPL 
-and hence is decidable 25 ii DL representation is compact and 
-variable-free  as  compared  to  representations  such  as  DRS  26 
-and LFT 27 making it comparatively easy to parse iii the DL 
-sub-language                        is  tractable  since  we 
-observed  that  most  IS-A  sentence  interpretation  is  covered  by 
-                iv  highly  optimized  semantic  tableau  based 
-DL  reasoners  28  are  available  as  compared  to  slower  hyper-
-resolution  based  theorem  provers  used  in  DRS  or  LFT  based 
-reasoning 
-the  W3C 
-recommended OWL format for web ontology5 Expressions in DL 
-can  represent  two  types  of  queries  i  general  queries  such  as 
-What is a synagogue answer is a T-Box definition or inclusion 
-axiom  in  the  knowledgebase  and  ii  specific  queries  such  as 
-What  is  the  name  of  the  highest  mountain  in  Australia  the 
-answer is an A-Box assertion in the knowledgebase  
-v  DL  has  direct  mapping  with 
-43  DL Formalization Task 3 
-As  mentioned  in  the  previous  section  NL  queries  can  be  of  two 
-types  in  the  context  of  DL  i  T-Box  queries  and  ii  A-Box 
-queries  T-Box  queries  can  be  i  definitional  ex  What  is  a 
-cat ii inclusion ex What animals are mammals and iii 
-super  class  retrieval  ex  What  kind  of  animal  is  lion  A-Box 
-queries  on  the  other  hand  can  be  i  instance  retrieval  Who 
-resides  in  221B  Baker  Street  ii  class  retrieval  ex  Who  is 
-Agatha  Christie  and  iii  instance  associated  concept  retrieval 
-What  does  John  drink  in  the  morning  Some  queries  are 
-ambiguous  and  the  linguistic  reading  may  imply  either  T-Box 
-definitional or A-Box instance retrieval ex Who is a student - 
-Answer 1 John and Joe are students Answer 2 A student is a 
-person who studies in an educational institution We argue that 
-correct  and  complete  DL  formalization  of  query  implies  that 
-query  processing  and  hence  question-answering  can  be 
-formulated as either a T-Box subsumption reasoning or an A-Box 
-retrieval reasoning over a knowledgebase We do not include     
-ie  concept  negation  in  this  work  since  we  exclude  from  the 
-scope of this paper formalization of queries with negative clauses 
-such as What is an animal called that cannot lay egg 
-431  Base Translation Rules 
-As  discussed  in  section  41  we  model  any  wh-query  to  have  two 
-components - desire and input We also mentioned that QCT helps 
-to  establish  desire-input  dependency  From  a  DL  formalization 
-point of view such dependency identification naturally culminates 
-to  the  DL  definition  of  the  desire  in  terms  of  the  input  By 
-definition we mean the model theoretic semantic interpretation of 
-the description of a desire as constrained by the input Given any 
-simple wh-query Q having D I R2 the following translation rules 
-always holds true 
-       
-          
-Base Rule 11 If    is empty and I is not NNP or quantified then 
-Base Rule 12 If    is empty and I is NNP then  
-otherwise 
-                           
-                         
-          
-            
-Base  Rule  21  If  subject  of      is     and      is  not  empty  then 
-                   
-                                                                 
-5  OWL  DL  is  equivalent  to            while  OWL  2  is 
-equivalent          
-Base  Rule  22  If  subject  of      is     and      is  not  empty  then 
-            
-Base Rule 31 If subject of    is   and I is NNP then  
-        
-                                   otherwise 
-                     
-Base Rule 32 If subject of    is   and I is NNP then  
-            
-            
-where 
-                        otherwise 
-          
-    Formalized desire  
-   Desire component identified in QCT 
-   Strongly formalized desire  
-   Weakly formalized desire  
-   Input component identified in QCT 
-    Relation component identified in QCT that is associated with 
-D and I 
-WordNetgetMSP  A  method  developed  to  get  the  most  specific 
-parent class from WordNet v 21  
-Base rule 11 is meant for T-Box queries in general except when 
-the  input  is  quantified  ex  Who  is  the  student  Strongly 
-   is  an  inclusiondefinitional  T-Box  query 
-formalized  desire    
-and requires more specific answers ie sub-classes of I Weakly 
-  is an generic T-Box query and can allow 
-formalized desire   
-less specific answers ie super-classes of I is allowed  
-Base rules 21 and 22 are meant for A-Box queries At an A-Box 
-level the query formalism for rules 21 and 22 is          where 
-x  is  the  variable  that belongs  to  the  class     Rules  31  and 32 
-are  meant  for  class  retrieval  queries  and  instance  associated 
-concept retrieval Also rule 12 is class retrieval as well  
-All  the  above  base  rules  can  be  extended  automatically  for 
-complex and compound queries as well The core extension rules 
-are discussed in the next section 
-432  Extension Translation Rules 
-In  this  paper  we  discuss  extension  rules  i  effect  of  modifiers 
-ii  effect  of  clausal  phrases  and  iii  effect  of  conjunctive  and 
-disjunctive phrases 
-4321  Effect of Modifier 
-Normally  if  a  modifier  in  wh-query  is  a  JJ  or  an  NN  then  it 
-modifies  either an NN or an NNP For an example in the query 
-Who are the tall students the JJ Tall modifies the input concept 
-Student which is an NN In such general cases it is evident that the 
-concept  TallStudent  is  a  sub  concept  of  the  concept  Student  An 
-interesting  phenomenon  that  can  be  observed  for  desireinput 
-modification is what we term as recursive nested modification In 
-sentences  where  the  subject  modification  is  by  a  sequence  of 
-modifiers  such  as                     then  a  nested  structure  is 
-assumed as                         Here   denotes scope of 
-the  modifier  Therefore  the  scope  of  the  inner  most  nested 
-modifier M3 is the concept D The scope of the modifier M2 is the 
-sub-concept  M3D  formed  as  a  result  of  the  M3  modifying  D  At 
-the  same  time  M2  also  recursively  modifies  D  to  form  the  sub-
-concept M2D Similarly M1 has the sub-concept M2M3D as scope 
-of  modification  while  in  recursion  modifies  M3D  and  D  The  T-
-Box rule for such recursive nested modification is as follows 
-Extension Rule Recursive Nested Modification 3-level nesting 
-                                  
-4322  Effect of Clausal Phrases 
-Complex wh-queries can be formalized by extending the base rule 
-and extended rules of simple wh-queries While formalization it is 
-important  to  identify  that  whether  the  clausal  constraints  is 
-applied to desire or inputs If it is an input constraint then which 
-of the multiple inputs it is applied This leads to a very important 
-issue  called  query  dependency  problem  Query  dependencies  can 
-be broadly classified as 
-Desire Dependency In some clausal complex wh-query constraint 
-is applied on the desire For example in the query Which atomic 
-bomb  was  dropped  in  Japan  which  had  caused  million  people to 
-die the desire is name or type of atomic bomb with constraint 
-the bomb caused million people to die and was dropped in Japan 
-If  clausal  phrase  contains  an  attribute  of  the  desire  then  we 
-assume  it  is  constraint  on  desire  The  given  example  query  is 
-characterized as 
-                                                   
-                                               
-                                                   
-Here  type  of  atomic  bomb  is  desire  and  clausal  constraint  ie 
-atomic  bomb  causing  millions  people 
-to  die  Therefore 
-constraint  is  considered  to  be  applied  on  desire  not  on  input 
-Attributes are associated with relations of lexical variations of the 
-structure  DESIRE  which  has 
-includes 
-DESIRE which is a 
-DESIRE  which 
-Input  Dependency  If  clausal  phrase  contains  an  attribute  of  the 
-input then we assume it is constraint on input For example in the 
-query What is the price of SLR camera which has 32 megapixel 
-resolution is characterized as 
-                                                           
-                                             
-                             
-Here  32  megapixel  resolution  is  a  constraint  input  which  is 
-attribute  of  input  SLR  camera  Attributes  are  associated  with 
-relations of lexical variations of the structure INPUT which has 
-INPUT  which  includes  INPUT  which  is  a  In  this  section 
-generic  DL  transformation  rule  for  all  complex  wh-queries  are 
-given  All  constraints  can  be  formulated  as  intersection  of 
-conceptsinstance given in the query  
-Extension Rule 1 Complex Query Inclusion T-Box 
-        
-An example query that requires this rule for translation is What 
-the  kinds  of  animals  which  are  vegetarians  The 
-corresponding equivalent DL is                               
-Extension Rule 2 Complex Query Input Dependency 
-                                               
-Extension Rule 31 Complex Query Desire Dependency 
-                                   
-An  interesting  observation  that  we  make  is  that  if     is  empty 
-while D is non empty and constrained then   s subject is D For 
-an  example  in  the  query  What  country  which  is  in  Europe  has 
-the  largest  population      has  has  subject  D  country  since 
-   is empty In this case the extension rule is as follows 
-Extension Rule 32 Complex Query Empty    
-                           
-                                           
-4323  Effect of ConjunctiveDisjunctive Phrases 
-To formalize the compound wh-queries after the characterization 
-process it is important to identify whether conjunctivedisjunctive 
-phrase  is  applied  on  desire  input  or  relation  Compound  queries 
-can  sometimes  be  split  into  simple  queries  andor  complex 
-queries  They  can  then  be  formalized  using  simple  query  and 
-complex  query  translation  rules  We  have  defined  the  rules  for 
-cases when a given compound query            can be split into 
-conjunction  of  simple  wh-queriesWe  have  also  done  exhastive 
-analysis of  all possible structure of compound query  structure by 
-applying conjunctivedisjunctive lexicons between inputs desires  
-relation We concluded on 14 different forms of compound query  
-The  main  motivation  to  break  the  compound  query  into  simple 
-query  is  to  increase  the  precision  and  recall  of  the  knowledge 
-discovery  system  If  we  can  break  the    compound  query  into 
-separated simple queries then later on all separated queries can be 
-fired  in  parallel  and  answer  of  all  separated  queires  can  be 
-returned by applying union operation between them We have also 
-defined  the  cases  where  splitting  is  not  possible  and  separate 
-formalization  rules  have  been  defined  for  them  More  details  on 
-this topic is beyond the scope of this paper due to lack of space 
-433  Non-Trivial Translation Rules 
-There  are  some  queries  whose  semantic  interpretation  cannot  be 
-completely and correctly constructed in a straightforward way by 
-applying  a  formal  semantic  theory  This  is  because  of  certain 
-innate  linguistic  nuances  that  these  queries  carry  that  demand 
-additional modification in the formal semantic representations In 
-the following sub sections we look into a few of such cases 
-4331  Problem of Empty Input 
-In  some  queries  the  input  can  be  empty  For  an  example  in  the 
-query  Who  barks      is  a  non-transitive  verb  with  no  explicit 
-input  as  object  In  such  situation  we  need  to  do  a  reification  of 
-   into  its  corresponding  gerund  sense  and  normalize  the  given 
-NL query to the form             
-              where fr is 
-the reification function In the given example we can reformulate 
-the query as Who does barking and the corresponding DL rule 
-Extension Rule Empty Input                    
-4332  Problem of Desire Inclusion 
-Some  inclusion  queries  may  have  desire  that  have  may  have  an 
-intersection  with  input For  an  example  in  the query  What  kind 
-of a water vehicle is also an air vehicle In such cases the base 
-rule 11 is modified as 
-Extension Rule Desire Inclusion               
-4333  Problem of Quantitative how-Query 
-In  how  queries  that  are  quantitative  in  nature  ie  R1    much 
-many etc we need to introduce a primitive concept Count and a 
-primitive  role  hasCount  where  for  any  arbitrary  satisfiable 
-concept      the  following  axiom  holds                        
-The hasCount is mapped to a function called fcount that calculates 
-the  size  of  the  instances  of      at  any  given  point  of  time  For  an 
-example in the query How many people live in New York the 
-count  operator  works  on  the  desire  people  living  in  New  York 
-The corresponding rule is 
-Extension Rule Quantitative how 
-4334  Problem of Temporal Adverbial Modifier 
-Some queries have temporal adverbial tokens such as in the query 
-What can be sometimes observed in the morning sky where R2 
-observed  in  is  associated  with  a  temporal  adverbial  modifier 
-sometimes  The  problem  with  formalizing  such  queries  is  that 
-the  ontological  validity  of  the  desire  is  essentially  temporal  in 
-nature In other words for the given example if a particular planet 
-is  observed  in  the  morning  sky  it  is  not  so  that  it  will  always  be 
-observed  like  the  sun  which  we  can  observe  every  day  Hence 
-sun  cannot  be  a  candidate  answer  in  this  case  The  rule  for  such 
-queries is as follows 
-Extension Rule Temporal Adverbial sometimes 
-                        
-                                    
-                                                  
-4335  Problem of Superlative Modifier 
-In some queries superlative tokens are included such as in What 
-is  the  tallest  mountain  in  Europe  In  such  queries  the  desire  is 
-for a specific instance that has the optimal maximal or minimal 
-degree of measurable modifier of the desire class In the example 
-tall  is  a  measurable  modifier  whose  superlative  form  is  maximal 
-height  of  all  instances  of  the  desire  class  Mountain  The  height 
-attribute  of  mountain  is  implicit  in  the  given  query  Keywords 
-such as most and least are good indicators of deciding whether the 
-computation  has  to  be  maximal  or  minimal  However  for  suffix 
-based superlative tokens ie est it is not so evident The problem 
-is how to know that tallest has to maximized while lowest has 
-to be minimized We take a bootstrapping based approach with a 
-seed  bag  of  measurable  modifiers  such  as  tall  long  big  low 
-high  large  wide  etc  and  then  mapped  the  bootstrapped 
-keywords  with  corresponding  plausible  attributes  denoted  AM 
-For  an  example  we  get  pairs  such  as                        
-                                                   
-                        Based on such pairing we then classify 
-the  modifiers 
-that  requires 
-maximization  such  as  tall  wide  etc  and  negative  modifiers 
-those that requires minimization such as low The corresponding 
-extension rule is 
-into  positive  modifiers  those 
-Extension Rule Superlative Queries                       
-                          
-                    
- where 
-         Optimality function that returns Integer Datatype    
-5  EVALUATION 
-51 Evaluation Goal and Metric  
-Our  evaluation  aim  was  to  observe  the  accuracy  of  the  proposed 
-QCT  We  leave  the  accuracy  evaluation  of  the  DL  formalization 
-as a future work since that requires indirect comparative testing in 
-terms  of  mean  average  precision  and  recall  on  some  of  the 
-cutting-edge  knowledge  discovery  systems  However  it  is  to  be 
-understood 
-intrinsically dependent on the accuracy of QCT  
-the  DL  formalization 
-the  accuracy  of 
-To  evaluate  QCT  we  decided  on  a  simple  Characterization 
-Coverage  CC  measure  The  measure  is  modeled  to  understand 
-how  many  different  linguistic  forms  of  simple  complex  and 
-compound  wh-queries  in  English  can  be  identified  correctly  by 
-QCT We measure CC in three perspectives i CC-Precision ii 
-CC-Recall and iii CC-F1 score We define them as follows 
-CC-Precision Given a test set of NL queries the CC-Precision is 
-calculated as the ratio of the number of correctly identified queries 
-NCI and the total number of identified queries in the test set NI  
-CC-Recall  Given  a  test  set  of  NL  queries  the  CC-Recall  is 
-calculated as the ratio of the number of correctly identified queries 
-NCI and the total number of queries in the test set N  
-CC-F1  The  Simple  Harmonic  Mean  of  CC-Precision  and  CC-
-Recall is the CC-F1  
-52 Experimental Results 
-To  evaluate  CC  of  proposed  work  we  have  used  the  Microsoft 
-Encarta  98  query  test  set  29  and  OWL-S  TC  dataset  The 
-Microsoft  Question  Answering  Corpus  MSQA  which  is  aimed 
-at querying documents belonging to the Encarta-98 encyclopedia 
-The  test  set  contains  1365  usable  English  wh-queries  We 
-excluded the queries of procedural how and why from this dataset 
-We  have  categorized  simple  complex  and  compound  queries 
-from  the  dataset  There  are  total  473  queries  of  procedural  how 
-and why which are excluded The reduced dataset consist of total 
-982 queries which is distributed among 676 simple 147 complex 
-and  69  compound  wh-queries  The  accuracy  statistics  is  given  in 
-table 5 We observe that the CC-Precision is 100 for all types of 
-wh-queries  while  the  overall  CC-Recall  is  9450  The  perfect 
-precision shows that the QCT is theoretically sound 
-To  validate  our  results  with  Encarta  98  dataset  we  also  tested 
-QCT  on  custom  query  dataset  built  on  top  of  OWL-S  TC  v40 
-dataset6  The  OWL-S  TC  dataset  consists  of  service  descriptions 
-of  1083  web  services  from  9  different  domains  A  service 
-description  is  a  formal  specification  of  the  behavior  of  a  web 
-service  in  terms  of  its  required  input  parameters  given  output 
-parameters  and  other  binding  parametric  details  for  runtime 
-execution  The  description  also  contains  a  short  NL  narrative  of 
-the  overall  behavior  A  query  dataset  for  this  corpus  was 
-developed by three research assistants The task for each of these 
-three  assistants  was  to  formulate  a  wh-query  for  every  service 
-such that the query desire matches the given output of the service 
-and  query  input  matches  the  required  input  of  the  service  Since 
-this  task  was  done  independently  we  observed  that  almost  in  all 
-cases the syntactic structuring of the query for a given service by 
-each  assistant  was  different  The  queries  were  simple  complex 
-and compound with an average of 90 query of the form complex 
-and compound Ideally the extracted query desire by QCT should 
-be  semantically  equivalent 
-corresponding web service specification Based on this notion we 
-have  calculated  CC-precision  CC-recall  and  CC-F1  measure  for 
-each  of  the  three  query  datasets  From  table  6  we  observed  that 
-the  average  recall  was  9877  average  precision  100  and 
-average  F1  was  9892  The  results  clearly  validate  the  earlier 
-results with Microsoft Encarta 98  
-the  output  parameter  of 
-6  CONCLUSION 
-In  this  paper  we  have  a  Description  Logic  based  NL  query 
-formalization methodology The motivation is to improve  
-                                                                 
-6 httpprojectssemwebcentralorgprojectsowls-tc 
-Table 51 
-NCI-wh 
-Simple 
-Wh-Query 
-Complex 
-Wh-Query 
-Compound  
-Wh-Query 
-Table 52 
-NCI-wh 
-Table 6 
-NCI-wh 
-                1083 
-                1083 
-                1083 
-accuracy  of  answer  extraction  from  NL  documents  using  formal 
-logic based reasoning We have proposed the basic DL translation 
-rules  along  with  some  of  the  important  derived  rules  that  cover 
-different kinds of linguistic nuances We found promising results 
-while evaluating DLQS-WhM with MS Encarta query test set and a 
-query dataset built on top of OWL-S TC v40 dataset 
-7  REFERENCES 
-1  Pejtersen A M 1998 Semantic information retrieval 
-Communications of the ACM 41 4 April1998 90  92 
-2  Moldovan D Clark C and Bowden M 2007 Lymbas 
-PowerAnswer 4 In TREC-2007 Association for 
-Computational Linguistics 
-3  Androutsopoulos I  Ritchie G D and Thanisch P 1993 
-MASQUESQL-An Efficient and Portable Natural Language 
-Query Interface for Relational Databases in Proceedings of 
-the Sixth International Conference on Industrial and 
-Engineering Applications of Artificial Intelligence and 
-Expert Systems - IEAAIE  Edinburgh Scotland 1993 
-4  Popescu A-M and Etzioni O and Kautz H 2003Towards a 
-theory of natural language interfaces to databases in 
-Proceedings of the 8th international conference on 
-Intelligent user interfaces Miami USA January 12 - 15 
-2003 
-5  Wang C Xiong M Zhou Q and Yu Y 2007 Panto A 
-portable natural language interface to ontologies in 
-Proceedings of the 4th European conference on the Semantic 
-Web Research and Applications Innsbruck Austria June 
-2007 
-6  Kaufmann E Bernstein A and Zumstein R Querix 2006 
-A Natural Language Interface to Query Ontologies Based on 
-Clarification Dialogs in International Symposium on 
-Wearable Computers - ISWC Montreux Switzerland 
-October 11 - 14 2006 
-7  Lopez V Pasin M and Motta E 2005 AquaLog An 
-Ontology-Portable Question Answering System for the 
-Semantic Web in European Semantic Web Symposium 
-Conference - ESWS Heraklion Crete May 29 - June 1 
-8  Sahlgren M  2008 The distributional hypothesis Italian 
-Journal of Linguistics 20 1 June 2008 33  54 
-9  Moldovan D Harabagiu S Pasca M Mihalcea R 
-Goodrum R Girju R and Rus V 1999 LASSO A Tool 
-for Surfing the Answer Net in TREC 1999 National 
-Institute of Standards and Technology NIST November 
-10 Yuhan He 2010 Goal Detection from Natural Language 
-Queries In 15th International Conference on Applications of 
-Natural Language to Information Systems Cardiff UK 
-June 2010  
-11 Dumais S Banko M Brill E Lin J and Ng A 2002 
-Web Question Answering Is More Always Better in 
-Proceedings of ACM SIGIR02 Tampere Finland August 
-2002 
-12 Deerwester S C  Dumais S TLandauer T K  Furnas 
-G W  and Harshman R A 1990 Indexing by latent 
-semantic analysis JASIS 41 6 September 1990 391  407 
-13 Hofmann T 1999 Probabilistic latent semantic indexing In 
-Proceedings of the 22nd International ACM SIGIR 
-conference on Research and development in information 
-retrieval Berkeley USA 1999 
-14 Boumechaal H and Boufaida Z Formalization of natural 
-language queries in IEEE International Symposium on 
-Innovations in Intelligent Systems and Applications IN-
-ISTA Istanbul June 15 - 18 2011 
-15 B Di Martino 2010 An approach to semantic information 
-retrieval based on natural language query understanding in 
-Current Trends in Web Engineering ICWE Workshop 
-Vienna Austria July 5 - 6 2010 
-16 Cao T H and Mai A H 2010 Ontology-based 
-understanding of natural language queries using nested 
-conceptual graphs in Proceedings of 18th International 
-Conference on Conceptual Structures From Information to 
-Intelligence Kuching Malaysia July 26 - 30 2010 
-17 Bierman GM 2003 Formal semantics and analysis of 
-object queries in Proceedings of the 2003 ACM SIGMOD 
-international conference on Management of data San Diego 
-USA June 9 - 12 2003 
-18 Han Y-J Noh T-G Park S-B Park S Y and Lee S-J 
-2010 A natural language interface of thorough coverage by 
-concordance with knowledge bases in Proceedings of the 
-15th international conference on Intelligent user interfaces 
-HongKong China February 7 - 10 2010 
-19 Barhamgi M Benslimane D and Medjahed B 2010 A 
-query rewriting approach for web service composition IEEE 
-Transactions on Services Computing 3 3 July 2010 206-
-20 Katz B Borchardt G and Felshin S 2006 Natural 
-Language Annotations for Question Answering in 
-Proceedings of the 19th International FLAIRS Conference 
-Melbourne Beach USA May 2006 
-21 Kaufmann E Bernstein A and Fischer L 2007 NLP-
-Reduce A naive but Domain-independent Natural 
-Language Interface for Querying Ontologies in Proceedings 
-of the 4th European Semantic Web Conference Innsbruck 
-Austria June 2007 
-22 Bernstein A Kaufmann E  Kaiser C and Kiefer C 2006 
-Ginseng A Guided Input Natural Language Search Engine 
-for Querying Ontologies in 2006 Jena User Conference 
-Bristol UK May 2006 
-23 Linckels S and Meinel C 2006 Resolving Ambiguities in 
-the Semantic Interpretation of Natural Language Questions 
-in Proceedings of 7th International Conference on Intelligent 
-Data Engineering and Automated Learning - IDEAL 
-Burgos Spain September 20 - 23 2006 
-24 Lopez V Fernndez M Motta E Sabou M and Uren V 
-2007 Question Answering on the Real Semantic Web in 
-Proceedings of International Semantic Web Conference 
-Busan Korea November 11 - 15 2007 
-25 Baader F  2003 The description logic handbook theory 
-implementation and applications Cambridge university 
-press 
-26 Kamp H 1981 A theory of truth and semantic 
-representation Linguistis Formal semantics-the essential 
-readings 7189 - 222 1981  
-27 Moldovan D  and Rus V 2001 Logic form transformation of 
-wordnet and its applicability to question answering In ACL 
-402  409 
-28 Tsarkov D and Horrocks I 2006 Fact description logic 
-reasoner System description In Proceedings of 3rd Joint 
-Conference on Automated reasoning Seattle USA August 
-17 - 20 2006 
-29 Microsoft Research Question-Answering Corpus - Encarta 
-98 v 100 November 2008 
-30 Marcus M P Marcinkiewicz M A and Santorini B 1993 
-Building a large annotated corpus of English The Penn 
-Treebank Computational linguistics 19 2 June 1993 313 
- 330 
-Description Logics based Formalization of Wh-Queries 
-Sourish Dasgupta 
-DA-IICT India 
-sourishdasgupta 
-daiictacin 
-       Rupali KaPatel 
-        DA-IICT India 
-       rupaliit08 
-      gmailcom 
-   Ankur Padia 
-     DA-IICT India 
-  padiaankur 
-    gmailcom 
-Kushal Shah  
-DA-IICT India 
-kushalshah40 
-daiictacin  
-ABSTRACT 
-The problem of Natural Language Query Formalization NLQF is 
-to  translate  a  given  user  query  in  natural  language  NL  into  a 
-formal  language     so  that  the     semantic  interpretation  has 
-equivalence  with  the  NL  interpretation  Formalization  of  NL 
-queries  enables 
-information 
-retrieval  database  query  question-answering  etc  Formalization 
-also helps in Web query normalization and indexing query intent 
-analysis etc In this paper we are proposing a Description Logics 
-based formal methodology for wh-query intent also called desire 
-identification and corresponding formal translation We evaluated 
-the scalability of our proposed formalism using Microsoft Encarta 
-98 query dataset and OWL-S TC v40 dataset  
-logic  based  reasoning  during 
-Categories and Subject Descriptors 
-I24  Knowledge  Representation  Formalism  and  Methods 
-Representation procedural and rule-based  
-General Terms 
-Theory Measurement Performance 
-Keywords 
-Query Formalization Description Logics Semantic Web 
-rigorous 
-1  INTRODUCTION 
-Natural  Language  Query  Formalization  NLQF  is  a  formal  and 
-systematic  procedure  of  translating  a  user  query  in  natural 
-language  into  an  expression  in  a  formal  language  without  losing 
-the semantics of the user query The choice of a formal language 
-can  range  from  SQL  used  in  conventional  DBMS  to  more 
-advanced  SPARQL  for  RDF  graph  based  databases  designed  to 
-support  the  Semantic  Web  However  any  translation  process 
-involves 
-linguistic  analysis  of  NL  queries  and 
-constructing a formal semantic interpretation that is equivalent to 
-the original query semantics NLQF has a twofold effect First it 
-helps  in  proper  identification  of  the  query  intent  also  called 
-desire  Secondly  it  formally  defines  the  query  intent  in  relation 
-to  other  linguistic  constituents  of  the  query  thereby  providing  a 
-platform  for 
-information 
-retrieval  and  question  answering  1-2  The  biggest  challenge 
-involved  in  NLQF  is  to  efficiently  and  accurately  identify  the 
-innate  desire  and  to  understand  the  linguistic  nuances  during  a 
-translation process A query  may bear the same semantic content 
-but may be structurally different For an example the query Who 
-is  the  greatest  crime  novel  writer  is  semantically  equivalent  to 
-the  query  What  is  the  name  of  the  greatest  author  of  crime 
-novel It may also have the same grammatical structure but bear 
-different semantics  
-logical  reasoning  based  semantic 
-NLQF  has  been  a  topic  of  intensive  research  in  the  database 
-community Most of the effort was concentrated in translating NL 
-queries  into  formal  representations  suitable  for  database  retrieval 
-such as SQL 3-4 More recent researches have shown a growing 
-interest  in  mining  graph  databases  represented  in  RDF-like 
-format As a result several works have been proposed to translate 
-NL query into SPARQL-like formalism 5-7 18 However many 
-of these works support at the most shallow lexico-syntactic query 
-analysis extracting heuristic patterns which are then translated into 
-SPARQL like queries Many other approaches are ontology based 
-where  an  external  set  of  ontologies  are  required  for  mapping 
-query  tokens  to  the  most  probable  formal  concept  mostly 
-RDFRDFSOWL  represented  so  as  to  link  together  the  mapped 
-tokens into a formal semantic graph structure such as SPARQL 
-nRQL 5-6 18 The graph structure is then matched with similar 
-graphical 
-for  query 
-answering However ontology assisted NLQF heavily depends on 
-the  correctness  and  completeness  of  the  external  ontologies  and 
-may  not  be  very  accurate  if  the  target  information  source  is 
-independent  of  the  imported  ontology  set  Moreover  such  RDF 
-databases  are  nothing  more  than  very    light-weight  knowledge 
-bases with no high-end reasoning support required for knowledge 
-discovery Hence if the target corpus is a formal knowledge base 
-then SPARQL cannot serve as a suitable formal query language 
-representations  of  document  content 
-Other  distributional  hypothesis  8  based  purely  statistical 
-approaches  has  also  been  proposed  mostly  for  NL  query 
-processing which can hardly  fall under NLQF 9-11 One of the 
-intrinsic  problems  of  statistical  approaches  is  that  query  goal  or 
-desireintention detection is very difficult if linguistic analysis is 
-ignored  Also  information  retrieval  largely  depends  on  similarity 
-measure  models  that  are  mostly  token  co-occurrence  based  12-
-13  Such  co-occurrence  analysis  cannot  guarantee  semantic 
-similarity with the query goal 
-syntactic 
-structure 
-In this paper we propose a deep linguistic analysis based semantic 
-formalization  framework  for  NL  wh-queries  in  English  DL 
-representation  of  queries  provides  the  support  to  perform  formal 
-subsumption  based  reasoning  over  DL  based  knowledgebase  for 
-knowledge  discovery  We  show  that  such  queries  can  be  neatly 
-called  Query 
-characterized 
-Characterization  Template  QCT  covering  most  possible 
-linguistically  valid  query  variations  The  primary  aim  of  QCT  is 
-to identify the query desire and the relationship of the desire with 
-the  query  input  This  leads  to  the  next  step  of  accurate  query 
-formalization  However  such  characterization  is  non-trivial  and 
-involves  capturing  positional  nuances  of  query  tokens  correctly 
-We  also  show  that  a  Description  Logic  DL  25  sub-language 
-exists that has  semantic  equivalency  with that of  wh-queries We 
-have  presented  the  salient  rules  for  NL  query  to  DL  query 
-translation  The  proposed  methodology  is  independent  of  any 
-external ontology assistance The scope of this paper is limited to 
-wh- queries of six kinds i what ii which iii who iv when 
-v  where  and  vi  non-procedural  how  Our  contribution  in  this 
-paper is as follows 
-Table 11 
-System 
-Target 
-Triple 
-AquaLog 
-Triple 
-Querix 
-Triple 
-Triple 
-NL docs 
-mark-up 
-Distr 
-Selected 
-set of 
-Masque 
-PRECISE 
-based2 
-corpus 
-NL docs 
-1  A  novel  query  desire-input  dependency  analysis  theory 
-termed QCT is proposed 
-2  Proposing  DL  has  a  suitable  candidate  formal  semantic 
-theory for query formalization 
-3  Evaluation  in  terms  of  characterization  accuracy  using 
-Microsoft  Encarta  query  dataset  and  query  dataset  built  on 
-OWL-S TC v40 dataset 
-The  paper  is  organized  into  the  following  sections  i  related 
-work  outlining  some  of  the  major  contributions  in  NL  query 
-processing ii problem statement defining the problem of NLQF 
-formally  iii  Approach  where  query  characterization  and  DL 
-                                                                 
-1  NLQP  Natural  Language  Query  Processing  FL  Formal 
-Language  L-SPL  Lexico-Syntactic  Pattern  Learning  C Voc 
-Controlled  Vocabulary  PTr  Parse  Tree  Ann  Annotation 
-DB  Database  Ont  Ontology  Lex  Lexicon  Corps  Corpus 
-LA Linguistic Analysis Sem Semantic 
-2 proposed DL based framework 
-formalization has been discussed at length and iv Evaluation in 
-terms of characterization accuracy 
-2  RELATED WORKS 
-Various  approaches  for  NL  Query  Formalization  can  be  broadly 
-classified  into  two  main  categories  i  statistical  learning  based 
-analysis and iii lexico-syntactic analysis Table 1 is an overview 
-of  various  approaches  for  developing  NLQP  systems  We  have 
-categorized  them  on  the  basis  of  various  parameters  which 
-differentiate them One of those parameters is query nature which 
-can  be  of  two  types  i  restricted  R  NL  and  ii  unrestricted 
-UR  NL  Restricted  NL  based  systems  cannot  accept  queries  of 
-all  linguistics  forms  and  hence  provide  query  formulation  only 
-for NL queries that can be given through some sort of controlled 
-vocabulary Ontology aided systems import external ontologies as 
-input  for  aiding  NL  queries 
-their  respective  formal 
-representations  Lexicon  aided  systems  use  lexicons  or  thesauri 
-for  enriching  NL  query  vocabulary  which  in  turn  aids  in 
-normalized  query  formalization  By  target  corpus  we  mean  the 
-resource from which the answer is expected We see that systems 
-in  this  respect  can  be  either  NL  document  corpus  based  or 
-ontology based  
-In 10 author has tried to detect goal ie desire from the users 
-NL  query  using  Tree-Augmented  Naive  Bayes  networks  TANs 
-for  goal  detection  but  this  work  is  domain  specific  and  semantic 
-values  are  compromised  here  In  14  a  conversion  tool  which 
-takes  queries  expressed  in  NL  and  an  ontology  as  input  and 
-returns  the  appropriate  formal  queries  It  uses  WordNet  to 
-disambiguate the words and triple based model for formalization  
-The  generated  queries  are  then  sent  to  the  reasoner  for  querying 
-the  knowledge  bases  In  this  work  ontology  to  be  queried  is 
-required  to  be  chosen  by  user  and  it  doesnt  support  complex 
-query  formulation  In  15  an  approach  to  Semantic  Information 
-Retrieval  of  semantically  annotated  documents  based  on  NL 
-understanding  of  query  has  been  proposed  This  work 
-incorporates  an  OWL  query  ontology  for  SPARQL  based 
-inference  In  16  a  nested  CG  Conceptual  Graph  language  for 
-formal  representations  of  natural  language  queries  has  been 
-proposed  In  17  a  formal  semantic  analysis  of  object  queries  
-required  for  the  modern  object-oriented  databases  has  been 
-proposed  Unlike  other  object  query  languages  a  number  of 
-realistic  features  including  object  identity  object  creation  and 
-invocation of  methods  that  need  not  terminate  has  been  covered 
-A  translation  procedure  from  NL  query  into  a  formal  language 
-query such as SPARQL has been described in 18 In this paper a 
-user  query  is  translated  into  SPARQL  by  choosing  the  most 
-appropriate  query  from  the  prepared  queries  Queries  for  the 
-knowledge base and a set of corresponding normalized queries for 
-the  problem  has  been  prepared  beforehand  and  users  query  is 
-mapped to one of query  which is obtainable from the knowledge 
-base  For  relatively  large  knowledge  base  such  WWW  this  may 
-not be  scalable  approach  In 19  models  of  DP  services  as  RDF 
-views  over  a  mediated  domain  ontology  has  been  proposed 
-Each  RDF  view  contains  concepts  and  relations  from  the 
-mediated  ontology  to  capture  the  semantic  relationships  between 
-input  and  output  parameters  Query  rewriting  algorithms  for 
-processing  queries  over  DP  services  and  query  mediator  which 
-automatically  transforms  a  users  query  during  the  query 
-rewriting stage into a composition of DP services 
-START 20 was the first online question-answering system which 
-uses  statistical  NLP  techniques  and  lexico-syntactic  pattern 
-matching Another system called NLP-Reduce 21 was proposed 
-which  is  also  based  on  lexico-syntactic  pattern  matching  In  this 
-system query keywords are mapped with synonym enhanced triple 
-stores in the target corpus A key feature was that user queries can 
-be  phrases  or  complete  queries  and  also  need  not  be 
-grammatically  correct  A  domain-independent  system  called 
-Querix  was  proposed  in  6  where  full  English  questions  had  to 
-be  given  which  were  then  parsed  for  extracting  triple  patterns 
-These triples are extracted out of a prior query skeleton which is 
-generated based on word categories These triple patterns are then 
-mapped onto the target knowledge base for match A guided input 
-NL search engine called Ginseng was proposed in 22  
-3  PROBLEM OVERVIEW  
-The problem of NLQF involves 3 core tasks 
-Task  1  To  choose  a  formal  grammar    that  can  generate  the 
-dependency structure ex parse tree of the linguistic components 
-of a given NL query accurately 
-language     that  has  an 
-Task  2  To  select  a 
-interpretation    such 
-to  one 
-correspondence  with  the  semantic  interpretation  of  the  formal 
-grammar   
-formal 
-a  one 
-exists 
-Task  3  To  model  a  representational  equivalence  function 
-    that takes in a query Q in     and maps it to an expression   
-in    such that maximum semantic preservation is achieved Such 
-semantic  preservation  can  be  achieved  through  model-theoretic 
-semantic constructions      should be consistent and should not 
-generate expressions that are mutually inconsistent 
-Task 1 involves syntactic parsing of all valid NL queries This is a 
-challenging task since NL queries can be of varied forms with a 
-similar syntactic structures but different semantics ex Where is 
-the  capital  of  Florida  -  Answer  285N  813W  vs  What  is 
-the  capital  of  Florida  -  Answer  Orlando  and  b  similar 
-semantics  but  different  syntactic  structures  ex  Where  is  the 
-capital  of  Florida  vs  What  is  Orlandos  location  -  Answer 
-for  both  285N  813W  In  the  former  case  the  queries  should 
-be  characterized  such  that  they  have  their  corresponding  formal 
-language  translation  unique  while  in  the  latter  case  both  the 
-queries  should  have  the  same  normalized  formal  language 
-translation  Moreover  queries  may  not  always  be  simple  ie  no 
-clausal  constraint  ex  Who  are  Alexandars  favorite  Greek 
-mythological  heroes  but  can  be  complex  ex  Who  are  the 
-heroes of Greek mythology who were Alexanders favorite and 
-compound  Who  are  the  heroes  of  Greek  mythology  and 
-Alexander  Although  structurally  the  queries  are  simple 
-complex and compound yet semantically they  are the  equivalent 
-Hence  they  should  have  the  same  answer  Achilles  This 
-requires  accurate  part-of-speech  tagging  POS  tagger  and  parse 
-tree  generation  based  on  which  a  given  NL  query  is  fitted  into  a 
-chosen characterization grammar  
-Task  2  consists  of  translation  of  the  parsed  queries  into  a  formal 
-language  representation  usually  the  model-theoretic  style  Just 
-like task 1 formal translation is also not trivial since it involves i 
-resolution of several ambiguities and linguistic nuances including 
-re-formulation  and  normalization  of  semantically  equivalent  NL 
-queries  having  different  structures  ii  computational  query 
-resolution  ex  How  far  is  New  York  from  Orlando  iii 
-comparativesuperlative query resolution ex What is the highest 
-mountain in Asia The scope of this paper is limited to the wh-
-queries  of  the  kinds  i  whatwhich  ii  whowhomwhose  iii 
-where iv when and v how much  
-     in  English  model  a  transformation 
-31  Problem Definition 
-Given  an  NL  wh-query     
-function     such that 
-        
-          
-         
-where 
-     
-    is the formalization of    
-    in the formal language   
-    is the linguistic reading of English 
-    is the semantic interpretation function of    
-4  APPROACH 
-41  Characterization Task 1 
-Any user query has two primary linguistic components - i desire 
-or intent of the query and ii input of the query While the query 
-desire  is  essentially  what  an  answer  needs  to  satisfy  the  query 
-input  provides  the  satisfiability  constraint  on  the  desire  For  an 
-example  in  the  query  What  is  the  capital  of  USA  while  the 
-desire is an instance of the entity Capital the input is USA acts as 
-a  constraint  imposed  on  the  instance  relating  it  to  USA  and  not 
-just any other countryprovince  For task 1 described in section 
-31  choosing  a  formal  grammar  theory  serves  as  a  basis  for 
-generating  the  parse  tree  of  a  query  Constructing  semantics  by 
-applying a particular semantic theory over complicated although 
-sophisticated  parse  trees  is  computationally  expensive  We 
-observed  that  since  our  chosen  semantic  theory  is  Description 
-Logics  DL  where  concepts  are  defined  in  terms  of  roles  and 
-their  associations  with  other  concepts  thus  forming  subject-
-predicate-object  triples  the  primary  objective  of  query  parsing 
-should be to identify the desire which is the subject of the query 
-predicate  and  input  which  is  the  object  of  the  query  Hence  a 
-full-fledged parse tree is not necessary for the case We developed 
-a  pseudo-grammar  structure  called  Query  Characterization 
-Template 
-intrinsic  desire-input 
-dependency  structure  in  all  forms  of  English  factual  queries 
-simple  complex  and  compound  This  dependency  generates  a 
-unique  QCT  for  each  of  the  three  forms  QCT  is  a  pseudo-
-grammar in several senses i the sequence of the lexicons of the 
-original query can get changed after the characterization process 
-ii  lexicons  can  get  normalized  into  a  standard  form  after 
-characterization and iii it does not give a generic set of rules to 
-combine  or  split  phrase  structures  but  rather  fits  in  queries  of 
-equivalent  grammatical  structure  into  one  fixed  template  We 
-hereby define the wh-query and its three forms of as follows 
-that  captures 
-QCT 
-Definition 1 Wh-Query A Wh-Query is a query that contains at 
-least one of the following query tokens or their equivalent lexical 
-variations  what  which  who  whose  whom  when  where  how 
-What  query  can  be  i  definitional  such  as  What  is  a  cat 
-expected  answer  class  definition  ii  inclusion  such  as  What 
-animals  are  mammals  expected  answer  sub  classes  of 
-mammal  iii  instance  retrieval  such  as  What  is  the  capital  of 
-USA expected answer a city instance iv class retrieval such 
-as  What  is  Taj  Mahal  expected  answer  class  of  instance  Taj 
-Mahal  and  v  instance  associated  concept  retrieval  such  as 
-What  does  John  drink  in  the  morning  expected  answer  sub 
-classes of drink that John has for morning  
-Which  query  is  similar  to  What  queries  except  that  such  queries 
-cannot be definitional  
-Who  query  behaves  sometimes  as  a  Which  query  and  sometimes 
-as  a  What  query  with  the  special  underpinning  that  the  expected 
-answer is related to either a named animal or a person or person 
-grouporganization  
-Definition  6  Compound  Query  Wh-Query    A  Compound  Wh-
-Query  is  a  wh-query  that  consists  of  conjunctivedisjunctive 
-lexicons between one or more simple wh-queries or complex wh-
-queries  
-When  query  can  be  i  absolute  temporal  such  as  When  is 
-Thanksgiving  expected  answer  a  particular  day  of  a  month 
-and  ii  relative  temporal  such  as  When  will  John  arrive 
-expected answer can be afterbefore some event  
-Example  of  compound  wh-query  is  What  are  the  available  car 
-models  of  Volkswagen  and  their  respective  prices  In  the 
-following  sub-sections  the  QCT  of  each  of  the  three  forms  of 
-sentences has been discussed at length  
-Where  query  can  be  i  absolute  spatial  such  as  Where  is  the 
-leaning tower of Pisa expected answer geographical location 
-and  ii  relative  spatial  such  as  Where  is  the  ball  expected 
-answer can be onunderbelowat some object  
-How  query  can  be  i  procedural  such  as  How  is  a  flan 
-madeexpected  answer  recipe  or  step-wise  set  of  actions  ii 
-state  based  such  as  How  is  Joe  expected  answer  current 
-health status of Joe iii quantitative such as How much does the 
-bag cost expected answer price or iv computational such as 
-How  far  is  Tampa  from  Miami  expected  answer  computed 
-distance We do not consider procedural how in the scope of this 
-paper 
-Why query is causal in nature such as Why is the grass green 
-We also leave out why queries from the scope of this paper  
-Definition  2  Simple  Wh-Query  A  Simple  Wh-Query  is  a  wh-
-query  that  consists  of  a  single  and  non-clausal  query  desire 
-explicit  or  implicit  and  a  single  unconstrained  and  explicit 
-query input 
-Example simple wh-query is What is the capital of USA In this 
-case  the  desire  Capital  is  explicit  single  and unconstrained  by 
-any  clausal  phrase  The  input  USA  is  also  explicit  single  and 
-unconstrained  by  any  clausal  phrase  It  should  be  noted  that  as 
-remarked earlier the input is an implied constraint over the desire 
-which is different than clausal constraint Also the desire may be 
-implicit  sometimes  For  an  example  in  the  query  What  is  a 
-tomb  the  implicit  desire  is  the  definition  of  Tomb  ie 
-description of the class Tomb while the unconstrained and single 
-input is Tomb  
-Definition  3  Complex  Wh-Query  A  Complex  Wh-Query  is  a 
-wh-query  that  consists  of  a  single  query  desire  explicit  or 
-implicit and multiple explicit query input 
-Definition  4  Complex  Non-Clausal  Wh-Query  A  Complex 
-Non-Clausal  Wh-Query  is  a  complex  wh-query  that  is  clausal 
-constraint  free  on  both  the  query  desire  and  the  multiple  query 
-input 
-Example  complex  non-clausal  query  is  In  which  country  is  the 
-state  capital  of  Missouri  located  In  this  query  the  desire 
-Country is unconstrained There are two input State Capital and 
-Missouri each of which is also unconstrained  
-Definition  5  Complex  Clausal  Wh-Query  A  Complex  Clausal 
-Wh-Query  is  a  complex  wh-query  that  consists  of  at  least  one 
-clausal constraint on either the query desire or query input or both 
-Example complex clausal wh-query is Who was the British Prime 
-Minister  who  was  elected  two  times  one  of  which  was  during 
-World  War  II  In  this  query  the  single  explicit  desire  is  the 
-instance  of  the  class  British  Prime  Minister  having  no  clausal 
-constraint  There  are  two  query  input  two  times  and  World  War 
-II Also the  first input two times has a  clausal constraint one of 
-which was during   
-411  QCT of Simple Wh-Query 
-A  simple  wh-query  can  be  characterized  according  to  the 
-following structure  
-                                                         
- where 
-   second square bracket indicates optional component 
-     Query  desire  classinstance  -  value  restricted  to  NN  NNP 
-JJ RB VBG3 
-    Query input classinstance - value restricted to NN NNP JJ 
-RB VBG 
-     Auxiliary relation - includes variations of the set is is kind 
-of much might be does 
-      Relation that acts as i predicate of D as the subject and I 
-as the object or ii action role of I as the actor - value restricted to 
-VB PP VB-PP1 
-        Quantifier  of  D  or  I  -  values  restricted  to  DT1  The   
-indicates that Q can recur before D or I 
-        Modifier  of  D  or  I  -  value  restricted  to  set  NN  JJ  RB 
-VBG The  indicates that M can recur before D or I 
-We can observe that this QCT can cover all the linguistically valid 
-180  questions  excluding  quantifiers  and  modifiers  according  to 
-the given definition of simple wh-query    is auxiliary role in the 
-sense  that  it  cannot  act  as  a  predicate  of  either  the  D  or  the  I 
-However      serves  as  a  good  indicator  for  resolving  several 
-linguistic  ambiguities  For  an  example  in  a  how  query  if     is 
-much or its lexical variations then it is a quantitative query while 
-in  a  who  query  if     is  does  or  its  lexical  variations  then  the 
-associated  verb  is  an  activity  ie  Gerund  ex  Who  does 
-singing - Singing is an activity in this case 
-   is a relation that can either be associated with D as the subject 
-or I as the subject but not both If    is positioned after D in the 
-original  query  then     s  subject  is  D  For  an  example  in  the 
-simple query What is the capital of USA the subject of    of 
-is D Capital and the object is I USA If    is positioned after I 
-in  the  original  query  then  its  subject  is  I  For  an  example  in  the 
-query Which country is California located in the subject of    
-located  in  is  I  California  and  object  is  D  Country  Table  2 
-lists some of the important simple wh-query characterization  
-4111  Implicit Desire Identification 
-Implicit query desire implies that  D is empty This can happen if 
-and only if the following query structures are found 
-               
-                     
-                                                                 
-3  Abbreviations  follow  the  conventions  of  Penn  Treebank  POS 
-tags 30 
-Natural Language 
-Wh-Simple Query 
-What  is  the  capital 
-of Gujarat 
-Which  is  the  highest 
-mountain in world 
-How many legs does 
-a millipede have 
-dangerous plants 
-California 
-Table 2 
-Wh-Simple Query Characterization 
-        What        is        the 
-capital       of      Gujarat  
-       Which        is         the 
-highest  mountain       
-in       
-world  
-    How many      countlegs 
-     does have      millipede  
-      
-are     
-dangerous plants  
-       
-California  
-Where         
-is       
-      
-What 
-Table 3 
-What  is  most  populous 
-democracy 
-Caribbean  which 
-geographically 
-largest as well 
-the  distance 
-between  Missouri  and 
-Texas 
-    what    is   themostp
-opulousdemocracy 
-    in   
-       which 
-geographicallythelargest 
-   theCaribbean 
-      is    
-    what    is    thedistance
-     null  between 
-    and    
-   Misssouri 
-   Texas 
-          
-                             
-                             
-If     does  not  exist  then  D  is  empty  If     does  not  exist  while 
-   exists then D is empty For an example in the query What is 
-converted into diamond    is identified to be  is by default and 
-   is  detected  to  be  is  converted  into  However  there  is  no 
-lexicon in between    and    structure 3 Therefore D is empty 
-Another  case  in  which  D  always  remains  empty  is  when  the  wh-
-query  is  a  where  or  a  when  query  This  also  holds  true  for 
-complex  and  compound  queries  For  an  example  in  the  query 
-When is the next solar eclipse the query characterization is as 
-                                                                 
-4112  Explicit Desire Identification 
-As  an  extension  to  the  observation  the  previous  section  we  can 
-conclude  that  any  lexicon  between     and     is  D  For  an 
-example in the simple query What is the capital of USA    is 
-identified  to  be  is  and     is  detected  to  be  of  Therefore  D  is 
-Capital After D is identified the remaining lexicon is I    
-412  QCT of Complex Wh-Query 
-A complex Wh-query can be characterized according to4  
-                                    
-             
-         
-                    
-             
-         
-                         
-             
-             
-Natural 
-Compound  Wh-Query 
-language 
-What  happens  when  you 
-potassium 
-permanganate 
-glycerin 
-How  long  will  an  electric 
-car run and how fast can it 
-What  is  shape  and  size  of 
-baloon  when  air  comes 
-charge 
-hotelrent in Bombay 
-travelling 
-to  Bombay  and 
-foremost 
-Who  were 
-authorities  in  discovering 
-formulas 
-algebraic 
-theorems 
-andor 
-expressions 
-Which volcanoes are active 
-and  which  is  which  ones 
-are dormant 
-Table 4 
-Wh-Query 
-  happ
-   mix
-   null   
-  potassium 
-   when    
-Compound 
-Characterization 
-     what   
-ensimplicit 
-activity    
-permanganate    and   
-glycerine       null  
-     Howlong   
-ountimplicit 
-   null    
-um  permanganate    and   
-glycerine 
-     What   
-    and   
-   null   
-   when 
-   comesout   
-   size 
-   of   
-   will   
-   mix    
-  baloon
-   is   
-  shape
-   air      
-  potassi
-     What   
-vellingcharge 
-    and   
-   in   
-ull   
-      null 
-     Who   
-oremostauthorities 
-   is   
-  thetra
-   hotelrent    
-  bombay 
-   were   
-  thef
-   indiscoverying
-     theorems       
-   null   
-  algebraicformulas 
-        
-        
-expressions      null 
-     Which   
-anoes 
-   null   
-  volc
-   null   
-ull           
-     Which   
-anoes 
-   areactive   
-  null   
-  volc
-  null   
-  dormant   
-  nul
-where 
-    clausal lexicon constraining D 
-    second clausal lexicon constraining I1  
-    clausal lexicon associated with structure     
-             
-       
-      conjunctivedisjunctive lexicon for I 
-                                                                 
-4 Modifiers and quantifiers are not associated with  D and I They 
-are  associated  in  exactly  the  same  way  as  QCT  of  simple 
-queries 
-     query desire - value restricted to NN NNP JJ RB VBG 
-      l-th  query  input  k-th    structure  -  value  restricted  to  NN 
-NNP JJ RB VBG 
-        relation  associated  with  the  k-th  clause  that  acts  as  i 
-predicate of D as the subject and I as the object or ii action role 
-of I as the actor - value restricted to VB PP VB-PP 
-       modifier of the D or the I - value restricted to set NN JJ 
-RB VBG The  indicates that M can recur before D or I 
-             
-In  this  QCT  we  see    the  possible  repetition  of  the  structure 
-      Within this structure there is an optional sub-
-       that  may  add  to  the  number  of  input 
-structure            
-within  each  of  such  structures  A  clausal  lexicon  in  a  complex 
-clausal  wh-query  is  always  associated  with  such  a  structure  The 
-number  of  clausal  lexicons  is  the  same  as  the  number  of  such 
-structures in a given query It should be noted that there must be at 
-least two such structures for a query to qualify as complex Also 
-clausal  lexicons  in  the  general  case  is  optional  and  hence  the 
-QCT also holds true for complex non-clausal wh-query We name 
-the following structure as clausal structure CS 
-                  
-             
-         
-                    
-             
-         
-                         
-             
-            
-Example  complex  query  characterization  is  given  in  table  3  The 
-given  QCT  can  cover  1800  linguistically  valid  complex  queries 
-excluding quantifiers and modifiers 
-413  QCT of Compound Wh-Query 
-A compound Wh-query can be characterized according to  
-          
-       
-            
-                 
-            
-       
-            
-                 
-              
-       
-            
-                   
-where 
-       Conjunctivedisjunctive lexicon for D  
-       Conjunctivedisjunctive lexicon for wh-sub-query 
-Compound query characterization example has been given in table 
-42  DL as Formal Query Language Task 2 
-In  our  approach  we  choose  the  formal  language     to  be 
-Description Logics DL As mentioned earlier we argue that most 
-factual  IS-A  sentences  have  expressive  equivalency  in  the  DL 
-language                      where 
-     Attributive  Language    supports  atomic  concept  definition 
-concept intersection full value restriction limited role restriction 
-and atomic concept negation 
-     Union  supports concept union 
-     Existential  supports full role restriction 
-     Complement  supports concept negation 
-     Role Hierarchy  supports inclusion axioms of roles 
-    Nominal  supports concept creation of unrecognized Named 
-Entity 
-    Role Inversion - supports inverse roles  
-  Data Type  supports range concepts to be data type 
-The  choice  of  DL  over  other  semantic  theories  has  several 
-reasons i DL is equivalent to the guarded    fragment of FOPL 
-and hence is decidable 25 ii DL representation is compact and 
-variable-free  as  compared  to  representations  such  as  DRS  26 
-and LFT 27 making it comparatively easy to parse iii the DL 
-sub-language                        is  tractable  since  we 
-observed  that  most  IS-A  sentence  interpretation  is  covered  by 
-                iv  highly  optimized  semantic  tableau  based 
-DL  reasoners  28  are  available  as  compared  to  slower  hyper-
-resolution  based  theorem  provers  used  in  DRS  or  LFT  based 
-reasoning 
-the  W3C 
-recommended OWL format for web ontology5 Expressions in DL 
-can  represent  two  types  of  queries  i  general  queries  such  as 
-What is a synagogue answer is a T-Box definition or inclusion 
-axiom  in  the  knowledgebase  and  ii  specific  queries  such  as 
-What  is  the  name  of  the  highest  mountain  in  Australia  the 
-answer is an A-Box assertion in the knowledgebase  
-v  DL  has  direct  mapping  with 
-43  DL Formalization Task 3 
-As  mentioned  in  the  previous  section  NL  queries  can  be  of  two 
-types  in  the  context  of  DL  i  T-Box  queries  and  ii  A-Box 
-queries  T-Box  queries  can  be  i  definitional  ex  What  is  a 
-cat ii inclusion ex What animals are mammals and iii 
-super  class  retrieval  ex  What  kind  of  animal  is  lion  A-Box 
-queries  on  the  other  hand  can  be  i  instance  retrieval  Who 
-resides  in  221B  Baker  Street  ii  class  retrieval  ex  Who  is 
-Agatha  Christie  and  iii  instance  associated  concept  retrieval 
-What  does  John  drink  in  the  morning  Some  queries  are 
-ambiguous  and  the  linguistic  reading  may  imply  either  T-Box 
-definitional or A-Box instance retrieval ex Who is a student - 
-Answer 1 John and Joe are students Answer 2 A student is a 
-person who studies in an educational institution We argue that 
-correct  and  complete  DL  formalization  of  query  implies  that 
-query  processing  and  hence  question-answering  can  be 
-formulated as either a T-Box subsumption reasoning or an A-Box 
-retrieval reasoning over a knowledgebase We do not include     
-ie  concept  negation  in  this  work  since  we  exclude  from  the 
-scope of this paper formalization of queries with negative clauses 
-such as What is an animal called that cannot lay egg 
-431  Base Translation Rules 
-As  discussed  in  section  41  we  model  any  wh-query  to  have  two 
-components - desire and input We also mentioned that QCT helps 
-to  establish  desire-input  dependency  From  a  DL  formalization 
-point of view such dependency identification naturally culminates 
-to  the  DL  definition  of  the  desire  in  terms  of  the  input  By 
-definition we mean the model theoretic semantic interpretation of 
-the description of a desire as constrained by the input Given any 
-simple wh-query Q having D I R2 the following translation rules 
-always holds true 
-       
-          
-Base Rule 11 If    is empty and I is not NNP or quantified then 
-Base Rule 12 If    is empty and I is NNP then  
-otherwise 
-                           
-                         
-          
-            
-Base  Rule  21  If  subject  of      is     and      is  not  empty  then 
-                   
-                                                                 
-5  OWL  DL  is  equivalent  to            while  OWL  2  is 
-equivalent          
-Base  Rule  22  If  subject  of      is     and      is  not  empty  then 
-            
-Base Rule 31 If subject of    is   and I is NNP then  
-        
-                                   otherwise 
-                     
-Base Rule 32 If subject of    is   and I is NNP then  
-            
-            
-where 
-                        otherwise 
-          
-    Formalized desire  
-   Desire component identified in QCT 
-   Strongly formalized desire  
-   Weakly formalized desire  
-   Input component identified in QCT 
-    Relation component identified in QCT that is associated with 
-D and I 
-WordNetgetMSP  A  method  developed  to  get  the  most  specific 
-parent class from WordNet v 21  
-Base rule 11 is meant for T-Box queries in general except when 
-the  input  is  quantified  ex  Who  is  the  student  Strongly 
-   is  an  inclusiondefinitional  T-Box  query 
-formalized  desire    
-and requires more specific answers ie sub-classes of I Weakly 
-  is an generic T-Box query and can allow 
-formalized desire   
-less specific answers ie super-classes of I is allowed  
-Base rules 21 and 22 are meant for A-Box queries At an A-Box 
-level the query formalism for rules 21 and 22 is          where 
-x  is  the  variable  that belongs  to  the  class     Rules  31  and 32 
-are  meant  for  class  retrieval  queries  and  instance  associated 
-concept retrieval Also rule 12 is class retrieval as well  
-All  the  above  base  rules  can  be  extended  automatically  for 
-complex and compound queries as well The core extension rules 
-are discussed in the next section 
-432  Extension Translation Rules 
-In  this  paper  we  discuss  extension  rules  i  effect  of  modifiers 
-ii  effect  of  clausal  phrases  and  iii  effect  of  conjunctive  and 
-disjunctive phrases 
-4321  Effect of Modifier 
-Normally  if  a  modifier  in  wh-query  is  a  JJ  or  an  NN  then  it 
-modifies  either an NN or an NNP For an example in the query 
-Who are the tall students the JJ Tall modifies the input concept 
-Student which is an NN In such general cases it is evident that the 
-concept  TallStudent  is  a  sub  concept  of  the  concept  Student  An 
-interesting  phenomenon  that  can  be  observed  for  desireinput 
-modification is what we term as recursive nested modification In 
-sentences  where  the  subject  modification  is  by  a  sequence  of 
-modifiers  such  as                     then  a  nested  structure  is 
-assumed as                         Here   denotes scope of 
-the  modifier  Therefore  the  scope  of  the  inner  most  nested 
-modifier M3 is the concept D The scope of the modifier M2 is the 
-sub-concept  M3D  formed  as  a  result  of  the  M3  modifying  D  At 
-the  same  time  M2  also  recursively  modifies  D  to  form  the  sub-
-concept M2D Similarly M1 has the sub-concept M2M3D as scope 
-of  modification  while  in  recursion  modifies  M3D  and  D  The  T-
-Box rule for such recursive nested modification is as follows 
-Extension Rule Recursive Nested Modification 3-level nesting 
-                                  
-4322  Effect of Clausal Phrases 
-Complex wh-queries can be formalized by extending the base rule 
-and extended rules of simple wh-queries While formalization it is 
-important  to  identify  that  whether  the  clausal  constraints  is 
-applied to desire or inputs If it is an input constraint then which 
-of the multiple inputs it is applied This leads to a very important 
-issue  called  query  dependency  problem  Query  dependencies  can 
-be broadly classified as 
-Desire Dependency In some clausal complex wh-query constraint 
-is applied on the desire For example in the query Which atomic 
-bomb  was  dropped  in  Japan  which  had  caused  million  people to 
-die the desire is name or type of atomic bomb with constraint 
-the bomb caused million people to die and was dropped in Japan 
-If  clausal  phrase  contains  an  attribute  of  the  desire  then  we 
-assume  it  is  constraint  on  desire  The  given  example  query  is 
-characterized as 
-                                                   
-                                               
-                                                   
-Here  type  of  atomic  bomb  is  desire  and  clausal  constraint  ie 
-atomic  bomb  causing  millions  people 
-to  die  Therefore 
-constraint  is  considered  to  be  applied  on  desire  not  on  input 
-Attributes are associated with relations of lexical variations of the 
-structure  DESIRE  which  has 
-includes 
-DESIRE which is a 
-DESIRE  which 
-Input  Dependency  If  clausal  phrase  contains  an  attribute  of  the 
-input then we assume it is constraint on input For example in the 
-query What is the price of SLR camera which has 32 megapixel 
-resolution is characterized as 
-                                                           
-                                             
-                             
-Here  32  megapixel  resolution  is  a  constraint  input  which  is 
-attribute  of  input  SLR  camera  Attributes  are  associated  with 
-relations of lexical variations of the structure INPUT which has 
-INPUT  which  includes  INPUT  which  is  a  In  this  section 
-generic  DL  transformation  rule  for  all  complex  wh-queries  are 
-given  All  constraints  can  be  formulated  as  intersection  of 
-conceptsinstance given in the query  
-Extension Rule 1 Complex Query Inclusion T-Box 
-        
-An example query that requires this rule for translation is What 
-the  kinds  of  animals  which  are  vegetarians  The 
-corresponding equivalent DL is                               
-Extension Rule 2 Complex Query Input Dependency 
-                                               
-Extension Rule 31 Complex Query Desire Dependency 
-                                   
-An  interesting  observation  that  we  make  is  that  if     is  empty 
-while D is non empty and constrained then   s subject is D For 
-an  example  in  the  query  What  country  which  is  in  Europe  has 
-the  largest  population      has  has  subject  D  country  since 
-   is empty In this case the extension rule is as follows 
-Extension Rule 32 Complex Query Empty    
-                           
-                                           
-4323  Effect of ConjunctiveDisjunctive Phrases 
-To formalize the compound wh-queries after the characterization 
-process it is important to identify whether conjunctivedisjunctive 
-phrase  is  applied  on  desire  input  or  relation  Compound  queries 
-can  sometimes  be  split  into  simple  queries  andor  complex 
-queries  They  can  then  be  formalized  using  simple  query  and 
-complex  query  translation  rules  We  have  defined  the  rules  for 
-cases when a given compound query            can be split into 
-conjunction  of  simple  wh-queriesWe  have  also  done  exhastive 
-analysis of  all possible structure of compound query  structure by 
-applying conjunctivedisjunctive lexicons between inputs desires  
-relation We concluded on 14 different forms of compound query  
-The  main  motivation  to  break  the  compound  query  into  simple 
-query  is  to  increase  the  precision  and  recall  of  the  knowledge 
-discovery  system  If  we  can  break  the    compound  query  into 
-separated simple queries then later on all separated queries can be 
-fired  in  parallel  and  answer  of  all  separated  queires  can  be 
-returned by applying union operation between them We have also 
-defined  the  cases  where  splitting  is  not  possible  and  separate 
-formalization  rules  have  been  defined  for  them  More  details  on 
-this topic is beyond the scope of this paper due to lack of space 
-433  Non-Trivial Translation Rules 
-There  are  some  queries  whose  semantic  interpretation  cannot  be 
-completely and correctly constructed in a straightforward way by 
-applying  a  formal  semantic  theory  This  is  because  of  certain 
-innate  linguistic  nuances  that  these  queries  carry  that  demand 
-additional modification in the formal semantic representations In 
-the following sub sections we look into a few of such cases 
-4331  Problem of Empty Input 
-In  some  queries  the  input  can  be  empty  For  an  example  in  the 
-query  Who  barks      is  a  non-transitive  verb  with  no  explicit 
-input  as  object  In  such  situation  we  need  to  do  a  reification  of 
-   into  its  corresponding  gerund  sense  and  normalize  the  given 
-NL query to the form             
-              where fr is 
-the reification function In the given example we can reformulate 
-the query as Who does barking and the corresponding DL rule 
-Extension Rule Empty Input                    
-4332  Problem of Desire Inclusion 
-Some  inclusion  queries  may  have  desire  that  have  may  have  an 
-intersection  with  input For  an  example  in  the query  What  kind 
-of a water vehicle is also an air vehicle In such cases the base 
-rule 11 is modified as 
-Extension Rule Desire Inclusion               
-4333  Problem of Quantitative how-Query 
-In  how  queries  that  are  quantitative  in  nature  ie  R1    much 
-many etc we need to introduce a primitive concept Count and a 
-primitive  role  hasCount  where  for  any  arbitrary  satisfiable 
-concept      the  following  axiom  holds                        
-The hasCount is mapped to a function called fcount that calculates 
-the  size  of  the  instances  of      at  any  given  point  of  time  For  an 
-example in the query How many people live in New York the 
-count  operator  works  on  the  desire  people  living  in  New  York 
-The corresponding rule is 
-Extension Rule Quantitative how 
-4334  Problem of Temporal Adverbial Modifier 
-Some queries have temporal adverbial tokens such as in the query 
-What can be sometimes observed in the morning sky where R2 
-observed  in  is  associated  with  a  temporal  adverbial  modifier 
-sometimes  The  problem  with  formalizing  such  queries  is  that 
-the  ontological  validity  of  the  desire  is  essentially  temporal  in 
-nature In other words for the given example if a particular planet 
-is  observed  in  the  morning  sky  it  is  not  so  that  it  will  always  be 
-observed  like  the  sun  which  we  can  observe  every  day  Hence 
-sun  cannot  be  a  candidate  answer  in  this  case  The  rule  for  such 
-queries is as follows 
-Extension Rule Temporal Adverbial sometimes 
-                        
-                                    
-                                                  
-4335  Problem of Superlative Modifier 
-In some queries superlative tokens are included such as in What 
-is  the  tallest  mountain  in  Europe  In  such  queries  the  desire  is 
-for a specific instance that has the optimal maximal or minimal 
-degree of measurable modifier of the desire class In the example 
-tall  is  a  measurable  modifier  whose  superlative  form  is  maximal 
-height  of  all  instances  of  the  desire  class  Mountain  The  height 
-attribute  of  mountain  is  implicit  in  the  given  query  Keywords 
-such as most and least are good indicators of deciding whether the 
-computation  has  to  be  maximal  or  minimal  However  for  suffix 
-based superlative tokens ie est it is not so evident The problem 
-is how to know that tallest has to maximized while lowest has 
-to be minimized We take a bootstrapping based approach with a 
-seed  bag  of  measurable  modifiers  such  as  tall  long  big  low 
-high  large  wide  etc  and  then  mapped  the  bootstrapped 
-keywords  with  corresponding  plausible  attributes  denoted  AM 
-For  an  example  we  get  pairs  such  as                        
-                                                   
-                        Based on such pairing we then classify 
-the  modifiers 
-that  requires 
-maximization  such  as  tall  wide  etc  and  negative  modifiers 
-those that requires minimization such as low The corresponding 
-extension rule is 
-into  positive  modifiers  those 
-Extension Rule Superlative Queries                       
-                          
-                    
- where 
-         Optimality function that returns Integer Datatype    
-5  EVALUATION 
-51 Evaluation Goal and Metric  
-Our  evaluation  aim  was  to  observe  the  accuracy  of  the  proposed 
-QCT  We  leave  the  accuracy  evaluation  of  the  DL  formalization 
-as a future work since that requires indirect comparative testing in 
-terms  of  mean  average  precision  and  recall  on  some  of  the 
-cutting-edge  knowledge  discovery  systems  However  it  is  to  be 
-understood 
-intrinsically dependent on the accuracy of QCT  
-the  DL  formalization 
-the  accuracy  of 
-To  evaluate  QCT  we  decided  on  a  simple  Characterization 
-Coverage  CC  measure  The  measure  is  modeled  to  understand 
-how  many  different  linguistic  forms  of  simple  complex  and 
-compound  wh-queries  in  English  can  be  identified  correctly  by 
-QCT We measure CC in three perspectives i CC-Precision ii 
-CC-Recall and iii CC-F1 score We define them as follows 
-CC-Precision Given a test set of NL queries the CC-Precision is 
-calculated as the ratio of the number of correctly identified queries 
-NCI and the total number of identified queries in the test set NI  
-CC-Recall  Given  a  test  set  of  NL  queries  the  CC-Recall  is 
-calculated as the ratio of the number of correctly identified queries 
-NCI and the total number of queries in the test set N  
-CC-F1  The  Simple  Harmonic  Mean  of  CC-Precision  and  CC-
-Recall is the CC-F1  
-52 Experimental Results 
-To  evaluate  CC  of  proposed  work  we  have  used  the  Microsoft 
-Encarta  98  query  test  set  29  and  OWL-S  TC  dataset  The 
-Microsoft  Question  Answering  Corpus  MSQA  which  is  aimed 
-at querying documents belonging to the Encarta-98 encyclopedia 
-The  test  set  contains  1365  usable  English  wh-queries  We 
-excluded the queries of procedural how and why from this dataset 
-We  have  categorized  simple  complex  and  compound  queries 
-from  the  dataset  There  are  total  473  queries  of  procedural  how 
-and why which are excluded The reduced dataset consist of total 
-982 queries which is distributed among 676 simple 147 complex 
-and  69  compound  wh-queries  The  accuracy  statistics  is  given  in 
-table 5 We observe that the CC-Precision is 100 for all types of 
-wh-queries  while  the  overall  CC-Recall  is  9450  The  perfect 
-precision shows that the QCT is theoretically sound 
-To  validate  our  results  with  Encarta  98  dataset  we  also  tested 
-QCT  on  custom  query  dataset  built  on  top  of  OWL-S  TC  v40 
-dataset6  The  OWL-S  TC  dataset  consists  of  service  descriptions 
-of  1083  web  services  from  9  different  domains  A  service 
-description  is  a  formal  specification  of  the  behavior  of  a  web 
-service  in  terms  of  its  required  input  parameters  given  output 
-parameters  and  other  binding  parametric  details  for  runtime 
-execution  The  description  also  contains  a  short  NL  narrative  of 
-the  overall  behavior  A  query  dataset  for  this  corpus  was 
-developed by three research assistants The task for each of these 
-three  assistants  was  to  formulate  a  wh-query  for  every  service 
-such that the query desire matches the given output of the service 
-and  query  input  matches  the  required  input  of  the  service  Since 
-this  task  was  done  independently  we  observed  that  almost  in  all 
-cases the syntactic structuring of the query for a given service by 
-each  assistant  was  different  The  queries  were  simple  complex 
-and compound with an average of 90 query of the form complex 
-and compound Ideally the extracted query desire by QCT should 
-be  semantically  equivalent 
-corresponding web service specification Based on this notion we 
-have  calculated  CC-precision  CC-recall  and  CC-F1  measure  for 
-each  of  the  three  query  datasets  From  table  6  we  observed  that 
-the  average  recall  was  9877  average  precision  100  and 
-average  F1  was  9892  The  results  clearly  validate  the  earlier 
-results with Microsoft Encarta 98  
-the  output  parameter  of 
-6  CONCLUSION 
-In  this  paper  we  have  a  Description  Logic  based  NL  query 
-formalization methodology The motivation is to improve  
-                                                                 
-6 httpprojectssemwebcentralorgprojectsowls-tc 
-Table 51 
-NCI-wh 
-Simple 
-Wh-Query 
-Complex 
-Wh-Query 
-Compound  
-Wh-Query 
-Table 52 
-NCI-wh 
-Table 6 
-NCI-wh 
-                1083 
-                1083 
-                1083 
-accuracy  of  answer  extraction  from  NL  documents  using  formal 
-logic based reasoning We have proposed the basic DL translation 
-rules  along  with  some  of  the  important  derived  rules  that  cover 
-different kinds of linguistic nuances We found promising results 
-while evaluating DLQS-WhM with MS Encarta query test set and a 
-query dataset built on top of OWL-S TC v40 dataset 
-7  REFERENCES 
-1  Pejtersen A M 1998 Semantic information retrieval 
-Communications of the ACM 41 4 April1998 90  92 
-2  Moldovan D Clark C and Bowden M 2007 Lymbas 
-PowerAnswer 4 In TREC-2007 Association for 
-Computational Linguistics 
-3  Androutsopoulos I  Ritchie G D and Thanisch P 1993 
-MASQUESQL-An Efficient and Portable Natural Language 
-Query Interface for Relational Databases in Proceedings of 
-the Sixth International Conference on Industrial and 
-Engineering Applications of Artificial Intelligence and 
-Expert Systems - IEAAIE  Edinburgh Scotland 1993 
-4  Popescu A-M and Etzioni O and Kautz H 2003Towards a 
-theory of natural language interfaces to databases in 
-Proceedings of the 8th international conference on 
-Intelligent user interfaces Miami USA January 12 - 15 
-2003 
-5  Wang C Xiong M Zhou Q and Yu Y 2007 Panto A 
-portable natural language interface to ontologies in 
-Proceedings of the 4th European conference on the Semantic 
-Web Research and Applications Innsbruck Austria June 
-2007 
-6  Kaufmann E Bernstein A and Zumstein R Querix 2006 
-A Natural Language Interface to Query Ontologies Based on 
-Clarification Dialogs in International Symposium on 
-Wearable Computers - ISWC Montreux Switzerland 
-October 11 - 14 2006 
-7  Lopez V Pasin M and Motta E 2005 AquaLog An 
-Ontology-Portable Question Answering System for the 
-Semantic Web in European Semantic Web Symposium 
-Conference - ESWS Heraklion Crete May 29 - June 1 
-8  Sahlgren M  2008 The distributional hypothesis Italian 
-Journal of Linguistics 20 1 June 2008 33  54 
-9  Moldovan D Harabagiu S Pasca M Mihalcea R 
-Goodrum R Girju R and Rus V 1999 LASSO A Tool 
-for Surfing the Answer Net in TREC 1999 National 
-Institute of Standards and Technology NIST November 
-10 Yuhan He 2010 Goal Detection from Natural Language 
-Queries In 15th International Conference on Applications of 
-Natural Language to Information Systems Cardiff UK 
-June 2010  
-11 Dumais S Banko M Brill E Lin J and Ng A 2002 
-Web Question Answering Is More Always Better in 
-Proceedings of ACM SIGIR02 Tampere Finland August 
-2002 
-12 Deerwester S C  Dumais S TLandauer T K  Furnas 
-G W  and Harshman R A 1990 Indexing by latent 
-semantic analysis JASIS 41 6 September 1990 391  407 
-13 Hofmann T 1999 Probabilistic latent semantic indexing In 
-Proceedings of the 22nd International ACM SIGIR 
-conference on Research and development in information 
-retrieval Berkeley USA 1999 
-14 Boumechaal H and Boufaida Z Formalization of natural 
-language queries in IEEE International Symposium on 
-Innovations in Intelligent Systems and Applications IN-
-ISTA Istanbul June 15 - 18 2011 
-15 B Di Martino 2010 An approach to semantic information 
-retrieval based on natural language query understanding in 
-Current Trends in Web Engineering ICWE Workshop 
-Vienna Austria July 5 - 6 2010 
-16 Cao T H and Mai A H 2010 Ontology-based 
-understanding of natural language queries using nested 
-conceptual graphs in Proceedings of 18th International 
-Conference on Conceptual Structures From Information to 
-Intelligence Kuching Malaysia July 26 - 30 2010 
-17 Bierman GM 2003 Formal semantics and analysis of 
-object queries in Proceedings of the 2003 ACM SIGMOD 
-international conference on Management of data San Diego 
-USA June 9 - 12 2003 
-18 Han Y-J Noh T-G Park S-B Park S Y and Lee S-J 
-2010 A natural language interface of thorough coverage by 
-concordance with knowledge bases in Proceedings of the 
-15th international conference on Intelligent user interfaces 
-HongKong China February 7 - 10 2010 
-19 Barhamgi M Benslimane D and Medjahed B 2010 A 
-query rewriting approach for web service composition IEEE 
-Transactions on Services Computing 3 3 July 2010 206-
-20 Katz B Borchardt G and Felshin S 2006 Natural 
-Language Annotations for Question Answering in 
-Proceedings of the 19th International FLAIRS Conference 
-Melbourne Beach USA May 2006 
-21 Kaufmann E Bernstein A and Fischer L 2007 NLP-
-Reduce A naive but Domain-independent Natural 
-Language Interface for Querying Ontologies in Proceedings 
-of the 4th European Semantic Web Conference Innsbruck 
-Austria June 2007 
-22 Bernstein A Kaufmann E  Kaiser C and Kiefer C 2006 
-Ginseng A Guided Input Natural Language Search Engine 
-for Querying Ontologies in 2006 Jena User Conference 
-Bristol UK May 2006 
-23 Linckels S and Meinel C 2006 Resolving Ambiguities in 
-the Semantic Interpretation of Natural Language Questions 
-in Proceedings of 7th International Conference on Intelligent 
-Data Engineering and Automated Learning - IDEAL 
-Burgos Spain September 20 - 23 2006 
-24 Lopez V Fernndez M Motta E Sabou M and Uren V 
-2007 Question Answering on the Real Semantic Web in 
-Proceedings of International Semantic Web Conference 
-Busan Korea November 11 - 15 2007 
-25 Baader F  2003 The description logic handbook theory 
-implementation and applications Cambridge university 
-press 
-26 Kamp H 1981 A theory of truth and semantic 
-representation Linguistis Formal semantics-the essential 
-readings 7189 - 222 1981  
-27 Moldovan D  and Rus V 2001 Logic form transformation of 
-wordnet and its applicability to question answering In ACL 
-402  409 
-28 Tsarkov D and Horrocks I 2006 Fact description logic 
-reasoner System description In Proceedings of 3rd Joint 
-Conference on Automated reasoning Seattle USA August 
-17 - 20 2006 
-29 Microsoft Research Question-Answering Corpus - Encarta 
-98 v 100 November 2008 
-30 Marcus M P Marcinkiewicz M A and Santorini B 1993 
-Building a large annotated corpus of English The Penn 
-Treebank Computational linguistics 19 2 June 1993 313 
- 330 
+Feedbacks Receptor Clustering and Receptor Restriction to Single Cells yield large
+Turing Spaces for Ligand-receptor based Turing Models
+Tamas Kurics12 Denis Menshykau13 and Dagmar Iber13
+1 Department for Biosystems Science and Engineering
+ETH Zurich Mattenstrasse 26
+4058 Basel Switzerland
+2 present address Institute of Cognitive Neuroscience and Psychology
+Research Centre for Natural Sciences
+Hungarian Academy of Sciences Budapest Hungary
+3 Swiss Institute of Bioinformatics SIB Switzerland
+ These authors contributed equally
+ E-mail dagmariberbsseethzch
+Dated July 29 2014
+Abstract Turing mechanisms can yield a large variety of patterns from noisy homogenous initial
+conditions and have been proposed as patterning mechanism for many developmental processes
+However the molecular components that give rise to Turing patterns have remained elusive and
+the small size of the parameter space that permits Turing patterns to emerge makes it dicult to
+explain how Turing patterns could evolve We have recently shown that Turing patterns can be
+obtained with a single ligand if the ligand-receptor interaction is taken into account Here we show
+that the general properties of ligand-receptor systems result in very large Turing spaces Thus the
+restriction of receptors to single cells negative feedbacks regulatory interactions between dierent
+ligand-receptor systems and the clustering of receptors on the cell surface all greatly enlarge the
+Turing space We further show that the feedbacks that occur in the FGF10SHH network that
+controls lung branching morphogenesis are sucient to result in large Turing spaces We conclude
+that the cellular restriction of receptors provides a mechanism to suciently increase the size
+of the Turing space to make the evolution of Turing patterns likely Additional feedbacks may
+then have further enlarged the Turing space Given their robustness and exibility we propose
+that receptor-ligand based Turing mechanisms present a general mechanism for patterning in biology
+Popular Summary Turing mechanisms can yield a large variety of patterns from noisy homoge-
+nous initial conditions and have been proposed to underlie many of the patterning phenomena in
+biology However the molecular components are elusive and the small size of the parameter space
+that permits Turing patterns makes their evolution unlikely We show that Turing patterns that
+arise from ligand-receptor interactions have very large Turing spaces because receptors are restricted
+to single cells The Turing space can be further enlarged by additional negative feedbacks if sev-
+eral receptor-ligand based Turing modules are coupled and by the clustering of receptors on the
+cell surface Given their robustness and exibility we propose that receptor-ligand based Turing
+mechanisms present a general mechanism for patterning in biology
+PACS numbers 0565b8710Ca 8717Pq 8710Kn 8718Hf
+INTRODUCTION
+The development of complex organisms requires the
+repeated reliable emergence of pattern in a cell or tis-
+sue from a homogenous noisy distribution of compo-
+nents also in the absence of any polarizing queues
+is a long-standing question how stereotyped patterns can
+emerge during development Alan Turing proposed a
+simple reaction-diusion-based mechanism 1 that has
+since been shown to have the potential to give rise to a
+large variety of patterns from noisy homogenous starting
+conditions 24
+Mathematical analysis reveals the types of interactions
+between the molecular components that can give rise to
+Turing patterns 3 57 While many dierent Turing
+mechanisms have been proposed to explain pattern for-
+mation in biology it has remained dicult to identify the
+molecular components 2 The suggested Turing compo-
+nents are typically two diusible extracellular proteins
+810 However one of the requirements for Turing pat-
+terns is a large dierence in the diusion coecient be-
+tween the two Turing components While a number of
+chemical systems have been engineered where the diu-
+sion speed of one of the components of the Turing sys-
+tem is strongly reduced eg the BelousovZhabotinsky
+reaction in water-in-oil aerosol microelmulsion 4 or in a
+system with a low-mobility complexing agent 11 these
+setups do not readily translate to biological systems For
+biological systems it has been suggested that dierences
+in diusion speed may arise from transient dierences
+in the interactions with the extracellular matrix 12 A
+number of theoretical studies seek to overcome the re-
+quirement of a large dierence in diusivity of Turing
+components and an emergence of Turing pattern has
+been shown to be possible also in the presence of a sin-
+gle diusive specie coupled to a quenched oscillator 13
+Ligand-Receptor Interactions can give rise to Turing Patterns Color online A Spatial patterns via
+FIG 1
+a Turing mechanism can result from cooperative receptor-ligand interactions where m receptors R and n ligand molecules
+L form an active complex that upregulates the receptor concentration by increasing its expression limiting its turn-over
+or similar Importantly the highest receptor and ligand concentrations are observed in dierent places B In case of the
+standard network panel A Turing patterns emerge only for a small subset of the parameter range of the receptor and ligand
+production rates a and b amax denotes the maximal value of the receptor production rate while bmin and bmax denote the
+minimal and maximal ligand production rates C Additional feedbacks red and dashed blue arrows can be mediated by
+the ligand-receptor complex R2L  indicates receptor-ligand interactions cid97 inhibitory interactions and  up-regulating
+interactions D The negative feedbacks in panel C network U5 in Fig S1 result in a larger Turing space when the response
+threshold p is lowered from p  1 blue shaded area to p  01 yellow area E The size of the Turing space for the
+network in panel C network U5 in Fig S1 increases as the response threshold p is lowered As a measure for the size of the
+Turing space we record the maximum of the receptor production rate amax and the ratio of the maximal and minimal ligand
+production rates bratio  bmax
+ for which Turing patterns can emerge a  0 is part of the Turing space and negative values of
+a have no physiological interpretation
+cell migration rather than diusion has been proposed
+to result in Turing instabilities 14 15 Finally cross-
+diusion and non-linear diusion have been shown to
+support the formation of Turing-type patterns such that
+Turing patterns can arise for any ratio of the main diu-
+sivities 1621 Cross-diusion has been shown to arise
+in crowded environments with nite carrying capacity
+if diusion is limited when local concentrations or
+densities reach the carrying capacity 20 22
+Another problem with the applicability of Turing
+mechanisms to biological pattern formation concerns the
+size of the parameter space that gives rise to Turing pat-
+terns the Turing space This parameter space is small
+for all known Turing mechanisms in the sense that kinetic
+parameters can be varied only a few fold as long as phys-
+iological constraints on the kinetic constants and relative
+diusion constants are respected 23 It is therefore un-
+clear how nature could have evolved such mechanism in
+the rst place and how it could have been re-used in dif-
+ferent settings during the evolution of new species More-
+over biological systems are noisy and time delays as may
+arise from the multi-step nature of protein expression as
+well as domain growth and the resulting changes in source
+and sink terms may severely aect the existence and type
+of Turing patterns though some of these eects as well
+as further regulatory interactions may somewhat increase
+the size of the Turing space 2431
+We recently noticed that ligand-receptor interactions
+of the form shown in Fig 1A can give rise to Turing
+patterns 3235 as long as the following constraints are
+met by the the receptor-ligand interaction
+ Ligands must diuse much faster than receptors
+d cid29 1 as is generally the case 3639
+ Receptor-dependent ligand removal must dominate
+over receptor-independent ligand decay as is gen-
+erally the case because unspecic decay is typically
+much slower than active protein turn-over
+ Ligands and receptors must bind cooperatively as
+is the case for many ligand-receptor pairs 4048
+ Ligand-receptor complex formation must be fast
+ABDamaxamaxbmaxbmaxbminp01p1p1p01EamaxbmaxbminCLR2L2Rcompared to the other processes such that we have
+a quasi-steady state for the ligand-receptor complex
+concentration This is the case if the on-rate is very
+high ie binding is diusion limited as is the case
+for many ligand-receptor pairs 49
+ The receptor-ligand complex must upregulate the
+receptor concentration as has been observed for
+several receptor systems 5056 This positive
+feedback needs to operate far from saturation ie if
+we describe the positive regulation by a Hill func-
+tion of the form R2L
+Thus this positive feedback must be rather ine-
+R2LK  we require R2L cid28 K
+If these conditions are met the interactions between the
+receptor R and the ligand L result in Schnakenberg-
+type kinetics 57 of the form
+ R  f R L with f R L  a  R  R2L 1
+ dL  gR L with gR L  b  R2L
+which correspond to the so-called activator-depleted sub-
+strate Turing kinetics rst described by Gierer and Mein-
+hardt 5 and which are very similar to the chemi-
+cal Turing system rst described by Prigogine and co-
+workers 7 The detailed derivation of these equations
+for receptor-ligand interactions can be found in previous
+publications 3235 and in the Appendix I The R and
+dL terms represent the diusion terms where d is the
+relative diusion constant of ligand and receptor Lig-
+ands typically diuse faster than their receptors d cid29 1
+5860 thus naturally meeting the Turing condition of
+dierent diusivities Receptor diusion is restricted to
+single cells and we have previously shown that patterns
+also emerge on such cellularized domains 34 The con-
+stants a and b are the receptor and ligand production
+rates The R term describes the ligand-independent de-
+cay of the receptor at a rate proportional to the available
+receptor concentration so-called linear decay The term
+R2L represents the quasi-steady state concentration of
+the receptor-ligand complex Signaling complexes with a
+dierent stochiometry also result in Turing patterns 34
+The minus term in Eq 2 then reects the receptor-
+dependent ligand removal rate while the plus term in
+Eq 1 reects the combined eects of ligand-induced
+receptor removal and ligand-induced receptor accumula-
+tion on the cell membrane by increased transcription
+translation recycling less constitutive removal or simi-
+lar The  term arises in the non-dimensionalization of
+the model Eq 16 and is useful as it is proportional to
+the domain area and it gives the relative strength of the
+reaction and diusion terms 3
+A number of ligand-receptor systems meet the above
+conditions including Hedgehog and its receptor PTCH
+33 34 46 54 55 BMPs and their BMP receptors 35
+47 48 56 GDNF and its receptor RET 32 40 41 50
+51 as well as FGFs and their FGF receptors 4245 52
+53 Thus all of these proteins are multimers and by
+a range of mechanisms the formation of the multimeric
+ligand-receptor complexes enhances the concentration of
+receptors on the membrane as recently reviewed 61 We
+further showed that models based on these proteins could
+recapitulate the relevant wildtype and mutant expression
+patterns in the respective developmental systems 3235
+Here we show that ligand-receptor based Turing mech-
+anisms can have signicantly enlarged Turing spaces if
+we include negative feedbacks or couple several Turing
+modules as generally found in biological systems Simi-
+larly the restriction of receptors to single cells and their
+clustering further increases the size of the Turing space
+We conclude that a receptor-ligand based Turing mecha-
+nism oers a realistic mechanism to implement the Tur-
+ing mechanism in a biological setting The observation
+that the restriction of receptors to cells is sucient to
+massively increase the Turing space oers an explana-
+tion of how Turing patterns may have rst evolved in
+nature additional feedbacks could then further enlarge
+the Turing space
+II RESULTS
+The Turing mechanism has been analysed extensively
+and the parameter space that permits Turing patterns
+to emerge can easiest be determined with the help of a
+linear stability analysis 3 see the Appendix II To keep
+the analysis feasible it is advisable to consider as simple
+models as possible and to restrict the number of parame-
+ters to a minimum The non-dimensional ligand-receptor
+based Turing model Eq 1-2 has four parameters
+the relative ligandreceptor diusion constant d the re-
+ceptor production rate a the ligand production rate b
+and the scaling factor  The parameters a b d de-
+termine whether Turing patterns can emerge while the
+scaling factor  determines whether the domain is su-
+ciently large for Turing patterns to emerge We therefore
+do not need to analyse  here The relative diusion con-
+stant of ligands and receptors d aects the size of the
+Turing space in that a larger d results in a larger Turing
+space 3 Since this eect is well documented but lim-
+ited by the physiological dierence between the diusion
+constants of ligands and receptors we xed the relative
+diusion constant in our analysis For a simple receptor-
+ligand based Turing system in which receptor and ligand
+bind cooperatively and upregulate the receptor concen-
+tration Fig 1A both parameter values a and b produce
+Turing patterns only within a small range Fig 1B ie
+the ligand production rate can at most be halved or dou-
+bled without leaving the Turing space The Turing space
+is thus very small even though the relative diusion con-
+stant d  50 between ligands and receptors was chosen
+to be rather large compared to what could be justied
+for two soluble ligands We will now analyse the impact
+of feedbacks receptor clustering and the restriction of
+pact of feedbacks on the Turing space for the regulatory
+system with two additional negative feedbacks shown in
+Fig 1C For a large response threshold p  1 the Turing
+space is similar in size to the non-feedback case compare
+the blue shaded area in Fig 1D to the Turing space in
+Fig 1B As we lower the response threshold to p  01
+and thus increase the strength of the negative feedbacks
+the Turing space increases in size ie both the maxi-
+mal receptor production rate amax as well as the range
+of ligand expression rates bmin bmax increases yellow
+area in Fig 1D the minimum of a is negative and amax
+thus denes the size of the physiological parameter range
+0 amax As the response threshold p is lowered further
+the size of the Turing space further increases Fig 1E
+We next systematically analysed eleven positive neg-
+ative and mixed feedback architectures that were ob-
+tained by including feedbacks of the receptor-ligand com-
+plex R2L on the receptor a andor ligand production
+rates b as well as on the rate of receptor up-regulation
+upon receptor-ligand binding for details see Appendix
+II Fig S1 Figure 2AB shows the three cases with the
+largest Turing space out of the eleven cases analyzed For
+better readability we only record the maximal receptor
+production rate amax as well as the ratio bratio  bmax
+of the maximal and minimal ligand production rates that
+permit Turing patterns to emerge We note that the ra-
+tio bratio  bmax
+is biologically more relevant than the
+absolute size of the Turing space b  bmax  bmin be-
+cause in biology relative changes in regulatory control
+and thus in production rates are particularly relevant
+the absolute values are typically very dicult to mea-
+sure The largest Turing spaces are obtained with nega-
+tive feedbacks When the negative feedback is applied to
+the constitutive receptor expression a blue the max-
+imal value of a increases relative to the standard model
+black spot as the response threshold p is lowered the
+minimum of a is negative and amax thus denes the size
+of the physiological parameter range 0 amax If a feed-
+back is applied to the ligand expression rate b then
+as the response threshold p is lowered the range of b
+increases red compared to the standard model black
+spot The largest Turing spaces expanded both along
+the a and b axes are observed when negative feedbacks
+are applied to both the receptor and ligand expression
+rates green The impact of the negative feedbacks can
+be observed for a wide range of the new parameters p
+and becomes stronger the smaller the value of the re-
+sponse threshold p Fig 2B As the response threshold
+p is increased the maximal values of a and the range
+of b all attain the value of the standard receptor-ligand
+model and thus all converge in the black spot in Fig 2B
+In summary substantially enlarged Turing spaces are ob-
+served when signaling by the the receptor-ligand complex
+lowers the receptor production rate Fig 2B blue or the
+ligand production rate Fig 2B red or both Fig 2B
+green
+Negative Feedbacks by Receptor-Ligand
+FIG 2
+Complexes result in Turing patterns with large Tur-
+ing Spaces Color online A The simulated network ar-
+chitecture Two receptors R interact with one dimeric ligand
+L to form a receptor-ligand complex R2L black arrows 
+The receptor-ligand complex upregulates the presence of re-
+ceptor  In addition to these core interactions that can
+result in a Turing mechanism we considered negative feed-
+backs cid97 on the ligand production red arrow and  or the
+receptor production blue dashed arrow
+B A negative
+feedback on the receptor production rate blue dashed arrow
+in panel A increases the Turing parameter space for the re-
+ceptor production rate a blue squares in panel B compared
+to the standard network black part of the network in panel
+A and black star in panel B A negative feedback on ligand
+production red solid arrow in panel A enlarges the Tur-
+ing parameter space for the ligand production rate b red
+circles in B In the presence of both feedbacks the Turing
+parameter space is enlarged along both axes green triangles
+in panel B The feedback eects are stronger the lower the
+feedback threshold p p 001 01 1 10 100 The grey ar-
+row indicates the direction in which the feedback threshold
+p decreases
+receptors to single cells on the size of the Turing Space
+A The impact of Feedbacks on the Turing Space
+of a single receptor-ligand based Turing Module
+Feedbacks are ubiquitous in biological signaling sys-
+In the framework of receptor-ligand-based Tur-
+ing mechanisms feedbacks result from regulatory inter-
+actions of the receptor-ligand complex R2L Fig 1C
+To encode feedbacks mediated by receptor-ligand signal-
+ing we modied the reaction terms f R L and gR L
+in the Turing model Eq 1-2 See Supplemental Ma-
+terial 91 for the list of all tested models with additional
+feedbacks Thus a positive feedback on receptor or ligand
+expression would be obtained by adding a term pR2L to
+the respective equation andor by multiplying the consti-
+tutive receptor and ligand production rates a and b with
+the factor R2L
+R2Lp  A negative feedback would be obtained
+by multiplying the constitutive receptor and ligand ex-
+pression rates a and b with the factor
+R2Lp1  The
+new parameter p represents the response threshold to the
+receptor-ligand complex Figure 1D illustrates the im-
+LR2L2RABp decreases5
+FIG 3 Coupling of several Receptor-Ligand based
+Turing modules further enlarges the Turing Space
+Color online A The simulated network architecture Two
+receptor-ligand based Turing modules as analysed in Fig 2
+black arrows   are coupled via additional negative
+feedbacks cid97 on the ligand production rates red solid ar-
+rows and  or the receptor production rates blue dashed
+arrows
+B A negative feedback on the receptor produc-
+tion rate dashed blue line in panel A increases the Tur-
+ing parameter space for the receptor production rate a blue
+squares in panel B compared to the standard network black
+part of the network in Fig 2A and black star in panel B
+A negative feedback on ligand production red solid arrow in
+panel A enlarges the Turing parameter space for the ligand
+production rate b red circles in B In the presence of both
+feedbacks the Turing parameter space is enlarged along both
+axes green triangles in panel B The feedback eects are
+stronger the lower the feedback threshold p p 001 01 1
+10 100 The grey arrow indicates the direction in which the
+feedback threshold p decreases
+B Coupled Turing Modules
+In patterning processes several receptor-ligand sys-
+tems often interact eg SHH FGF10 and BMP together
+with their receptors regulate branching morphogenesis of
+the lung and several glands while GDNF FGF10 and
+WNT and their receptors regulate kidney branching mor-
+phogenesis as recently reviewed 61 We were there-
+fore interested how the interaction of several such Turing
+modules would aect the Turing space
+To that end we carried out a systematic analysis
+of possible feedback interactions between two separate
+receptor-ligand-based Turing systems for details see the
+Appendix II E The studied network architectures sys-
+tems of equations and Turing spaces are shown in Fig
+S1 Figure 3A summarizes the coupled Turing modules
+with the largest Turing spaces Here similar as for un-
+coupled modules Fig 2 the largest Turing space is ob-
+served when a negative feedback acts on the production
+rates Fig 3 We notice that coupling of the two Turing
+systems via a negative feedback on the constitutive re-
+ceptor expression rates a results mainly in an increase
+in the parameter space of a Fig 3B blue while cou-
+pling the two Turing systems via a negative feedback on
+the constitutive ligand production rate b results mainly
+FIG 4 Negative Feedbacks enlarge the Turing space
+by limiting the eective production rates The plot of
+the A eective receptor production rate ae 
+maxR2Lp1
+versus the receptor production rate a and B the plot of the
+eective ligand production rate be 
+maxR2Lp1 versus b
+show that as a result of the negative feedbacks the eective
+production rates remain in a narrow range even as a and
+b are greatly changed The calculation was carried out for
+the symmetrically coupled Turing system shown in green in
+Figure 3B
+in an increase in the parameter space for b Fig 3B red
+The asymmetrically coupled modules with one feedback
+on a and one on b have a very large possibly innitely
+large parameter space Fig S1 panels C6 C8 and C10
+However the parameter range is very narrow and ex-
+tends towards innity only along the b-axis while it is
+bounded above on the a-axis A massive increase in the
+size of the Turing space is observed when the two Tur-
+ing modules are coupled by four negative feedbacks such
+that all constitutive receptor and ligand expression rates
+are regulated by negative feedbacks Fig 3B green and
+Fig S1 panel C11 In this case the parameter space
+dramatically increases in both directions as p is lowered
+such that already for p  01 the parameter ranges of
+both a and b expand by more than four orders of magni-
+tude compared to a single receptor-ligand based Turing
+model and further increase as p is lowered Fig 3B green
+and Fig S1 panel C11
+C Negative Feedbacks enlarge the Turing space by
+limiting the eective production rates
+We wondered why negative feedbacks would enlarge
+the Turing space To this end we plotted the eec-
+maxR2Lp1 and be 
+tive production rates ae 
+maxR2Lp1 for the coupled Turing systems with the
+largest Turing space Fig 3B green versus a and b re-
+spectively Fig 4 We nd that the eective production
+rates are much smaller than what the parameter values a
+and b would suggest and almost lie within the standard
+small Turing space Thus the negative feedback eec-
+tively corrects the receptor and ligand production rates
+and thereby enables the Turing mechanism to tolerate a
+much wider range of production rates
+L2L12R1R12L1R22L2R2ABp decreasesABD The restriction of receptors to single cells
+enlarges the Turing space
+So far we have treated receptors in the same way as
+the ligand just with a smaller diusion coecient How-
+ever receptors are conned to single cells and thus cannot
+diuse from one cell to the next Moreover they often
+cluster on the cell surface We therefore next studied
+Turing patterns on cellular domains where receptors are
+conned to single cells while ligands can diuse within
+the tissue Fig 5A The computational details of the
+implementation have previously been described 63 and
+details of the implementation are given in Appendix III
+In brief to restrict diusion of receptors to a single cell
+in 1D and 2D models Fig 5 B left and middle panel
+respectively we set no-ux boundary conditions for re-
+ceptor at the pseudo-cell boundary while ligand was free
+to diuse in the entire domain In the 3D model the cell
+surfaces were approximated as spheres Fig 5B right
+panel and both ligands and receptors were produced
+on the spheres surfaces Diusion of receptors was re-
+stricted to the surface of each sphere while ligand was
+free to diuse also in the intercellular space the details of
+the implementation have been previously described 64
+We observe the emergence of patterns on 1D 2D and
+3D cellularized domains Fig 5B and as a tissue do-
+main of a given size is divided into more and thus
+smaller cells to which the receptors are restricted the
+Turing space increases Fig 5C Interestingly however
+cells with a high level of receptor-ligand complexes occur
+only as isolated spots Fig 5B red spots while clusters
+of such active cells are not observed To obtain clusters of
+active cells we have to include a second diusively com-
+ponent T  that is secreted by the active cells and that
+activates neighboring cells Fig 5D
+E Receptor clustering enlarges the Turing space
+Receptors often cluster on cell membranes either as
+pre-clusters or induced by multimeric ligand Clustered
+receptor-ligand complexes may cooperate 65 such that
+regulation is not mediated by a single ligand-receptor
+complex but by the cluster We then have R2Lpn
+with n  1 in Eq 1-2 instead of R2Lp As we
+increase n we observe a further increase in the size of
+the Turing space Fig6AB In summary both receptor
+clustering and the cellular restriction of receptors greatly
+increase the Turing space
+F Physiological Turing Models
+Physiological networks harbour many feedbacks and
+we wondered by how much the size of the Turing space
+would be increased in physiological settings Here we
+considered the network that controls branching morpho-
+genesis in the lung Fig 7A similar networks also op-
+FIG 5 The restriction of receptors to single cells
+enlarges the Turing space Color online A Cartoon of
+the computational domain diusion of receptors is restricted
+to single cells while ligand can diuse over the entire compu-
+tational domain B Solution of the receptor-ligand model
+on a 1D 2D and 3D left to right cellularized computational
+domain The ligand upper row receptors middle row and
+ligand-receptor complexes bottom row pattern the domain
+We provide the concentration levels in arbitrary units on
+the vertical axis for the 1D domain left column and inten-
+sities as colour code blue- low red - high on the 2D and 3D
+domains To distinguish cell boundaries on the 1D domain
+we alternate black and grey lines C The size of the Turing
+space increases as the domain of xed size is split into more
+cells N  Triangles show the results for N  10 and N  100
+cells The black star reports the Turing space for the standard
+model N  1 D Patterns of receptor-ligand complexes that
+extend over several cells can be obtained with a diusive com-
+ponent T  that is produced in response to the formation of
+receptor-ligand complexes and that enhances the abundance
+of receptors on neighbouring cells The grey arrow indicates
+the direction in which the feedback threshold p decreases
+RLRLABDCRLTLRR2LR2LN increases1D domain2D domain3D domainPTCH1
+FGFR2b
+R1  R1  f R1 L1 R2 L2
+L1  dL1  gR1 L1 R2 L2
+R2  R2  cid101f R1 L1 R2 L2
+L2  dL2 cid101gR1 L1 R2 L2
+1L1  p1R2
+f R1 L1 R2 L2  a1  R1  qR2
+cid101f R1 L1 R2 L2 
+gR1 L1 R2 L2  b1  R2
+cid101gR1 L1 R2 L2 
+ R2  qR2
+Here R1 represents the receptor PTCH1 L1 the
+ligand SHH R2 the receptor FGFR2b and L2 the
+ligand FGF10
+upregulates the receptor PTCH1 73
+in the term f R1 L1 R2 L2 and inhibits the pro-
+in the term
+duction of FGF10 72
+The SHH-PTCH1 complex R2
+ie qR2
+2L2 up-
+2L2 in the
+cid101gR1 L1 R2 L2 The FGF-receptor complex R2
+2L2 in term cid101f R1 L1 R2 L2 and downregulates 76
+in term cid101f R1 L1 R2 L2 the FGF receptor
+regulates the production of SHH ie p1R2
+term gR1 L1 R2 L2 and both upregulates 71
+FGFR2b The R2
+2L2 terms represent ligand
+removal by receptor binding receptor removal by ligand
+binding is absorbed in the qR2
+2L2 terms
+as signalling-dependent receptor upregulation dominates
+ligand-induced receptor removal
+1L1 and R2
+1L1 and qR2
+We nd that the combination of these two modules
+Fig 7B increases the range of the receptor production
+rate a by about 109-fold as the threshold p is lowered
+to 001 while the relative range of the ligand production
+rate b2 increases about 100-fold compared to the single
+receptor-ligand based Turing model Fig 7C
+III DISCUSSION
+Turing mechanisms can reproduce a wide range of bio-
+logical patterning phenomena However it has remained
+unclear how they may be implemented on the molecular
+scale and how they could evolve in spite of the small sizes
+of their Turing spaces We propose that ligand-receptor
+interactions give rise to Turing patterns and we show
+that negative feedbacks the coupling of Turing modules
+and the restriction of receptors to single cells can greatly
+increase the size of the Turing space Fig 2 3 5 and
+thus increase the range of parameter values for which
+Turing patterns will emerge in biological systems
+Receptor clustering enlarges the Turing
+FIG 6
+space Color online A The simulated network architec-
+ture Clusters of 2n receptors R interact with n dimeric lig-
+ands L to form a receptor-ligand complex R2Ln black ar-
+rows  The receptor-ligand complex upregulates the pres-
+ence of receptor black interaction  In addition to these
+core interactions that can result in a Turing mechanism we
+considered negative feedbacks on the ligand production red
+solid arrow cid97 and  or the receptor production blue dashed
+arrow cid97 B Higher cooperativity n  1 as may result from
+larger receptor-ligand clusters further increases the size of the
+Turing space The n-dependent increase was calculated for p
+ 001 01 1 10 100 for case U5 in Fig S1 The grey arrow
+indicates the direction in which the feedback threshold p
+decreases
+erate in the prostate salivary gland and in the pancreas
+61 Core to the control of lung branching morphogen-
+esis are FGF10 and SHH as no branching is observed
+in the null mutants 6669 and expression of dominant
+negative Fgfr2 blocks lung branching but not outgrowth
+FGF10 upregulates Shh expression 66 and the expres-
+sion of its own receptor FGFR2b 71 while SHH signal-
+ing downregulates Fgf10 expression72 and upregulates
+the expression of its own receptor Ptch1 73 Fig7A
+We have previously shown that the SHH-PTCH kinetics
+can be described by Eq1-2 33 34 similar equations can
+also be derived for the FGF10-FGFR2b kinetics see Ap-
+pendix I for a general derivation of the ligand-receptor
+kinetics The particular stoichiometry in Eq 1-2 as-
+sumes the binding of one ligand dimer to two receptor
+monomers In case of FGF10 monomeric binding of one
+FGF10 dimer to its trivalent FGFR2b receptor triggers
+dimerization of the FGF10-receptor complex 74 SHH is
+a multimer that may form higher order complexes with
+its receptor PTCH1 75 We have previously shown that
+similar Turing patterns can be observed also with such
+very dierent stochiometries 34 For ease of compari-
+son we stick to the standard model Eq 1-2 for the
+FGF10 and SHH modules though we note that larger
+SHHPTCH1 clusters would further increase the Turing
+space Fig 5EF The two signalling factors interact in
+that FGF10 upregulates Shh expression 66 while SHH
+signaling downregulates Fgf10 expression72 The equa-
+tions for the coupled network Fig7B are thus given by
+AnLR2Ln2nRp decreasesn1n3n5B8
+Substantially enlarged Turing spaces for physiological networks
+FIG 7
+Color online A The SHH-FGF10
+network in the control of lung branching morphogenesis For details see text B Schematic representation of the regulatory
+network for lung branching morphogenesis in panel A C The Turing space of such a physiological model is huge and further
+increases as the feedback threshold p is lowered The red triangles represent the Turing spaces for p1  q  01 positive
+feedback on ligand and receptor respectively and p2  001 01 1 10 100 negative feedback the black star represents the
+size of the Turing space of the standard network in Fig 2A black part The grey arrow indicates the direction in which
+the feedback threshold p decreases  indicates binding interactions cid97 indicates inhibitory interactions and  indicates
+up-regulating interactions
+The conditions for ligand-receptor based Turing mech-
+anisms as summarised in the Introduction are met by
+many dierent ligand-receptor pairs and we have pre-
+viously shown that receptor-ligand based Turing mech-
+anisms can indeed well describe the patterning pro-
+cesses for a range of developmental systems 3235 61
+Equally negative feedbacks are prevalent in biological
+regulation and have previously been shown to enable ro-
+bustness to noise 77 and transient responsiveness 78
+We now propose that negative feedbacks enable robust
+patterning also for receptor-ligand based Turing mecha-
+nisms Interestingly also the restriction of receptors to
+single cells can further increase the size of the Turing
+space Fig 5 This suggests a way of how Turing mech-
+anisms may have rst evolved Cooperative interactions
+in receptor clusters and the introduction of feedbacks as
+well as the coupling of several Turing modules may then
+have further increased the size of the Turing space
+It will be important to test our theoretical insights
+by synthetically constructing such ligand-receptor-based
+Turing mechanism and by establishing the key pa-
+rameter values rates of production decay diusion
+coecients endogenous concentrations etc
+living systems The Turing space of ligand-receptor
+systems with additional negative feedbacks should be
+suciently large that synthetic biology approaches can
+now obtain Turing patterns in spite of the diculties
+to accurately control kinetic rates in synthetic biology
+approaches Given their robustness and exibility we
+propose that receptor-ligand based Turing mechanisms
+are the likely standard way how Turing mechanisms are
+implemented in Nature
+IV MATERIALS  METHODS
+The Turing space was dened based on a Linear
+Stability Analysis 3 as described in Appendix II using
+MATLAB The implementation of cell-based models
+is described in Appendix III The partial dierential
+equations were solved in COMSOL Multiphysics 43 as
+described previously 63 64 79 Tests of the numerical
+methods are provided in Appendix IV
+V ACKNOWLEDGMENTS
+The authors thank Patrick Fried and Jannik Vollmer
+for discussions
+APPENDIX I DERIVATION OF THE
+EQUATIONS FOR THE RECEPTOR-LIGAND
+SIGNALING MODEL
+As previously derived 8082 the dynamics of recep-
+tors R ligands L and the ligand-receptor complex C
+Fig 1C can be described by the following set of equa-
+L  DLL
+cid124 cid123cid122 cid125
+diusion
+Scid124cid123cid122cid125
+production
+LL
+cid124 cid123cid122 cid125
+degradation
+cid124
+n konRmLn  nko C
+complex formation
+cid123cid122
+cid125
+L2L12R1R12L1R22L22R2FGF10FSHHS2PTCH1PScid638P2growthFGFRRFcid638R2ABCp  decreasesFGF10-FGFR2bSHH-PTCH1qp2qp1p22b2 ratioa2 maxR  DRR
+ R  C
+diusion
+production
+degradation
+cid124
+cid123cid122
+cid125
+cid124
+cid123cid122
+cid124 cid123cid122 cid125
+diusion
+C  DCC
+cid124
+cid125
+m konRmLn  mko C
+complex formation
+cid125
+cid124 cid123cid122 cid125
+PP
+cid123cid122
+cid124
+cid125
+ konRmLn  ko C
+complex formation
+cid123cid122
+cid124 cid123cid122 cid125
+CC
+degradation
+Here X denotes the concentration of component X
+DX denotes the diusion coecient X the production
+rate constant and X the rst order degradation rate
+constant of component X C species a function
+that describes the ligand-receptor dependent up reg-
+ulation of receptor production
+kon denotes the rate
+constant for the formation and ko the rate constant
+for the dissociation of the ligand-receptor complex m
+and n specify the number of receptors and ligands that
+bind in the ligand-receptor complex
+Assuming that the dynamics of the complex are fast
+compared to those of the other components we can in-
+troduce a quasi-steady state approximation
+CC
+0  konRmLn  ko C
+cid125
+cid124 cid123cid122 cid125
+cid123cid122
+cid124
+complex formation
+degradation
+and thus arrive at the quasi-steady state concentration
+of complex CSS
+CSS 
+ko  C
+RmLn  RmLn
+koff C
+where   kon
+ The concentration of bound receptor
+C is thus proportional to RmSn Furthermore as-
+suming that the rate of receptor upregulation in response
+to receptor-ligand signaling C  vC  vRmLn
+depends linearly on the ligand-receptor complex concen-
+tration C we obtain the following set of PDEs
+L  DLL  L  nCRmLn  LL
+R  DRP  R  v  mCRmLn  RR11
+We note that the linear response of the receptor pro-
+duction rate to receptor-ligand signaling helps to in-
+crease the size of the Turing space Based on the re-
+sults in Fig S1 case U6 we expect that a saturation of
+the response for higher ligand-receptor concentrations
+as could be described by a Hill function of the form
+C  HC K  HRnLm K would cause a
+shrinking of the Turing space
+Equations 10-11 converge to the classical Schnaken-
+berg equations for the following conditions
+ Receptor-independent degradation of
+ligand is
+much less ecient than receptor-dependent ligand
+degradation as is generally the case ie LL cid28
+nCRmLn
+ The stochiometry of the ligand-receptor interaction
+yields m2 n1 we note that other stochiometries
+also yield Turing patters 81
+ v  m  nC
+A Derivation of the Non-Dimensional Set of
+Equations for the Receptor-Ligand based Turing
+Mechanism
+In the following we will adopt the standard notation
+that is used to describe Turing models and we write U for
+the receptor concentration and V for the ligand concen-
+tration U mV n represents the quasi-steady state concen-
+tration of the receptor-ligand complex We have previ-
+ously shown that a wide range of stochiometries can yield
+Turing patters 81 Using m  2 n  1 ie one ligand
+dimer V binds to two monomeric receptors U  equations
+10-11 can be written as
+ DUU  k1  k2U  k5  2k3U 2V
+ DVV  k4  k6V  k3U 2V
+where U  U  X and V  V  X are the un-
+known functions depending on the time variable  and
+space variable X The coecient k1 then represents
+the constitutive receptor production rate while k4 repre-
+sents the constitutive ligand production rate The term
+k2U reects the ligand-independent receptor turn-over
+rate while k6V reects the receptor-independent lig-
+and turn-over rate k3U 2V reects the turn-over of
+the receptor-ligand complex which leads to the removal
+of one ligand dimer V  and two receptor monomers
+U  Most ligand is typically removed by this receptor-
+dependent process and we can therefore make the sim-
+plifying approximation k6  0 Finally k5U 2V reects
+the signalling-dependent increase in receptor emergence
+which can happen by a wide range of mechanisms we
+will set k5  3k3 in the following to recover the classical
+Schnakenberg equations Equations 12-13 then read
+ DUU  k1  k2U  k3U 2V
+ DVV  k4  k3U 2V
+These equations can be rewritten in dimensionless form
+ u  a  u  u2v
+ dv  b  u2v
+cid1912
+cid1912
+cid18 k3
+cid18 k3
+cid1912
+ v  V
+cid18 k3
+L2  x 
+cid18 k3
+cid1912
+The function u then represents the receptor v rep-
+resents the ligand and u2v represents the quasi-steady
+state concentration of the receptor-ligand complex As
+before one ligand dimer v binds to two monomeric re-
+ceptors u We have previously shown that also other
+combinations umvn result in Turing patterns 81 The
+constant a then represents the constitutive receptor pro-
+duction rate while b represents the constitutive lig-
+and production rate The term u reects the ligand-
+independent receptor turn-over rate while u2v reects
+the receptor-dependent ligand removal rate Finally
+u2v represents the net result of ligand-dependent re-
+ceptor turn-over and the signalling-dependent increase in
+receptor emergence where the latter dominates thus the
+positive term
+APPENDIX II DETERMINATION OF TURING
+B The Turing Mechanism
+In this section we summarize briey the criteria for
+the emergence of Turing pattern for reaction-diusion
+systems with two species We consider systems of the
+ F U V   DU U
+ GU V   DV V
+dened on 0   with a given spatial domain  
+Rn subject to boundary and initial conditions where the
+space and time-dependent functions U and V represent
+concentrations and the reaction kinetic terms F and G
+are generally nonlinear functions After suitable changes
+of variables and nondimensionalization Eq 17 can be
+transformed into the dimensionless system
+ut  f u v  u
+vt  gu v  dv
+where t is the rescaled time variable d denotes or is pro-
+portional to the quotient of the diusion coecients DU
+and DV and   const  L2 where L is a typical length
+scale of the domain To ensure the uniqueness of the so-
+lution we endow system 18 with initial and boundary
+conditions We will use homogeneous Neumann bound-
+ary condition of the form
+cid18u
+cid19
+n  
+on 0  
+u0 x  u0x v0 x  v0x
+because they are easy to handle and have a biological
+interpretation impermeable boundary We note how-
+ever that other boundary conditions would not greatly
+alter the following analysis A Turing instability appears
+when a reaction-diusion system has a stable steady state
+in the absence of diusion which loses its stability in the
+presence of diusion such that spatial patterns emerge
+C Linear stability in the absence of diusion
+Let u0 and v0 denote the steady state of the diusion-
+free system of ordinary dierential equations ODEs
+ut  f u v
+vt  gu v
+and linearize the system about u0 v0 by introducing
+the translated function w  w1 w2T with w1  u 
+u0 w2  v  v0 Then the linearized system becomes
+wt  Jw
+cid18fu fv
+cid19cid12cid12cid12cid12cid12u0v0
+cid18fuu0 v0 fvu0 v0
+cid19
+guu0 v0 gvu0 v0
+is the Jacobian evaluated at the point u0 v0 From
+now on we write the partial derivatives evaluated at the
+steady state without their arguments for brevity The
+steady state of the linearized system is stable ie the
+steady state of system 19 is linearly stable if cid60J  0
+for all eigenvalues of J see any textbook on ODEs
+which for a 2-component system is ensured by the con-
+ditions
+trJ  fu  gv  0
+detJ  fugv  fvgu  0 20
+D Diusion-driven instability
+Now let us add diusion to our system of ODEs and
+consider the reaction-diusion system linearized about
+the steady state w  0 0T  which has the form
+wt  Jw  Dw
+cid88
+where D  diag1 d is a diagonal matrix containing the
+diusion coecients of the nondimensionalized system
+18 We look for a solution of the form
+wt x 
+CkektWkx
+where the exponents k determine the temporal growth
+of the solution and the time-independent functions Wk
+are the solutions of the elliptic eigenvalue problem
+Wk  k2Wk  0
+n  Wk  0
+k  C 2
+conditions
+k T are the Fourier-coecients of the initial
+Inserting equation 22 into equation 23 and using
+the fact that the set of eigenfunctions of the Laplace op-
+erator Wk forms a complete orthonormal system we
+obtain as linearized system
+wt  Jw  Dk2w
+for each wavenumber k Writing
+detI  J  k2D  0
+in one dimension on the interval
+For instance
+the eigenvalues are k  nL n  0 1 2   
+also called wavenumbers and the eigenfunctions are
+W x  cosnxL  coskx The constants Ck 
+where I  I2 is the 2-by-2 identity matrix we obtain
+the eigenvalues   k of the matrix M  J  k2D
+Expanding the above determinant we obtain that k is
+the root of the second order polynomial equation
+2  cid0k21  d  fu  gvcid1  dk4  dfu  gvk2  2fugv  fvgu  0
+Since we look for unstable solutions we require that
+cid60k  0 for some k cid54 0 This means that either the
+coecient of  andor the constant term must be neg-
+ative Since the steady state is required to be linearly
+stable in the absence of diusion which corresponds to
+the case k  0 we must have k21  d fu  gv  0
+Hence to obtain a  with positive real part in the pres-
+ence of diusion we require
+hk2  dk4  dfu  gvk2  2fugv  fvgu  0
+for some nonzero wavenumber k Since we require fugv
+fvgu  0 for linear stability in the absence of diusion
+k  0 20 it follows that dfu  gv  0 must hold
+This condition is not sucient to ensure the negativity
+of the function h an elementary calculation shows that
+the minimum of h is attained at the point
+dfu  gv
+cid20
+and the minimum value of h is
+hmin  hk2
+m  2
+fugv  fvgu  dfu  gv2
+cid21
+which is negative if the expression in the bracket is neg-
+In summary the well-known conditions see 83 Sec
+23 for which a reaction-diusion system with two
+species exhibits a Turing instability are as follows
+dfu  gv  0
+fu  gv  0
+fugv  fvgu  0
+dfu  gv2  4dfu  gv  fvgu  0
+where all partial derivatives are evaluated at the steady
+state u0 v0 We note that it is possible that these con-
+ditions are satised but that no pattern emerges This
+is the case when h is not negative for any k within the
+discrete set of wavenumbers and only takes a negative
+value in between two of these discrete wavenumbers The
+distance between wavenumbers shrinks as  is increased
+and in the limit of innite  the spectrum of k is continu-
+ous Since  is related to the size of the spatial domain it
+follows that on small domains pattern formation may not
+happen while on a suciently increased domain patterns
+may be observed
+E Turing instability in interacting systems
+We now consider two identical reaction-diusion sys-
+tems which we couple with each other in several ways
+When the couplings are of the same type ie when the
+rst 2-component Turing system based on u and v is cou-
+pled with the second Turing system that is based on cid101u
+andcid101v via the same functions f and g then we can derive
+exact conditions for the Turing instability as an exten-
+sion of the classical results that were presented in Section
+V B see 83 Sec 23 for more details For this let us
+consider systems of the form
+ut  f u vcid101ucid101v  u
+vt  gu vcid101ucid101v  dv
+cid101ut  f cid101ucid101v u v  cid101u
+cid101vt  gcid101ucid101v u v  dcid101v
+where the functions f and g describe the chemical re-
+actions   0 is a constant depending on the size of
+the domain and d  0 is a diusion parameter Let
+u0 v0cid101u0cid101v0 denote the steady state assuming that
+symmetry u0 cid101u0 and v0 cid101v0 and  just as in the un-
+there is only one or at least they are isolated of this
+system in the absence of diusion note that due to the
+coupled case 19  linearize the system about the steady
+state The linearized system has the form
+wt  Jw
+is the Jacobian matrix Note the symmetry in J that
+arises for this particular coupling In this linearized sys-
+tem the steady state is stable if cid60J  0 for all eigen-
+values of J The eigenvalues are the roots of the char-
+acteristic polynomial kJ  of J which is now a fourth
+order polynomial for the coupled system Due to the very
+special form of the coupling and the resulting symmetries
+in J the polynomial kJ can be factorized as
+
+fu fv fcid101u fcid101v
+kJ  cid22  fu  gv  fcid101u  gcid101v  fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u
+cid22  fu  gv  fcid101u  gcid101v  fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u
+gu gv gcid101u gcid101v
+fcid101u fcid101v fu fv
+gcid101u gcid101v gu gv
+cid3
+cid3 
+Hence cid60J  0 holds for all the four eigenvalues of J
+that is the steady state of 25 is linearly stable if both
+of the factors in 26 have only roots with negative real
+part ie
+fu  gv  fcid101u  gcid101v
+fugv  fvgu  fcid101ugcid101v  fcid101vgcid101u  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u
+Following the course of the uncoupled case by adding
+diusion we again arrive at Eq 23 now with the dif-
+fusion matrix D  diag1 d 1 d As before we look for
+a solution of the form of Eq 22 To this end we de-
+termine the eigenvalues   k for M  J  k2D The
+characteristic polynomial of this matrix  given the spe-
+cial forms of J and D  can be factorized as the product
+of two second order polynomials
+kM  cid22  cid0k21  d  fu  gv  fcid101u  gcid101vcid1  dk4  k2dfu  gv  dfcid101u  gcid101v
+cid22  cid0k21  d  fu  gv  fcid101u  gcid101vcid1  dk4  k2dfu  gv  dfcid101u  gcid101v
+2fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101ucid3
+2fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101ucid3 
+To obtain a Turing instability at least one of the roots of
+kM has to have positive real part for some k cid54 0 ie one
+of the factors of kM must have a root with cid60M   0
+The rst factor of 28 has a root with positive real part
+if the coecient of  is negative or the constant term
+is negative But since the steady state is stable in the
+absence of diusion linear stability conditions 27 the
+coecient of  is always positive ie k21  d  fu 
+gv  fcid101u  gcid101v  0 Hence we require that
+h1k2  dk4  k2dfu  gv  dfcid101u  gcid101v  2fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  0
+is positive ie fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u 
+holds for some wavenumber k cid54 0 Since we know from
+the linear stability conditions 27 that the constant term
+fcid101ugcid101vfcid101vgcid101u  0 it follows that dfugvdfcid101ugcid101v  0 must
+hold We further need to ensure that the function h1
+attains a negative value for some of the wave numbers
+The minimum of h1 is attained at
+1m  
+dfu  gv  dfcid101u  gcid101v
+and the minimum value of h1 is
+min  h1k2
+1m  2
+cid20
+fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  dfu  gv  dfcid101u  gcid101v2
+cid21
+The minimum value of h1 is thus negative if the expres-
+sion in the bracket is negative If the rst factor of 28
+does not have roots with positive real part the second
+factor has to have at least one root with positive real
+part to obtain a Turing instability By similar reasoning
+as before we know from 27 that the coecient of  is
+again always positive k21dfu gvfcid101ugcid101v  0
+Hence it is required that
+h2k2  dk4  k2dfu  gv  dfcid101u  gcid101v  2fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  0
+dfu  gv  dfcid101u  gcid101v  0 since the constant term in h2
+holds for some k cid54 0 A necessary condition for this is
+is positive again by 27 To obtain a sucient condition
+we have to calculate the minimum of h2 as before ie
+The minimum value of h2 is
+2m  
+min  h2k2
+2m  2
+dfu  gv  dfcid101u  gcid101v
+cid20
+fugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  dfu  gv  dfcid101u  gcid101v2
+cid21
+In summary the steady state has to be linearly stable
+if no diusion is present which means that all roots of
+26 have negative real part but instability appears when
+diusion is added which means that the polynomial in
+28 has to have at least one root with positive real part
+Hence for Turing instability in the coupled system 25
+one of the following sets of conditions has to be satised
+29a or 29b
+fu  gv  fcid101u  gcid101v
+fugv  fvgu  fcid101ugcid101v  fcid101vgcid101u  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u
+dfu  gv  dfcid101u  gcid101v  0
+dfu  gv  dfcid101u  gcid101v2  4dfugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  0
+fugv  fvgu  fcid101ugcid101v  fcid101vgcid101u  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u
+fu  gv  fcid101u  gcid101v
+dfu  gv  dfcid101u  gcid101v  0
+dfu  gv  dfcid101u  gcid101v2  4dfugv  fvgu  fugcid101v  fcid101vgu  fcid101ugv  fvgcid101u  fcid101ugcid101v  fcid101vgcid101u  0
+where the rst line comes from the linear stability con-
+dition hence they are the same in both cases and the
+other two lines are derived from the diusion-driven in-
+stability conditions
+APPENDIX III CELLULAR MODELS
+Here we present the details of the implementation of
+the cellular models presented in Figure 5 We consider
+1D 2D and 3D cellular models In all cases we solved
+Eqs 1-2 but with some terms restricted to certain
+subdomains as specied below All equations were solved
+on the same mesh
+1D Cellular Models
+We use a 1D domain comprising N subdomains of
+equal length Fig 5b On every subdomain the set
+of Eqs
+1-2 is solved Ligand L can diuse freely
+in the entire domain while receptor R is restricted to
+each subdomain by no-ux boundary conditions Ligand
+exchange between subdomains is obtained by enforcing
+continuous ligand proles across the borders of the sub-
+domains ie by requiring that the ligand value L on
+the right hand side boundary of subdomain i is the same
+as the ligand value L on the left hand side boundary of
+subdomain i  1
+2D Cellular Models
+We use a 2D square domain containing N  N equal
+sized subdomains of square shape The subdomains nei-
+ther intersect nor overlap Fig 5b The following set of
+PDEs is dened on this 2D domain
+ R  a  R  R2L on C
+cid40
+ dL  
+b  R2L
+where C represents the N  N array of rectangular cel-
+lular subdomains and EC refers to the rest of the 2D
+domain representing the extracellular space
+3D Cellular Models
+We use a 3D domain Fig
+5b containing N 
+N  1 non-overlapping spheres that are embedded into
+a cuboid The following set of PDEs describes the lig-
+and and receptor dynamics on the surface of the spheres
+referred to as C
+ R  a  R  R2L on C
+ dL  b  R2L on C
+FIG 8 Comparison of the Turing spaces calculated
+numerically and those derived analytically Color on-
+line A B The shaded regions of the parameter space in-
+dicates the area where the linear stability analysis identies
+a Turing instability yellow light shading or other instabili-
+ties navy dark shading for Eqs 1 2 with zero-ux boundary
+conditions The symbols indicate the points in the parameter
+space where the numerical solution of Eqs 1 2 with zero-ux
+boundary conditions yielded either pattern formation  or
+not 0  was chosen suciently large that Turing patterns
+could emerge on the 1D domain Panel A and B dier in
+the relative diusion coecient d with A d  100 and B
+d  10
+Additionally
+cuboid referred to as EC
+ligand is free to diuse in the bulk of
+ dL on EC
+The concentration of the ligand on the surface of the
+spheres and in the bulk of the cuboid is linked via
+d cid126n  L  b  R2L
+where cid126n is the outward normal vector The volume inside
+the spheres ie the cell interior is not included in the
+simulations because we do not consider ligand or receptor
+internalization
+APPENDIX IV NUMERICAL SOLUTION OF
+PDES WITH COMSOL
+The partial dierential equations were solved in COM-
+SOL Multiphysics 4x as described previously 63 64 79
+COMSOL Multiphysics has previously been used to ac-
+curately solve a variety of reaction-diusion equations
+which originate from chemical biological and engineering
+applications 32 8490 In the following we present two
+tests for the numerical accuracy of the solution of Turing
+type models obtained with COMSOL Multiphysics
+F Accuracy of the Turing space
+We rst test whether we obtain the same Turing space
+numerically and analytically To this end we use Eq
+region or an unstable steady state both in the presence
+and absence of diusion blue region
+G Convergence of Numerical Solution
+Here we show that the numerical solution of a ligand-
+receptor based Turing model on a domain comprising two
+layers converges with respect to the mesh size We con-
+sider the model
+cid40
+ dL  
+ R  a  R  R2L on T1
+R2L
+where T1 and T2 indicate two dierent tissue layers Fig-
+ure 9A shows the calculated distribution of the receptor-
+ligand complex R2L similar patterns were obtained for
+a range of nite element meshes with the maximum size
+of the mesh size in the range from 001 to 01 Figure 9B
+shows that the maximum deviation in the solution de-
+creases quadratically with respect to the maximum mesh
+size or equivalently decreases linearly with respect to the
+maximum mesh edge as expected for FEM with rst or-
+der Lagrange elements These tests support the previous
+observations by others that COMSOL Multyphysics can
+solve Turing-type equations accurately
+Convergence of the Numerical Solution
+FIG 9
+Color online A Typical pattern of receptor-ligand com-
+plexes R2L on a domain comprising two subdomains Lig-
+and is produced in the upper domain but free do diuse on
+the entire domains Receptor is produced in the lower domain
+and its diusion is restricted to the lower domain B The
+maximum deviation of the receptor-ligand complex R2L as
+computed with an FEM mesh with element size equal to 001
+from that computed at other mesh sizes
+24 as analytical condition for a Turing instability for the
+Turing model given by Eqs 1 2 To estimate the size
+of the Turing space numerically we solve Eqs 1 2 with
+COMSOL Figure 8 shows that the numerical solution
+of Eqs 1 2 in COMSOL yields pattern  symbols in
+the part of the parameter space where the analytical cri-
+terion species either the classical Turing space yellow
+httpwwwbsseethzchcobi
+1 Turing AM 1952 The chemical basis of morphogenesis
+Phil Trans Roy Soc Lond B237 37-72
+2 Kondo S Miura T 2010 Reaction-diusion model as
+a framework for understanding biological pattern forma-
+tion Science 329 1616-1620
+3 Murray JD 2003 Mathematical Biology 3rd edition in 2
+volumes Mathematical Biology II Spatial Models and
+Biomedical Applications Springer
+4 Vanag VK Epstein IR 2001 Pattern formation in a
+tunable medium The belousov-zhabotinsky reaction in
+an aerosol ot microemulsion Phys Rev Lett 87 228301
+5 Gierer A Meinhardt H 1972 A theory of biological pat-
+tern formation Kybernetik 12 30-39
+6 Prigogine I 1967 On symmetry-breaking instabilities in
+dissipative systems J Chem Phys 46 3542-3550
+7 Prigogine I Lefever R 1968 Scitation Symmetry break-
+ing instabilities in dissipative systems ii The Journal of
+Chemical Physics 
+8 Cho SW Kwak S Woolley TE Lee MJ Kim EJ et al
+2011 Interactions between shh sostdc1 and wnt signal-
+ing and a new feedback loop for spatial patterning of the
+teeth Development 138 1807-1816
+9 Economou AD Ohazama A Porntaveetus T Sharpe PT
+Kondo S et al 2012 Periodic stripe formation by a tur-
+ing mechanism operating at growth zones in the mam-
+malian palate Nat Genet 44 348-351
+10 Sick S Reinker S Timmer J Schlake T 2006 Wnt and
+dkk determine hair follicle spacing through a reaction-
+diusion mechanism Science 314 1447-1450
+11 Horvth J Szalai I De Kepper P 2009 An experimen-
+tal design method leading to chemical turing patterns
+Science 324 772-775
+12 Muller P Rogers KW Jordan BM Lee JS Robson D
+et al 2012 Dierential diusivity of nodal and lefty
+underlies a reaction-diusion patterning system Science
+336 721-724
+13 Hsia J Holtz WJ Huang DC Arcak M Maharbiz MM
+2012 A feedback quenched oscillator produces turing
+patterning with one diuser PLoS Comput Biol 8
+e1002331
+14 Nakamasu A Takahashi G Kanbe A Kondo S 2009
+Interactions between zebrash pigment cells responsible
+for the generation of turing patterns PNAS 106 8429-
+15 Payne S Li B Cao Y Schaeer D Ryser MD et al
+2013 Temporal control of self-organized pattern forma-
+tion without morphogen gradients in bacteria Mol Syst
+Biol 9 697
+16 Pang PY Wang M 2004 Strategy and stationary pat-
+tern in a three-species predator-prey model Journal of
+Dierential Equations 200 245 - 273
+17 Hamidi AE Garbey M Ali N 2012 On nonlinear cou-
+pled diusions in competition systems Nonlinear Anal-
+ysis Real World Applications 13 1306 - 1318
+102101102101100max element sizemax deviationAB18 Butler T Goldenfeld N 2011 Fluctuation-driven turing
+patterns Phys Rev E 84 011112
+19 Ridol L Camporeale C DOdorico P F L 2011 Tran-
+sient growth induces unexpected deterministic spatial
+patterns in the turing process Transient growth induces
+unexpected deterministic spatial patterns in the Turing
+process 95 18003
+20 Fanelli D Cianci C Patti F 2013 Turing instabilities
+in reaction-diusion systems with cross diusion The
+European Physical Journal B 86
+21 Madzvamuse A Ndakwo HS Barreira R 2014 Cross-
+diusion-driven instability for reaction-diusion systems
+analysis and simulations J Math Biol 
+22 Bullara D De Decker Y Lefever R 2013 Nonequilib-
+rium chemistry in conned environments A lattice brus-
+selator model Physical Review E 87
+23 Murray J 1982 Parameter space for turing instability in
+reaction diusion mechanisms a comparison of models
+Journal of Theoretical Biology 98 143-163
+24 Crampin E Ganey E Maini P 1999 Reaction and dif-
+fusion on growing domains Scenarios for robust pattern
+formation Bulletin of Mathematical Biology 61 1093-
+25 Gjorgjieva J Jacobsen J 2007 Turing patterns on grow-
+ing spheres The exponential case DISCRETE AND
+CONTINUOUS DYNAMICAL SYSTEMS  436-445
+26 Madzvamuse A Ganey EA Maini PK 2010 Stability
+analysis of non-autonomous reaction-diusion systems
+the eects of growing domains J Math Biol 61 133-
+27 Woolley TE Baker RE Ganey EA Maini PK 2011
+Stochastic reaction and diusion on growing domains
+Understanding the breakdown of robust pattern forma-
+tion Phys Rev E 84 046216
+28 Maini PK Woolley TE Baker RE Ganey EA Lee SS
+2012 Turings model for biological pattern formation
+and the robustness problem Interface 
+29 Woolley TE Baker RE Ganey EA Maini PK Seirin-
+Lee S 2012 Eects of intrinsic stochasticity on delayed
+reaction-diusion patterning systems Phys Rev E 85
+051914
+30 Klika V Baker R Headon D Ganey E 2012 The
+inuence of receptor-mediated interactions on reaction-
+diusion mechanisms of cellular self-organisation Bull
+Math Biol 74 935-957
+31 Ganey EA Lee SS 2013 The sensitivity of turing self-
+organization to biological feedback delays 2d models of
+sh pigmentation Mathematical Medicine and Biology
+32 Menshykau D Iber D 2013 Kidney branching morpho-
+genesis under the control of a ligand-receptor-based tur-
+ing mechanism Physical biology 10 046003
+33 Tanaka S Iber D 2013 Inter-dependent tissue growth
+and turing patterning in a model for long bone develop-
+ment Physical biology 10 056009
+34 Menshykau D Kraemer C Iber D 2012 Branch mode
+selection during early lung development PLoS Comput
+Biol 8 e1002377
+35 Badugu A Kraemer C Germann P Menshykau D Iber
+D 2012 Digit patterning during limb development as a
+result of the bmp-receptor interaction Sci Rep 2 991
+36 Choquet D Triller A 2003 The role of receptor diu-
+sion in the organization of the postsynaptic membrane
+Nature reviews Neuroscience 4 251265
+37 Ries J Yu SR Burkhardt M Brand M Schwille P 2009
+Modular scanning FCS quanties receptor-ligand interac-
+tions in living multicellular organisms Nature methods
+6 643645
+38 Kumar M Mommer MS Sourjik V 2010 Mobility of
+Cytoplasmic Membrane and DNA-Binding Proteins in
+Escherichia coli Biophysical journal 98 552559
+39 Hebert B Costantino S Wiseman P 2005 Spatiotempo-
+ral image correlation Spectroscopy STICS theory ver-
+ication and application to protein velocity mapping in
+living CHO cells Biophysical journal 88 36013614
+40 Parkash V Leppnen VM Virtanen H Jurvansuu JM
+Bespalov MM et al 2008 The structure of the glial
+cell line-derived neurotrophic factor-coreceptor complex
+Insights into ret signaling and heparin binding Journal
+of Biological Chemistry 283 35164-35172
+41 Jing S Wen D Yu Y Holst PL Luo Y et al 1996
+Gdnfinduced activation of the ret protein tyrosine kinase
+is mediated by gdnfr- a novel receptor for gdnf Cell 85
+1113-1124
+42 Spivak-Kroizman T Lemmon M Dikic I Ladbury J Pin-
+chasi D et al 1994 Heparin-induced oligomerization
+of FGF molecules is responsible for FGF receptor
+dimerization activation and cell proliferation Cell 79
+1015 - 1024
+43 Plotnikov AN Schlessinger J Hubbard SR Mohammadi
+M 1999 Structural basis for FGF receptor dimeriza-
+tion and activation Cell 98 641 - 650
+44 DiGabriele AD Lax I Chen DI Svahn CM Jaya M
+et al 1994 Structure of a heparin-linked biologically
+active dimer of broblast growth factor Nature 393 812
+45 Ibrahimi O Yeh B Eliseenkova A Zhang F Olsen S
+et al 2005 Analysis of mutations in broblast growth
+factor fgf and a pathogenic mutation in fgf receptor
+fgfr provides direct evidence for the symmetric two-end
+model for fgfr dimerization Mol Cell Biol 25 671 - 684
+46 Goetz JA Singh S Suber LM Kull FJ Robbins DJ
+2006 A highly conserved amino-terminal region of sonic
+hedgehog is required for the formation of its freely dif-
+fusible multimeric form Journal of Biological Chemistry
+281 4087-4093
+47 Scheuer C Sebald W Hlsmeyer M 1999 Crystal struc-
+ture of human bone morphogenetic protein-2 at 27 res-
+olution Journal of Molecular Biology 287 103 - 115
+48 Nickel J Dreyer MK Kirsch T Sebald W 2001 The
+crystal structure of the bmp-2bmpr-ia complex and the
+generation of bmp-2 antagonists The Journal of Bone
+and Joint Surgery 83 S7-S14
+49 Butt JB 2000 Reaction Kinetics and Reactor Design
+Second Edition CRC Press
+50 Pepicelli CV Kispert A Rowitch DH McMahon AP
+1997 GDNF induces branching and increased cell
+proliferation in the ureter of the mouse Developmen-
+tal Biology 192 193 - 198
+51 Lu BC Cebrian C Chi X Kuure S Kuo R et al 2009
+Etv4 and etv5 are required downstream of gdnf and ret
+for kidney branching morphogenesis Nature Genetics 41
+1295 - 1302
+52 Estival A Monzat V Miquel K Gaubert F Hollande E
+et al 1996 Dierential regulation of broblast growth
+factor fgf receptor-1 mrna and protein by two molecular
+forms of basic fgf Modulation of fgfr-1 mrna stability
+Journal of Biological Chemistry 271 5663-5670
+53 Ota S Tonou-Fujimori N Tonou-Fujimori N Nakayama
+Y Ito Y et al 2010 Fgf receptor gene expression and
+its regulation by fgf signaling during early zebrash de-
+velopment genesis 48 707716
+54 Chen Y Struhl G 1996 Dual roles for patched in se-
+questering and transducing hedgehogf Cell 87 553563
+55 Weaver M Batts L Hogan BL 2003 Tissue interactions
+pattern the mesenchyme of the embryonic mouse lung
+Developmental Biology 258 169 - 184
+56 Merino R Gaan Y Macias D Economides AN Sam-
+path KT et al 1998 Morphogenesis of digits in the
+avian limb is controlled by fgfs tgfs and noggin through
+BMP signaling Developmental Biology 200 35 - 45
+57 Schnakenberg J 1979 Simple chemical reaction systems
+with limit cycle behaviour J Theor Biol 81 389-400
+58 Choquet D Triller A 2003 The role of receptor diusion
+in the organization of the postsynaptic membrane Nat
+Rev Neurosci 4 251-265
+59 Kumar M Mommer MS Sourjik V 2010 Mobility of
+cytoplasmic membrane and dna-binding proteins in es-
+cherichia coli Biophys J 98 552-559
+60 Ries J Yu SR Burkhardt M Brand M Schwille P 2009
+Modular scanning fcs quanties receptor-ligand interac-
+tions in living multicellular organisms Nat Methods 6
+643-645
+61 Iber D Menshykau D 2013 The control of branching
+morphogenesis Open Biol 3 130088
+62 Celliere G Menshykau D Iber D 2012 Simulations
+demonstrate a simple network to be sucient to control
+branch point selection smooth muscle and vasculature
+formation during lung branching morphogenesis Biol-
+ogy Open 1 775-788
+63 Menshykau D Iber D 2012 Simulating organogenesis
+with comsol Interacting and deforming domains Pro-
+ceedings of COMSOL Conference 2012 
+64 Vollmer J Menshykau D Iber D 2013 Simulating
+organogenesis in comsol Cell-based signaling models
+COMSOL Conference Proceedings 
+65 Bray D Levine MD Morton-Firth CJ 1998 Receptor
+clustering as a cellular mechanism to control sensitivity
+Nature 397 85-88
+66 Abler LL Mansour SL Sun X 2009 Conditional gene
+inactivation reveals roles for fgf10 and fgfr2 in establish-
+ing a normal pattern of epithelial branching in the mouse
+lung Dev Dyn 238 1999-2013
+67 Chiang C Litingtung Y Lee E Young KE Corden JL
+et al 1996 Cyclopia and defective axial patterning in
+mice lacking sonic hedgehog gene function Nature 383
+407-413
+68 Pepicelli CV Lewis PM McMahon AP 1998 Sonic
+hedgehog regulates branching morphogenesis in the
+mammalian lung Curr Biol 8 1083-1086
+69 Bellusci S Furuta Y Rush MG Henderson R Winnier
+G et al 1997 Involvement of sonic hedgehog shh in
+mouse embryonic lung growth and morphogenesis De-
+velopment 124 53-63
+70 Peters K Werner S Liao X Wert S Whitsett J et al
+1994 Targeted expression of a dominant negative fgf
+receptor blocks branching morphogenesis and epithelial
+dierentiation of the mouse lung EMBO J 13 3296-
+71 Cui Y Li Q 2013 Expression and functions of broblast
+growth factor 10 in the mouse mammary gland Int J Mol
+Sci 14 4094-105
+72 Bellusci S Grindley J Emoto H Itoh N Hogan BL
+1997 Fibroblast growth factor 10 fgf10 and branching
+morphogenesis in the embryonic mouse lung Develop-
+ment 124 4867-4878
+73 Ingham PW McMahon AP 2001 Hedgehog signaling
+in animal development paradigms and principles Genes
+Dev 15 3059-3087
+74 Ibrahimi OA Yeh BK Eliseenkova AV Zhang F Olsen
+SK et al 2005 Analysis of mutations in broblast
+growth factor fgf and a pathogenic mutation in fgf re-
+ceptor fgfr provides direct evidence for the symmetric
+two-end model for fgfr dimerization Molecular and cel-
+lular biology 25 671-684
+75 Zeng X Goetz JA Suber LM Scott WJ Schreiner CM
+et al 2001 A freely diusible form of sonic hedgehog
+mediates long-range signalling Nature 411 716-720
+76 Monzat V 1996 Dierential regulation of broblast
+growth factor fgf receptor-1 mrna and protein by two
+molecular forms of basic fgf Journal of Biological Chem-
+istry 271 5663-5670
+77 Becskei A Serrano L 2000 Engineering stability in gene
+networks by autoregulation Nature 405 590-593
+78 Ma W Trusina A El-Samad H Lim WA Tang C 2009
+Dening network topologies that can achieve biochemical
+adaptation Cell 138 760-773
+79 Germann P Menshykau D Tanaka S Iber D 2011 Sim-
+ulating organogensis in comsol In Proceedings of COM-
+SOL Conference 2011
+80 Badugu A Kraemer C Germann P Menshykau D Iber
+D 2012 Digit patterning during limb development as a
+result of the BMP-receptor interaction Scientic reports
+2 991
+81 Menshykau D Kraemer C Iber D 2012 Branch Mode
+Selection during Early Lung Development Plos Compu-
+tational Biology 8 e1002377
+82 Tanaka S Iber D 2013 Inter-dependent tissue growth
+and Turing patterning in a model for long bone develop-
+ment Physical biology 10
+83 Murray JD 2003 Mathematical Biology 3rd edition in 2
+volumes Mathematical Biology II Spatial Models and
+Biomedical Applications Springer
+84 Menhsykau D Iber D 2012 Simulating Organogenesis
+in COMSOL Deforming and Interacting Domains Proc
+COMSOL Conf Milan 
+85 Kotha S Murtomki L 2014 Virtual pharmacokinetic
+model of human eye Mathematical Biosciences 253 11
+86 Cutress IJ Dickinson EJF Compton RG 2010 Analysis
+of commercial general engineering nite element software
+in electrochemical simulations J Electroanal Chem 638
+7683
+87 Sun N Wood NB Hughes AD Thom SAM Xu XY
+2006 Fluid-wall modelling of mass transfer in an ax-
+isymmetric stenosis Eects of shear-dependent trans-
+port properties ANNALS OF BIOMEDICAL ENGI-
+NEERING 34 1119-1128
+88 2014 Distributed optimal control of time-dependent dif-
+fusionconvectionreaction equations using spacetime dis-
+cretization
+Journal of Computational and Applied
+Mathematics 261 146 - 157
+89 Drawert B Engblom S Hellander A 2012 Urdme a
+modular framework for stochastic simulation of reaction-
+transport processes in complex geometries BMC Sys-
+tems Biology 6 76
+90 Adivarahan S Menshykau D Michos O Iber D 2013
+Dynamic Image-Based Modelling of Kidney Branching
+Morphogenesis volume 8130 of Lecture Notes in Com-
+puter Science Springer Berlin Heidelberg 106-119 pp
+doi101007978-3-642-40708-69 URL httpdxdoi
+org101007978-3-642-40708-69
+91 See Supplementary Figure 1 at URL will be inserted by
+publisher for a list of all tested models with additional
+feedbacks
+FigureS1Turingspaceofuncoupledandcoupledligand-receptorbasedTuringsystemsp01yellowp1bluep10redEqReactiondiagramReactiontermsTuringspaceamaxandtherangeofbTuringspaceofligand-receptorbasedTuringsystemS1fauu2vgbu2v0123400051015ba10-210-110010110210-1100101 pamax10-1100101102103bTuringspaceofligand-receptorbasedTuringsystemswithfeedbackU1faupu2vgbu2v05101520253000051015ba10-210-110010110210-1100101 pamax10-1100101102103bU2fauu2vgbu2vpu2v0123400051015ba10-210-110010110210-1100101 pamax10-1100101102103bU3fa1u2vpuu2vgbu2v0123401234ba10-210-110010110210-1100101 pamax10-1100101102103bU4fauu2vgb1u2vpu2v01020304050000204ba10-210-110010110210-1100101 pamax10-1100101102103bcontinuedonnextpageEqReactiondiagramReactiontermsTuringspaceamaxandtherangeofbU5fa1u2vpuu2vgb1u2vpu2v010203040500005101520ba10-210-110010110210-1100101 pamax10-1100101102103bU6fauu2vpu2vgbu2v02468000005010015020ba10-210-110010110210-1100101 pamax10-1100101102103bU7fauu2vgbu2vpu2v000025050075100010203040ba10-210-110010110210-1100101 pamax10-1100101102103bU8fauu2vpu2vgbu2vpu2v000102030405000002004006008010ba10-210-110010110210-1100101 pamax10-1100101102103bU9fau2vu2vpuu2vgbu2vu2vpu2v0246810121416020406080100ba10-210-110010110210-1100101 pamax10-1100101102103bU10fauu2vgbu2vu2vpu2v024681012141600051015ba10-210-110010110210-1100101 pamax10-1100101102103bcontinuedonnextpageEqReactiondiagramReactiontermsTuringspaceamaxandtherangeofbU11fau2vu2vpuu2vgbu2v01234020406080100ba10-210-110010110210-1100101 pamax10-1100101102103bTuringspaceofcoupledligand-receptorbasedTuringsystemsC1fauu2vpeu2evgbu2vefaeueu2evpu2vegbeu2ev0123400051015ba10-210-1100101102100102104pamax100102104106bC2fauu2vgbu2vpeu2evefaeueu2evegbeu2evpu2v0123400051015ba10-210-1100101102100102104pamax100102104106bC3fa1eu2evpuu2vgbu2vefa1u2vpeueu2evegbeu2ev012340510152025ba10-210-1100101102100102104pamax100102104106bC4fauu2vgb1eu2evpu2vefaeueu2evegb1u2vpeu2ev02000040000600008000002468ba10-210-1100101102100102104pamax100102104106bC5fauu2vpeu2evgbu2vefa1u2vpeueu2evegbeu2ev0123402468ba10-210-1100101102100102104pamax100102104106bcontinuedonnextpageEqReactiondiagramReactiontermsTuringspaceamaxandtherangeofbC6fauu2vgbu2vpeu2evefaeueu2evegb1u2vpeu2ev02040608010000020406ba02x1054x1056x1058x1051x10600020406ba10-210-1100101102100102104pamax100102104106bC7fauu2vpeu2evgbu2vefaeueu2evegbeu2evpu2v0123400051015ba10-210-1100101102100102104pamax100102104106bC8fauu2vpeu2evgbu2vefaeueu2evegb1u2vpeu2ev02040608010000020406ba02x1054x1056x1058x1051x10600020406ba10-210-1100101102100102104pamax100102104106bC9fa1eu2evpuu2vgbu2vefaeueu2evegbeu2evpu2v0123402468ba10-210-1100101102100102104pamax100102104106bcontinuedonnextpageEqReactiondiagramReactiontermsTuringspaceamaxandtherangeofbC10fa1eu2evpuu2vgbu2vefaeueu2evegb1u2vpeu2ev0204060801000002040608ba02x1054x1056x1058x1051x1060002040608ba10-210-1100101102100102104pamax100102104106bC11fa1eu2evpuu2vgb1eu2evpu2vefa1u2vpeueu2evegb1u2vpeu2ev02000040000600008000002000400060008000ba10-210-1100101102100102104pamax100102104106bC12fauu2vpeu2evgbu2vpeu2evefaeueu2evpu2vegbeu2evpu2v0123400051015ba10-210-1100101102100102104pamax100102104106b

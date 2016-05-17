@@ -1,275 +1,1542 @@
-Faculty of Mathematics  Natural Science  FMNS 2013 
-On Detecting Noun-Adjective Agreement Errors 
-in Bulgarian Language Using GATE  
-Nadezhda Borisova Grigor Iliev Elena Karashtranova 
-South-West University Blagoevgrad Bulgaria 
-in  Bulgarian 
-Abstract    In  this  article  we  describe  an  approach  for  automatic 
-detection  of  noun-adjective  agreement  errors 
-texts  by 
-explaining  the  necessary  steps  required  to  develop  a  simple  Java-based 
-language  processing  application  For  this  purpose  we  use  the  GATE 
-language  processing  framework  9  which  is  capable  of  analyzing  texts  in 
-Bulgarian  language  and  can  be  embedded  in  software  applications 
-accessed  through  a  set  of  Java  APIs  In  our  example  application  we  also 
-demonstrate  how  to  use  the  functionality  of  GATE  to  perform  regular 
-expressions over annotations for detecting agreement errors in simple noun 
-phrases formed by two words  attributive adjective and a noun where the 
-attributive  adjective  precedes  the  noun  The  provided  code  samples  can 
-also  be  used  as  a  starting  point  for  implementing  natural  language 
-processing  functionalities  in  software  applications  related  to  language 
-processing  tasks  like  detection  annotation  and  retrieval  of  word  groups 
-meeting a specific set of criteria  
-Keywords  Bulgarian  grammar  Human  language  processing  GATE 
-NLP POS tagger JAPE transducer 
-1 INTRODUCTION 
-The  adjective  in  Bulgarian  language  must  agree  with  the  noun  in 
-number  gender  and  definiteness  For  example  in  the  noun  phrase 
-    a  happy  children  the  adjective  and  the  noun  do  not 
-agree in number  the adjective  is singular and the noun  
-is plural In the noun phrase   a happy child the adjective 
-and the noun do not agree in gender  the adjective  is masculine 
-and the noun  is neuter While these types of errors are rarely made 
-by native speakers of Bulgarian for people learning Bulgarian as a foreign 
-language this is not the case This is why tools for automatic detection of 
-such errors can be very useful 
-Our  choice  to  use  GATE  for  this  purpose  is  based  mainly  on  the  fact 
-that it is a mature open source project with over 15 years of development in 
-the field of human language processing 6 and provides extensive support 
-Mathematics and Informatics 
-for  integration  and  interoperability  with  most  of the  other key  systems  and 
-tools in this field 2 
-Taking  into  account  the  specifics  of  the  GATE  framework  the  task  of 
-automatic detection of noun-adjective agreement errors can be divided into 
-a set of related subtasks 
-  Breaking a text into sentences 
-  Breaking a text into tokens words numbers etc 
-  Tagging  individual  tokens  with  their  respective  part  of  speech  POS 
-  Tagging adjectivenoun pairs that do not agree in gender number and 
-definiteness 
-The  first  three  subtasks  are  standard  natural  language  processing 
-NLP tasks  sentence splitting tokenization and POS tagging 8 The last 
-subtask we  will handle  using the JAPE Java Annotation Patterns Engine 
-transducer  which  is  part  of  the  GATE  system  and  provides  finite  state 
-transduction  over  annotations  based  on  regular  expressions  1  For  more 
-information about JAPE see 5 
-Note  that  in  this  article  we  focus  on  the  use  of  the  GATE  APIs  for 
-performing  specific  language  processing  tasks  which  requires  a  basic 
-understanding  of  the  Java  programming  language  In  addition  a  basic 
-understanding  of  regular  expressions  and  writing  JAPE  rules  is  also 
-required 
-2 EXTERNAL LIBRARY DEPENDENCIES 
-To  make  the  GATE  APIs  available  to  a  Java  based  application  one 
-need to deploy the following Java extensions 
-  GATEHOMEbingatejar 
-  all JAR files in GATEHOMElib 
-Where  GATEHOME is the absolute path of the GATEs root directory 
-It is also mandatory to initialize the GATE library before first use This is 
-done by calling the static method gateGateinit 7 
-3 LOADING CREOLE PLUGINS 
-Before using a certain processing resource in GATE first the CREOLE 
-plugin containing the resource should be loaded In our example we will use 
-four  processing  resources    LingPipe  Tokenizer  PR  LingPipe  Sentence 
-Splitter PR LingPipe POS Tagger PR and JAPE-Plus Transducer The first 
-three resources are part of the LingPipe plugin The last one is part of the 
-Faculty of Mathematics  Natural Science  FMNS 2013 
-JAPEPlus  plugin  Our  choice  to  use  the  LingPipe  plugin  is  based  on  the 
-fact that currently this is the only plugin included in the GATE distribution 
-with POS tagger which includes models for Bulgarian language We must 
-however note that there is no restriction in using tokenizers and sentence 
-splitters from  another  plugins  in  conjunction  with  the  POS  tagger from the 
-LingPipe plugin 
-To  load  the  LingPipe  and  JAPEPlus  plugins  we  need  to  register the 
-corresponding  CREOLE  directories  This  is  done  by  issuing  the  following 
-code 1 
-javaioFile f  new javaioFile  
-gateGategetPluginsHome LingPipe 
-gateGategetCreoleRegisterregisterDirectories  
-ftoURItoURL 
-f  new javaioFile  
-gateGategetPluginsHome JAPEPlus 
-gateGategetCreoleRegisterregisterDirectories  
-ftoURItoURL 
-4 LOADING PROCESSING RESOURCES 
-The next step after loading the plugins containing the aforementioned 
-resources  which  will  be  used  in  our  example  is  to  load  the  actual 
-processing resources 
-As pointed out in the introduction we need processing resources for 
-the following tasks 
-  Breaking a text into sentences 
-  Breaking a text into tokens 
-  Tagging  the  individual  tokens  with  their  respective  part  of  speech 
-  Tagging  adjectivenoun  pairs  that  do  not  agree  in  gender  number 
-and definiteness 
-The Sentence Splitter processing resource is used for breaking the text 
-into  sentences  To  create  it  with  default  parameters  we  use  the  following 
-gateFeatureMap params  
-gateFactorynewFeatureMap 
-gateProcessingResource splitter  
-Mathematics and Informatics 
-gateProcessingResourcegateFactorycreateResource  
-gatelingpipeSentenceSplitterPR params 
-To create a Tokenizer processing resource with default parameters we 
-use the following code 
-gateFeatureMap params  gateFactorynewFeatureMap 
-gateProcessingResource tokenizer  
-gateProcessingResourcegateFactorycreateResource  
-gatelingpipeTokenizerPR  params 
-Once  the  input  text  is  broken  into  tokens  the  LingPipe  POS  Tagger 
-processing resource can be used for tagging the individual tokens with their 
-respective  part  of  speech  tags  For  this  purpose  we  need  to  provide  a 
-model for Bulgarian language as an initialization parameter 1 7 
-String model  
-LingPiperesourcesmodelsbulgarian-fullmodel 
-javaioFile f  
-new javaioFilegateGategetPluginsHome  model 
-gateFeatureMap params  gateFactorynewFeatureMap 
-paramsputmodelFileUrl ftoURItoURL 
-gateProcessingResource tagger   
-gateProcessingResourcegateFactorycreateResource  
-gatelingpipePOSTaggerPR  params 
-Finally we create a JAPE-Plus Transducer which will be used to detect 
-the  adjectivenoun  pairs  that  do  not  agree  in  gender  number  and 
-definiteness As an initialization parameter we need to provide the grammar 
-file containing our custom JAPE rules 
-gateFeatureMap params  gateFactorynewFeatureMap 
-javaioFile f  new javaioFilejapeExamplejape 
-paramsputgrammarURL ftoURItoURL 
-String transducerClass  
-gatejapefunctestTransducerTypePLUSgetFqdnClass 
-gateProcessingResource japePlus  
-gateProcessingResourcegateFactorycreateResource  
-transducerClass params 
-Faculty of Mathematics  Natural Science  FMNS 2013 
-We will discuss the content of Examplejape file in Section 6 
-5 CREATING AND RUNNING A CORPUS PIPLINE 
-One  of  the  ways  to  run  the  already  created  processing  resources  in 
-sequence is to use a corpus pipline For this purpose we will use the class 
-SerialAnalyserController 1 
-gatecreoleSerialAnalyserController controller 
-controller  gatecreoleSerialAnalyserController 
-gateFactorycreateResource  
-gatecreoleSerialAnalyserController 
-gateFactorynewFeatureMap 
-gateFactorynewFeatureMap 
-The next step is to add the already created processing resources to the 
-controller 
-controlleraddsplitter 
-controlleraddtokenizer 
-controlleraddtagger 
-controlleraddjapePlus 
-Note  that  the  order  in  which  the  processing  resources  are  added  is 
-important  For  example  the  POS  tagger  requires  as  an  input  the  Token 
-and  Sentence  annotations  which  are  created  by  the  tokenizer  and  the 
-sentence splitter The JAPE transducer will require each Token annotation 
-to have a category feature set with the part of speech tag of the respective 
-token which is done by the POS Tagger Note that for example by Token 
-annotation we mean annotation of type Token 
-The  controller  that  we  use  in  our  example  accepts  only  processing 
-resources that process documents also called language analysers Hence 
-the  controller  will  require  a  corpus  which  is  basically  a  collection  of 
-documents  When  executed  the  controller  runs  every  analyser  over  each 
-document  in  the  corpus  For  our  purposes  we  will  create  a  corpus  with  a 
-single document in it 7 
-gateCorpus corpus 
-corpus  gateFactorynewCorpusTest Corpus 
-javaioFile f  new javaioFiletextsbgtxt 
-gateDocument doc 
-doc  gateFactorynewDocumentftoURItoURL 
-corpusadddoc 
-Mathematics and Informatics 
-Next  we  set  the  controller  to  use  the  already  created  corpus  and 
-execute the added processing resources in sequence 
-controllersetCorpuscorpus 
-controllerexecute 
-6 WRITING THE JAPE GRAMMAR RULES 
-In this section as an example we show how to create a JAPE grammar 
-rule which matches all adjectivenoun pairs where the adjective is in plural 
-form  and  the  noun  is  in  singular  form  The  matched  adjectivenoun  pairs 
-PluralSingularPair 
-PSAgrError  We  will  call 
-then  annotated  as 
-Note that it is essential to specify at the start of the JAPE grammar the 
-input annotations against which the rules will be matched In our case we 
-only  need  to  iterate  through  the  annotations  of  type  Token  So  the 
-following line should be included in the JAPE grammar file Examplejape 
-Input Token 
-In our example the parts of speech are annotated by the LingPipe POS 
-tagger using the BulTreeBank tagset BTB-TS scheme 4 and are added to 
-the document as category features of the Token annotations According to 
-the BTB-TS tagset specification if the first character of a POS tag is A the 
-respective token is an adjective if it is N the respective token is a noun 
-For  nouns the fourth  character  of the  POS  tag determines  the  number of 
-the  noun    s  for  singular  p  for  plural  For  adjectives  it  is  the  third 
-character Hence for example to match all annotations of type Token with 
-category feature whose value is a string that starts with the capital letter 
-A followed by an arbitrary character and the lower-case letter p we use 
-the following pattern 
- Tokencategory  Ap  
-To match all annotations of type Token with feature category whose 
-value is a string that starts with the capital letter N followed by two arbitrary 
-characters and the lower-case letter s we use the following pattern 
- Tokencategory  Ns  
-Note that the regular expression operator  matches the beginning of 
-the line and the operator  matches any single character 3 
-Faculty of Mathematics  Natural Science  FMNS 2013 
-Using these two patterns we create a rule which matches all adjective
-noun pairs where the adjective is in plural form and the noun is in singular 
-Rule PluralSingularPair 
-Priority 20 
- Tokencategory  Ap  
- Tokencategory  Ns  
- pair 
-pairPSAgrError   rule  PluralSingularPair  
-Note  that  in  the  last  line  of  the  rule  the  temporary  label  pair  is 
-renamed 
-PSAgrError  Rules  for  covering  other  types  of  agreement  errors  can  be 
-implemented in the same manner 
-thus  creating  a  new  annotation  of 
-to  PSAgrError 
-7 CONCLUSION 
-As  shown  above  developing  a  language  processing  application  using 
-GATE  does  not  require  a  significant  learning  curve  The  time  and  effort 
-invested is negligible and well-worth the benefits of the derived functionality 
-2 The ability to perform regular expressions over annotations using the full 
-power of pattern matching provides a wide range of techniques for solving 
-all  kinds  of  real  problems  related  to  computer  processing  of  human 
-language  Additionally  the  limitations  imposed  by  the  JAPE  grammar  can 
-be overcome by invoking custom Java code inside the JAPE rules 
-We conclude that the GATE framework with its multilingual support and 
-language-independent components is a reasonable choice for developing a 
-software  for  automatic  detection  and  correction  of  a  wide  range  of 
-grammatical errors in Bulgarian texts which will be of great help for people 
-learning Bulgarian as a foreign language 
-8  ACKNOWLEDGEMENT 
-This  research  was  supported  by  the  South-West  University  Neofit 
-Rilski grant SRP-A512 
-Mathematics and Informatics 
-9 REFERENCES 
-  Cunningham H et al Developing Language Processing 
-Components with GATE Version 7 a User Guide Available 
-httpgateacuksaletaotaopdf Accessed 12 March 2013 
-  Cunningham H Tablan V Roberts A Bontcheva K 2013 
-Getting More Out of Biomedical Documents with GATEs Full 
-Lifecycle Open Source Text Analytics PLOS Computational Biology 
-ISSN 1553-734X Available httpwwwploscompbiolorg 
-articleinfodoi101371journalpcbi1002854  
-Accessed 12 March 2013 
-  Friedl JEF 2006 Mastering Regular Expressions 3rd Edition 
-OReilly Media 
-  Simov K Osenova P Slavcheva M 2004 BTB-TR03 
-BulTreeBank Morphosyntactic Tagset BulTreeBank Project 
-Technical Report  03  
-  Thakker D Osman T Lakin P 2009 GATE JAPE Grammar 
-Tutorial Available httpgateacuksalethakker-jape-
-tutorialGATE20JAPE20manualpdf Accessed 12 March 2013 
-  GATE a full-lifecycle open source solution for text processing 
-Available httpgateacukoverviewhtml  
-Accessed 12 March 2013 
-  GATE API specification v71 Available 
-httpjenkinsgateacukjobGATE-NightlyjavadocgateGatehtmlinit 
-Accessed 12 March 2013 
-  Stanford CoreNLP 
- Available httpnlpstanfordedusoftwarecorenlpshtml 
- Accessed 12 March 2013 
-  httpgateacuk 
+ 4 and 
+ Kimberly Forsten-Williams4  3  Matthew A Nugent
+This un-edited manuscript has been accepted for publication in Biophysical 
+Journal and is freely available on BioFast at httpwwwbiophysjorg The final 
+copyedited version of the paper may be found at httpwwwbiophysjorg 
+Effects of receptor clustering on ligand dissociation kinetics 
+Theory and simulations 
+Manoj Gopalakrishnan
+Uwe C Tuber
+1 Department of Biological Physics5 
+    Max-Planck-Institut fr Physik komplexer Systeme 
+   Nthnitzer Stra e 38  
+   01187 Dresden Germany 
+2 Department of Physics and Center for Stochastic Processes in Science and Engineering 
+   Virginia Polytechnic Institute and State University 
+   Blacksburg VA 24061 USA 
+3 Department of Chemical Engineering  
+   and Virginia Tech - Wake Forest University School of Biomedical Engineering and Sciences 
+   Virginia Polytechnic Institute and State University 
+   Blacksburg VA 24061 USA 
+4 Department of Biochemistry 
+   Boston University School of Medicine 
+   Boston MA 02118 USA 
+Key words Stochastic theory Rebinding Receptors  
+                     fibroblast growth factor-2 FGF-2 bFGF Monte Carlo simulations 
+Running Title  Clustering Effect on Ligand Dissociation
+                                                 
+4 Corresponding author e-mail kfwvtedu 
+5 Present address 
+Abstract 
+Receptor-ligand binding is a critical first step in signal transduction and the duration of 
+the interaction can impact signal generation In mammalian cells clustering of receptors 
+may  be  facilitated  by  heterogeneous  zones  of  lipids  known  as  lipid  rafts  In  vitro 
+experiments show that disruption of rafts significantly alters the dissociation of fibroblast 
+growth  factor-2  FGF-2  from  heparan  sulfate  proteoglycans  HSPG  co-receptors  for 
+FGF-2 In this paper we develop a continuum stochastic formalism in order to address 
+how  receptor  clustering  might  influence  ligand  rebinding  We  find  that  clusters  reduce 
+the  effective  dissociation  rate  dramatically  when  the  clusters  are  dense  and  the  overall 
+surface  density  of  receptors  is  low   The  effect  is  much  less  pronounced  in  the  case  of 
+high  receptor  density  and  shows  non-monotonic  behavior  with  time  These  predictions 
+are  verified  via  lattice  Monte  Carlo  simulations    Comparison  with  FGF-2-HSPG 
+experimental results is made and suggests that the theory could be used to analyze similar 
+biological systems  We further present an analysis of an additional co-operative internal 
+diffusion model that might be used by other systems to increase ligand retention when 
+simple rebinding is insufficient 
+I INTRODUCTION 
+The  cell  membrane  is  composed  of  many  different  types  of  lipid  species  This 
+heterogeneity  leads  to  the  possibility  of  organization  of  different  species  into  distinct 
+domains 1 Such domains are especially suited and designed for specialized functions 
+such as signal transduction nutrient adsorption and endocytosis They can link specific 
+cellular  machinery  and  physical  features  and  are  equipped  with  mechanisms  for 
+maintenance  addition  and  removal  of  specific  molecules  for  a  certain  period  of  time 
+during which the domains may diffuse as single entities 2 Lipid rafts which are micro-
+domains rich in sphingolipids and cholesterol represent one of the most interesting but 
+insufficiently understood lipid domains 3 Various estimates are available for raft sizes 
+and diameters in the range 25-200 nm have been reported using various methods 4 A 
+limitation  in  this  area  remains  that  the  definition  of  lipid  rafts  is  rather  broad  and 
+currently includes a wide range of what will likely prove to be distinct domains that may 
+be  distinguished  by  the  particular  protein  and  lipid  compositions  245  Operational 
+definitions  of  rafts  based  on  resistance  to  detergent  solubilization  and  sensitivity  to 
+cholesterol removal are limited by artifacts of the various procedures used to define rafts 
+and  on  difficulties  in  relating  model  membranes  to  cell  membranes  Nonetheless  it  is 
+clear that cell membranes are not homogeneous and that protein-protein protein-lipid and 
+lipid-lipid  interactions  all  participate  in  regulating  raft  size  dynamics  and  function  
+Consequently a myriad of functions have been prescribed to lipid rafts one possibility 
+being  that  lipid  rafts  may  serve  as  mediators  of  signal  transduction  for  several  growth 
+factors including fibroblast growth factor-2 FGF-2 6-8 
+         
+Growth factors act as triggers for many cellular processes and their actions are typically 
+mediated  by  binding  of  ligand  to  the  extracellular  domain  of  transmembrane  receptor 
+proteins  For  many  receptors  signal  transduction  requires  dimerization  or  clustering 
+whereby  two  or  more  receptors  following  ligand  binding  interact  directly  to  facilitate 
+signal transduction While ligand binding is generally specific to members of a family of 
+transmembrane receptor proteins heparin-binding growth factors such as FGF-2 interact 
+with  both  specific  members  of  the  FGF  receptor  family  and  heparan  sulfate 
+glycosaminoglycan  chains  of  cell  surface  proteoglycans  HSPG  HSPG  represent  a 
+varied  class  of  molecules  including  the  transmembrane  syndecans  the  glycosyl-
+phosphotidylinositol  anchored  glypicans  and  extracellular  proteoglycans  such  as 
+perlecan reviewed in 910 The interaction of FGF-2 with HSPG is of a lower affinity 
+than to the cell surface signaling receptor CSR but has been shown to stabilize FGF-2-
+CSR  binding  and  activation  of  CSR  1112  Moreover  HSPG  have  recently  been 
+demonstrated  to  function  directly  as  signaling  receptors  in  response  to  FGF-2  binding 
+leading to the activation of protein kinase C alpha 12 and Erk12 6  
+There is evidence that cell surface HSPG are not distributed uniformly but are instead 
+localized in lipid rafts 614-16 and this association may be facilitated by FGF-2 binding 
+and  clustering  17  This  localization  and  clustering  may  further  have  a  dramatic 
+influence on signaling through both persistence of signaling complexes and localization 
+with  intracellular  signaling  partners  For  example  FGF-2  dissociation  kinetics  from 
+HSPG  were  significantly  altered  when  cells  were  treated  with  the  lipid  raft-disrupting 
+agents methyl- -cyclodextrin Mb CD Fig 1 Retention of FGF-2 even at long times 
+was significantly greater in the untreated state suggesting that rafts regulate this process 
+These experiments suggest that clustering of HSPG in lipid rafts effectively slows down 
+dissociation by increasing the rebinding of released FGF-2  If this is indeed true then the 
+localization of binding sites to micro-domains on the cell surface could be an important 
+mechanism employed by receptors to boost signal transduction via increased persistence 
+The relation between the apparent association and dissociation rates of ligands interacting 
+with receptors on a spherical cell surface with the corresponding intrinsic rates has been 
+studied previously by several authors 18-23  Berg and Purcell 18 demonstrated that 
+for  ligands  irreversibly  binding  to  N  receptors  on  a  spherical  cell  of  radius  a   the 
+effective  forward  rate  constant  becomes  a  non-linear  function  of  N  assuming  the  form 
+ where  k  is the association rate for a single receptor in 
+close  proximity  to  the ligands  ie  the intrinsic  binding  rate  The  quantity  in  brackets 
+was  termed  the  capture  probability by  Shoup  and  Szabo  19  The  effective 
+dissociation  rate  was  analogously  defined  as  the  product  of  the  intrinsic  rate  and  the 
+escape probability 1-
+ This leads to 19 24 
+       1 
+cid3
+cid1
+cid2
+cid6
+cid4
+cid5
+-k   is  the  intrinsic  dissociation  rate  and  Dk    Da
+  for  a  spherical  completely 
+absorbing  surface  represents  the  diffusion-limited  association  rate  illustrating  how 
+increasing receptor numbers lead in general to a decrease in apparent dissociation rate 
+This result was later extended to include the presence of solution receptors by Goldstein 
+et al 24 Association of ligands to a cluster of receptors on a planar surface which also 
+includes the surface diffusion of ligands inside the cluster was investigated by Potanin et 
+al 26 This study predicted a non-monotonic variation of the forward rate constant with 
+cluster size that was found to fit better with some experimental results 
+In general the effective dissociation rate of ligands from a set of receptors depends on the 
+frequency of rebinding whereby a dissociated ligand wanders around in the solution for 
+some  time  and  reattaches  to  the  binding  surface  upon  contact  This  is  only  implicitly 
+included  in  the  above  approaches  A  systematic  mathematical  study  of  the  rebinding 
+probability  of  a  single  ligand  was  undertaken  by  Lagerholm  and  Thompson  27  An 
+independent self-consistent mean-field model of rebinding of ligands bound to receptors 
+in an infinite two-dimensional plane was recently presented by us 28 in the context of 
+analyzing Surface Plasmon Resonance SPR experiments  
+In  the  present  paper  we  generalize  our  earlier  discrete  model  28  to  incorporate  a 
+continuum description for the receptor distribution as well as the ligand motion The self-
+consistent  stochastic  mean-field  theory  of  rebinding  thus  developed  is  then  used  as  the 
+basis for extending our investigation to include non-uniformity in the spatial distribution 
+of receptors In particular we study how rebinding is affected by the presence of receptor 
+clusters  on  the  cell  surface  Our  broad  conclusions  from  this  study  are  as  follows  i 
+Receptor  clustering  dramatically  reduces  the  effective  dissociation  rate  through 
+enhancing rebinding if the overall receptor density is small enough that the effect would 
+have been negligible without clustering ii When the overall receptor density is high the 
+effect of clustering is smaller but the frequent rebinding events render the dissociation 
+non-exponential in the case of a planar surface 
+In  the  remainder  of  this  paper  we  first  develop  the  theoretical  formalism  to  study 
+rebinding of ligands to an infinite plane of uniformly distributed receptors Motivated by 
+recent experimental observations of the effect of lipid rafts on ligand rebinding 6 the 
+formalism  is  then  extended  to  include  receptor  clusters  Subsequently  our  theoretical 
+predictions  are  compared  to  Monte  Carlo  simulation  data  Finally  we  comment  on 
+possible  applications  including  a  possible  internal  diffusion  model  extension  and 
+discuss consequences for the analysis of experimental results 
+II THEORY 
+i REBINDING ON A PLANAR SURFACE 
+In this section we present a generalization of our recently introduced lattice random walk 
+based theory of rebinding to a continuum distribution of receptors on a two-dimensional 
+infinite  surface  Let  us  consider  a  homogeneous  distribution  of  receptors  on  an  infinite 
+planar  surface  with  constant  mean  surface  density 
+0R   per  unit  area  The  intrinsic 
+dissociation and association rates are denoted by 
+-k  and  k  respectively We denote by 
+ tR  the density of receptors bound to the ligand at any time t and its dynamical equation 
+has the form 
+       2 
+where  t   represents  the  ligand  density  in  the  vicinity  of  the  surface  Let  us  now 
+consider a dissociation experiment for which the density of receptors that are bound to 
+ and the ligand density in the bulk volume is taken to 
+ligands at time 
+be  zero  at 
+  is  entirely  due  to 
+ligands released from bound receptors at previous times 
+ Taking this previous 
+ t  in the concise 
+history carefully into account we may write down an expression for 
+following form 
+  It  then  follows  that  a  non-zero  t   at  time 
+       3 
+cid7
+cid7
+ tCR0
+where  
+  denotes  the  surface-integrated  one-dimensional  probability  density  with 
+dimension of 1length of a random walk returning to its point of origin at time  t  given 
+that  the  origin  constitutes  a  partially  absorbing  barrier  with  a  density 
+absorbing points per unit area and 
+probability density for finding a diffusing particle at distance  r from the origin at time t  
+  represents  the  normalized  two-dimensional 
+In  order  to  eliminate  the  time  dependence  of  the  boundary  condition  in  i  we  choose 
+ be the fraction of receptors bound to ligands at time  t  so 
+  When  the  spatial  integration  in 
+Eq3 is extended to infinity Eq2 is thus reduced to  
+  which  also  implies 
+       4 
+cid7
+cid1
+cid3
+cid2
+cid6
+cid4
+cid5
+ tCR0
+We  note  that  the  rebinding  problem  as  defined  by  Eq4  is  effectively  one-dimensional 
+ie the two in-plane dimensions have disappeared upon spatial integration This feature 
+enables  many  important  simplifications  as  will  be  obvious  from  the  following 
+discussions  
+The  quantity 
+  is  now  calculated  from  the  frequency  of  first  passage  events  Let 
+ denote the probability density of ligands that at time  return to the surface for the 
+first time following dissociation At this point in time the ligands may be either absorbed 
+ could then 
+or reflected back to the solution and subsequently return at a later time 
+be calculated by summing over of all such events 
+In order to proceed with our formalism it is useful to imagine the available space to be 
+divided into cubic elements ie coarse-grain the space each with volume  3  Here 
+is  a  coarse-grained  length  scale  which  we  assume  to  be  of  the  order  of  the  size  of  a 
+single ligand molecule The ligand diffusion may now be viewed effectively as transfer of 
+its center of mass between such elements When a ligand occupies an element of volume 
+adjacent to the surface it may become bound to a receptor and the probability for this to 
+is the probability of non-absorption of the ligand upon 
+occur is denoted 
+ thus satisfies the integral equation 
+encounter The equation for 
+ tCR0
+ tC R0
+ so that 
+cid7
+       5 
+The  factor  2 is  the  smallest  time  over  which  a  rebinding  event  can  take  place 
+microscopic  time  scale  which  is  the  interval  between  two  successive  collisions  of  the 
+ligand and the solvent molecule which for simplicity we assume to be a non-fluctuating 
+constant which cause the ligand to move away from the surface 6 In order to solve the 
+integral  equation  5  we  express  it  in  terms  of  the  Laplace-transformed  variables 
+  whence  we  obtain  in  the  limits 
+  with 
+  held 
+cid7
+fixed 
+                                                 
+6 In general 
+diffusion as a discrete random walk as in simulations then these are related as 
+is independent of the coarse-graining length scale
+ However if we approximate the ligand 
+The calculation of 
+       6 
+ is outlined in Appendix A with the result 
+         
+       7 
+Throughout this paper we will define  D  to be the diffusion coefficient of the random 
+walk projected onto the z-axis perpendicular to the plane containing receptors Its 
+relation to the complete three-dimensional diffusion coefficient 
+The Laplace-transformed version of Eq4 after all the above substitutions reads 
+D  is simply 
+        with  
+                   8 
+3  The ligand density in its vicinity is 
+ may be computed 
+The probability of absorption upon encounter which we denoted 
+as  follows  Consider  a  ligand  molecule  very  close  to  the  surface  occupying  a  cell  of 
+ The probability that there is a 
+volume 
+receptor within the adjacent surface area 
+ The ligand stays close to the surface 
+for  a  time  interval  2 since  no  diffusion  is  possible  through  the  surface  so  that  the 
+probability 
+After substitution of Eqs6 and 7 into 8 and employing the above result to substitute for 
+binding 
+during 
+interval 
+2l  is 
+ we arrive at 
+and consequently  
+cid13
+cid11
+cid11
+cid12
+cid10
+cid8
+cid8
+cid9
+        
+        
+       9 
+     10 
+Let us now seek to extract the time dependence of the fraction 
+ from this expression 
+Clearly  at  short  times  ie  when  s   is  sufficiently  large  namely 
+ and the decay is purely exponential with the intrinsic rate constant 
+-k   In  this  early-time  regime  rebinding  does  not  yet  occur  On  the  other  hand  in  the 
+corresponding 
+regime 
+                                                 
+7   Since the absorption probability 
+ is sufficiently small 
+However since 
+high values of  k  
+ this implies that the product  k must be bounded from above  
+ sec this is hardly ever an issue even for very 
+exhibits the limiting behaviors after Laplace inversion 
+  The  explicit  time  dependence  of 
+                   
+                
+  therefore 
+   11a  
+   11b 
+cid13
+cid11cid11
+cid12
+cid10
+cid8cid8
+cid9
+ is the equilibrium dissociation constant Our self-
+consistent mean-field analysis thus yields that the ligand dissociation curve for a planar 
+surface  is  always  non-exponential  for  sufficiently  late  times  However  for  small 
+association  rate  or  surface  coverage  the  initial  transient  regime  showing  exponential 
+decay could well last for substantial durations 
+The non-exponential decay in Eq11 was also predicted in a previous lattice model of the 
+problem developed to model SPR experiments 28 Indeed one can show that with the 
+appropriate  mapping  the  time  constants  c  of  the  continuum  and  the  lattice  models 
+coincide In the discrete variant the receptors are distributed on a lattice with unit length 
+  at  a  mean  density 
+s   and  upon  hitting  a  receptor  the  sizes  of  both  ligand  and 
+receptor  are  assumed  negligible  in  comparison  with    a  ligand  is  absorbed  with 
+  These 
+probability 
+a   The  effective  surface  coverage  is  therefore  given  by 
+parameters are related to the continuum variables through the relations 
+  Upon  making  these  substitutions  in  Eq11  we  find  that  the  expressions 
+corresponding to the continuum and lattice formalisms match perfectly 
+ii EXTENSION TO RECEPTOR CLUSTERS 
+In  this  section  we  adapt  the  stochastic  self-consistent  mean-field  theory  for  ligand 
+rebinding presented above to incorporate non-uniform spatial receptor distributions We 
+consider receptors distributed in clusters of radius  0r  such that the density of receptors 
+0R  0R  where the latter represents the mean density of receptors on 
+inside the clusters is 
+the surface  
+In order to generalize the previous theory to incorporate receptor clusters we adopt the 
+following approximation Any rebinding event where the originating and the final points 
+are separated by a distance  r
+ is assumed to take place in a local environment with 
+receptor density 
+ to rebind is 
+R0  that we assume to be of the order of 
+assumed to sense only a smaller receptor density 
+the mean density 0R  In order for this approximation to be useful we need to identify 
+with a physical length scale here we simply assume that 
+ It must be noted that no 
+strict spatial segregation exists between the two classes of rebinding events in the actual 
+0R  whereas any ligand that travels a lateral distance 
+  cid1
+cid3
+cid2
+  0x
+system  However  it  will  be  seen  later  in  comparison  with  numerical  results  that  this 
+approximation  is  remarkably  successful  in  predicting  the  different  temporal  decay 
+regimes in the presence of receptor clusters 
+We shall now quantify these ideas using the previously developed formalism as a basis 
+The complete expression describing the dynamics of the bound fraction which obviously 
+generalizes Eq4 becomes 
+     12 
+cid7
+cid7
+cid6
+cid4
+cid5
+ where 
+where  according  to  our  earlier  assumptions  the  distance-dependent  coverage  function 
+ rR  assumes the step function form 
+ x  denotes 
+  1x
+the Heaviside step function with the properties 
+Let us consider two special cases of interest  
+Case 1  Dense isolated clusters on a planar or spherical surface 
+This  situation  is  realized  when  the  clusters  are  tightly  packed  with  receptors  but  the 
+number of clusters themselves is small so that the mean surface coverage of receptors is 
+a negligible fraction In this case the homogeneous part of the rebinding term in Eq12 is 
+vanishingly small and the equation reduces to 
+ large 
+cid6
+cid4
+cid4
+cid5
+cid7
+cid13
+cid11
+cid11cid11
+cid12
+cid10
+cid8
+cid8cid8
+cid9
+cid3
+cid1
+cid1
+cid2
+     13  
+It  is  important  to  note  that  Eq13  is  valid  also  for  receptor  clusters  on  a  spherical  cell 
+surface  provided  the  size  of  the  cluster  x   is  much  smaller  than  the  radius  of  the  cell 
+itself The Laplace transform of 
+ has the form of Eq8 with 
+cid7
+cid6
+cid4
+cid4
+cid5
+cid3
+cid1
+cid1
+cid2
+the  concise  notation 
+     14 
+introduced 
+where  we  have 
+  and  similarly 
+  in  future  calculations  In  order  to  evaluate  the  Laplace  transform  of  the 
+function 
+for the limiting forms of the function 
+ we apply the following trick Using EqB2 in Appendix B 
+ we approximate it as  
+      15 
+    where 
+ tC
+ again is the Heaviside step function 
+We  now  substitute  this  expression  into  Eq14  and  use  it  to  evaluate  the 
+-dependent 
+term in the brackets The first term gives 
+ see Eq9 After inserting the 
+cid7
+cid7
+cid6
+cid4
+cid5
+29 we arrive at the following expression 
+result 
+                 16 
+ ie times much larger 
+In particular we are interested in the long-time limit 
+than  the  typical  time  scale  for  ligand  diffusion  across  a  cluster  corresponding  to 
+  In  this  limit  the  rebinding  term  has  the  form 
+   17a 
+cid3
+cid1
+cid2
+       
+cid20
+cid14
+cid19
+cid14cid18
+where we have defined the length scale 
+cid6
+cid4
+cid4
+cid5
+cid3
+cid1
+cid1
+cid2
+cid13
+cid11cid11
+cid12
+cid10
+cid8cid8
+cid9
+cid6
+cid4
+cid4
+cid5
+cid13
+cid11cid11
+cid12
+cid10
+cid8cid8
+cid9
+cid3
+cid1
+cid1
+cid2
+cid17
+cid14
+cid16
+cid14cid15
+      
+   17b 
+cid7
+represents the incomplete Gamma function 30  
+Let us now assume that the clusters are very densely packed with receptors ie 
+sufficiently large  so  that 
+0R  is 
+  In this case  the  contributions  in Eq17a  that involve 
+  30  Therefore 
+ After substitution in Eq8 we see that 
+              
+incomplete  Gamma  functions  are  small  
+ in Eq17a when 
+ After Laplace inversion  
+    for  
+cid10
+cid8cid8
+cid9
+cid13-
+cid11cid11
+cid12
+   and   
+              
+     18 
+     19 
+0   or  more  precisely
+  may  be  understood  as  the 
+From  Eq19  the  length  scale 
+threshold size a cluster needs to have in order to appreciably affect the dissociation  
+We  thus  reach  an  intriguing  conclusion  When  the  mean  surface  density  is  sufficiently 
+small  clustering  of  receptors  has  over  sufficiently  long  time  scales  the  effect  of 
+reducing  the  effective  dissociation  rate  of  ligands  by  a  factor  that  is  inversely 
+proportional to the size of the cluster It should also be borne in mind that the very late 
+time regime for any small but non-zero mean density should display the non-exponential 
+behavior of Eq11b However the characteristic time scale for entry into this regime for 
+  is  sufficiently  large  
+  there  is  also  another  intermediate 
+-R  and is likely to be masked by other effects eg 
+a uniform distribution grows as 
+finite-size effects non-specific binding in experiments 
+In  order  to  view  this  result  in  the  context  of  the  previous  findings  of  Berg  and  Purcell 
+18 and Shoup and Szabo 19 we may compare Eq19 with the analogous result in Eq1 
+obtained via very different arguments Let us imagine that the density of receptors inside 
+a  cluster  is  so  high  consistent  with  our  own  assumptions  in  reaching  Eq19  that  the 
+cluster effectively acts like an absorbing disk for which the diffusion-limited onward rate 
+constant is 
+ 31 where  r  is the radius of the cluster Let  N  be the number of 
+receptors  inside  a  cluster  which  we  assume  to  be  so  large  that 
+  in  the 
+denominator  of  Eq1  After  re-expressing  N   in  terms  of  the  receptor  surface  density 
+  we  find  that  within  this  approximation  the  reduction  factor  for  the 
+association  rate  in  Eq1  is  identical  to  that  in  Eq19  with 
+  an  aesthetically 
+pleasing  result  It  should  however  be  emphasized  that  the  framework  of  our  theory  is 
+more general and provides a broader perspective 
+When  the  radius 
+time regime 
+ for which the last term in Eq16 is small and the 
+first term dominates since again the incomplete Gamma functions vanish in the limit of 
+  specified  above  In  this  regime  we  hence  recover  the  non-exponential 
+dissociation  encountered  earlier  in  the  section  Rebinding  on  a  planar  surface  in  the 
+context of a homogeneous receptor distribution see Eq11b 
+        20  
+In this intermediate time regime the ligand behaves as if diffusing in the presence of an 
+infinite substrate with receptor density 
+The preceding calculations in particular Eq17-19 show that the clusters have to be of a 
+  if  they  are  to  produce  a  significant  effect  on  the 
+minimum  size  
+dissociation  It  is  therefore  important  to  know  how  this  cut-off  size  compares  with 
+independent estimates for the size of lipid rafts  The total number of proteins likely to 
+be contained inside a raft of area 
+2100nm has been estimated to be in the range 55-65 
+32  assuming  very  close  packing  or  close  to  20  33  assuming  the  same  density  of 
+packing inside the raft and the surrounding membrane The number of specific proteins 
+like  HSPG  is  possibly  less  As  a  conservative  estimate  we  assume  that  there  are 
+ where r is the raft radius The 
+condition  that  clusters  affect  dissociation  substantially  is 
+  from  our  previous 
+analysis Let us now make the identification 
+ which combined with the previous 
+estimate for the receptor density gives the condition 
+nm  as  a  rough  estimate  for  the  size  of  a  lipid  raft  34  which  then  gives 
+ if we assume a diffusion coefficient 
+HSPG inside a raft which gives
+ Let us use 
+     when  
+0R   
+Our conclusion therefore is that rafts of extensions in the range 25-50 nm should be 
+capable of producing a measurable effect on ligand dissociation purely by a diffusion-
+controlled  mechanism  provided  the  association  rate  of  the  specific  protein  is  large 
+enough  It  must  however  be  remarked  that  this  conclusion  strictly  applies  to 
+monovalent  ligands  interacting  with  a  monovalent  single  receptor  only  If  as  in  the 
+specific case of FGF-2 there is more than one receptor that can bind the ligand and the 
+possibility of higher order complexes exists then the inclusion of surface biochemical 
+coupling  reactions  needs  to  be  taken  into  account  In  the  section  Comparison  with 
+experiments we provide a more detailed discussion of these aspects in the context of 
+experiments with HSPG 
+Case 2  High mean surface density perturbation theory for small rafts 
+When the mean surface density of receptors is high one might expect that rebinding has 
+significant effect on dissociation even without any additional clustering mechanisms and 
+that any effect of rafts on dissociation would be confined to sufficiently small time scales 
+This argument is in fact supported by numerical simulations that we present below Yet 
+here we aim to quantify the effect of clustering on ligand rebinding in the case of high 
+mean surface density For this purpose Eq12 is conveniently rewritten in the form 
+cid3
+cid1
+cid1
+cid2
+cid10
+cid8
+cid8
+cid9
+cid13
+cid11
+cid11
+cid12
+cid7
+cid7
+ The second term inside the brackets is the homogeneous rebinding term 
+whereas the third term is the correction term arising from clustering We observe that for 
+any fixed 
+ the latter term gets progressively smaller at sufficiently large times which 
+implies that the late time behavior must be dominated by the homogeneous term In order 
+to make further analytic progress let us now focus on the regime of small clusters with 
+  We  may  then  use  the  small-time  surface-density  independent 
+form  for  the  functions  C   and  C   from  Eq  B2a  in  Eq21  It  follows  that  the  effective 
+equation for 
+ over short times has the form 
+cid6
+cid4
+cid4
+cid5
+ 21 
+tpCdRkk
+cid7
+cid6
+cid4
+cid4
+cid4
+cid5
+cid7
+cid3
+cid1
+cid1
+cid1
+cid2
+     22 
+where  the  last  term  is  the  correction  due  to  the  presence  of  clusters  Note  that  the 
+0   Eq22  is  valid  only  for  sufficiently 
+correction  term  vanishes  when 
+  as  the  replacement  of  the  functions  C   and  C   by  the  surface 
+small  times 
+density-independent  form  EqB2a  gets  progressively  more  inaccurate  at  larger  and 
+larger times This equation is also solved using the Laplace transform technique and the 
+cluster correction term as defined in Eq8 is found to have the form 
+                             23 
+      
+cid6
+cid4
+cid4
+cid5
+cid3
+cid1
+cid1
+cid2
+After substituting in Eq8 we obtain  for 
+      where 
+                                       
+     24 
+   26 
+     25 
+ where 
+ tp
+ is given by Eq11b and  tp
+ Eq 24 holds in the time interval where the last term in Eq24 is small 
+compared with the first and the regime of validity thus turns out to be 
+is  now  a  small 
+In  accordance  with  our  earlier  assumption  on  the  cluster  size 
+dimensionless parameter and this enables the expression in Eq24 to be expanded as a 
+perturbation series which would require that  s  is sufficiently large or equivalently we 
+need to restrict ourselves to sufficiently small times of the form 
+We may now write 
+ is the 
+cluster-correction  term  that  is  determined  by  inverting  the  second  term  in  Eq25  The 
+complete expression is 
+where  the  constant  c  was  defined  following  Eq11  Eq26  provides  the  first  correction 
+term  in  the  bound  fraction  for  small  clusters  As  will  be  seen  in  the  next  section  this 
+expression reproduces the cluster correction term in simulations approximately but only 
+at early times which is consistent with our own assumption that t should be sufficiently 
+small 
+To  summarize  this  section  the  theoretical  formalism  we  have  presented  predicts  a 
+number of interesting regimes for the effective dissociation of ligand from receptors on 
+cell  surfaces  For  a  uniformly  distributed  set  of  receptors  on  a  plane  we  find  that  the 
+decay is exponential with the intrinsic dissociation rate initially Eq11a but crosses over 
+to  a  non-exponential  decay  at  later  times  Eq11b  owing  to  multiple  rebinding  events 
+When the receptors are clustered the effects of rebinding depend on the mean receptor 
+density  When  the  mean  density  is  low  so  that  no  appreciable  rebinding  occurs  with  a 
+uniform  distribution  clustering  is  predicted  to  have  the  effect  of  producing  an 
+exponential  decay  at  intermediate  times  with  a  reduced  decay  coefficient  that  is  a 
+function of the cluster size and the other parameters Eq19 The very late time behavior 
+is still presumably non-exponential although a full characterization of this crossover has 
+not  yet  been  performed  When  the  mean  density  is  sufficiently  high  the  effect  of 
+clustering was found to be non-monotonic small at early and late times and reaching a 
+maximum at a certain intermediate time 
+In order to check our analytical results in particular Eqs19 and 26 we have performed 
+lattice Monte Carlo simulations which will be the subject of the next section 
+ setting the lattice spacing The unit time scale is set to 
+III  RESULTS 
+i LATTICE MONTE CARLO SIMULATIONS 
+The hopping between elements picture of ligand diffusion we presented in the section 
+Rebinding  on  a  planar  surface  is  easily  implemented  in  numerical  simulations  The 
+substrate surface is envisioned as a two-dimensional square lattice with the length scale 
+ the time scale of 
+hopping between elements We use a different symbol here to distinguish from the more 
+introduced  in  the  section  Rebinding  on  a  planar  surface 
+fundamental  time  scale 
+Using these units all quantities we discussed above may be expressed in dimensionless 
+form see Table 2 The ligand motion is modeled as a three-dimensional random walk 
+between elements in the space above the substrate 
+In the simulations we choose the association rate to be 
+ With this choice the 
+ and the probability of 
+binding rate of the ligand close to a receptor is 
+binding  over  a  single  Monte  Carlo  time  step  for  a  ligand  close  to  the  surface  is 
+  ie  the  binding  is  purely  diffusion-limited  In  real  units  this  choice 
+ A smaller value of  k  
+corresponds to an association rate of 
+involves  only  a  trivial  modification  of  the  algorithm  The  probability  of  binding  is 
+reduced  to 
+  in  simulations  this  factor  may  be  simply  absorbed  into  the 
+dimensionless surface coverage while keeping the binding purely diffusion-limited but 
+a  larger  association  rate  would  require  a  more  microscopic  simulation  and  is  not 
+addressed in this paper 
+We next discuss our choice for the dissociation rate A realistic value of 
+the range of 
+very small number For 
+ we estimate 
+order of 
+be  at  least  of  the  order  of 
+Monte Carlo steps For computational efficiency therefore we choose 
+the simulations 
+The surface density of receptors 
+0R  is the next important parameter in the model and its 
+  Assuming  that  the  ligands  and  the 
+dimensionless  version  is  denoted  by 
+receptor extracellular binding domains are not significantly different in size the range of 
+allowed  values  for  this  parameter  is 
+  simply 
+represents the fraction of binding sites Note that the simulations also could correspond to 
+ where we would maintain the binding to be 
+the case where the association rate 
+diffusion-limited but effectively reduce  to 
+-k  would fall in 
+ would be a 
+ of the 
+ Since the time scale of measurement of dissociation would have to 
+ in all 
+  this  would  require  the  simulation  to  be  run  over 
+ which means that the dimensionless rate 
+  In  the  substrate  lattice  therefore 
+ in the simulation runs 
+  constant  we  arrange  the 
+Our  strategy  is  as  follows  Keeping  the  overall  density 
+ Because of lattice constraints 
+receptors into N clusters of dimensionless radius 
+it is not possible to ensure that all the receptors are contained in such clusters Rather our 
+criterion is that for a certain value of   0r  N be selected such that the number of receptors 
+outside  clusters  is  kept  a  minimum  The  simulations  are  done  with  reasonably  large 
+lattices  
+  so  that  small  surface  coverage  could  be  explored  Fig2  shows  two 
+typical receptor configurations used in our simulations All the data was averaged over 
+100 different initial realizations of the receptor configuration 
+The ligand diffusion is governed by periodic boundary conditions on the four borders of 
+the lattice so that a ligand that exits at one boundary reenters from the opposite side The 
+direction perpendicular to the plane of the lattice shall be referred to as the z-axis and the 
+surface  itself  is  located  at  z0  The  ligand  diffusion  in  the  z-direction  is  not  upper 
+bounded We also neglect surface diffusion of the receptor proteins irrespective of their 
+being  clustered  or  isolated  and  treat  them  as  static  objects  throughout  this  paper  see 
+however the discussion at the end of this section At the beginning of the dynamics a 
+fraction 
+  of  all  the  receptor  sites  are  bound  to  a  single  ligand  each  Although  the 
+precise value of p0 is unlikely to have a large impact on the late-time decay we chose 
+p0025 in all the simulations so that we are not too far from the approximation p0  
+1 made in the set-up of the theory 
+There are three main dynamical processes in the simulation i Dissociation of a ligand 
+t   This 
+from  a  bound  receptor  takes  place  with  probability 
+move updates the position of the ligand from z0 to z2 in units of the lattice spacing 
+We  use  z2  instead  of  z1  in  order  to  prevent  immediate  rebinding  to  the  same 
+receptor  ii  Diffusion  of  the  released  ligands  in  solution  A  free  ligand  moves  a 
+distance equal to one lattice spacing in one of the six directions with probability 16 per 
+time  step  iii  Re-adsorption  of  free  ligands  to  free  receptors  A  free  ligand  at  z1  is 
+absorbed by a free receptor below it if there is one with probability 1  
+Our  initial  simulations  were  done  at  two  values  of  the  surface  coverage  
+ and we find that the surface density has a dramatic impact on the dissociation 
+ corresponds to very sparsely distributed receptors 
+rate Fig3 The first case 
+ As shown the decay 
+whereas the distribution is quite dense in the second case 
+at the low density appears exponential and has a measured decay constant of 
+approximately  reflective  of  the  true  dissociation  rate  
+    For  the  more  dense 
+system a distinctly non-exponential decay is evident  However a closer look shows that 
+at  early  times  t    200  Monte  Carlo  steps  an  exponential  decay  for  the  high  coverage 
+case  also  in  accordance  with  Eq11a  Fig3  -  inset  can  be  found  The  decay  constant 
+measured in the simulations by fitting this early part t  400 Monte Carlo steps from Eq 
+11a to an exponential curve is close but somewhat lower than the intrinsic rate used for 
+ which we believe is simply an artifact of the discrete algorithm 
+the simulations 
+used in the simulations In Appendix C we show that the effective decay constant in the 
+  per  time  step 
+310  or 
+case of even a single isolated receptor and a ligand in a three-dimensional cubic lattice 
+such as used in our simulations is less than the intrinsic rate on account of the non-zero 
+return  probability  of  the  lattice  random  walk  The  non-exponential  curve  for  the  high-
+density  case  fits  well  with  the  theoretical  prediction  in  Eq11b  which  has  also  been 
+supported by dissociation data from surface plasmon resonance experiments in a recent 
+study 27  Note that in both the low and high mean density cases the simulations were 
+set up so that the clusters were completely full of receptors ie with the highest density 
+possible in those regions  Also as noted above the low mean surface density could also 
+correspond to the case where the association rate is low 
+We  next  addressed  how  clusters  might  impact  dissociation  focusing  first  on  the  low-
+ in terms of distribution over the 
+coverage regime The coverage we chose was 
+410  receptors per cell for an 
+cellular surface this would roughly correspond to  
+ respectively and we compared a 
+association rate of   
+homogeneous  receptor  distribution  with  a  single  cluster  with  
+  and  multiple 
+clusters 
+ Fig4 We chose the clusters to be distributed randomly on the surface 
+but  simulations  with  smaller  lattices  have  shown  that  the  dissociation  curve  is  not 
+significantly  different  for  a  regular  periodic  arrangement  of  clusters  also  In  the  real 
+system  these  clusters  would  have  radii  of  approximately  25-90  nm  respectively 
+Simulations  were  carried  out  with  two  levels  of  receptor  density  inside  clusters  in  the 
+ and in the second 
+first case rafts were occupied by receptors to saturation 
+10R
+case  the  packing  density  was  lowered  to  01
+  Clear  differences  despite 
+each system having the same actual density of receptors and surface coverage are evident 
+when  clustering  is  present  In  both  the  cases  there  is  clear  evidence  of  a  significant 
+intermediate exponential regime Figs 4A and 4B which subsequently crosses over to a 
+slower decay at later times However the effect of clustering on the dissociation rate is 
+much more noticeable in the first case where the packing density of receptors is high Fig 
+4C  Moreover  we  see  that  for  the  high  packing  density  case  the  dependence  of  the 
+effective rate defined in the figure legend on the cluster size observes the inverse linear 
+relationship predicted by the theoretical analysis Eq19 Fig 4D 
+The  numerical  results  for  the  effective  dissociation  rates  for  the  two  cases  discussed 
+above may be put together in a single plot by expressing the effective dissociation rate as 
+a function of the ratio 
+ raft radius the threshold 
+0R  Eq17b In 
+radius  0  is different for the two cases due to the inverse relationship to 
+  it  is 
+fact  by  substituting  the  numerical  values  of  the  simulation  parameters  
+easily seen that 
+We  may  also  use  the  equivalence  with  the  Shoup-Szabo  result  Eq1  to  express 
+ from the previous discussion In Fig 5 we plot 
+terms of the cluster radius  0
+the  ratio  of  the  effective  dissociation  rate  defined  as  the  exponential  fit  to  the  initial 
+straight portion of the data t  10 to the intrinsic rate 
+ after correcting for the 
+lattice effects which shows that this ratio is a smooth monotonically decreasing function 
+ Clearly for the same value of 
+ for the case 
+ for the case 
+10R
+k eff 
+ Eq8 where 
+ The theoretical prediction for the same is 
+  in  simulations  from  Eq17b  For 
+ defined in Eq24 takes values 09 and 45 For the first case since
+ is given 
+by Eq17b and is plotted as the smooth line in Fig5 It is clear that the data points agree 
+very  well  with  our  theoretical  prediction  in  the  regime 
+  which  is  also  the 
+regime where clustering  significantly alters the dissociation 
+Fig6  shows  the  effect  of  clustering  in  the  high  mean  density  case  with 
+receptors per cell and cluster radii of 
+ A noticeable upward shift 
+decreased dissociationincreased binding retention in the dissociation curve is observed 
+but  the  effect  is  non-monotonic  and  vanishes  for  small  and  large  times  in  both  cases  
+This is illustrated more clearly in Fig7 where we plot the difference between the bound 
+fractions  for  clustered  versus  homogeneous  receptor  distributions  as  a  function  of  time 
+for  the  two  values  of  the  cluster  radii    For  the  parameters  used  in  the  simulations 
+respectively  the 
+parameter 
+therefore  we  also  compared  the  simulation  results  with  the  approximate  theoretical 
+prediction in Eq26 smooth line in Fig7 expected to be valid in the early-time regime  
+We observe that although the theoretical expression approximates the observed difference 
+rather  well  at  early  times  for  small  cluster  size  it  fails  to  capture  the  non-monotonous 
+behavior  at somewhat  late  times    It  is  likely that  this  dense  mean  receptor  regime  lies 
+outside  the  applicability  range  of  the  expression  in  Eq26  Clearly  a  more  systematic 
+method to study the crossover from small to large receptor density would be desirable 
+but eludes us at this stage 
+We now present a theoretical argument which suggests that over sufficiently long time 
+scales receptor clustering should have no effect on ligand dissociation as found for the 
+high  density  receptor  case  Let  us  consider  two  different  scenarios  i  a  homogeneous 
+0R   and  ii  a  clustered  configuration  where 
+receptor  distribution  with  a  mean  density 
+the  clusters  have  mean  area  density 
+  where  n   is  the  average  number  of 
+receptors per cluster The first case was already studied in Sec2 where we showed that 
+ the threshold cluster size is 
+the dissociation is characterized by a single time scale 
+cid13
+cid11cid11
+cid12
+cid10
+cid8cid8
+cid9
+  Let us now map 
+0Q  and effective association and dissociation rates  k  and 
+case ii into case i and imagine the clusters as effectively single receptors with mean 
+k  respectively The 
+density 
+effective  rates  may  be  expressed  in  terms  of  the  intrinsic  rates  using  the  Berg-Purcell-
+Shoup-Szabo relations which give 
+ where the escape 
+ has been defined earlier see Eq1 and above We now define the time 
+probability 
+constant  for  the  clustered  distribution  as 
+primed  quantities  and  the  cluster  density  we  see  that 
+  ie  the  clusters  have  no 
+effect on the decay at all  This analysis however is not exact and numerical simulations 
+  Upon  substituting  for  the 
+cid10
+cid8cid8
+cid9
+cid13
+cid11cid11
+cid12
+did show a significant effect of clustering in the strong rebinding case particularly at early 
+times insert Figure 6 Thus for the simple one-to-one ligand-receptor binding case it is 
+conceivable  that  the  effects  of  clustering  are  only  transient  but  could  still  have  a 
+significant impact over a biologically relevant time scale  
+ii COMPARISON WITH EXPERIMENTS 
+Having compared the theoretical formulation in sufficient detail with lattice simulations 
+we  turn  to  the  question  How  do  the  predictions  of  our  simple  model  fit  with 
+experimental  observations  We  focus  on  the  results  of  FGF-2  dissociation  from  HSPG 
+obtained by Chu et al 6 shown in Fig 1 FGF-2 binds to a high-affinity receptor FGFR 
+as well as the HSPG we discuss here and higher order clusters including both FGFR and 
+HSPG are possible 12 Therefore any quantitative analysis of FGF-2 binding has to be 
+done  with  care  because  of  the  presence  of  competing  interactions  In  spite  of  this  and 
+because of a lack of availability of experimental dissociation data with other raft proteins 
+we choose this system for our analysis 
+The  experiments  reported  in  6  were  done  with  intact  cells  either  in  the  absence  or 
+presence of the lipid raft-disrupting agents Mb CD and filipin filipin data is not shown in 
+Fig 1  Both lipid raft-disrupting agents were demonstrated to have a significant effect on 
+the  dissociation  rate  but  we  focus  here  on  the  Mb CD  data  set  since  the  mechanism  of 
+action  is  simpler  and  more  straightforward    Briefly  a 
+minError Objects cannot be created from editing field codes  was  obtained  for  the 
+control  cells  whereas  treatment  with  Mb CD  increased  the  dissociation  rate  to 
+approximately  0023  minError  Objects  cannot  be  created  from  editing  field 
+codeswith simple exponential fitting If the Mb CD treatment resulted in a completely 
+homogeneous HSPG distribution we arrive at a ratio of  575 for the reduction in the 
+dissociation rate due to raft-associated clustering 
+The first question then is whether the present estimates of the HSPG surface density in 
+these cells would allow for a significant exponential regime for the temporal decay of the 
+dissociation  curve  Using  Eq11b  we  may  compute  the  length  of  this  time  interval  et  
+estimates 
+  is  a 
+rough estimate for the cell radius After substitution in the expression in Eq11a these 
+values  give 
+  This  time  scale  is  very  small  for  typical  dissociation 
+measurements and suggests that the observed mode of decay in Fig 1 is more likely to be 
+the  non-exponential  function  predicted  in  Eq  11b  More  evidence  for  the  presence  of 
+strong rebinding in the experiments shown in Fig 1 is seen when rebinding was prevented 
+by the addition of heparin Fig 1 which act as solution receptors for the released FGF-2  
+The dissociation in the presence of heparin was found to be increased compared to both 
+untreated  and  Mb CD  treated  and  essentially  the  same  with  and  without  lipid  raft 
+disruptors  Fig  1  Further  although  limited  the  data  points  suggest  that  dissociation 
+could  be  exponential    To  summarize  the  difference  between  Mb CD  treated  and 
+exponential  Let  us  use 
+following 
+  where 
+the  decay 
+-k   value  of 
+ where  
+ is the typical cellular dimension and 
+untreated without heparin indicates an effect on dissociation by clustering and the heparin 
+data suggests that rebinding is still an issue even in the absence of rafts   
+It is important to note that because of the slow non-exponential decay of the dissociation 
+curve in the presence of strong rebinding this function cannot be accurately characterized 
+by a single rate valid over a well-defined time regime unlike the weak-rebinding case 
+Rather  the  effective  rates  obtained  by  fitting  the  experimental  curves  to  exponential 
+functions  are  only  a  simplified  characterization  of  the  decay  valid  over  a  limited  time 
+scale  Keeping these caveats in mind we tried to see whether the observed experimental 
+data  with  and  without  raft  disrupters  is  reproduced  by  the  theoretical  functions  of 
+Eq11b  homogeneous  distribution  and  Eq26  raft-correction  The  curves  that  were 
+judged to be closest to the experimental data in Fig 1 by comparing with the exponential 
+fit  functions  used  to  estimate  the  dissociation  rates  in  Fig  1  are  shown  in  Fig  8  The 
+ Eq11b and Eq26 were tuned for the best fit and the optimal 
+parameters  c  and 
+numerical  values  found  were 
+  Let  us  now 
+ obtained from the 
+substitute for the following parameters
+heparin  data  in  Fig  1 
+11  We  treat  the  surface  densities 
+unknowns where  N  is the total number of HSPG per cell and 
+ is roughly the radius of 
+a raft Upon solving for the unknowns  N  and 
+Both values are within reasonable limits of the known estimates of these parameters and 
+the  resemblance  between  Fig  8  and  Fig  1  supports  the  FGF2-HSPG  system  analysis 
+under the strong rebinding category discussed in Sec 2 case 2 The implications of this 
+observation are i the effective dissociation rate measured in experiments with such high 
+coverage receptors such as HSPG is best treated as a phenomenological parameter valid 
+for a limited time range ii  the theory can be used with the experimental observations in 
+order to determine the true dissociation rate and iii the signaling events where rafts are 
+expected  to  play  a  role  may  be  expected  to  occur  over  time  scales  where  the  transient 
+effects of clustering are still relevant   
+Suppose  however  as  an  aside  that  Sec  2  case  1  low  surface  coverage  would  have 
+applied to this experimental system  From Fig 5 we note that a reduction in the effective 
+dissociation  rate  by  a  factor  575  or  a  ratio  of  017  for  a  low  density  system  would 
+ should be around 287 Let us now use Eq17b to express this 
+require that the ratio 
+result  in  terms  of  the  raft  radius  r   by  means  of  the  substitutions 
+ is a rough estimate of the number of HSPG per raft The 
+  the  association  rate  for 
+condition  that 
+FGF2-HSPG  should  be  nearly 
+respectively we allow some flexibility in D because by definition D is actually 13 of 
+the real three-dimensional diffusion coefficient This value is an order of magnitude or 
+for  HSPG 
+10  However  it  must  be  noted  that  although  the  above 
+ where 
+  now  demands  that  for 
+larger 
+experimental 
+available 
+ we find 
+number 
+theoretical  estimate  is  somewhat  high  for  FGF-2-HSPG  it  is  still  within  the  range  of 
+association  rates  typically  reported  in  the  literature  We  believe  that  therefore  there 
+could  well  be  other  low-density  raft  proteins  that  could  use  the  enhanced-rebinding 
+mechanism  in  order  to  retain  ligands  longer  near  the  surface  and  for  which  our  theory 
+could be useful 
+Let us now address the following question Is there likely to be a long-term effect of rafts 
+on  ligand  dissociation  for  FGF-2-HSPG  based  on  the  analysis  of  the  system  The 
+numerical  simulations  coupled  with  the  theoretical  argument  presented  in  the  previous 
+section showed that the effect of clustering for our model system was present only in a 
+limited time range and vanished at late times  Experiments however did not support this 
+for the FGF-2-HSPG-lipid raft system  This system however is much more complex than 
+the model system our theoretical and numerical analysis were based on primarily due to 
+the multiplicity of receptors ie FGF receptors and HSPG competing for FGF-2 binding 
+as  well  as  forming  higher  order  complexes    That  being  said  our  systematic  study  of 
+diffusion-controlled  rebinding  in  the  presence  of  receptor  clusters  indicates  the 
+limitations  of  this  mechanism  the  surface  coverage  or  the  association  rate  of  the 
+receptors have to be sufficiently large in order to have a measurable impact of clustering  
+It is therefore worthwhile to explore alternative mechanisms that might be employed by 
+the cell to increase ligand retention inside rafts In the last part of this section we will 
+discuss one such plausible mechanism whereby the ligands may be retained longer inside 
+a  cluster  ie  internal  diffusion  of  ligands  inside  a  cluster  of  receptors  We  emphasize 
+that the model is a theoretical idea and not strictly based on experimental observations  
+iii INTERNAL DIFFUSION MODEL 
+An alternative model for ligand dissociation in the presence of clusters is now proposed 
+by invoking a co-operative rebinding  mechanism for ligand retention inside a cluster 
+For  example  FGF-2  and  other  heparin-binding  growth  factors  bind  HSPG  through  the 
+glycosaminoglycan GAG side-chains In this model we would propose that there might 
+be  overlap  of  the  GAG  chains  on  neighboring  HSPG  clustered  in  rafts  resulting  in  a 
+preferential  path  whereby  a  ligand  following  its  release  from  one  GAG  binding  site 
+might find it energetically more favorable to bind to a neighboring binding site belonging 
+to  another  HSPG  The  ligand  would  therefore  perform  a  surface  diffusion  inside  the 
+cluster and likely be released into the solution only upon reaching the edge of the cluster 
+Clearly this internal diffusion would significantly reduce the effective dissociation rate 
+of the ligand as we show now more quantitatively 
+For  simplicity  let  us  imagine  the  binding  site  inside  a  raft  as  occupying  the  sites  of  a 
+lattice with spacing  d  which is the typical separation between two molecules A cluster 
+of radius  r  has 
+ molecules inside it Let us now assume that the hopping of 
+  Then  the 
+the  ligand  from  one  site  to  another takes  place over  a  mean  time  interval 
+diffusion  coefficient  for  the  surface  diffusion  of  the  ligand  inside  the  cluster  is 
+ The total time it takes the ligand to reach the edge of the cluster by internal 
+diffusion is therefore 
+    28  
+    27 
+The  ligand  is  likely  to  fully  dissociate  from  the  cluster  once  it  reaches  the  edge  since 
+there is less likelihood of finding a neighboring site to bind to Thus the mean effective 
+dissociation rate is given by 
+where we have also defined the internal hopping rate 
+  it  appears  reasonable to 
+Although  it is  difficult to  have  an  independent estimate  for 
+assume that this is of the same order as the intrinsic dissociation rate 
+-k  for individual 
+receptors In this case if the number of HSPG per cluster is  n  then the dissociation rate 
+is roughly reduced by a factor of 
+ which could then account for the experimentally 
+observed ratio of 16  
+In Fig9A we show some numerical simulation results done with this internal diffusion 
+  The 
+model  These  simulations  were  done  with  a  mean  surface  coverage  of 
+main  figure  shows  the  comparison  between  the  dissociation  curves  obtained  with  the 
+ whereas the 
+rebinding model and the internal diffusion model for cluster radius 
+inset  shows  the  same  for 
+  The  figures  show  a  much  more  dramatic  effect  of 
+clustering  on  dissociation  as  compared  to  the  purely  diffusion-limited  rebinding  model 
+  the  rebinding 
+which  has  been  the  main  subject  of  this  paper  For  instance  for 
+model  results  in  a  reduction  in  the  effective  dissociation  rate  by  a  factor  of    021 
+whereas in the internal diffusion model the corresponding number is  00019 ie lower 
+by two orders of magnitude Similar trends were seen for other values of the cluster radii 
+also Fig 9B shows the effective dissociation rate found by fitting the data in Fig8A to 
+exponential curves in the model plotted as a function of the number of proteins n inside 
+a cluster In accordance with our arguments we see a sharp drop of the decay rate with 
+n  but  the  curve  is  non-linear  and  does  not  fit  completely  with  the  simple  1n 
+dependence  predicted  in  Eq28  Nevertheless  it  is  obvious  that  such  co-operative 
+mechanisms  could  greatly  augment  the  effect  of  receptor  clustering  and  we  speculate 
+that  lipid rafts  possibly use  a  combination  of  both  enhanced  rebinding as  well  as  more 
+specific ligand retention mechanisms to slow down the dissociation 
+Although  there  is  no  direct  experimental  evidence  for  any  effective  confinement  of 
+FGF-2 within the HSPG clusters it is possible that such additional mechanisms could be 
+present  in  this  or  other  systems  to  enhance  the  purely  diffusion-controlled  rebinding 
+described earlier Models of surface diffusion of ligands on receptor clusters have been 
+discussed in the literature in other contexts as well eg molecular brachiation of CheR 
+molecules on a cluster of its receptor proteins 35  A later model of ligand association to 
+a  cell  surface  containing  receptor  clusters  incorporating  such  an  internal  diffusion 
+mechanism  26  had  been  found  to  explain  experimental data  35  better  than  previous 
+models 18 19 that did not explicitly contain such mechanisms  
+Finally what could be the possible advantage of the internal diffusion mechanism over 
+simple enhanced rebinding due to clustering We believe that it is primarily the effect on 
+time scales The increased rebinding due to clustering leads to a significant effect on the 
+effective  dissociation  rate  but  only  over  certain  limited  time  scales  as  we  showed  in 
+detail  in  the  preceding  section  By  contrast  the  internal  diffusiontrapping  mechanism 
+could cause a permanent reduction in the dissociation rate as long as clusters are present 
+The limitation of course is that the receptors have to be packed rather tightly inside a 
+raft for this mechanism to take effect  
+ IV  DISCUSSION 
+It is generally understood that lipid rafts are capable of confining several kinds of large 
+proteins  inside  them  for  time  scales  up  to  several  minutes  2  HSPG  are  among  the 
+proteins  shown  to  localize  to  lipid  rafts  and  they  are  also  co-receptors  for  heparin-
+binding growth factors such as FGF-2  We therefore sought to determine theoretically 
+whether the confinement and clustering of HSPG inside lipid rafts could affect binding of 
+FGF-2  either  via  promoting  rebinding  of  dissociated  ligands  andor  via  reduced 
+dissociation through some co-operative interactions between HSPG in close proximity to 
+each other Work by Chu et al 2004 indicated that lipid rafts play a significant role in 
+controlling the dissociation of FGF-2 from HSPG but the mechanism behind this effect 
+is speculative 6 
+In  this  paper  we  present  a  rigorous  mathematical  formalism  to  study  the  rebinding  of 
+ligands to receptors on an infinite plane as an approximation of the surface of a tissue 
+culture plated cell In contrast to work by Lagerholm and Thompson 27 who employed 
+partial differential equations to describe the time evolution of the space-averaged ligand 
+density we have adopted a stochastic formalism and described the dynamics in terms of 
+the  return-to-the-origin  characteristics  of  the  Brownian  trajectories  of  the  ligands 
+However  the  theory  is  constructed  entirely  in  terms  of  coarse-grained  continuum 
+variables  which  constitutes  an  improvement  over  our  previous  model  28  which  was 
+based on a lattice random walk We predict that the long-time decay of the bound fraction 
+always assumes a non-exponential form for the planar surface studied here irrespective 
+of any parameter values However the entry into this regime depends on the association 
+rate  and  the  surface  density  of  receptors  The  theory  also  recovers  the  existence  of  an 
+exponential  regime  at  early  times  We  have  checked  and  confirmed  these  analytical 
+results through numerical simulations 
+The principal aim of this paper was to utilize this formalism to study the effect of large-
+scale receptor clustering on the cell surface as appears to occur for example inside lipid 
+rafts  We  have  quantified  the  reduction  in  the  effective  dissociation  rate  due  to  such 
+clustering in  various  cases  of  interest  In  the  regime  of  low  mean  receptor  density  our 
+predictions  agree  with  earlier  results  obtained  by  means  of  different  arguments  19 
+Monte Carlo simulations provide excellent support for our model A direct comparison 
+with experimental results for the high mean receptor density case was also done noting 
+that there is a lack of experimental data currently available in the literature for systems 
+which might better be described by our theoretical model ie small monovalent ligand 
+interacting  with  a  single  transmembrane  receptor  which  does  not  dimerized  or  form 
+higher  order  complexes  With  further  refinements  our  theory  could  provide  an 
+independent  method  to  check  for  spatial  non-uniformity  in  receptor  distribution  on  the 
+cellular surface This is intimately related to the much larger question of cell membrane 
+organization a subject of much debate and discussion in recent times 3 37 38 Even 
+so as a first attempt to explicitly study the impact of enhanced rebinding due to large-
+scale  assembly  of  receptors  on  the  dissociation  rate  of  ligands  we  believe  that  our 
+findings are of value to both experimentalists and modelers interested in lipid rafts and 
+their role in cell signaling  
+Our theoretical formalism was developed for the case of a planar substrate and most of 
+our results are specific to this geometry with the exception of the section Extension to 
+receptor  clusters  Case  1  which  also  applies  to  other  geometries  eg  spherical  cells 
+provided  the  mean  surface  density  of  receptors  is  small  Apart  from  the  obvious 
+suitability  of  this  geometry  to  many  experimental  situations  the  calculations  could  be 
+effectively reduced to one dimension which greatly simplified the analysis It would be 
+interesting albeit challenging on account of the angular dependence of the probabilities 
+to extend the theory presented in this paper to the case of receptors on a spherical cell 
+surface  Numerical  studies  in  this  direction  are  currently  being  carried  out  A  better 
+characterization of the different crossover regimes in the present theory is also desirable  
+We have assumed that receptors are stationary and do not exit clustered zones  How 
+stable  is  the  association  of  a  protein  to  the  raft    Single-particle  tracking  experiments 
+have shown that the diffusion of a raft-associated protein is unchanged over times scales 
+of up to 10 min indicating that the proteins can remain with the raft during this period 
+32 However since the dissociation measurements typically extend considerably longer 
+on  the  order  of  hours  the  possibility  of  the  proteoglycans  exiting  the  raft  during  this 
+period  cannot  be  ruled  out  It  would  be  interesting  to  see  in  a  future  study  if  such 
+dissociation  events  could  have  any  impact  on  the  rebinding  process  by  rendering  the 
+surface coverage factor time-dependent inside rafts Other relevant issues that would be 
+worthwhile  investigating  in  this  context  include  the  effects  of  raft  diffusion  and  their 
+stability  It  is  also  straightforward  to  pose  questions  about  noise  within  our  formalism 
+For example characterization of fluctuations of receptor occupancy including temporal 
+correlations would be relatively easy to address in our model being based on individual 
+ligand histories and could provide insight into the much broader question of how well 
+does the cell sense its environment 
+In conclusion we have presented a novel theoretical framework to study the problem of 
+ligand rebinding to receptors on the cellular surface and how the rebinding and effective 
+dissociation  of  ligands  are  regulated  by  the  spatial  organization  of  receptor  proteins 
+Although many specific results in this paper are restricted to ligand binding to a planar 
+surface  the  framework  itself  is  more  general  and  could  be  generalized  to  other  cases 
+eg isolated spherical cells which are more suitable for some situations eg the immune 
+system  
+We  would  like  to  acknowledge  HJ  Hilhorst  Y  Kafri  R  Kree  D  Lubensky  M  Rao  B 
+Schmittmann and M Zapotocky for fruitful discussions Early assistance with simulations from 
+Eric Spiegel and Satheesh Angaiah is appreciated Financial and computational support from the 
+Max  Planck  Society  MG  National  Science  Foundation  awards  NSF-DMR  0089451  MG 
+NSF-9875626  KFW  and  NSF-DMR  0308548  UCT  National  Institutes  of  Health  NIH-
+HL56200  MAN  and  from  the  Bank  of  America  Jeffress  Memorial  Trust  Grant  no  J-594 
+UCT is gratefully acknowledged   
+Appendix A 
+In  this  appendix  we  briefly  outline  the  calculation  of  the  probability  density  of  first 
+returns  to  the  origin  As  is  conventional  we  consider  a  one-dimensional  random  walk 
+ tQ  be the probability density at the origin at 
+starting from the origin at time 
+time  t  and let furthermore 
+ denote the density of walkers that return to the origin for 
+the first time at time  t  
+As  in  the  section  Rebinding  on  a  planar  surface  we  compartmentalize  the  available 
+3   and  approximate  the  continuum  diffusion  as  hopping 
+space  into  cells  of  volume 
+between adjacent cells Then the first passage probability itself is simply 
+ and the 
+two probability densities are therefore related in the following way 
+cid7
+    A1 
+  factors  are  written  explicitly  for  the  sake  of  clarity  The  difference  of  2  in  the 
+measure of length arises because the first passage events by definition cannot cross the 
+origin  
+In terms of Laplace transforms in the limit 
+ the relation becomes 
+    A2 
+ and it follows that  
+      
+                A3 
+Given that 
+The explicit inversion of this transform gives 28 
+cid10
+cid13
+cid8
+cid11
+cid9
+cid12
+  behavior  is  consistent  with  the  well-known  result  for  the  first  passage 
+ The late time behavior of this quantity is given by 29 
+    A4  
+    A5 
+       
+probability in the context of one-dimensional random walks see eg 39 
+Appendix B 
+In this appendix we explore the temporal behavior of 
+ tCR0
+its Laplace transform to be 
+ The explicit inversion reads 28 
+ From Eqs8 and 9 we infer 
+which has the following limiting forms 29  
+                   when   
+      when   
+                B1 
+  B2a 
+  B2b 
+ tCR0
+Clearly  two  distinct  time  regimes  may  be  identified  here  When 
+  is  small 
+absorption by the surface becomes rare and the first term dominates in the expression at 
+ is the same as for a 
+sufficiently small times In this case the probability density 
+perfectly  reflecting  surface  39  In  the  converse  limit  absorption  is  dominant  and  the 
+temporal behavior exhibits the 
+ dependence characteristic of the probability density 
+for a perfectly absorbing surface 39 
+Appendix C 
+In this appendix we estimate the effect of rebinding on ligand dissociation from a single 
+isolated receptor in an infinite cubic lattice The ligand dissociates from the receptor with 
+  and  performs  a  random  walk  on  the  lattice  until  the  walk  hits  the 
+probability 
+stationary receptor again and binds to it We are interested in estimating the probability 
+ that the ligand is bound to the receptor after  N time steps One time step is the 
+time required for the ligand to move one lattice spacing 
+The general equation for 
+    C1 
+      
+cid21
+  is  the  probability  of  return  to  origin  of  a  three-dimensional  random  walk 
+Polya walk after  k time steps  
+Let  us  now  make  the  reasonable  assumption  that  the  function 
+decreasing with  N  in which case 
+cid21
+ in EqC1 This means that  
+  is  monotonically 
+    C2 
+We  next  consider  the  limit  of  large  N   in  which  case  the  sum  in  EqC2  becomes  the 
+probability  that  the  random  walk  will  ever  return  to  the  origin  which  is  nearly  03403 
+39 In this limit we may also treat  N  as a continuous variable and make use of the 
+approximate replacement 
+which means that  
+If the late-time behavior is characterized by an effective exponent
+this exponent is bounded by the relation 
+    C4  
+eff  EqC4 shows that 
+ dNNdp
+which gives 
+    C3 
+    C5  
+References 
+1  Pike L J 2004 Lipid rafts heterogeneity on the high seas Biochem J 378 Pt 2 
+281-292 
+2  Edidin M 2003 The state of lipid rafts from model membranes to cells Annu Rev 
+Biophys Biomol Struct 32 257-283 
+3  Munro S 2003 Lipid rafts elusive or illusive Cell 115 377-388 
+4  Simons K and W L C Vaz 2004 Model systems lipid rafts and cell membranes 
+Annu Rev Biophys Biomol Struct 33 269-295 
+5 Chamberlain L H 2004 Detergents as tools for the purification and classification of 
+lipid rafts FEBS Lett 559 1-5 
+6    Chu  C  L  J  A  Buczek-Thomas  and  M  A  Nugent  2004  Heparan  sulfate 
+proteoglycans modulate fibroblast growth factor-2 binding through a lipid raft mediated 
+mechanism Biochem J 379 331-341 
+7  Davy A C Feuerstein and S M Robbins 2000 Signaling within a caveolae-like 
+membrane microdomain in human neuroblastoma cells in response to fibroblast  growth 
+factor J Neurochem 74 676-83 
+8    Ridyard  M  S  and  S  M  Robbins    2003    Fibroblast  growth  factor-2-induced 
+signaling  though  lipid  raft-associated  fibroblast  growth  factor  receptor  substrate  2 
+FRS2  J Biol Chem 27813803-13809 
+9  Bernfield M M Gotte P W Park O Reizes and M L Fitzgerald1999 Functions 
+of cell surface heparan sulfate proteoglycans Annu Rev Biochem 68 729-77 
+10    Kramer  K  L  and  H  J  Yost  2003  Heparan  sulfate  core  proteins  in  cell-cell 
+signaling Annu Rev Genet 37 461-484 
+11  Nugent M A and E R Edelman 1992 Kinetics of basic fibroblast growth factor 
+binding to its receptor and sulfate proteoglycan A mechanism for co-operativity  
+Biochemistry   31 8876-8883 
+12    Fannon  M  and  M  A  Nugent  1996  Basic  fibroblast  growth  factor  binds  its 
+receptors is internalized and stimulates DNA synthesis in Balbc3T3 cells in the absence 
+of heparan sulfate J Biol Chem 271 17949-17956 
+13    Horowitz  A  and  M  Simons  1998    Phosphorylation  of  the  cytoplasmic  tail  of 
+syndecan-4  regulates  activation  of  protein  kinase  C  alpha    J  Biol  Chem  27325548-
+25551 
+14  Fuki I V M E Meyer and K J Williams 2000 Transmembrane and cytoplasmic 
+domains  of  syndecan  mediate  a  multi-step  endocytic  pathway  involving  detergent-
+insoluble membrane rafts Biochem J 351 Pt 2 607-612 
+15  Wickstrom S A K Alitalo and J Keski-Oja 2003 Endostatin associates with lipid 
+rafts and induces reorganization of the actin cytoskeleton via down-regulation of RhoA 
+activity J Biol Chem 278 37895-37901 
+16    Couchman  J  R  2003  Syndecans  proteoglycan  regulators  of  cell-surface 
+microdomains Nat Rev Mol Cell Biol 4 926-37 
+17  Tkachenko E and M Simons 2002 Clustering induces redistribution of syndecan-4 
+core protein into raft membrane domains J Biol Chem 277 19946-19951 
+18  Berg H C and E M Purcell 1977 Physics of chemoreception Biophys J 20 193-
+19    Shoup  D  and  A  Szabo  1982  Role  of  diffusion  in  ligand  binding  to 
+macromolecules and cell-bound receptors Biophys J 40 33-39 
+20  Goldstein B and F W Wiegel 1983 The effect of receptor clustering on diffusion-
+limited forward rate constants Biophys J 43 121-125 
+21  Erickson J B Goldstein D Holowka and B Baird 1987 The effect of receptor 
+density  on  the  forward  rate  constant  for  binding  of  ligands  to  cell  surface  receptors 
+Biophys J 52 657-662 
+22  Northrup S H 1988 Diffusion-controlled ligand binding to multiple competing cell 
+bound receptors J Phys Chem 92 5847-5850 
+23  Zwanzig R 1990 Diffusion-controlled ligand binding to spheres partially covered 
+by  receptors  An  effective  medium  treatment  Proc  Natl  Acad  Sci  USA  87  5856-
+24  De Lisi C and F W Wiegel 1981 Effect of nonspecific forces and finite receptor 
+number  on  rate  constants  of  ligand-cell  bound-receptor  interactions  Proc  Natl  Acad 
+Sci USA 789 5569-5572 
+25  Goldstein B R G Posner D C Torney J Erickson D Holowka and B Baird 
+1989 Competition between solution and cell surface receptors for ligand Dissociation of 
+hapten  bound  to  surface  antibody  in  the  presence  of  solution  antibody  Biophys  J  56 
+955-966 
+26    Potanin  A  A  V  V  Verkhusha  O  S  Belokoneva  and  F  W  Wiegel  1994 
+Kinetics of ligand binding to a cluster of membrane-associated receptors Eur Biophys J 
+23 197-205 
+27    Lagerholm  B  C  and  N  L  Thompson  1998  Theory  of  ligand  rebinding  at  cell 
+membrane surfaces Biophys J 741215-1228 
+28  Gopalakrishnan M K Forsten-Williams T R Cassino L Padro T E Ryan and 
+U  C  Tuber  2005  Ligand  rebinding  self-consistent  mean-field  theory  and  numerical 
+simulations applied to SPR studies Eur Biophys J in press  published on-line 
+29  Erdelyi A ed 1954 Tables of Integral Transforms McGraw Hill New York 
+30  Abramowitz  M  and  I  A  Stegun  1970  Handbook  of  Mathematical  Functions 
+Dover New York 
+31    Berg  H  C  and  von  Hippel  P  H  1985  Diffusion-controlled  macromolecular 
+interactions Annu Rev Biophys Chem14 131-160 
+32    Pralle  A  P  Keller  E-L  Florin  K  Simons  and  J  K  H  Hrber  2000 
+Sphingolipid-cholesterol  rafts  diffuse  as  small  entities  in  the  plasma  membrane  of 
+mammalian cells J 
+Cell Biol 148 997-1007 
+33  Simons  K  and  Ehehalt  R  2002  Cholesterol  lipid  rafts  and  disease  J  Clin 
+Invest110597-603  
+34    Simons  K  and  E  Ikonen  1997  Functional  rafts  in  cell  membranes  Nature  387 
+569-572 
+35    Levin  M  D  T  S  Shimizu  and  D  Bray  2002  Binding  and  diffusion  of  CheR 
+molecules within a cluster of membrane receptorsBiophys J 821809-1817 
+36  Posner RG B Lee D H Conrad D Holowka B Baird and B Goldstein 1992 
+Aggregation of IgE-receptor complexes on rat basophilic leukemia cells does not change 
+the intrinsic affinity but can alter the kinetics of the ligand-IgE interaction Biochemistry 
+31 5350-5356 
+37   Mayor S and M Rao 2004 Rafts Scale-dependent active lipid organization at the 
+cell surface Traffic 5 231-240 
+38    Helms  J  B  and  C  Zurzolo  2004  Lipids  as  targeting  signals  Lipid  rafts  and 
+intracellular trafficking Traffic 5 247-254 
+39    Feller  W  1966  An  introduction  to  probability  theory  and  its  applicationsVol1 
+Wiley New York 
+Quantity 
+Microscopic length scale 
+Diffusion coefficient 
+Microscopic diffusion time 
+Association rate 
+Dissociation rate 
+Equilibrium dissociation 
+constant 
+Symbol 
+typical units 
+dimensionless 
+Number of moleculesm 3 
+Number of moleculesm 2  
+Number of moleculesm 2  
+ tCR0
+Mean surface density of 
+receptors 
+Surface density of receptors 
+Inside clusters 
+Bound receptor fraction at 
+time t 
+Ligand density profile close 
+to the surface at time t  
+Return to origin probability 
+density for a surface with 
+0R  receptors per unit area 
+Return to origin probability 
+density for a perfectly 
+absorbing surface 
+Probability of non-
+absorption upon contact 
+Time scale of exponential 
+decay ref Eq11a 
+TABLE 1 A glossary of the important quantities discussed in the paper along with the 
+corresponding units mmetersseconds Mmole 
+dimensionless 
+Surface density 
+Dimensionless form 
+Quantity 
+Association Rate 
+Dissociation Rate 
+Cluster size  
+Diffusion coefficient  
+TABLE 2 A list of the dimensionless forms of various quantities scaled using the length 
+ respectively Typical numerical values are 
+estimates for lipid rafts reviewed in 4
+ and time scale 
+ FIGURES 
+Untreated
+  heparin
+  Mb CD
+  Mb CD  heparin
+time min
+FIG  1  Effect  of  the  Lipid  Raft  Disrupting  Agent  Mb CD  and  heparin  on  FGF-2 
+dissociation  from  HSPGs    Bovine  vascular  smooth  muscle  cells  in  tissue  culture  were 
+treated with Mb CD 0 untreated or 10 mM Mb CD for 2h at 37cid176 C prior to cooling to 
+4cid176 C 125I-FGF-2 028 nM was added and allowed to bind to the cells for 25 hr prior to 
+initiation  of  dissociation  t0    After  the  binding  period  unbound  125I-FGF-2  was 
+removed by washing the cells with cold binding buffer and dissociation was initiated in 
+binding buffer without FGF-2 
+ heparin 100 m gml at 4C The cells were allowed to 
+incubate  for  the  indicated  time  periods  at  which  point  the  amount  of  FGF-2  bound  to 
+HSPG sites was determined by extracting the cells with 2M NaCl 20 mM Hepes pH 74 
+and counting the samples in a gamma counter  All data was normalized to the amount of 
+125I-FGF-2  bound  to  HSPG  sites  at  t0  100  under  each  condition  Mean  values  of 
+triplicate samples 
+ SEM are shown data re-plotted from 5 
+                              
+       
+FIG 2 Two typical receptor configurations used in the Monte Carlo simulations  
+The mean receptor density in dimensionless units in A is 0001 and in B it is 01  
+The cluster radius is 
+ receptors The clusters are filled to saturation in both the cases 
+in A and 
+in B The small dots are single 
+             
+FIG3  A  Receptor  density  impacts  ligand  dissociation  for  a  uniform  distribution  of 
+receptors pt versus scaled time 
+ t is measured in number of Monte Carlo time 
+steps is plotted for 
+ The former displays exponential decay while 
+the latter is clearly non-exponential over the time scales shown  The lines are theoretical 
+ in the former case and the function in Eq11b in the latter case with c008 the 
+theoretical value from Eq11 is 006 The early time behavior of the high-density case 
+  plotted  in  the  inset  figure  does  indicate  exponential  decay  inset  t  is  the 
+number of Monte Carlo steps but the effective dissociation constant is about 
+ less 
+-k   see  Eq11a  also  Appendix  C  B  The  high-
+than  the  theoretical  value 
+density
+ data plotted on a semi-logarithmic scale which shows  more  explicitly 
+the strongly non-exponential nature of the decay 
+cluster radius   
+cluster radius   
+        
+FIG 4   Dissociation is impacted by the degree of  clustering when there is low  mean  surface 
+  A  Shown  is  pt  versus  scaled  time  where  the  curves  correspond  to 
+density  
+ a single cluster in the last case when the clusters 
+uniform distribution 
+are packed to saturation The decay is exponential except for very late times as is evident from 
+the data plotted in semi-logarithmic scale in the inset The axis labels are common to the main 
+figure and the inset B Similar data as in A but the packing density inside clusters is only 01 
+on  semi-logarithmic  scale  C  Effective  decay  constant  exponential  fit  to  the  early  portion 
+straight  part  of  the  data  as  a  function  of  cluster  radius  for  cases  A  and  B  D  Effective 
+decay constant for A plotted against cluster radius on a logarithmic scale The straight line is a 
+r   and  the  good  agreement  supports  Eq19  The  slope  for  the 
+fit  function  proportional  to 
+uniform  case  
+  in  A  and  B  is    067  which  is  less  than  the  theoretical  value  1 
+presumably due to unavoidable lattice effects in the simulations for details see Appendix C 
+k eff 
+FIG  5  The  effective  decay  constants  defined  in  the  legend  of  Fig4  plotted  in  4C  is 
+plotted against the scaled cluster radius 
+  The smooth line is the theoretical fit 
+function 
+ as defined by Eq17a  
+  main  figure  and 
+FIG  6    A  Effect  of  clustering  on  the  dissociation  rate  for  the  high  mean  surface 
+  pt  versus  scaled  time  is  shown  for  two  values  of  association 
+density  case  
+rates 
+  inset  for  uniform  distribution    
+cid1  The lower association rate in the main figure was used 
+  and 
+to  increase  the  threshold  cluster  size  ref  Eq17b  in  order  to  verify  the  theoretical 
+predictions in the section Extension to receptor clusters Case ii The axis labels are 
+common to the main figure and the insetB The data in the inset of A is plotted on a 
+semi-logarithmic scale to show the non-exponential nature of the decay more explicitly 
+tp
+  inset  is  plotted  against  the  scaled  time 
+FIG  7  The  difference 
+  in  the  bound  fraction  between  uniform  distribution  and 
+tp
+ main figure and 
+clustered configurations when 
+  along  with  the  theoretical 
+prediction from Eq26 thin line in the main figure The theoretical curve agrees with the 
+simulations in the very early regime but deviates at later times The impact of clusters 
+vanishes  at  late  times  in  accordance  with  our  arguments  in  the  section  Extension  to 
+receptor clusters Case ii The axis labels are common to the main figure and the inset 
+ corresponding to 
+untreated 
+M CDHeparin 
+FIG  8  The  three  smooth  curves  in  the  figure  represent  the  best  exponential  fits  to  the 
+experimental  data  from  Fig  1  with  time  constants  in  units  of  1s  025  M CDHeparin 
+0023 M CD and 0004 untreated The data points represent the best theoretical fits using 
+the function in Eq11b for M CD and with the added raft correction Eq26 for untreated cells 
+The  fit  parameters  are 
+  in  Eq26  The 
+corresponding  values  of  the  intrinsic  variables  are  discussed  in  the  main  text  in  SecIIIii 
+Note that at late times some of the data points for the clustered configuration cross 1 which 
+indicates  that  the  limit  of  applicability  of  the  perturbation  theory  has  been  reached  and  that 
+higher order terms in the perturbation series have to be taken into account 
+  in  Eq11b  and 
+FIG 9 Clustering has a more significant effect on dissociation with internal diffusion 
+model  A pt versus the scaled time comparing the uniform distribution   with that 
+of clustered configurations for the internal diffusion model  and the rebinding model 
+cid1 for clusters of radius 
+insert B The effective 
+decay  constant  for  various  cluster  sizes  using  the  internal  diffusion  model  plotted  on  a 
+log-scale as a function of the number of receptors in each cluster for the internal diffusion 
+model The  straight line has slope -1 and is  meant for comparison with the theoretical 
+argument in Eq28  
+ main figure and 

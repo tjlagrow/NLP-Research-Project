@@ -1,2094 +1,769 @@
-Graph Interpolation Grammars
-a rule-based approach to the incremental parsing of
-natural languages
-John Larcheveque
-March 1998
-Abstract
-Graph Interpolation Grammars are a declarative formalism with an operational
-semantics Their goal is to emulate salient features of the human parser and notably
-incrementality The parsing process dened by GIGs incrementally builds a syntactic
-representation of a sentence as each successive lexeme is read A GIG rule species
-a set of parse congurations that trigger its application and an operation to perform
-on a matching conguration Rules are partly context-sensitive furthermore they
-are reversible meaning that their operations can be undone which allows the parsing
-process to be nondeterministic These two factors confer enough expressive power to
-the formalism for parsing natural languages
-1 Introduction
-11 Characteristics and rationale
-A graph interpolation grammar is a grammar formalism with an operational semantics
-A rule in a graph interpolation grammar species not only syntactic relations but also
-an elementary parsing operation
-Rules are lexicalized in the sense that each rule describes the combinatory properties
-of a lexical item Parsing a sentence consists in matching each lexeme in the input string
-with a rule in the grammar and applying this rule to the current parse representation
-GIG-driven parsing was designed with incrementality and exibility in mind so as
-to emulate some features of the human parsing capability in particular incremental
-processing error tolerance and handling of complex word orders
-In a complete model of discourse understanding incremental parsing would be
-shown to work in tandem with some form of composition between partial semantic
-representations It is to be thought that the collaboration between syntax and seman-
-tics in natural discourse understanding is fairly close and that backtracking in the
-parser is frequently initiated by a clash found between semantic features This report
-however will not attempt to give even the roughest idea of what semantic represen-
-tations should look like and will therefore exclusively focus on syntactic phenomena
-sometimes at the cost of simplifying the phenomena at hand
-12 Plan of the report
-The rst two sections give a fairly complete presentation of the concepts and processes
-involved in parsing with a Graph Interpolation Grammar The syntactic structures
-generated when parsing with a GIG are described in Section 2 while the grammar
-rules and the parsing process are described in Section 3
-The next few sections apply the formalism to selected problems Section 4 com-
-pares the handling of a simple expression language using a Context Free Grammar and
-a Graph Interpolation Grammar and Section 5 analyzes Dutch Cross-Serial Depen-
-dencies
-Finally the conclusion indicates topics for further research and related works
-2 Syntactic structures
-21 Phrases
-A phrase is made up of a head and its complements It will be represented by a graph
-with a root and one labelled edge from the root to each nonroot node
-The root represents the head of the phrase the other nodes represent its comple-
-ments and the edge labels represent grammatical functions
-211 Ordering relations
-In addition nodes in a phrase graph are connected through ordering edges
-simplest case the eect of ordering edges is to align graph nodes from left to right
-For example the sentence
-She gave me an apple
-contains a phrase the head of which is a ditransitive verb with three complements the
-subject the indirect object and the direct object This phrase can be represented by
-the following graph in which V for verb and NP for noun phrase
-precedes
-subject
-precedes
-indirectObject
-precedes
-Figure 1 A phrase graph
-Since this is a case in which a total left-to-right alignment of nodes can be dened
-ordering edges can be omitted and the ordering represented by the relative positions
-of the nodes in the diagram as in Figure 2 Explicit orderings will not be used in this
-report for a strict total ordering of phrase constituents exists in all examples given
-At any rate the possibility exists of specifying sophisticated order constraints as long
-as these constraints are local to a phrase
-object
-subject
-indirectObject
-Figure 2 The same phrase graph with implicit ordering
-212 Phrase head
-The criteria for distinguishing a head in a phrase are both syntactic and semantic
-From a syntactic point of view the head determines the presence and functions of
-its complements From a semantic point of view the head acts as a predicate of
-its complements adding semantic features to them while the complements generally
-contribute to rooting these features into a specic situation
-On the basis of these criteria an attributive adjective forms the head of a phrase
-made up of an adjective and a noun such as red leaf Indeed the occurrence of the
-adjective implies the occurrence of a single noun whereas the presence of the noun
-does not require or limit the number of attributive adjectives On the other hand
-though evidence for this type of criterion is not so easy to adduce the adjective adds
-semantic features to the noun as is shown in particular by its capacity to function as a
-predicate in a clause Figure 3 illustrates a phrase headed by an attributive adjective
-Adj stands for adjective
-subject
-Figure 3 A modifying phrase
-Considering the adjective as the head of such a phrase can be counterintuitive
-insofar as the phrase in question functions as a noun
-It is however necessary to
-distinguish the internal structure of a phrase as described by its phrase graph
-from its function with respect to other phrases In order to bring out this distinction
-a structure that interrelates phrase graphs must be dened The next section denes
-a structure of this type the parse graph
-22 Parse graphs
-Consider for example the phrase good old days
-A parse graph is a structure in which phrase graphs are related through parent-of edges
-It contains the phrase old days
-which has old as its head but functions as a noun and is itself modied by the adjective
-good in the larger phrase good old days The containment relation just outlined can be
-rendered by drawing a parent-of edge between the noun node of the enclosing phrase
-and the head of the embedded phrase Graphically this can be represented as in
-Figure 4
-From now on in parse graph representations vertical edges will be assumed to be
-directed downward and represent parent-of edges
-subject
-parentof
-subject
-Figure 4 A parse graph
-On the other hand a parent-of edge can also connect a phrase node to a lexical
-item A complete parse graph for a phrase or sentence can thus be dened as a parse
-graph with a root node and such that every path leads to a lexical item These facts
-give rise to the following principle and denition
-Principle 1 A lexical node can occur in a parse graph as the destination of a parent-of
-Denition 1 A complete parse graph is a parse graph with a root node ie a node
-from which every node is reachable and such that every path leads to a lexical node
-Figure 5 shows the complete parse graph for the phrase the good old days Det
-stands for determiner
-determiner
-subject
-subject
-Figure 5 A complete parse graph
-Such a graph can be mapped to a tree in such a way that members of a phrase graph
-including the head are mapped to sibling nodes Although the graph contains more
-information and is better adapted to incremental construction that its tree counterpart
-it will often prove useful to apply tree terminology to parse graphs For example the
-terms descendant ancestor or frontier are to be understood with respect to the tree
-counterpart of a parse graph Likewise a dangling node is to be understood as a non-
-lexical node that occupies a terminal position in the tree counterpart of an incomplete
-parse graph For further reference here is the denition that justies this terminology
-Denition 2 The summary tree of a parse graph is a connected graph that contains
-the same set of nodes as the parse graph and such that each path of the parse graph
-consisting of either a parent-of edge or a parent-of edge followed by a functional edge
-is mapped to a parent-of edge of the summary tree
-Figure 6 Summary tree for the parse graph on Figure 5
-23 Subtyping in node labels
-The classication of lexical items can be made according to several possible criteria
-For example the can be categorized as an article and thus be distinguished from this
-On the other hand both of the and this are denite determiners and as such can be
-usefully grouped under one category This suggests that lexical categories are usefully
-viewed as sets of syntactic properties such as determiner article denite etc
-Furthermore some of these properties are visible in ancestors of lexical items in a parse
-graph For example the presence of a denite determiner confers to a Noun Phrase
-the status of a denite description A simple way of modeling this consists in labelling
-each node of a parse graph with a set of property names rather than an atomic name
-Thus the label of a node dominating the is a set containing the names determiner
-article and denite and the label of an NP determined by the this a genitive
-NP or any other denite determiner is a set containing the name denite
-For simplicity most of the graphs and rules given as examples have atomic node
-labels even when some node types could be shown to subsume or share properties
-with other symbols However Section 42 shows how multi-valued node labels can
-contribute to the expressive power of a grammar
-3 Building parse graphs
-Parse graphs as just dened can be incrementally built by scanning an input ow
-of lexemes and performing a building step as each lexeme is read A building step is
-formally described by a composition rule which adds to the graph under construction
-a subgraph associated with the current lexeme
-31 Form of a composition rule
-Suppose that i the phrase being parsed is a robin ii somehow see Section 35
-the parse graph on Figure 7 was built on encountering the determiner a and iii the
-current lexeme is robin
-determiner
-Figure 7 An NP context
-The presence of the dangling ie childless noun node to the right of the previous
-lexeme namely a materializes the anticipation of a noun Singular common nouns are
-generally inserted in just such a context and so we can dene a rule for the lexeme
-robin that stipulates i that the linear successor of the previous lexeme ie a in the
-parse graph should be a dangling noun node ii that the new subgraph to integrate
-consists of a noun node dominating the lexeme robin and iii that this new subgraph
-is to be substituted for the dangling noun node A graphic representation of this rule
-is given on Figure 8 in section 32
-More generally let the context be the parse graph obtained by parsing the input
-string up to the current lexeme a composition rule consists of
-1 a pattern to match against the context known as the context pattern and
-2 a subgraph to integrate into the context known as the addendum
-Or more formally
-Denition 3 A composition rule is a pair made up of a context pattern and an ad-
-dendum
-This denition in turn relies on the denitions of a context pattern and an adden-
-dum The following denition of a context pattern is somewhat simplied and will be
-enriched later Denition 11 Section 310
-Denition 4 A context pattern is a parse graph with one distinguished node called
-the context anchor and an indication of whether the context anchor is an ancestor or
-immediate linear successor of the previous lexeme
-To proceed in depth-rst order here is the denition that explains the term linear
-successor
-Denition 5 When all phrase constituents in a parse graph are strictly ordered from
-left to right a linear order over the parse graph is given by the left-to-right ordering of
-nodes in the frontier of the summary tree Denition 2 Section 22 It is therefore a
-partial ordering of parse graph nodes under which only terminal nodes of the summary
-tree are comparable
-The context pattern indicates what the parse graph obtained so far must look like
-in order for the rule to be applicable A context matches a context pattern if it is a
-supergraph of the pattern and it contains a node whose location and label match the
-anchor specications
-Section 372 on free word order examines the consequences of having several
-possible linearizations of the parse graph This has computational implications but
-does not impact the above denitions in any essential way
-Denition 6 An addendum is a parse graph with one or two distinguished nodes called
-addendum anchors and exactly one lexical node
-A rule is found applicable when the current lexeme matches the addendum lexeme
-and the context matches the context pattern The conjunction of context and current
-lexeme forms a parse conguration
-Denition 7 A parse conguration is a pair made up of a context and a current
-lexeme
-Beside a parse conguration what a rule species is an operation to modify this
-conguration This operation called an interpolation is specied by means of the
-context anchor and the addendum
-When the addendum contains a single anchor such as the noun node in our ex-
-ample the interpolation is performed by substituting the addendum anchor for the
-context anchor This particular type of interpolation will sometimes be called an in-
-sertion by opposition to a proper interpolation which is characterized by the presence
-of two distinct anchors in the addendum
-When the addendum contains two anchors they delimit a path that is substituted
-for the context anchor Since a single anchor can be viewed as a path of length 0 this
-case subsumes insertion
-No formal denition of interpolation will be attempted at present Let it simply be
-clear that interpolation involves in fact two operations
-1 the substitution of a path of the addendum for the context anchor
-2 the disjoint union of the addendum with the context
-These notions will be treated in more detail in Section 371
-Insertion example
-An example of insertion is the example given informally above The rule can be repre-
-sented as on Figure 8
-In a graphic representation of a composition rule the context pattern and the
-addendum appear on either side of an implies    sign with the addendum on the
-right and the anchoring specications are materialized by placing a mark next to each
-anchor This mark is an asterisk  next to an addendum anchor Next to the context
-anchor it is a double down arrow  or a left arrow  according as the context
-anchor is an ancestor or an immediate successor of the previous lexeme The notion
-of immediate successor is dened with respect to the linear order indicated through
-Figure 8 An insertion rule
-the ordering edges present in addenda Its applicability to free word-order languages
-is discussed in Section 372
-Applying the insertion rule on Figure 8 to the parse graph on Figure 7 results in
-the parse graph on Figure 9
-determiner
-Figure 9 Result of applying the above insertion rule
-33 Proper interpolation example
-Figure 10 illustrates path-to-node anchoring The composition rule interpolates a
-prepositional phrase into a noun phrase to produce a qualied noun phrase as in a
-bird on a tree PP stands for Prepositional Phrase and Prep for preposition
-subject
-Figure 10 A proper interpolation rule
-The sign next to the context anchor indicates that it is to be found above the
-previous lexeme rather than immediately after it The diagram on Figure 11 shows the
-context to which this rule could apply and the resulting context after its application
-An application diagram follows the following pattern
-context  addendum  new context
-subject
-subject
-Figure 11 An application of the preceding rule
-34 Anchor matching
-The preceding examples have shown that the context anchor can be an ancestor or an
-immediate linear successor of the previous lexeme The rst case occurs typically with
-a proper interpolation and the second with an insertion This is of course just the
-typical case Section 372 gives general criteria for locating the context anchor
-341 Matching an immediate successor anchor
-No attempt to deal with free word order will be made until Section 372 Until then
-we can rely on a strict left-to-right ordering of all phrase constituents Therefore the
-previous lexeme always has a unique immediate linear successor which is its immediate
-successor in the frontier of the summary tree Denition 2 Section 22
-342 Matching an ancestor anchor
-Ancestor positions are also dened with respect to the summary tree of the parse graph
-Denition 2 Section 22 On the other hand for a node to match an ancestor anchor
-there is an additional condition beside location and label match It can be stated as
-follows
-Principle 2 A context anchor in ancestor position can only be matched by the root of
-a complete parse graph see Denition 1 Section 22
-For example an NP cannot be postmodied if it is incomplete ie if the frontier
-of its summary tree contains nonlexical nodes
-343 Incidence of node subtyping on anchor matching
-If node labels are sets of symbols label matching requires that all symbols attached to
-the context anchor be present in the node to match For example a context pattern
-could contain the information that the anchor is a denite determiner and any node
-that has at least the type atoms denite and determiner will satisfy label matching
-In other words for a node to match a context anchor its type must be a subtype
-of the type of the context anchor On the other hand this means that the formulation
-of a rule and notably the addendum must involve a special device to mention the
-full type of the node that matched the anchor so as not to lose information Indeed
-a rule is allowed to change the type of the anchor as explained in Section 35 and
-illustrated on Figure 13 Accordingly the special symbol  can be used to assign to
-an addendum anchor the exact type of the node matching the context anchor
-An example of a grammar that uses subtyping is given in Section 42
-35 Parser initialization
-To begin with there is no context or rather the context consists of a single node with
-a generic label that subsumes all phrases with which an utterance is likely to start1 No
-lexeme has been integrated to the context yet but for technical purposes the initial
-node can be considered to follow the previous lexeme In other words a rule with
-an immediate-successor  mark next to the context anchor will match the initial
-context
-Suppose a sentence begins with the phrase a robin then the initial lexeme a can
-be integrated using the following insertion rule
-determiner
-Figure 12 Insertion rule for a
-This rule simply means that a can be considered as the beginning of a Noun Phrase
-It does not say that a could be the beginning of a sentence Yet most utterances are
-sentences so it would seem that this rule is generally inappropriate It is not however
-if one considers that the denition of an interpolation that was informally given in
-Section 31 does not require the two ends of an interpolation path to bear the same
-label And indeed should a phrase like a robin be followed with a verb such as ew
-the rule shown on Figure 13 can apply to make the root of the parse graph an S-node
-Dir stands for directional phrase
-subject
-Figure 13 Interpolation rule for ew
-1Label subsumption is discussed in Section 23
-36 Backtracking
-Matching a rule often involves making a prediction on the continuation of the utterance
-For example the rule on Figure 13 predicts that a directional phrase follows the verb
-ew When several predictions are possible as will often be the case a trial-and-error
-approach is adopted
-A prediction conict appears when several rules are available for a given context
-and current lexeme ie a given parse conguration It is supposed that the rules
-associated with each lexeme are totally ordered by priority and each rule is tried in
-priority order until a successful parse is obtained2
-For example when the current lexeme is ew and an NP node dominates the
-previous lexeme there could be two rules with higher priority on the rule on Figure 13
-and lower priority on the following rule which makes ew an intransitive verb
-subject
-Figure 14 An alternative rule for ew
-Given these two rules the sentence a robin ew swiftly would rst be mapped to the
-parse graph on Figure 15 then on realizing that by the end of the sentence the parse
-graph is still incomplete one would have to reconsider the choices made Supposing
-there is a single analysis available for swiftly the parser would then backtrack on ew
-and try the second rule which would eventually lead to a successful parse
-swiftly
-Figure 15 Graph built before backtracking
-Backtracking involves undoing some of the rules applied so far This supposes
-that track is kept of the list of rules applied and more importantly that each rule is
-reversible As a matter of fact rules as dened are reversible owing to Principle 4
-2If the selection process parallels a similar process in the human mind a simple hypothesis would correlate
-rule priority with statistical eciency alternately or complementarily there could be structural criteria that
-correlated priority with simplicity or canonicity
-Section 371 In order to undo the eect of a rule the addendum is to be removed and
-the interpolation path replaced back by the context anchor If rules were not reversible
-then it would be necessary to keep track of at least the last few parse congurations
-Of course backtracking does not always take place after reading the whole input
-string It takes place whenever no further rule can be triggered and the parse graph is
-incomplete
-For another example consider the sentence he gave trouble to us and suppose that
-The edge label iObj stands for
-the highest-priority rule for gave is the following
-indirect object
-Figure 16 Default rule for gave
-Then on encountering to no rule will match the context in which an object NP
-is expected thus leading the parser to backtrack on trouble then gave and select the
-following rule which will eventually lead to a successful parse A to-Prep is a category
-that contains only the preposition to and unto in archaic dialects
-toPP
-toPrep
-Figure 17 Alternate rule for gave
-Interpolation and anchor matching
-This section revisits concepts introduced in Section 31 giving more precise formula-
-tions and adding details that were initially overlooked
-371 Addendum incorporation
-In all the examples given so far an insertion consists in replacing a dangling node
-with a node with a child and a proper interpolation consists in interpolating a path
-whose rst edge is a parent-of edge so that the destination of the interpolation path
-dominates its source
-With interpolations of this type merging an addendum into the context is a fairly
-straightforward process which has not been explicated so far but only illustrated
-through examples
-However the concept of interpolation allows more exibility than has been hitherto
-suggested and in order to consider further varieties of interpolation it is important
-to bring out the graph invariants implicitly used and preserved during addendum in-
-corporation
-Invariant 1 In a phrase graph there cannot be distinct edges with the same label
-Invariant 2 In a parse graph any node except the root has exactly one incoming edge
-Invariant 3 In a parse graph there cannot be more than one parent-of edge from any
-According to invariant 2 an interpolation path can be dened as the unique oriented
-path that connects two addendum anchors With respect to this path there is a source
-anchor and a destination anchor
-Invariant 2 also implies that the source anchor
-inherits the incoming edge of the context anchor as a result of an interpolation
-Furthermore when one looks at the way the outgoing edges of the context anchor
-are distributed between the addendum anchors of an interpolation invariant 3 can be
-seen to prevail in that the parent-of edge in the examples seen so far is transmitted
-to the destination anchor The underlying principle can be stated as follows
-Principle 3 All edges of the context anchor are inherited by the source of the in-
-terpolation path except for edges present in the addendum which are shifted to the
-destination of the interpolation path
-Principle 3 itself presupposes that the addendum and the context form disjoint
-graphs This principle is well worth spelling out for it allows rules to be easily reversible
-in the sense of Section 36
-Principle 4 In a composition rule the sets of nodes of the addendum and the context
-have an empty intersection
-Indeed if the graph union that is specied by a rule is a disjoint union then no
-information beyond the list of rules applied is necessary to undo the eect of these
-On the other hand Principle 3 presupposes that if the context anchor is a head
-then the addendum anchors must both be capable of inheriting functional edges ie
-be phrase heads as well Conversely if the context anchor is not a head substituting
-a head for it would create a second head within one phrase which is ruled out by
-denition These considerations can be summarized by the following principle
-Principle 5 The head status of the context anchor must be matched by the addendum
-anchors
-This principle does not directly govern addendum incorporation for it has to be
-built into the grammar rules It is especially useful as a prerequisite of Principle 3
-Nonstandard interpolation To see how Principle 3 applies to a nonstandard
-case of proper interpolation ie a case in which the interpolation path does not start
-with a parent-of edge consider the rule on Figure 18 The box represents an empty
-category or gap the symbol that-Cnj informally denotes a subcategory whose main
-representative is the conjunction that
-thought
-thatCnj
-thatCl
-Figure 18 A nonstandard case of proper interpolation
-Although the context anchor which is a verb is a dangling node an empty ob-
-ject NP ie an object gap has been predicted typically owing to the presence of
-a preceding object pronoun ie a relative or interrogative pronoun or a topicalized
-object NP The occurrence of a verb that governs a sentence rather an object NP
-pushes the predicted object gap further Since the object gap does not appear in the
-addendum owing to Principle 4 its position in the graph after the rule has applied is
-not specied explicitly but can be inferred from Principle 3 Indeed since the object
-edge from the context anchor is redundant with the object edge that emanates from the
-source anchor of the addendum it is inherited by the destination anchor Therefore
-after addendum incorporation the context will contain the following subgraph
-thought
-thatCnj
-thatCl
-Figure 19 Subgraph obtained after addendum incorporation
-Nonstandard insertion A standard insertion substitutes a node with an outgoing
-parent-of edge for a dangling node But it is also conceivable to substitute a node with
-arbitrary nonredundant outgoing edges for a node with descendants
-A practical use of nonstandard interpolation could be the handling of optional
-complements For example supposing the rule that handles the by-complement of a
-passive were the one represented on FigurepassiveAgentg there would be no necessity
-to anticipate the presence of a by-complement on encountering a passive and so no
-backtracking would be involved to handle its optionality3
-passiveV
-passiveV
-byPP
-byPrep
-Figure 20 Rule for the by-complement of a passive
-372 Anchor matching
-The principles assumed so far for matching the context anchor have to be stated ex-
-plicitly and possibly extended this is necessary on the one hand to predict the anchor
-position for any arbitrary interpolation including a nonstandard one and on the other
-hand to cater for variations in word order
-Section 34 specied two possible positions for the context anchor as ancestor or
-immediate linear successor of the previous lexeme But no principle to nd out whether
-a given interpolation should take place at an ancestor or successor position has yet been
-stated As a matter of fact a simple principle underlies the examples given so far
-Principle 6 If the addendum lexeme linearly follows either endpoint of the interpola-
-tion path the context anchor is an ancestor of the previous lexeme In all other cases
-the context anchor is the immediate linear successor of the previous lexeme
-This principle is analogous to Principle 2 in that it prevents the occurrence of
-dangling nodes among the linear predecessors of the current lexeme So it is a practical
-consequence of a more general principle
-Principle 7 A valid interpolation cannot leave or create dangling nodes that linearly
-precede the lexeme it integrates
-Another consequence of Principle 7 on the form of rules is the following
-Principle 8 An addendum cannot contain dangling nodes that linearly precede the
-anchor that inherits the parent-of edge of the context anchor
-3The directional complement of the verb y used to illustrate backtracking in Section 36 could be
-handled in this way unless there were good reasons to distinguish the two constructions from the point of
-view of lexical semantics
-Under strict word order the form of rules can be controlled through Principles 8
-and 6 to enforce Principle 7 When alternative orderings are allowed the matching
-process itself may have to take this principle into account for rules may have to admit
-addenda that may violate Principle 7 or 8 under conditions that can only be checked
-dynamically
-To see Principle 6 in application compare the rule on Figure 21 which represents
-a premodication to the rule on Figure 22 which represents a postmodication
-Figure 21 Premodication by the adjective red
-swiftly
-Figure 22 Postmodication by the adverb swiftly
-It is now apparent that word order plays a key role in anchor choice during rule
-design and in anchor matching during rule application So it is interesting to see what
-extensions to the principles just brought out are necessary in order to accommodate
-greater freedom in word order than has been presupposed up till now
-Complex phrase ordering Under a strict ordering of phrase nodes a parse graph
-can be linearized by considering the frontier of the summary tree Denition 2 Sec-
-tion 22 Then in a given parse conguration the previous lexeme has a unique
-immediate successor However when several possible orders are allowed there may be
-more than one linear successor to the previous lexeme
-Consequently several context nodes may be found to match the context anchor of
-an applicable rule This introduces a degree of indeterminacy which is compounded
-with the indeterminacy resulting from rule conicts ie
-the availability of several
-matching rules for a given lexeme
-Not only does this type of indeterminacy arise in the presence of free word order but
-it is also liable to arise in a xed-order framework if several nodes along a parent-of path
-are allowed to bear the same label Indeed this situation could result in several nodes
-matching an ancestor anchor and a principle that ruled it out would be no more than
-an ad hoc feature that reduced the formalisms expressive power without reducing its
-indeterminacy in any essential way Therefore indeterminacy due to anchor matching
-has to be handled somehow
-Once again a trial-and-error approach seems to be the natural path to follow The
-mechanism used to solve rule conicts can be applied here too provided competing
-anchor matches are somehow ordered by priority As far as ancestor conicts are
-concerned proximity to the previous lexeme ie depth seems to correlate simply and
-naturally with priority As far as successor conict is concerned however it would
-seem that no natural solution is available unless even when the placement of nodes in
-a phrase graph is relatively free there is an underlying preferred order
-In addition to the possibility of nding multiple anchor matches free word order also
-complicates the process of identifying context anchors for context nodes do not stand in
-a simple topological relation with respect to the previous lexeme From an algorithmic
-point of view the solution seems to consist in updating the set of successors of the
-previous lexeme after each interpolation as described in Procedure 1 Appendix A
-38 Coreference links
-Incremental left-to-right parsing as outlined forms phrases exclusively from adjacent
-lexemes However immediate syntactic relations between distant constituents do exist
-in natural languages Interrogative and relative clauses in English provide such exam-
-ples For example in the following sentence the pronoun who somehow functions as
-the subject of to win although these two constituents occupy distant positions in the
-input stream
-Who do you want to win
-This diculty will be solved through a now classic device in syntactic theory namely
-coindexing of phrases This consists in linking coreferential phrases together typically
-by assigning to them equal referent indices In the above example the interrogative
-pronoun who and the empty subject of to win whose presence is concretized by the
-unacceptability of Who dyou wanna win as a spoken realization are coindexed
-In fact in order to reconcile the fact that the parsing model under discussion can
-only establish immediate syntactic relations between neighbouring constituents and
-the fact that various ordering constraints or rhetorical phenomena may separate phrase
-constituents we will rely on coreference links A coreference link is somewhat more
-general than NP coindexing is that it may apply to any part of speech rather than just
-noun phrases
-Nodes related by a coreference links have just one counterpart in the semantic
-interpretation to be derived from the parse graph This means that all members of a
-coreference chain denote the same object in the universe of discourse Syntactically
-this entails that members of a coreference chain of NPs share gender and number
-characteristics and members of a coreference chain of verbs share complements For
-example one member will have a subject another member no subject but a direct
-object and a third an indirect object thus forming three instances of a single verb
-with subject object and indirect object
-Many phenomena in natural languages suggest that the human parser prohibits
-to a large extent the splitting of a phrase across distant lexemes but uses coindexing
-to handle the sharing of constituents between phrases and rhetorical disruptions to
-standard phrasal order
-Such disruptions are typically attenuated by the use of resumptive pronouns in
-spoken French as in the following example
-Il est bizarre ton chapeau
-It is weird is your hat
-Here the main verb nds its subject where the parser expects it but this subject
-is only a pronoun coreferenced with the real subject which for intonational eect
-is relegated to a secondary tone unit so as to allow full emphasis on the predicate
-When no overt pronoun shows the existence of a coreference chain it is sometimes
-necessary to postulate the existence of empty lexemes as in the interrogative clause
-cited above
-In Section 5 an analysis of Dutch cross serial dependencies will be attempted in
-terms of covert coreference chains
-The introduction of coreference links gives rise to the following denitions
-Denition 8 An augmented parse graph is a parse graph augmented with coreference
-Denition 9 A coreference link is an undirected edge that relates two nodes standing
-in an equivalence relation Links that can be inferred such as the link from any node
-to itself do not need to appear in the representation of an augmented parse graph
-The equivalence relations represented in an augmented parse graph are coreferentiality
-relations
-Denition 10 A coreferentiality is an equivalence relation over parse graph nodes
-bearing a specied label Coreferentialities found useful are NP coreferentiality and
-verb coreferentiality
-This denes a graph hierarchy with phrase graphs at the bottom and augmented
-parse graphs at the top
-39 Multiple interpolation
-Coreference links make it meaningful to dene parallel interpolations operating simul-
-taneously on several context anchors Multiple interpolation seems useful only when
-the context anchors are located with respect to a coreference chain Figure 23 shows
-an example of a double interpolation
-This example is purely formal but concrete examples will be given in Section 5
-on Dutch Cross-Serial Dependencies Nonetheless it illustrates an important feature
-of multiple interpolation namely the fact that the rule albeit multiple adds a single
-lexeme to the parse graph Typically it anticipates a Y -gap coreferential with this
-Figure 23 A double interpolation
-lexeme Gaps do not count as lexemes in so far as they are not physically present in
-the input string
-Furthermore the formulation of multiple interpolation makes it necessary to dene
-a third possible location for the context anchor namely linear successor denoted by a
-double left arrow  as opposed to immediate linear successor denoted by a simple
-left arrow 
-Implicit reexive-transitive closure in patterns
-The denition of coreferentiality as an equivalence relation Denition 10 yields some-
-what unsuspected power to the occurrence of coreferential links in context patterns
-To see that consider the example of adjectival denite descriptions in English as
-found in the wealthy the inuential etc Leaving semantic features aside one impor-
-tant syntactic requirement for forming such NPs is that the determiner be denite
-This is captured by the rule on Figure 24 Def stands for denite determiner
-wealthy
-Figure 24 Restrictive rule for adjectival denite descriptions
-Coreference links are created because the structure being built is a modication
-structure not because of the presence of a noun gap4 The modication examples
-given so far did not contain coreference links simply because extended parse graphs
-had not been dened
-This rule requires that the noun node that is to be replaced by an adjective and
-an empty noun be immediately preceded by a denite determiner Therefore it will
-4This gap does not play a pronominal role but rather represents a semantically empty noun A precise
-notation would include the name Pro in the label of real gaps such as those used in Section 5
-not apply to a noun which is itself premodied by an adjective as in the idle rich
-On the other hand one cannot devise a rule covering specically a string of the form
-Def Adj Adj for the premodication can be iterated as in the outrageous idle rich
-Consider therefore the rule on Figure 25
-wealthy
-Figure 25 Comprehensive rule for adjectival denite descriptions
-This rule allows the context anchor to be separated from the NP head by any
-number of premodication stages including zero For example the last interpolation
-to be applied when parsing the outrageous idle rich can be represented by the diagram
-on 265
-outrageous
-outrageous
-Figure 26 Last interpolation performed when parsing the outrageous idle rich
-The existence of rules in which an anchor is related to the rest of the context by a
-coreference link leads to the following denition of a context pattern
-Denition 11 A context pattern is a subgraph of an augmented parse graph with one
-or several distinguished nodes called anchors Anchor location with respect to the previ-
-ous lexeme takes one of the three values ancestor immediate successor and successor
-5This diagram represents a derivation step as explained in Section 412
-4 A simple expression grammar
-To show the specicities of Graph Interpolation Grammars even in the absence of
-context-sensitivity in rules this section applies them to the classical problem of a simple
-arithmetic expression language with two precedence levels and left associativity
-41 Deriving an GIG from a CFG
-This section will derive as simply as possible a Graph Interpolation Grammar from the
-Context Free Grammar given in Figure 27 This kind of derivation could conceivably
-be performed automatically in order to benet from the incrementality of GIG-driven
-parsing for existing context-free grammars For example in a language-based editor
-the incremental building of parse representations as each token is read could be used
-to implement syntax-sensitive editing functions
-E  E  T
-E  T
-T  T  F
-T  F
-F   E 
-F  0
-F  1
-Figure 27 Context-Free Grammar for a simple expression language
-411 Numbers
-Moving from a CFG to a GIG involves lexicalization This means that every rule is
-to be matched by a lexeme and contains a representation of the contexts in which this
-lexeme is likely to occur As far as numbers are concerned they can function either as
-factors terms or expressions Therefore each number will have three associated rules
-Figure 28 shows the three rules associated with the number 0
-Figure 28 GIG rules associated with the lexeme 0
-412 Sum
-A sum is identied on scanning the lexeme  By representing a sum as an interpolation
-into an E the fact that  is the lowest-priority operator is captured Accordingly the
-rule for  is as represented on Figure 29
-Figure 29 Rule to be matched on encountering a 
-Since the addendum lexeme follows the destination of the interpolation path ie
-the rst operand of the sum the context anchor is stipulated to be an ancestor of the
-previous lexeme Principle 6
-The fact that the second operand is a term T rather than an expression E
-forces left associativity This can be veried by unwinding the GIG derivation for the
-string 0  0  0 This derivation up to the insertion of the last zero is represented on
-Figure 30
-Figure 30 The derivation for 0  0
-A step in a GIG derivation consists in the marking of a context anchor in the
-result of the preceding step and a representation of the parse graph as modied by
-the interpolation applied
-413 Product
-The rule for a product is entirely analogous to the rule for a sum except that it is
-allowed to apply to a term rather than an expression This fact gives it precedence
-over sum for essentially the same reason as in the original context-free grammar
-Figure 31 shows the rule for the product operator and Figure 32 shows the deriva-
-tion for 1  1  0 up to the insertion of the lexeme 0 It illustrates the relative priorities
-of sum and product
-Product
-Figure 31 The rule for 
-Product
-Figure 32 The derivation for 1  1
-414 Parentheses
-A rule for a left parenthesis is an insertion that announces an expression and a right
-parenthesis in a context where an expression a term or a factor could be expected
-As a right parenthesis is not supposed to occur unless it has been announced by a left
-parenthesis its rule is a simple lexical insertion Accordingly only the rules for the left
-parenthesis are shown on Figure 33
-Note that nonterminals RPar and Rpar are necessary according to principle 1
-Section 22
-Applying these rules to the parsing of 1  1  0 one obtains the derivation whose
-main steps are shown on Figure 34
-Figure 33 The rules for the left parenthesis
-42 A more idiomatic approach
-The existence of three rules to insert a number or a left parenthesis is the translation
-of a CFG idiom for handling precedence The native GIG device for solving this type
-of problem relies on node subtyping
-For the expression language considered we can have tree type atoms N for num-
-ber P for product and S for sum They form two hierarchies that meet at the
-universal type NPS as shown on Figure 35
-If we ignore preterminal labels such as Sum or LPar an NPS matches any
-anchor so it is an expression in a broad sense It occurs typically as the initial parse
-graph and between parentheses An NP is any expression except a sum so it occurs
-as the right operand of a sum to enforce left association Likewise an N is exclusively
-a number or a parenthesized expression such as occurs as the right operand of a
-product As far as the right-hand branch of the hierarchy is concerned a PS can
-occur as the left operand of a product or sum while an S can occur only as the left
-operand of a sum These enforce the relative precedence of sum and product
-421 Numbers
-There is a single rule for inserting a number It requires the atom N in the context
-anchor and does not modify its type The symbol  that is used as the label of the
-addendum anchor indicates that this label is inherited as is from the node matching
-the context anchor The rule for zero is represented on gure 36
-422 Sum
-The rule for the operator  is represented on Figure 37
-A sum can be interpolated only at a node whose type contains the type atom S To
-guard against the interpolation of a product on top of a sum the type S is assigned
-to the root of the addendum To guard against right association of additions the type
-NP is assigned to the right operand The left operand cannot be the object of further
-interpolations and simply inherits the type of the node matching the context anchor
-Figure 38 derives 0  0  0 up to the last insertion to show that left associativity is
-enforced
-Product
-Figure 34 Main steps in the derivation for 1  1  0
-Figure 35 Type hierarchy for the expression grammar
-Figure 36 The rule for zero
-Figure 37 The rule for 
-Figure 38 The derivation for 0  0
-When the second occurrence of  is encountered only one of the ancestors of the
-previous lexeme has a type which contains S
-423 Product
-The rule for the operator  exactly parallels the rule for the sum operator It requires
-the anchor type to contain the atom P assigns the type PS to the addendum root
-and assigns the type N to the right operand It is represented on Figure 39
-Product
-Figure 39 The rule for the product operator
-The fact that the root node of the addendum is a PS rather than an S gives priority
-to multiplication over addition Figure 40 outlines the derivations for 1  1 and 0  1
-Product
-Figure 40 Derivation outlines for 1  1 and 0  1
-If the current lexeme after parsing 1  1 is  only the closest ancestor of the
-previous lexeme will have a matching type On the other hand if the current lexeme
-after parsing 0  1 is a plus only the root of the parse graph will have a matching type
-424 Parentheses
-The rule for the left parenthesis is given on Figure 41
-Once it has applied only an insertion at the linear successor of the left parenthesis
-is possible due to Principle 2 This could be the insertion of a number or a left
-parenthesis So the supertype N as phrase head would also work but no particular
-constraint is necessary here which is why the most permissive type is indicated The
-same remark holds for the initial context In fact the type NPS makes the grammar
-more open to future evolutions but could be replaced by N without impairing its
-operation
-Figure 41 The rule for the left parenthesis
-5 Dutch Cross-Serial Dependencies
-In Dutch a few conjunctions such as dat that or omdat because introduce a clause
-in which the verb comes after its object NP Now with perceptual and causative verbs
-ie verbs which syntactically take both an NP object and an innitive clause object a
-double order prevails all object NPs occur before the nite verb in order of increasing
-nesting level as in German for instance and innitive verbs occur after the nite verb
-in order of increasing nesting level which reects a right-branching construction for
-clausal objects quite unlike German in which the verbs occur in order of decreasing
-nesting level thus inviting a recursive analysis
-In several papers on DCSDs examples revolve around hippopotami The example
-given below taken from Ren94 does not depart from this tradition The indices
-relate each verb to its preceding NP object
- dat ik Henk1 haar2 de nijlpaarden3
- that I Henk1
-that I saw Henk help her feed the hippopotamus
-her2 the hippopotamus3 saw1 help2
-zag1 helpen2 voeren3
-The analysis that will be attempted is based on the principle that when a verb in a
-dat-clause has an NP object and a clause object the NP object is constrained to occur
-before the verb and the clause object is constrained to occur immediately after it
-In itself however the existence of dierent positional requirements on the NP object
-and the clausal indirect object would not seem to require a special syntactic device
-when the ditransitive verb governs an ordinary transitive verb Thus in the light of
-the principle just outlined one could expect the following incorrect construction to
-  dat ik haar zag de nilparden voeren
-In fact there seems to be an additional constraint that amounts to forbidding any
-object in a dat-clause to occur before the nite verb So the correct construction is
-instead as follows
- dat ik haar1 de nilparden2 zag1 voeren2
-To recapitulate the constraints at work to produce this construction are the fol-
-lowing
-1 The NP object of any verb in a dat-clause or a clause nested therein occurs before
-it to form an inverted verb phrase
-2 The clausal indirect object of a perceptual or causative verb which is an innitive
-clause with a subject gap occurs after it
-3 In a dat-clause no direct NP object whatever the nesting level at which it occurs
-occurs before the nite verb
-Now the conjunction of the third constraint with the existence of a double order on
-the construction of perceptual and causative verbs in dat-clauses produces a rift in
-the construction as a result of which a ditransitive verb may be separated from its
-preceding direct object by a theoretically arbitrary distance In order to govern two
-complements across a rift a verb in the general framework adopted here is in fact
-realized as two graph nodes one of which is a verb gap To see that the representation
-below shows the phenomenon with one level of nesting Verb gaps are represented by
-square boxes
- dat ik haar 1 de nijlpaarden 2 zag1 voeren2
-This representation postulates that haar and de nijlpaarden occur in inverted VPs
-headed by verb gaps and that the verb gaps are coindexed with lexical verbs occurring
-in a right-branching construction governed by the nite verb
-If extended one additional nesting level the representation that is obtained is the
-following
- dat ik Henk 1 haar 2 de nijlpaarden 3 zag1 helpen2 voeren3
-Furthermore each non-nite lexical verb heads a clause whose subject is a gap
-Each such NP gap is coindexed with the NP object of the superordinate verb The
-coreference pattern for NPs is the following
- dat ik Henk1 haar2 de nijlpaarden zag 1 helpen 2 voeren
-In order to capture these hypotheses as GIG rules one will have to consider three
-cases i a dat-clause headed by a perception or causative verb ii a non-nite clause
-with an inverted VP whose head is a perception or causative verb and iii a non-nite
-clause with an inverted VP whose head is a monotransitive verb
-51 Complex dat-clause
-When the conjunction dat is encountered one generally has no way of guessing that
-its verb will impose a cross-serial construction So the rule on Figure 42 will be used
-only on backtracking after realizing that no rule can integrate the second object NP
-haar if the verb that is expected is an ordinary transitive verb
-The inverted verb phrase split-inv-VP that heads the sentence is split into an
-instance that governs the direct object inv-VP and an instance that governs the
-clausal indirect object iObj-VP Since neither of these half-instances qualies as a
-head an empty coordination conjunction is postulated to relate them This empty
-conjunction represents the barrier between the left-branching construction for NPs
-and the right-branching construction for verbs
-Given our example the lexemes whose occurrence is anticipated by this rule are
-i the subject of the split-inv-VP namely ik ii the direct object of its inv-VP
-datCl
-datCnj
-datCl
-invS
-splitinvVP
-invVP
-iObjVP
-complexV
-nonfinS
-nonfinV
-Figure 42 The rule for a dat-clause with a complex ditransitive
-instance namely Henk iii the complex-V namely zag and iv the verb of its clausal
-object namely helpen which is labelled as nonn-V
-The labels given to nodes here are more precise than required by the operation of
-the rules But this precision hopefully helps legibility
-52 Complex nonnite clause
-Just as in the case of the previous rule the decision to trigger the rule for an embedded
-complex verb cannot be taken the rst time its object is encountered but only after
-backtracking on the following NP
-The rule represented on Figure 43 is a double interpolation which acts simultane-
-ously on both instances of a split VP A relation of coordination is supposed between
-the inverted verb phrases on the left top interpolation for there is no clause hierar-
-chy among them The use of double interpolation on two graph areas connected by a
-coreference link allows these areas to lie at an arbitrary distance from each other
-Supposing the lexemes ik and Henk were inserted into the output of the rule rep-
-resented on Figure 42 the eect of the last rule would be to produce the graph on
-Figure 44
-53 Simple nonnite clause
-With a simple transitive verb the verb gap that is created is simply coreferenced to
-its counterpart in the context so the bottom interpolation does not create any node
-The presence of an article in the context specied on Figure 45 announces a transitive
-verb and so no rollbacking need be involved to trigger the rule that is represented
-invVP
-invVP
-invVP
-invVP
-complexV
-nonfinS
- complexnonfinV
-nonfinS
-nonfinV
-nonfinV
-Figure 43 The rule for a nested verb of the helpen type
-This rule adds an NP node to the left of the syntactic rift this node is the object
-of an inv-VP containing an anticipatory verb gap coindexed with the second context
-anchor which itself anticipates the occurrence of the verb voeren to the right of the
-rift In short the top interpolation adds a direct object and the bottom interpolation
-connects it to the cascade of clausal objects after zag
-6 Conclusion
-This report has dened a form of grammar called Graph Interpolation Grammar
-which produces parse graphs by simple derivation from an initial graph consisting of
-one node Since derivation integrates input lexemes left-to-right a GIG derivation is
-an incremental parse of an input sentence
-The basic operation graph interpolation which combines path substitution and
-disjoint graph union has been described at some length Two classic problems one
-from the eld of parsing arithmetic expressions and one from the eld of linguis-
-tics Dutch cross-serial dependencies have been selected to illustrate problem-solving
-through GIG design
-The essential hopefully has been stated but much remains to be done to improve
-the formalism and explore its potentialities Areas for further research are presented
-in Section 62
-On the other hand the GIG model shares intuitions with several other syntactic
-formalisms which are briey reviewed in Section 61
-datCnj
-datCl
-invS
-splitinvVP
-invVP
-iObjVP
-complexV
-nonfinS
-invVP
-invVP
-complexnonfinV
-nonfinS
-nonfinV
-invVP
-invVP
-invVP
-invVP
-complexV
-nonfinS
- nonfinV
-nonfinV
-Figure 45 The rule for a nested monotransitive verb
-61 Related works
-Graph interpolation can be viewed as an extension of tree adjunction to parse graphs
-And indeed TAGs JLT75 by introducing a 2-dimensional formalism into computa-
-tional linguistics have made a decisive step towards designing a syntactic theory that
-is both computationally tractable and linguistically realistic In this respect it is an
-obligatory reference for any syntactic theory intent on satisfying these criteria
-The basic intuition in GIGs however that of incrementally connecting lexemes by
-looking up their combinatory properties can be found in link grammars ST95 Link
-grammars are mathematically interesting but do not easily interface with a semantic
-component
-Categorial grammars Ste86 Ste88 have a similar rationale They use binary com-
-binators on function types that represent grammatical categories The parse structures
-generated which are binary trees reecting the order of combinator application can
-be somewhat counterintuitive from a semantic point of view
-In Lexical Functional Grammars Bre85 grammatical functions are loosely coupled
-with phrase structure which seems to be just the opposite of what is done in a GIG
-in which functional edges are part of the phrase structure Nonetheless these two
-approaches share the concern of bringing out a functional structure even if much of
-what enters into an f-structure ie a functional structure in LFG is to be addressed
-by the semantic component a topic for further research in GIG
-62 Further research
-621 Linguistic phenomena
-Important categories of phenomena to analyze include ellipsis notably under coordi-
-nation and word scrambling
-Furthermore the discussion of free word order in this report has hovered at an
-uncomfortable level of abstraction It is necessary to return to this issue with concrete
-examples
-On the other hand the interface with a scanner and morphological analyzer has
-yet to be stated explicitly Phenomena to account for include idioms phrasal lexical
-items agglutinative morphology and scanning ambiguities
-622 Psycholinguistic considerations
-The main natural feature embodied in Graph Interpolation Grammars is incremen-
-tal left-to-right parsing which is expected to provide a basis for incremental semantic
-evaluation of discourse a feature in favour of which there seems to be conclusive ex-
-perimental evidence
-Processing time The formalism would be particularly satisfactory as a model of
-human parsing if the computational complexity it predicts correlated with observed
-processing time in humans What is mainly at stake here is the plausibility of the
-backtracking mechanism that has been described
-Garden-path sentences GIG parsing involves backtracking for sentences that hu-
-mans do not identify as garden-path sentences A hypothesis to test against further
-evidence is that the human analyzer is garden-pathed only when semantic interpreta-
-tion has to be revised not when purely structural adjustments are taking place A
-thorough discussion of this question requires that a working model be proposed for the
-semantic component
-Error tolerance The capacity to pick up meaning from ill-formed utterances is a
-capability of the human language processor that does not seem beyond the reach of
-GIG-based modelling The model could involve some form of partial match of context
-patterns to resort to when the parser is stymied
-Evolutionary aspect Languages undergo idiolectal variations and historical changes
-A constant adjustment of rules takes place when language is used If GIGs were en-
-dowed with the error recovery device delineated in the previous paragraph a model of
-evolution could then be worked out to promote heavily activated near-matches to full
-matches possibly at the detriment of competing weakly activated full matches which
-could disappear in the process
-623 Mathematical properties
-Expressive power GIGs are at least as expressive as TAGs for graph interpolation
-can be used to express tree adjunction or tree substitution This means that the
-formalism is at least mildly context-sensitive Furthermore multiple interpolation
-adds expressive power comparable to that found in Multi-Component TAGs KJ87
-GIGs do seem to provide the right amount of context-sensitiveness but this remains
-to be precisely quantied
-Complexity The backtracking mechanism induces a worst-case exponential com-
-plexity On realistic grammars however both the base of the exponential ie the
-number of lexemes past which it makes sense to backtrack and the exponent ie the
-number of competing rules for a given lexeme seem to have very low upper bounds
-What is a realistic grammar could be characterized precisely by determining such
-bounds by collecting linguistic facts Beside quantied bounds it is to be thought that
-some barrier eect makes it pointless to backtrack beyond certain syntactic barriers
-On the other hand the backtracking mechanism itself could be reconsidered to reduce
-its computational complexity for example by allowing backtracking to skip back to
-a privileged place either through links built while parsing or using a form of pattern
-matching
-Automatic generation of GIG rules Section 4 suggests that a Graph Interpo-
-lation Grammar could be automatically derived from a Context Free Grammar mostly
-for the purpose of using existing LR grammars
-The feasibility of converting automatically from other formalisms and particularly
-Lexical Functional Grammars seems worth exploring as well
-Linearized syntax for rules From a practical point of view however GIGs are
-not to be seen as a low-level formalism to be generated automatically from higher-
-level formalisms But for GIG writing to be practical what could be needed is i a
-linearized syntax to type rules quickly rather than draw graphs and ii a WYSIWYG
-tool that showed incrementally the graphic aspect of what is being typed This tool
-could of course be implemented on top of a GIG engine
-A linearized syntax could involve a frame-like notation in which an augmented parse
-graph were a set of slots with a phrases slot that pointed via slot values to phrases
-with an optional pre-dened parent slot and user-dened functional slots
-For example a linearized version of the addendum in Figure 25 could look like the
-frame expression on Figure 46 Predened slot names are boldfaced Slot references
-are slash-separated paths starting at the parent of the slot being dened A double
-dot  moves up one level in the slot hierarchy
-On the other hand many grammar designers would probably not feel frustrated by
-the lack of a linear syntax given an ecient graphic tool
-References
-Bre85 Joan Bresnan The mental representation of grammatical relations MIT
-Press series on cognitive theory and mental representation MIT Press 1985
-Collected articles
-JLT75 A K Joshi L S Levy and M Takahashi Tree adjunct grammars Journal
-of Computer and System Sciences 1013663 1975
-addendum 
-phrases 
-0  head N 
-parent 0head
-head Adj
-subj N
-parent 1subj
-head Gap
-lexeme 
-parent phrases1head
-spelling wealthy
-anchors 
-source phrases0
-destination source
-coreferences 
-0 phrases0head
-1 phrases1subj
-Figure 46 A linearized addendum
-KJ87 Anthony Kroch and Aravind K Joshi Analyzing extraposition in a tree
-adjoining grammar In G Huck and A Ojeda editors Discontinuous con-
-stituents syntax and semantics Academic Press 1987
-Ren94 Gerrit Rentier Dutch cross serial dependencies in HPSG Computation and
-Language archive cmp-lg9410016 US National Science Foundation ITK
-Tilburg University October 1994
-ST95 Daniel D K Sleator and Davy Temperley Parsing english with a link
-grammar Technical Report CMU-CS-TR-91-126 Carnegie Mellon Univer-
-sity 1995 Available in the Computation and Language archive under cmp-
-lg9508004
-Ste86 Mark Steedman Combinatory grammars and human language processing
-Technical Report DAI-RP-279 University of Edinburgh 1986
-Ste88 Mark Steedman Combinators and grammars In Richard T Oehrle E Bach
-and D Wheeler editors Categorial Grammars and Natural Language Struc-
-tures pages 417442 Redel Dordrecht 1988 paper to the Conference on
-Categorial Grammar Tucson AR June 1985
-A Anchor location procedures
-The following procedure can be used to update the set of possible linear successors of
-the current lexeme after an interpolation It is operational even when several linear
-orders are allowed
-Procedure 1
-1 Based on ordering relations in the addendum one identies the set of possible
-linear successors of the current lexeme which is here the lexeme just inserted
-2 The possible linear successors of the previous lexeme as recorded when it was
-inserted minus the node that matched the context anchor are added to the set
-found in step 1
-Note that since the addendum and the context are disjoint the second step cannot
-add potential successors already added by the rst step This observation is important
-to determine whether rule application remains reversible in the presence of free word
-Indeed undoing a rule with respect to the set of potential successors of the
-current lexeme can be done as follows
-Procedure 2
-1 Based on ordering relations in the addendum one identies a subset of possible
-the lexeme on which to backtrack
-linear successors to the current lexeme ie
-and subtracts this subset from the set of possible successors
-2 Once the insertion itself has been undone the context anchor for this insertion
-is added to the set obtained in the previous step and this set becomes the set of
-potential successors of the previous lexeme
-Graph Interpolation Grammars
-a rule-based approach to the incremental parsing of
-natural languages
-John Larcheveque
-March 1998
-Abstract
-Graph Interpolation Grammars are a declarative formalism with an operational
-semantics Their goal is to emulate salient features of the human parser and notably
-incrementality The parsing process dened by GIGs incrementally builds a syntactic
-representation of a sentence as each successive lexeme is read A GIG rule species
-a set of parse congurations that trigger its application and an operation to perform
-on a matching conguration Rules are partly context-sensitive furthermore they
-are reversible meaning that their operations can be undone which allows the parsing
-process to be nondeterministic These two factors confer enough expressive power to
-the formalism for parsing natural languages
-1 Introduction
-11 Characteristics and rationale
-A graph interpolation grammar is a grammar formalism with an operational semantics
-A rule in a graph interpolation grammar species not only syntactic relations but also
-an elementary parsing operation
-Rules are lexicalized in the sense that each rule describes the combinatory properties
-of a lexical item Parsing a sentence consists in matching each lexeme in the input string
-with a rule in the grammar and applying this rule to the current parse representation
-GIG-driven parsing was designed with incrementality and exibility in mind so as
-to emulate some features of the human parsing capability in particular incremental
-processing error tolerance and handling of complex word orders
-In a complete model of discourse understanding incremental parsing would be
-shown to work in tandem with some form of composition between partial semantic
-representations It is to be thought that the collaboration between syntax and seman-
-tics in natural discourse understanding is fairly close and that backtracking in the
-parser is frequently initiated by a clash found between semantic features This report
-however will not attempt to give even the roughest idea of what semantic represen-
-tations should look like and will therefore exclusively focus on syntactic phenomena
-sometimes at the cost of simplifying the phenomena at hand
-12 Plan of the report
-The rst two sections give a fairly complete presentation of the concepts and processes
-involved in parsing with a Graph Interpolation Grammar The syntactic structures
-generated when parsing with a GIG are described in Section 2 while the grammar
-rules and the parsing process are described in Section 3
-The next few sections apply the formalism to selected problems Section 4 com-
-pares the handling of a simple expression language using a Context Free Grammar and
-a Graph Interpolation Grammar and Section 5 analyzes Dutch Cross-Serial Depen-
-dencies
-Finally the conclusion indicates topics for further research and related works
-2 Syntactic structures
-21 Phrases
-A phrase is made up of a head and its complements It will be represented by a graph
-with a root and one labelled edge from the root to each nonroot node
-The root represents the head of the phrase the other nodes represent its comple-
-ments and the edge labels represent grammatical functions
-211 Ordering relations
-In addition nodes in a phrase graph are connected through ordering edges
-simplest case the eect of ordering edges is to align graph nodes from left to right
-For example the sentence
-She gave me an apple
-contains a phrase the head of which is a ditransitive verb with three complements the
-subject the indirect object and the direct object This phrase can be represented by
-the following graph in which V for verb and NP for noun phrase
-precedes
-subject
-precedes
-indirectObject
-precedes
-Figure 1 A phrase graph
-Since this is a case in which a total left-to-right alignment of nodes can be dened
-ordering edges can be omitted and the ordering represented by the relative positions
-of the nodes in the diagram as in Figure 2 Explicit orderings will not be used in this
-report for a strict total ordering of phrase constituents exists in all examples given
-At any rate the possibility exists of specifying sophisticated order constraints as long
-as these constraints are local to a phrase
-object
-subject
-indirectObject
-Figure 2 The same phrase graph with implicit ordering
-212 Phrase head
-The criteria for distinguishing a head in a phrase are both syntactic and semantic
-From a syntactic point of view the head determines the presence and functions of
-its complements From a semantic point of view the head acts as a predicate of
-its complements adding semantic features to them while the complements generally
-contribute to rooting these features into a specic situation
-On the basis of these criteria an attributive adjective forms the head of a phrase
-made up of an adjective and a noun such as red leaf Indeed the occurrence of the
-adjective implies the occurrence of a single noun whereas the presence of the noun
-does not require or limit the number of attributive adjectives On the other hand
-though evidence for this type of criterion is not so easy to adduce the adjective adds
-semantic features to the noun as is shown in particular by its capacity to function as a
-predicate in a clause Figure 3 illustrates a phrase headed by an attributive adjective
-Adj stands for adjective
-subject
-Figure 3 A modifying phrase
-Considering the adjective as the head of such a phrase can be counterintuitive
-insofar as the phrase in question functions as a noun
-It is however necessary to
-distinguish the internal structure of a phrase as described by its phrase graph
-from its function with respect to other phrases In order to bring out this distinction
-a structure that interrelates phrase graphs must be dened The next section denes
-a structure of this type the parse graph
-22 Parse graphs
-Consider for example the phrase good old days
-A parse graph is a structure in which phrase graphs are related through parent-of edges
-It contains the phrase old days
-which has old as its head but functions as a noun and is itself modied by the adjective
-good in the larger phrase good old days The containment relation just outlined can be
-rendered by drawing a parent-of edge between the noun node of the enclosing phrase
-and the head of the embedded phrase Graphically this can be represented as in
-Figure 4
-From now on in parse graph representations vertical edges will be assumed to be
-directed downward and represent parent-of edges
-subject
-parentof
-subject
-Figure 4 A parse graph
-On the other hand a parent-of edge can also connect a phrase node to a lexical
-item A complete parse graph for a phrase or sentence can thus be dened as a parse
-graph with a root node and such that every path leads to a lexical item These facts
-give rise to the following principle and denition
-Principle 1 A lexical node can occur in a parse graph as the destination of a parent-of
-Denition 1 A complete parse graph is a parse graph with a root node ie a node
-from which every node is reachable and such that every path leads to a lexical node
-Figure 5 shows the complete parse graph for the phrase the good old days Det
-stands for determiner
-determiner
-subject
-subject
-Figure 5 A complete parse graph
-Such a graph can be mapped to a tree in such a way that members of a phrase graph
-including the head are mapped to sibling nodes Although the graph contains more
-information and is better adapted to incremental construction that its tree counterpart
-it will often prove useful to apply tree terminology to parse graphs For example the
-terms descendant ancestor or frontier are to be understood with respect to the tree
-counterpart of a parse graph Likewise a dangling node is to be understood as a non-
-lexical node that occupies a terminal position in the tree counterpart of an incomplete
-parse graph For further reference here is the denition that justies this terminology
-Denition 2 The summary tree of a parse graph is a connected graph that contains
-the same set of nodes as the parse graph and such that each path of the parse graph
-consisting of either a parent-of edge or a parent-of edge followed by a functional edge
-is mapped to a parent-of edge of the summary tree
-Figure 6 Summary tree for the parse graph on Figure 5
-23 Subtyping in node labels
-The classication of lexical items can be made according to several possible criteria
-For example the can be categorized as an article and thus be distinguished from this
-On the other hand both of the and this are denite determiners and as such can be
-usefully grouped under one category This suggests that lexical categories are usefully
-viewed as sets of syntactic properties such as determiner article denite etc
-Furthermore some of these properties are visible in ancestors of lexical items in a parse
-graph For example the presence of a denite determiner confers to a Noun Phrase
-the status of a denite description A simple way of modeling this consists in labelling
-each node of a parse graph with a set of property names rather than an atomic name
-Thus the label of a node dominating the is a set containing the names determiner
-article and denite and the label of an NP determined by the this a genitive
-NP or any other denite determiner is a set containing the name denite
-For simplicity most of the graphs and rules given as examples have atomic node
-labels even when some node types could be shown to subsume or share properties
-with other symbols However Section 42 shows how multi-valued node labels can
-contribute to the expressive power of a grammar
-3 Building parse graphs
-Parse graphs as just dened can be incrementally built by scanning an input ow
-of lexemes and performing a building step as each lexeme is read A building step is
-formally described by a composition rule which adds to the graph under construction
-a subgraph associated with the current lexeme
-31 Form of a composition rule
-Suppose that i the phrase being parsed is a robin ii somehow see Section 35
-the parse graph on Figure 7 was built on encountering the determiner a and iii the
-current lexeme is robin
-determiner
-Figure 7 An NP context
-The presence of the dangling ie childless noun node to the right of the previous
-lexeme namely a materializes the anticipation of a noun Singular common nouns are
-generally inserted in just such a context and so we can dene a rule for the lexeme
-robin that stipulates i that the linear successor of the previous lexeme ie a in the
-parse graph should be a dangling noun node ii that the new subgraph to integrate
-consists of a noun node dominating the lexeme robin and iii that this new subgraph
-is to be substituted for the dangling noun node A graphic representation of this rule
-is given on Figure 8 in section 32
-More generally let the context be the parse graph obtained by parsing the input
-string up to the current lexeme a composition rule consists of
-1 a pattern to match against the context known as the context pattern and
-2 a subgraph to integrate into the context known as the addendum
-Or more formally
-Denition 3 A composition rule is a pair made up of a context pattern and an ad-
-dendum
-This denition in turn relies on the denitions of a context pattern and an adden-
-dum The following denition of a context pattern is somewhat simplied and will be
-enriched later Denition 11 Section 310
-Denition 4 A context pattern is a parse graph with one distinguished node called
-the context anchor and an indication of whether the context anchor is an ancestor or
-immediate linear successor of the previous lexeme
-To proceed in depth-rst order here is the denition that explains the term linear
-successor
-Denition 5 When all phrase constituents in a parse graph are strictly ordered from
-left to right a linear order over the parse graph is given by the left-to-right ordering of
-nodes in the frontier of the summary tree Denition 2 Section 22 It is therefore a
-partial ordering of parse graph nodes under which only terminal nodes of the summary
-tree are comparable
-The context pattern indicates what the parse graph obtained so far must look like
-in order for the rule to be applicable A context matches a context pattern if it is a
-supergraph of the pattern and it contains a node whose location and label match the
-anchor specications
-Section 372 on free word order examines the consequences of having several
-possible linearizations of the parse graph This has computational implications but
-does not impact the above denitions in any essential way
-Denition 6 An addendum is a parse graph with one or two distinguished nodes called
-addendum anchors and exactly one lexical node
-A rule is found applicable when the current lexeme matches the addendum lexeme
-and the context matches the context pattern The conjunction of context and current
-lexeme forms a parse conguration
-Denition 7 A parse conguration is a pair made up of a context and a current
-lexeme
-Beside a parse conguration what a rule species is an operation to modify this
-conguration This operation called an interpolation is specied by means of the
-context anchor and the addendum
-When the addendum contains a single anchor such as the noun node in our ex-
-ample the interpolation is performed by substituting the addendum anchor for the
-context anchor This particular type of interpolation will sometimes be called an in-
-sertion by opposition to a proper interpolation which is characterized by the presence
-of two distinct anchors in the addendum
-When the addendum contains two anchors they delimit a path that is substituted
-for the context anchor Since a single anchor can be viewed as a path of length 0 this
-case subsumes insertion
-No formal denition of interpolation will be attempted at present Let it simply be
-clear that interpolation involves in fact two operations
-1 the substitution of a path of the addendum for the context anchor
-2 the disjoint union of the addendum with the context
-These notions will be treated in more detail in Section 371
-Insertion example
-An example of insertion is the example given informally above The rule can be repre-
-sented as on Figure 8
-In a graphic representation of a composition rule the context pattern and the
-addendum appear on either side of an implies    sign with the addendum on the
-right and the anchoring specications are materialized by placing a mark next to each
-anchor This mark is an asterisk  next to an addendum anchor Next to the context
-anchor it is a double down arrow  or a left arrow  according as the context
-anchor is an ancestor or an immediate successor of the previous lexeme The notion
-of immediate successor is dened with respect to the linear order indicated through
-Figure 8 An insertion rule
-the ordering edges present in addenda Its applicability to free word-order languages
-is discussed in Section 372
-Applying the insertion rule on Figure 8 to the parse graph on Figure 7 results in
-the parse graph on Figure 9
-determiner
-Figure 9 Result of applying the above insertion rule
-33 Proper interpolation example
-Figure 10 illustrates path-to-node anchoring The composition rule interpolates a
-prepositional phrase into a noun phrase to produce a qualied noun phrase as in a
-bird on a tree PP stands for Prepositional Phrase and Prep for preposition
-subject
-Figure 10 A proper interpolation rule
-The sign next to the context anchor indicates that it is to be found above the
-previous lexeme rather than immediately after it The diagram on Figure 11 shows the
-context to which this rule could apply and the resulting context after its application
-An application diagram follows the following pattern
-context  addendum  new context
-subject
-subject
-Figure 11 An application of the preceding rule
-34 Anchor matching
-The preceding examples have shown that the context anchor can be an ancestor or an
-immediate linear successor of the previous lexeme The rst case occurs typically with
-a proper interpolation and the second with an insertion This is of course just the
-typical case Section 372 gives general criteria for locating the context anchor
-341 Matching an immediate successor anchor
-No attempt to deal with free word order will be made until Section 372 Until then
-we can rely on a strict left-to-right ordering of all phrase constituents Therefore the
-previous lexeme always has a unique immediate linear successor which is its immediate
-successor in the frontier of the summary tree Denition 2 Section 22
-342 Matching an ancestor anchor
-Ancestor positions are also dened with respect to the summary tree of the parse graph
-Denition 2 Section 22 On the other hand for a node to match an ancestor anchor
-there is an additional condition beside location and label match It can be stated as
-follows
-Principle 2 A context anchor in ancestor position can only be matched by the root of
-a complete parse graph see Denition 1 Section 22
-For example an NP cannot be postmodied if it is incomplete ie if the frontier
-of its summary tree contains nonlexical nodes
-343 Incidence of node subtyping on anchor matching
-If node labels are sets of symbols label matching requires that all symbols attached to
-the context anchor be present in the node to match For example a context pattern
-could contain the information that the anchor is a denite determiner and any node
-that has at least the type atoms denite and determiner will satisfy label matching
-In other words for a node to match a context anchor its type must be a subtype
-of the type of the context anchor On the other hand this means that the formulation
-of a rule and notably the addendum must involve a special device to mention the
-full type of the node that matched the anchor so as not to lose information Indeed
-a rule is allowed to change the type of the anchor as explained in Section 35 and
-illustrated on Figure 13 Accordingly the special symbol  can be used to assign to
-an addendum anchor the exact type of the node matching the context anchor
-An example of a grammar that uses subtyping is given in Section 42
-35 Parser initialization
-To begin with there is no context or rather the context consists of a single node with
-a generic label that subsumes all phrases with which an utterance is likely to start1 No
-lexeme has been integrated to the context yet but for technical purposes the initial
-node can be considered to follow the previous lexeme In other words a rule with
-an immediate-successor  mark next to the context anchor will match the initial
-context
-Suppose a sentence begins with the phrase a robin then the initial lexeme a can
-be integrated using the following insertion rule
-determiner
-Figure 12 Insertion rule for a
-This rule simply means that a can be considered as the beginning of a Noun Phrase
-It does not say that a could be the beginning of a sentence Yet most utterances are
-sentences so it would seem that this rule is generally inappropriate It is not however
-if one considers that the denition of an interpolation that was informally given in
-Section 31 does not require the two ends of an interpolation path to bear the same
-label And indeed should a phrase like a robin be followed with a verb such as ew
-the rule shown on Figure 13 can apply to make the root of the parse graph an S-node
-Dir stands for directional phrase
-subject
-Figure 13 Interpolation rule for ew
-1Label subsumption is discussed in Section 23
-36 Backtracking
-Matching a rule often involves making a prediction on the continuation of the utterance
-For example the rule on Figure 13 predicts that a directional phrase follows the verb
-ew When several predictions are possible as will often be the case a trial-and-error
-approach is adopted
-A prediction conict appears when several rules are available for a given context
-and current lexeme ie a given parse conguration It is supposed that the rules
-associated with each lexeme are totally ordered by priority and each rule is tried in
-priority order until a successful parse is obtained2
-For example when the current lexeme is ew and an NP node dominates the
-previous lexeme there could be two rules with higher priority on the rule on Figure 13
-and lower priority on the following rule which makes ew an intransitive verb
-subject
-Figure 14 An alternative rule for ew
-Given these two rules the sentence a robin ew swiftly would rst be mapped to the
-parse graph on Figure 15 then on realizing that by the end of the sentence the parse
-graph is still incomplete one would have to reconsider the choices made Supposing
-there is a single analysis available for swiftly the parser would then backtrack on ew
-and try the second rule which would eventually lead to a successful parse
-swiftly
-Figure 15 Graph built before backtracking
-Backtracking involves undoing some of the rules applied so far This supposes
-that track is kept of the list of rules applied and more importantly that each rule is
-reversible As a matter of fact rules as dened are reversible owing to Principle 4
-2If the selection process parallels a similar process in the human mind a simple hypothesis would correlate
-rule priority with statistical eciency alternately or complementarily there could be structural criteria that
-correlated priority with simplicity or canonicity
-Section 371 In order to undo the eect of a rule the addendum is to be removed and
-the interpolation path replaced back by the context anchor If rules were not reversible
-then it would be necessary to keep track of at least the last few parse congurations
-Of course backtracking does not always take place after reading the whole input
-string It takes place whenever no further rule can be triggered and the parse graph is
-incomplete
-For another example consider the sentence he gave trouble to us and suppose that
-The edge label iObj stands for
-the highest-priority rule for gave is the following
-indirect object
-Figure 16 Default rule for gave
-Then on encountering to no rule will match the context in which an object NP
-is expected thus leading the parser to backtrack on trouble then gave and select the
-following rule which will eventually lead to a successful parse A to-Prep is a category
-that contains only the preposition to and unto in archaic dialects
-toPP
-toPrep
-Figure 17 Alternate rule for gave
-Interpolation and anchor matching
-This section revisits concepts introduced in Section 31 giving more precise formula-
-tions and adding details that were initially overlooked
-371 Addendum incorporation
-In all the examples given so far an insertion consists in replacing a dangling node
-with a node with a child and a proper interpolation consists in interpolating a path
-whose rst edge is a parent-of edge so that the destination of the interpolation path
-dominates its source
-With interpolations of this type merging an addendum into the context is a fairly
-straightforward process which has not been explicated so far but only illustrated
-through examples
-However the concept of interpolation allows more exibility than has been hitherto
-suggested and in order to consider further varieties of interpolation it is important
-to bring out the graph invariants implicitly used and preserved during addendum in-
-corporation
-Invariant 1 In a phrase graph there cannot be distinct edges with the same label
-Invariant 2 In a parse graph any node except the root has exactly one incoming edge
-Invariant 3 In a parse graph there cannot be more than one parent-of edge from any
-According to invariant 2 an interpolation path can be dened as the unique oriented
-path that connects two addendum anchors With respect to this path there is a source
-anchor and a destination anchor
-Invariant 2 also implies that the source anchor
-inherits the incoming edge of the context anchor as a result of an interpolation
-Furthermore when one looks at the way the outgoing edges of the context anchor
-are distributed between the addendum anchors of an interpolation invariant 3 can be
-seen to prevail in that the parent-of edge in the examples seen so far is transmitted
-to the destination anchor The underlying principle can be stated as follows
-Principle 3 All edges of the context anchor are inherited by the source of the in-
-terpolation path except for edges present in the addendum which are shifted to the
-destination of the interpolation path
-Principle 3 itself presupposes that the addendum and the context form disjoint
-graphs This principle is well worth spelling out for it allows rules to be easily reversible
-in the sense of Section 36
-Principle 4 In a composition rule the sets of nodes of the addendum and the context
-have an empty intersection
-Indeed if the graph union that is specied by a rule is a disjoint union then no
-information beyond the list of rules applied is necessary to undo the eect of these
-On the other hand Principle 3 presupposes that if the context anchor is a head
-then the addendum anchors must both be capable of inheriting functional edges ie
-be phrase heads as well Conversely if the context anchor is not a head substituting
-a head for it would create a second head within one phrase which is ruled out by
-denition These considerations can be summarized by the following principle
-Principle 5 The head status of the context anchor must be matched by the addendum
-anchors
-This principle does not directly govern addendum incorporation for it has to be
-built into the grammar rules It is especially useful as a prerequisite of Principle 3
-Nonstandard interpolation To see how Principle 3 applies to a nonstandard
-case of proper interpolation ie a case in which the interpolation path does not start
-with a parent-of edge consider the rule on Figure 18 The box represents an empty
-category or gap the symbol that-Cnj informally denotes a subcategory whose main
-representative is the conjunction that
-thought
-thatCnj
-thatCl
-Figure 18 A nonstandard case of proper interpolation
-Although the context anchor which is a verb is a dangling node an empty ob-
-ject NP ie an object gap has been predicted typically owing to the presence of
-a preceding object pronoun ie a relative or interrogative pronoun or a topicalized
-object NP The occurrence of a verb that governs a sentence rather an object NP
-pushes the predicted object gap further Since the object gap does not appear in the
-addendum owing to Principle 4 its position in the graph after the rule has applied is
-not specied explicitly but can be inferred from Principle 3 Indeed since the object
-edge from the context anchor is redundant with the object edge that emanates from the
-source anchor of the addendum it is inherited by the destination anchor Therefore
-after addendum incorporation the context will contain the following subgraph
-thought
-thatCnj
-thatCl
-Figure 19 Subgraph obtained after addendum incorporation
-Nonstandard insertion A standard insertion substitutes a node with an outgoing
-parent-of edge for a dangling node But it is also conceivable to substitute a node with
-arbitrary nonredundant outgoing edges for a node with descendants
-A practical use of nonstandard interpolation could be the handling of optional
-complements For example supposing the rule that handles the by-complement of a
-passive were the one represented on FigurepassiveAgentg there would be no necessity
-to anticipate the presence of a by-complement on encountering a passive and so no
-backtracking would be involved to handle its optionality3
-passiveV
-passiveV
-byPP
-byPrep
-Figure 20 Rule for the by-complement of a passive
-372 Anchor matching
-The principles assumed so far for matching the context anchor have to be stated ex-
-plicitly and possibly extended this is necessary on the one hand to predict the anchor
-position for any arbitrary interpolation including a nonstandard one and on the other
-hand to cater for variations in word order
-Section 34 specied two possible positions for the context anchor as ancestor or
-immediate linear successor of the previous lexeme But no principle to nd out whether
-a given interpolation should take place at an ancestor or successor position has yet been
-stated As a matter of fact a simple principle underlies the examples given so far
-Principle 6 If the addendum lexeme linearly follows either endpoint of the interpola-
-tion path the context anchor is an ancestor of the previous lexeme In all other cases
-the context anchor is the immediate linear successor of the previous lexeme
-This principle is analogous to Principle 2 in that it prevents the occurrence of
-dangling nodes among the linear predecessors of the current lexeme So it is a practical
-consequence of a more general principle
-Principle 7 A valid interpolation cannot leave or create dangling nodes that linearly
-precede the lexeme it integrates
-Another consequence of Principle 7 on the form of rules is the following
-Principle 8 An addendum cannot contain dangling nodes that linearly precede the
-anchor that inherits the parent-of edge of the context anchor
-3The directional complement of the verb y used to illustrate backtracking in Section 36 could be
-handled in this way unless there were good reasons to distinguish the two constructions from the point of
-view of lexical semantics
-Under strict word order the form of rules can be controlled through Principles 8
-and 6 to enforce Principle 7 When alternative orderings are allowed the matching
-process itself may have to take this principle into account for rules may have to admit
-addenda that may violate Principle 7 or 8 under conditions that can only be checked
-dynamically
-To see Principle 6 in application compare the rule on Figure 21 which represents
-a premodication to the rule on Figure 22 which represents a postmodication
-Figure 21 Premodication by the adjective red
-swiftly
-Figure 22 Postmodication by the adverb swiftly
-It is now apparent that word order plays a key role in anchor choice during rule
-design and in anchor matching during rule application So it is interesting to see what
-extensions to the principles just brought out are necessary in order to accommodate
-greater freedom in word order than has been presupposed up till now
-Complex phrase ordering Under a strict ordering of phrase nodes a parse graph
-can be linearized by considering the frontier of the summary tree Denition 2 Sec-
-tion 22 Then in a given parse conguration the previous lexeme has a unique
-immediate successor However when several possible orders are allowed there may be
-more than one linear successor to the previous lexeme
-Consequently several context nodes may be found to match the context anchor of
-an applicable rule This introduces a degree of indeterminacy which is compounded
-with the indeterminacy resulting from rule conicts ie
-the availability of several
-matching rules for a given lexeme
-Not only does this type of indeterminacy arise in the presence of free word order but
-it is also liable to arise in a xed-order framework if several nodes along a parent-of path
-are allowed to bear the same label Indeed this situation could result in several nodes
-matching an ancestor anchor and a principle that ruled it out would be no more than
-an ad hoc feature that reduced the formalisms expressive power without reducing its
-indeterminacy in any essential way Therefore indeterminacy due to anchor matching
-has to be handled somehow
-Once again a trial-and-error approach seems to be the natural path to follow The
-mechanism used to solve rule conicts can be applied here too provided competing
-anchor matches are somehow ordered by priority As far as ancestor conicts are
-concerned proximity to the previous lexeme ie depth seems to correlate simply and
-naturally with priority As far as successor conict is concerned however it would
-seem that no natural solution is available unless even when the placement of nodes in
-a phrase graph is relatively free there is an underlying preferred order
-In addition to the possibility of nding multiple anchor matches free word order also
-complicates the process of identifying context anchors for context nodes do not stand in
-a simple topological relation with respect to the previous lexeme From an algorithmic
-point of view the solution seems to consist in updating the set of successors of the
-previous lexeme after each interpolation as described in Procedure 1 Appendix A
-38 Coreference links
-Incremental left-to-right parsing as outlined forms phrases exclusively from adjacent
-lexemes However immediate syntactic relations between distant constituents do exist
-in natural languages Interrogative and relative clauses in English provide such exam-
-ples For example in the following sentence the pronoun who somehow functions as
-the subject of to win although these two constituents occupy distant positions in the
-input stream
-Who do you want to win
-This diculty will be solved through a now classic device in syntactic theory namely
-coindexing of phrases This consists in linking coreferential phrases together typically
-by assigning to them equal referent indices In the above example the interrogative
-pronoun who and the empty subject of to win whose presence is concretized by the
-unacceptability of Who dyou wanna win as a spoken realization are coindexed
-In fact in order to reconcile the fact that the parsing model under discussion can
-only establish immediate syntactic relations between neighbouring constituents and
-the fact that various ordering constraints or rhetorical phenomena may separate phrase
-constituents we will rely on coreference links A coreference link is somewhat more
-general than NP coindexing is that it may apply to any part of speech rather than just
-noun phrases
-Nodes related by a coreference links have just one counterpart in the semantic
-interpretation to be derived from the parse graph This means that all members of a
-coreference chain denote the same object in the universe of discourse Syntactically
-this entails that members of a coreference chain of NPs share gender and number
-characteristics and members of a coreference chain of verbs share complements For
-example one member will have a subject another member no subject but a direct
-object and a third an indirect object thus forming three instances of a single verb
-with subject object and indirect object
-Many phenomena in natural languages suggest that the human parser prohibits
-to a large extent the splitting of a phrase across distant lexemes but uses coindexing
-to handle the sharing of constituents between phrases and rhetorical disruptions to
-standard phrasal order
-Such disruptions are typically attenuated by the use of resumptive pronouns in
-spoken French as in the following example
-Il est bizarre ton chapeau
-It is weird is your hat
-Here the main verb nds its subject where the parser expects it but this subject
-is only a pronoun coreferenced with the real subject which for intonational eect
-is relegated to a secondary tone unit so as to allow full emphasis on the predicate
-When no overt pronoun shows the existence of a coreference chain it is sometimes
-necessary to postulate the existence of empty lexemes as in the interrogative clause
-cited above
-In Section 5 an analysis of Dutch cross serial dependencies will be attempted in
-terms of covert coreference chains
-The introduction of coreference links gives rise to the following denitions
-Denition 8 An augmented parse graph is a parse graph augmented with coreference
-Denition 9 A coreference link is an undirected edge that relates two nodes standing
-in an equivalence relation Links that can be inferred such as the link from any node
-to itself do not need to appear in the representation of an augmented parse graph
-The equivalence relations represented in an augmented parse graph are coreferentiality
-relations
-Denition 10 A coreferentiality is an equivalence relation over parse graph nodes
-bearing a specied label Coreferentialities found useful are NP coreferentiality and
-verb coreferentiality
-This denes a graph hierarchy with phrase graphs at the bottom and augmented
-parse graphs at the top
-39 Multiple interpolation
-Coreference links make it meaningful to dene parallel interpolations operating simul-
-taneously on several context anchors Multiple interpolation seems useful only when
-the context anchors are located with respect to a coreference chain Figure 23 shows
-an example of a double interpolation
-This example is purely formal but concrete examples will be given in Section 5
-on Dutch Cross-Serial Dependencies Nonetheless it illustrates an important feature
-of multiple interpolation namely the fact that the rule albeit multiple adds a single
-lexeme to the parse graph Typically it anticipates a Y -gap coreferential with this
-Figure 23 A double interpolation
-lexeme Gaps do not count as lexemes in so far as they are not physically present in
-the input string
-Furthermore the formulation of multiple interpolation makes it necessary to dene
-a third possible location for the context anchor namely linear successor denoted by a
-double left arrow  as opposed to immediate linear successor denoted by a simple
-left arrow 
-Implicit reexive-transitive closure in patterns
-The denition of coreferentiality as an equivalence relation Denition 10 yields some-
-what unsuspected power to the occurrence of coreferential links in context patterns
-To see that consider the example of adjectival denite descriptions in English as
-found in the wealthy the inuential etc Leaving semantic features aside one impor-
-tant syntactic requirement for forming such NPs is that the determiner be denite
-This is captured by the rule on Figure 24 Def stands for denite determiner
-wealthy
-Figure 24 Restrictive rule for adjectival denite descriptions
-Coreference links are created because the structure being built is a modication
-structure not because of the presence of a noun gap4 The modication examples
-given so far did not contain coreference links simply because extended parse graphs
-had not been dened
-This rule requires that the noun node that is to be replaced by an adjective and
-an empty noun be immediately preceded by a denite determiner Therefore it will
-4This gap does not play a pronominal role but rather represents a semantically empty noun A precise
-notation would include the name Pro in the label of real gaps such as those used in Section 5
-not apply to a noun which is itself premodied by an adjective as in the idle rich
-On the other hand one cannot devise a rule covering specically a string of the form
-Def Adj Adj for the premodication can be iterated as in the outrageous idle rich
-Consider therefore the rule on Figure 25
-wealthy
-Figure 25 Comprehensive rule for adjectival denite descriptions
-This rule allows the context anchor to be separated from the NP head by any
-number of premodication stages including zero For example the last interpolation
-to be applied when parsing the outrageous idle rich can be represented by the diagram
-on 265
-outrageous
-outrageous
-Figure 26 Last interpolation performed when parsing the outrageous idle rich
-The existence of rules in which an anchor is related to the rest of the context by a
-coreference link leads to the following denition of a context pattern
-Denition 11 A context pattern is a subgraph of an augmented parse graph with one
-or several distinguished nodes called anchors Anchor location with respect to the previ-
-ous lexeme takes one of the three values ancestor immediate successor and successor
-5This diagram represents a derivation step as explained in Section 412
-4 A simple expression grammar
-To show the specicities of Graph Interpolation Grammars even in the absence of
-context-sensitivity in rules this section applies them to the classical problem of a simple
-arithmetic expression language with two precedence levels and left associativity
-41 Deriving an GIG from a CFG
-This section will derive as simply as possible a Graph Interpolation Grammar from the
-Context Free Grammar given in Figure 27 This kind of derivation could conceivably
-be performed automatically in order to benet from the incrementality of GIG-driven
-parsing for existing context-free grammars For example in a language-based editor
-the incremental building of parse representations as each token is read could be used
-to implement syntax-sensitive editing functions
-E  E  T
-E  T
-T  T  F
-T  F
-F   E 
-F  0
-F  1
-Figure 27 Context-Free Grammar for a simple expression language
-411 Numbers
-Moving from a CFG to a GIG involves lexicalization This means that every rule is
-to be matched by a lexeme and contains a representation of the contexts in which this
-lexeme is likely to occur As far as numbers are concerned they can function either as
-factors terms or expressions Therefore each number will have three associated rules
-Figure 28 shows the three rules associated with the number 0
-Figure 28 GIG rules associated with the lexeme 0
-412 Sum
-A sum is identied on scanning the lexeme  By representing a sum as an interpolation
-into an E the fact that  is the lowest-priority operator is captured Accordingly the
-rule for  is as represented on Figure 29
-Figure 29 Rule to be matched on encountering a 
-Since the addendum lexeme follows the destination of the interpolation path ie
-the rst operand of the sum the context anchor is stipulated to be an ancestor of the
-previous lexeme Principle 6
-The fact that the second operand is a term T rather than an expression E
-forces left associativity This can be veried by unwinding the GIG derivation for the
-string 0  0  0 This derivation up to the insertion of the last zero is represented on
-Figure 30
-Figure 30 The derivation for 0  0
-A step in a GIG derivation consists in the marking of a context anchor in the
-result of the preceding step and a representation of the parse graph as modied by
-the interpolation applied
-413 Product
-The rule for a product is entirely analogous to the rule for a sum except that it is
-allowed to apply to a term rather than an expression This fact gives it precedence
-over sum for essentially the same reason as in the original context-free grammar
-Figure 31 shows the rule for the product operator and Figure 32 shows the deriva-
-tion for 1  1  0 up to the insertion of the lexeme 0 It illustrates the relative priorities
-of sum and product
-Product
-Figure 31 The rule for 
-Product
-Figure 32 The derivation for 1  1
-414 Parentheses
-A rule for a left parenthesis is an insertion that announces an expression and a right
-parenthesis in a context where an expression a term or a factor could be expected
-As a right parenthesis is not supposed to occur unless it has been announced by a left
-parenthesis its rule is a simple lexical insertion Accordingly only the rules for the left
-parenthesis are shown on Figure 33
-Note that nonterminals RPar and Rpar are necessary according to principle 1
-Section 22
-Applying these rules to the parsing of 1  1  0 one obtains the derivation whose
-main steps are shown on Figure 34
-Figure 33 The rules for the left parenthesis
-42 A more idiomatic approach
-The existence of three rules to insert a number or a left parenthesis is the translation
-of a CFG idiom for handling precedence The native GIG device for solving this type
-of problem relies on node subtyping
-For the expression language considered we can have tree type atoms N for num-
-ber P for product and S for sum They form two hierarchies that meet at the
-universal type NPS as shown on Figure 35
-If we ignore preterminal labels such as Sum or LPar an NPS matches any
-anchor so it is an expression in a broad sense It occurs typically as the initial parse
-graph and between parentheses An NP is any expression except a sum so it occurs
-as the right operand of a sum to enforce left association Likewise an N is exclusively
-a number or a parenthesized expression such as occurs as the right operand of a
-product As far as the right-hand branch of the hierarchy is concerned a PS can
-occur as the left operand of a product or sum while an S can occur only as the left
-operand of a sum These enforce the relative precedence of sum and product
-421 Numbers
-There is a single rule for inserting a number It requires the atom N in the context
-anchor and does not modify its type The symbol  that is used as the label of the
-addendum anchor indicates that this label is inherited as is from the node matching
-the context anchor The rule for zero is represented on gure 36
-422 Sum
-The rule for the operator  is represented on Figure 37
-A sum can be interpolated only at a node whose type contains the type atom S To
-guard against the interpolation of a product on top of a sum the type S is assigned
-to the root of the addendum To guard against right association of additions the type
-NP is assigned to the right operand The left operand cannot be the object of further
-interpolations and simply inherits the type of the node matching the context anchor
-Figure 38 derives 0  0  0 up to the last insertion to show that left associativity is
-enforced
-Product
-Figure 34 Main steps in the derivation for 1  1  0
-Figure 35 Type hierarchy for the expression grammar
-Figure 36 The rule for zero
-Figure 37 The rule for 
-Figure 38 The derivation for 0  0
-When the second occurrence of  is encountered only one of the ancestors of the
-previous lexeme has a type which contains S
-423 Product
-The rule for the operator  exactly parallels the rule for the sum operator It requires
-the anchor type to contain the atom P assigns the type PS to the addendum root
-and assigns the type N to the right operand It is represented on Figure 39
-Product
-Figure 39 The rule for the product operator
-The fact that the root node of the addendum is a PS rather than an S gives priority
-to multiplication over addition Figure 40 outlines the derivations for 1  1 and 0  1
-Product
-Figure 40 Derivation outlines for 1  1 and 0  1
-If the current lexeme after parsing 1  1 is  only the closest ancestor of the
-previous lexeme will have a matching type On the other hand if the current lexeme
-after parsing 0  1 is a plus only the root of the parse graph will have a matching type
-424 Parentheses
-The rule for the left parenthesis is given on Figure 41
-Once it has applied only an insertion at the linear successor of the left parenthesis
-is possible due to Principle 2 This could be the insertion of a number or a left
-parenthesis So the supertype N as phrase head would also work but no particular
-constraint is necessary here which is why the most permissive type is indicated The
-same remark holds for the initial context In fact the type NPS makes the grammar
-more open to future evolutions but could be replaced by N without impairing its
-operation
-Figure 41 The rule for the left parenthesis
-5 Dutch Cross-Serial Dependencies
-In Dutch a few conjunctions such as dat that or omdat because introduce a clause
-in which the verb comes after its object NP Now with perceptual and causative verbs
-ie verbs which syntactically take both an NP object and an innitive clause object a
-double order prevails all object NPs occur before the nite verb in order of increasing
-nesting level as in German for instance and innitive verbs occur after the nite verb
-in order of increasing nesting level which reects a right-branching construction for
-clausal objects quite unlike German in which the verbs occur in order of decreasing
-nesting level thus inviting a recursive analysis
-In several papers on DCSDs examples revolve around hippopotami The example
-given below taken from Ren94 does not depart from this tradition The indices
-relate each verb to its preceding NP object
- dat ik Henk1 haar2 de nijlpaarden3
- that I Henk1
-that I saw Henk help her feed the hippopotamus
-her2 the hippopotamus3 saw1 help2
-zag1 helpen2 voeren3
-The analysis that will be attempted is based on the principle that when a verb in a
-dat-clause has an NP object and a clause object the NP object is constrained to occur
-before the verb and the clause object is constrained to occur immediately after it
-In itself however the existence of dierent positional requirements on the NP object
-and the clausal indirect object would not seem to require a special syntactic device
-when the ditransitive verb governs an ordinary transitive verb Thus in the light of
-the principle just outlined one could expect the following incorrect construction to
-  dat ik haar zag de nilparden voeren
-In fact there seems to be an additional constraint that amounts to forbidding any
-object in a dat-clause to occur before the nite verb So the correct construction is
-instead as follows
- dat ik haar1 de nilparden2 zag1 voeren2
-To recapitulate the constraints at work to produce this construction are the fol-
-lowing
-1 The NP object of any verb in a dat-clause or a clause nested therein occurs before
-it to form an inverted verb phrase
-2 The clausal indirect object of a perceptual or causative verb which is an innitive
-clause with a subject gap occurs after it
-3 In a dat-clause no direct NP object whatever the nesting level at which it occurs
-occurs before the nite verb
-Now the conjunction of the third constraint with the existence of a double order on
-the construction of perceptual and causative verbs in dat-clauses produces a rift in
-the construction as a result of which a ditransitive verb may be separated from its
-preceding direct object by a theoretically arbitrary distance In order to govern two
-complements across a rift a verb in the general framework adopted here is in fact
-realized as two graph nodes one of which is a verb gap To see that the representation
-below shows the phenomenon with one level of nesting Verb gaps are represented by
-square boxes
- dat ik haar 1 de nijlpaarden 2 zag1 voeren2
-This representation postulates that haar and de nijlpaarden occur in inverted VPs
-headed by verb gaps and that the verb gaps are coindexed with lexical verbs occurring
-in a right-branching construction governed by the nite verb
-If extended one additional nesting level the representation that is obtained is the
-following
- dat ik Henk 1 haar 2 de nijlpaarden 3 zag1 helpen2 voeren3
-Furthermore each non-nite lexical verb heads a clause whose subject is a gap
-Each such NP gap is coindexed with the NP object of the superordinate verb The
-coreference pattern for NPs is the following
- dat ik Henk1 haar2 de nijlpaarden zag 1 helpen 2 voeren
-In order to capture these hypotheses as GIG rules one will have to consider three
-cases i a dat-clause headed by a perception or causative verb ii a non-nite clause
-with an inverted VP whose head is a perception or causative verb and iii a non-nite
-clause with an inverted VP whose head is a monotransitive verb
-51 Complex dat-clause
-When the conjunction dat is encountered one generally has no way of guessing that
-its verb will impose a cross-serial construction So the rule on Figure 42 will be used
-only on backtracking after realizing that no rule can integrate the second object NP
-haar if the verb that is expected is an ordinary transitive verb
-The inverted verb phrase split-inv-VP that heads the sentence is split into an
-instance that governs the direct object inv-VP and an instance that governs the
-clausal indirect object iObj-VP Since neither of these half-instances qualies as a
-head an empty coordination conjunction is postulated to relate them This empty
-conjunction represents the barrier between the left-branching construction for NPs
-and the right-branching construction for verbs
-Given our example the lexemes whose occurrence is anticipated by this rule are
-i the subject of the split-inv-VP namely ik ii the direct object of its inv-VP
-datCl
-datCnj
-datCl
-invS
-splitinvVP
-invVP
-iObjVP
-complexV
-nonfinS
-nonfinV
-Figure 42 The rule for a dat-clause with a complex ditransitive
-instance namely Henk iii the complex-V namely zag and iv the verb of its clausal
-object namely helpen which is labelled as nonn-V
-The labels given to nodes here are more precise than required by the operation of
-the rules But this precision hopefully helps legibility
-52 Complex nonnite clause
-Just as in the case of the previous rule the decision to trigger the rule for an embedded
-complex verb cannot be taken the rst time its object is encountered but only after
-backtracking on the following NP
-The rule represented on Figure 43 is a double interpolation which acts simultane-
-ously on both instances of a split VP A relation of coordination is supposed between
-the inverted verb phrases on the left top interpolation for there is no clause hierar-
-chy among them The use of double interpolation on two graph areas connected by a
-coreference link allows these areas to lie at an arbitrary distance from each other
-Supposing the lexemes ik and Henk were inserted into the output of the rule rep-
-resented on Figure 42 the eect of the last rule would be to produce the graph on
-Figure 44
-53 Simple nonnite clause
-With a simple transitive verb the verb gap that is created is simply coreferenced to
-its counterpart in the context so the bottom interpolation does not create any node
-The presence of an article in the context specied on Figure 45 announces a transitive
-verb and so no rollbacking need be involved to trigger the rule that is represented
-invVP
-invVP
-invVP
-invVP
-complexV
-nonfinS
- complexnonfinV
-nonfinS
-nonfinV
-nonfinV
-Figure 43 The rule for a nested verb of the helpen type
-This rule adds an NP node to the left of the syntactic rift this node is the object
-of an inv-VP containing an anticipatory verb gap coindexed with the second context
-anchor which itself anticipates the occurrence of the verb voeren to the right of the
-rift In short the top interpolation adds a direct object and the bottom interpolation
-connects it to the cascade of clausal objects after zag
-6 Conclusion
-This report has dened a form of grammar called Graph Interpolation Grammar
-which produces parse graphs by simple derivation from an initial graph consisting of
-one node Since derivation integrates input lexemes left-to-right a GIG derivation is
-an incremental parse of an input sentence
-The basic operation graph interpolation which combines path substitution and
-disjoint graph union has been described at some length Two classic problems one
-from the eld of parsing arithmetic expressions and one from the eld of linguis-
-tics Dutch cross-serial dependencies have been selected to illustrate problem-solving
-through GIG design
-The essential hopefully has been stated but much remains to be done to improve
-the formalism and explore its potentialities Areas for further research are presented
-in Section 62
-On the other hand the GIG model shares intuitions with several other syntactic
-formalisms which are briey reviewed in Section 61
-datCnj
-datCl
-invS
-splitinvVP
-invVP
-iObjVP
-complexV
-nonfinS
-invVP
-invVP
-complexnonfinV
-nonfinS
-nonfinV
-invVP
-invVP
-invVP
-invVP
-complexV
-nonfinS
- nonfinV
-nonfinV
-Figure 45 The rule for a nested monotransitive verb
-61 Related works
-Graph interpolation can be viewed as an extension of tree adjunction to parse graphs
-And indeed TAGs JLT75 by introducing a 2-dimensional formalism into computa-
-tional linguistics have made a decisive step towards designing a syntactic theory that
-is both computationally tractable and linguistically realistic In this respect it is an
-obligatory reference for any syntactic theory intent on satisfying these criteria
-The basic intuition in GIGs however that of incrementally connecting lexemes by
-looking up their combinatory properties can be found in link grammars ST95 Link
-grammars are mathematically interesting but do not easily interface with a semantic
-component
-Categorial grammars Ste86 Ste88 have a similar rationale They use binary com-
-binators on function types that represent grammatical categories The parse structures
-generated which are binary trees reecting the order of combinator application can
-be somewhat counterintuitive from a semantic point of view
-In Lexical Functional Grammars Bre85 grammatical functions are loosely coupled
-with phrase structure which seems to be just the opposite of what is done in a GIG
-in which functional edges are part of the phrase structure Nonetheless these two
-approaches share the concern of bringing out a functional structure even if much of
-what enters into an f-structure ie a functional structure in LFG is to be addressed
-by the semantic component a topic for further research in GIG
-62 Further research
-621 Linguistic phenomena
-Important categories of phenomena to analyze include ellipsis notably under coordi-
-nation and word scrambling
-Furthermore the discussion of free word order in this report has hovered at an
-uncomfortable level of abstraction It is necessary to return to this issue with concrete
-examples
-On the other hand the interface with a scanner and morphological analyzer has
-yet to be stated explicitly Phenomena to account for include idioms phrasal lexical
-items agglutinative morphology and scanning ambiguities
-622 Psycholinguistic considerations
-The main natural feature embodied in Graph Interpolation Grammars is incremen-
-tal left-to-right parsing which is expected to provide a basis for incremental semantic
-evaluation of discourse a feature in favour of which there seems to be conclusive ex-
-perimental evidence
-Processing time The formalism would be particularly satisfactory as a model of
-human parsing if the computational complexity it predicts correlated with observed
-processing time in humans What is mainly at stake here is the plausibility of the
-backtracking mechanism that has been described
-Garden-path sentences GIG parsing involves backtracking for sentences that hu-
-mans do not identify as garden-path sentences A hypothesis to test against further
-evidence is that the human analyzer is garden-pathed only when semantic interpreta-
-tion has to be revised not when purely structural adjustments are taking place A
-thorough discussion of this question requires that a working model be proposed for the
-semantic component
-Error tolerance The capacity to pick up meaning from ill-formed utterances is a
-capability of the human language processor that does not seem beyond the reach of
-GIG-based modelling The model could involve some form of partial match of context
-patterns to resort to when the parser is stymied
-Evolutionary aspect Languages undergo idiolectal variations and historical changes
-A constant adjustment of rules takes place when language is used If GIGs were en-
-dowed with the error recovery device delineated in the previous paragraph a model of
-evolution could then be worked out to promote heavily activated near-matches to full
-matches possibly at the detriment of competing weakly activated full matches which
-could disappear in the process
-623 Mathematical properties
-Expressive power GIGs are at least as expressive as TAGs for graph interpolation
-can be used to express tree adjunction or tree substitution This means that the
-formalism is at least mildly context-sensitive Furthermore multiple interpolation
-adds expressive power comparable to that found in Multi-Component TAGs KJ87
-GIGs do seem to provide the right amount of context-sensitiveness but this remains
-to be precisely quantied
-Complexity The backtracking mechanism induces a worst-case exponential com-
-plexity On realistic grammars however both the base of the exponential ie the
-number of lexemes past which it makes sense to backtrack and the exponent ie the
-number of competing rules for a given lexeme seem to have very low upper bounds
-What is a realistic grammar could be characterized precisely by determining such
-bounds by collecting linguistic facts Beside quantied bounds it is to be thought that
-some barrier eect makes it pointless to backtrack beyond certain syntactic barriers
-On the other hand the backtracking mechanism itself could be reconsidered to reduce
-its computational complexity for example by allowing backtracking to skip back to
-a privileged place either through links built while parsing or using a form of pattern
-matching
-Automatic generation of GIG rules Section 4 suggests that a Graph Interpo-
-lation Grammar could be automatically derived from a Context Free Grammar mostly
-for the purpose of using existing LR grammars
-The feasibility of converting automatically from other formalisms and particularly
-Lexical Functional Grammars seems worth exploring as well
-Linearized syntax for rules From a practical point of view however GIGs are
-not to be seen as a low-level formalism to be generated automatically from higher-
-level formalisms But for GIG writing to be practical what could be needed is i a
-linearized syntax to type rules quickly rather than draw graphs and ii a WYSIWYG
-tool that showed incrementally the graphic aspect of what is being typed This tool
-could of course be implemented on top of a GIG engine
-A linearized syntax could involve a frame-like notation in which an augmented parse
-graph were a set of slots with a phrases slot that pointed via slot values to phrases
-with an optional pre-dened parent slot and user-dened functional slots
-For example a linearized version of the addendum in Figure 25 could look like the
-frame expression on Figure 46 Predened slot names are boldfaced Slot references
-are slash-separated paths starting at the parent of the slot being dened A double
-dot  moves up one level in the slot hierarchy
-On the other hand many grammar designers would probably not feel frustrated by
-the lack of a linear syntax given an ecient graphic tool
-References
-Bre85 Joan Bresnan The mental representation of grammatical relations MIT
-Press series on cognitive theory and mental representation MIT Press 1985
-Collected articles
-JLT75 A K Joshi L S Levy and M Takahashi Tree adjunct grammars Journal
-of Computer and System Sciences 1013663 1975
-addendum 
-phrases 
-0  head N 
-parent 0head
-head Adj
-subj N
-parent 1subj
-head Gap
-lexeme 
-parent phrases1head
-spelling wealthy
-anchors 
-source phrases0
-destination source
-coreferences 
-0 phrases0head
-1 phrases1subj
-Figure 46 A linearized addendum
-KJ87 Anthony Kroch and Aravind K Joshi Analyzing extraposition in a tree
-adjoining grammar In G Huck and A Ojeda editors Discontinuous con-
-stituents syntax and semantics Academic Press 1987
-Ren94 Gerrit Rentier Dutch cross serial dependencies in HPSG Computation and
-Language archive cmp-lg9410016 US National Science Foundation ITK
-Tilburg University October 1994
-ST95 Daniel D K Sleator and Davy Temperley Parsing english with a link
-grammar Technical Report CMU-CS-TR-91-126 Carnegie Mellon Univer-
-sity 1995 Available in the Computation and Language archive under cmp-
-lg9508004
-Ste86 Mark Steedman Combinatory grammars and human language processing
-Technical Report DAI-RP-279 University of Edinburgh 1986
-Ste88 Mark Steedman Combinators and grammars In Richard T Oehrle E Bach
-and D Wheeler editors Categorial Grammars and Natural Language Struc-
-tures pages 417442 Redel Dordrecht 1988 paper to the Conference on
-Categorial Grammar Tucson AR June 1985
-A Anchor location procedures
-The following procedure can be used to update the set of possible linear successors of
-the current lexeme after an interpolation It is operational even when several linear
-orders are allowed
-Procedure 1
-1 Based on ordering relations in the addendum one identies the set of possible
-linear successors of the current lexeme which is here the lexeme just inserted
-2 The possible linear successors of the previous lexeme as recorded when it was
-inserted minus the node that matched the context anchor are added to the set
-found in step 1
-Note that since the addendum and the context are disjoint the second step cannot
-add potential successors already added by the rst step This observation is important
-to determine whether rule application remains reversible in the presence of free word
-Indeed undoing a rule with respect to the set of potential successors of the
-current lexeme can be done as follows
-Procedure 2
-1 Based on ordering relations in the addendum one identies a subset of possible
-the lexeme on which to backtrack
-linear successors to the current lexeme ie
-and subtracts this subset from the set of possible successors
-2 Once the insertion itself has been undone the context anchor for this insertion
-is added to the set obtained in the previous step and this set becomes the set of
-potential successors of the previous lexeme
+A physical model of nicotinic ACh receptor kinetics
+Ewa Nurowska1 Mykola Bratiichuk2 Beata Dworakowska1 Roman J Nowak3
+1Department of Biophysics Warsaw University of Life Sciences SGGW 02-776 Warsaw Poland
+2Institute of Mathematics Department of Probabilistic and Econometry
+The Silesian University of Technology 44-100 Gliwice Poland and
+3Institute of Experimental Physics University of Warsaw 00-681 Warsaw Poland
+Dated December 31 2008
+We present a new approach to nicotinic receptor kinetics and a new model explaining random
+variabilities in the duration of open events The model gives new interpretation on brief and long
+receptor openings and predicts for two identical binding sites the presence of three components in
+the open time distribution two brief and a long We also present the physical model of the receptor
+block This picture naturally and universally explains receptor desensitization the phenomenon of
+central importance in cellular signaling The model is based on single-channel experiments con-
+cerning the eects of hydrocortisone HC on the kinetics of control wild-type WT and mutated
+D200Q mouse nicotinic acetylcholine receptors nAChRs expressed in HEK 293 cells The ap-
+pendix contains an original result from probability renewal theory a derivation of the probability
+distribution function for the duration of a process performed by two independent servers
+INTRODUCTION
+A generally accepted kinetic model GAKM of ACh
+receptor gating assumes that the receptor opens when
+one or two agonist molecules get bound to it and shuts
+before agonists dissociation reviewed by Hille 2001
+If only one molecule is bound to the receptor it opens
+for a short time two bound molecules result in a long
+opening of the receptor It was however noted that an
+excess of brief openings that appeared in some recordings
+at high agonist concentrations is not consistent with this
+interpretation Colquchoun et al 1985 Sine et al 1987
+ Hallermann et al 2005 Thus the question of how the
+binding sites contribute to channel gating is still open
+The GAKM assumes that the ACh-AChR binding is
+formed as a result of the interaction between the -
+electron systems originating from the agonist-binding-
+sites-aromatic-amino-acids and the cholinum nitrogen
+native to the quaternary ammonium ligands reviewed
+by Arias 2000What is usually not discussed is the
+fact that close to the ACh binding site there is an elec-
+trically noneutral amino acid the negatively charged as-
+partic acid which may have some inuence on the ago-
+nist binding or tracking To check the role of this amino
+acid for the ACh receptors kinetics we performed exper-
+iments on the D200Q receptor Mukhtasimova et al
+2005 with the negatively charged aspartic acid removed
+and replaced by a polar amino acid glutamine Previ-
+ous studies suggested that the amino acid D200 played
+a role in the process of receptor activation ie in the pro-
+cess that starts after a binding of the agonist OLeary
+et al 1992 Akk et al 1996 In our present studies we
+go a bit further we examine the role of this amino acid
+in the process of the receptor block
+corresponding author wrote the article email ewafcunitsit
+wrote Appendix
+We studied the receptors kinetics in both wild and
+mutated versions to better understand the limits of the
+validity of the GAKM discussed above This model has
+very severe consequences for our understanding of the
+structure of the receptor Applications of various block-
+ers such as the open-channel blockers and the use of
+GAKM predicts for example the amino acid content of
+an ion channel Leonard et al 1988 Validity of the
+models describing how the receptor is built is thus very
+strongly dependent on the model of the receptors kinet-
+The classical open-channel blockers theory is based
+on the observation that the voltage dependence in the
+blockers action occurs only when the blockers are elec-
+trically charged Neher et al 1978 Akk et al 2003 It
+turns out however that there exist electrically neutral
+molecules such as HC Bouzat et al 1996 Nurowska
+et al 2002 and physostigmine Wachtel 1993 which
+block the ACh receptor with a very strong voltage depen-
+dence They prove that the voltage dependency is quite
+a complex phenomenon which is not only a consequence
+of the molecule charge
+Another doubt about the GAKM comes from the fact
+that the open-channel blockers action is very often de-
+pendent on the agonist concentration The occurrence
+of this dependence is so common that some authors con-
+sider it as the main feature of the open-channel blockers
+Buisson et al 1998 This is in direct contradiction with
+the claim of the open-channel blockers theory that the
+blocker enters into the ionic channel once the blocker
+is in the channel the agonist concentration should not
+inuence the block
+In this paper we introduce a model of the receptor
+blocking which resolves the problems discussed above
+Our model explains how an electrically neutral blocker
+HC induces a voltage dependent eect
+It also ex-
+plains the dependence of the blocker action on the ago-
+nist concentration This model naturally and universally
+explains receptor desensitization Molecular rearrange-
+ments causing receptor desensitization were up to now
+poorly understood Our model of the receptor block re-
+quires a new kinetic model of the AChR gating The
+formulation of this new kinetic model is also given and
+its consequences for the kinetic theory are discussed
+II METHODS
+Cell culture The human kidney cell line HEK 293 was
+routinely cultured in DMEM supplemented with heat-
+inactivated foetal calf serum 10 L-glutamine 4mM
+penicillin 100 unitsml1 and streptomycin 100 g
+ml1 Cells were incubated in an atmosphere containing
+5 CO2 at 37 C One day before transfection cells were
+seeded into culture dishes
+Transfection Mouse nAChR subunit     cD-
+NAs in the expression vector pRBG4 Sine 1994 and the
+mito-GFP construct were transiently expressed in HEK
+293 cells using LipofectAmine Plus TM Reagent Life
+Technologies Inc The WT subunits and the mutated
+-subunit with the D200 aspartic acid to Q glutamine
+substitution were the generous gift of Prof Steven Sine
+Receptor Biology Lab Mayo Foundation Rochester
+Mito-GFP was a kind gift from Prof Adam Szewczyk
+Nencki Institute Warsaw A total of 1 g of cDNA per
+35 mm culture dish in the ratio 21111 GFP
+was used The D200Q contained the mutation on both
+ subunits
+Single-channel
+Electrophysiology
+currents were
+recorded from cell-attached patches 1-2 days after trans-
+fection Hamill et al 1981 The bath saline NES
+contained mM NaCl 140 KCl 28 CaCl22 MgCl22
+glucose 10 HEPES buer 10 pH 74 The pipette con-
+tained NES and acetylcholine ACh Sigma-Aldrich Co
+Ltd 50-500 nM ACh in experiments with the WT re-
+ceptor and 10-100 M ACh in experiments with D200Q
+receptor HC Sigma-Aldrich Co Ltd 002-1 mM was in-
+corporated in the pipette solution by dissolving it in NES
+Loftsson et al 2003 the suspension of HC was heated
+35 C for about 4 hours and left under constant agita-
+tion for another 24 h at room temperature
+If not otherwise stated results represent experiments
+performed at 60 mV of pipette potential
+Data Analysis ACh-induced currents were recorded us-
+ing an Axopatch 200B Axon Instruments Foster City
+CA USA The signals were ltered 2-3 kHz -3dB and
+transferred at 50 kHz using the Digidata 1200 inter-
+face Axon Instruments to a hard disc Single currents
+were analyzed using the pClamp 7 software Axon In-
+struments Transitions were detected using a threshold-
+crossing algorithm with a threshold for the open and the
+closed states set at about 50 of the mean channel cur-
+rent level Only recordings with rarely overlapping open-
+ings were analysed and only openings to the rst level
+were included in the dwell-time distributions In case of
+stable patches after performing recordings at dierent
+membrane potentials we performed the second registra-
+tion at 60 mV of pipette potential starting about 15-
+20 min after the patch formation The receptor kinetics
+recorded at 60 mV immediately after the patch forma-
+tion and after 15 min were compared We did not observe
+any signicant changes neither in time constants nor in
+current amplitude
+In most of experiments the dwell-
+time distributions were constructed from more than 1000
+events however in few cases from more than 300 events
+Open and blocked time constants open and blocked of
+the open and closed time distributions were tted by the
+method of maximum likelihood using the PSTAT pro-
+gram pClamp7 with a probability density function be-
+ing the sum of n exponential terms ie
+exp t
+ncid88
+where ai represents the area of the i-th component The
+open time distribution of the WT receptor was tted
+with 2 components n  2 open corresponds to the
+long component of the open time distribution The open
+time distribution of the mutant D200Q receptor was
+tted with 1 component only n  1 blocked corre-
+sponds to the component that is present in the closed
+time distribution of the blocked receptor only and such
+its area increases with HC concentration It should be
+also mentioned that due to the resolution of our single
+channel recording 0110 -0180 ms very brief events
+were probably undetected This however should not af-
+fect the estimation of the duration of the blocked events
+blocked They appear only within the bursts having at
+least two openings It was shown previously Nurowska
+et al 2002 that in such bursts brief openings are absent
+Since brief openings exist only as isolated openings they
+can not aect the closed periods within a burst
+Statistical analysis Data are given as mean  SEM
+The unpaired Students t-test was used to determine the
+statistical signicance
+If not otherwise stated results
+are pooled for dierent ACh concentrations and number
+n of samples is given in parentheses
+III RESULTS
+The inclusion of ACh in the patch pipette induced
+single-channel currents in both types of cells expressing
+WT receptors or mutated D200Q nACh receptors Fig
+1 However the activity of the D200Q receptor was
+visible only when the ACh concentration was approach-
+ing micromoles Below this concentration of ACh the
+activity of the D200Q receptor was negligible For this
+reason in experiments with the D200Q receptor we in-
+creased the agonist concentration up to 10-100 M This
+activated the receptor but contrary to the standard be-
+haviour of the receptor in high concentration of ACh
+did not cause receptor desensitization Fig 1A Actu-
+ally only one component was present in the closed time
+distributions which time constant decreased with the ag-
+onist concentration increase A second component in the
+closed time distribution appeared only after adding the
+hormone
+The single-channel I-V relationship gave a slope con-
+ductance of 334  08 pS n  9 for the WT receptor
+and 320  08 pS n  17 for the D200Q receptor sug-
+gesting similar pore conductance properties The mean
+open-channel lifetime ie the mean time constant of the
+main component open of the WT receptor was 690 
+078 ms 50-500 nM ACh and did not depend on ago-
+nist concentration The open of the D200Q receptor
+increased with the agonist concentration increase being
+081  022 ms for 10 M ACh and 157  046 ms for
+100 M ACh P  00001 two-tailed t-test Even so
+open of the mutated receptor was signicantly smaller
+than open of the WT receptor in the presence of 50-
+500 nM ACh P  0001 two-tailed t-test Fig 1B
+The voltage-dependency of open for the mutated recep-
+tor was nevertheless maintained Fig1B
+In the presence of 1 mM HC in the patch pipette there
+was no signicant eect on the single-channel I-V slope
+conductance which was 320  05 pS n  10 for the
+WT receptor and 316  05 pS n  12 for the D200Q
+receptor In both types of cells HC decreased open in a
+concentration-dependent manner Fig 2 and produced
+a characteristic burst-opening eect When HC blocked
+the WT receptor open did not change with change of the
+patch membrane potential or changed very weakly Fig
+3 However when HC blocked the mutated receptor
+open increased with increasing membrane hyperpolariza-
+tion Fig 3 Interestingly the blocked events induced
+by HC were voltage-dependent in the WT receptor but
+we did not notice any obvious voltage-dependency of the
+mean time constants of the blocked events blocked in
+the mutated receptor Fig 4 For all HC concentra-
+tions blocked of the D200Q receptor were signicantly
+shorter than blocked of the WT receptor Fig 5A P 
+0001 This decrease in the blocked for the mutated re-
+ceptor was not induced by the high agonist concentration
+since our experiments with dierent agonist concentra-
+tions and the D200Q receptor excluded this possibility
+Fig 5B In both types of receptors blocked depended
+on the HC concentration Fig 5A
+to the direction blocked  open with a kinetic constant
+equal to kHC
+Here k denotes the dissociation constant of the
+blocker It follows that the passage B1  open presented
+by this scheme is not connected with the dissociation of
+the blocker the blocker dissociates when passing from
+B2 to B1 thus the state B1 is a state without a bound
+blocker
+sponding to the passage blocked  open given by
+The complex scheme 1 has a kinetic constant corre-
+kopen  a  kHC
+1  kHC
+Note that formula 2 becomes a  kHC in the limit
+k  kHC This limit corresponds to the situation
+when the state B2 is very much shorter in the dwell-time
+than the state B1
+A consequence of the postulated kinetic model de-
+scribed by scheme 1 is that state B1 is very particular
+the receptor leaves state B1 with the same frequency a
+independently of the presence of the blocker Only after
+leaving this state the receptor decides to pass to pre-
+cisely one of the two possible states open and B2 Thus
+the two states open and B2 which can not be occupied
+simultaneously originate from the same event the aban-
+donment of state B1 by the receptor This means that the
+rough scheme 1 describing the kinetics of the receptor
+is more precisely represented by
+IV DISCUSSION
+The main conclusion of our experiments is that 1block
+decreases linearly with the HC concentration growth
+Fig 5A This means that the kinetic constant describ-
+ing the passage from a blocked to an open state is given
+by a  kHC where a and k are HC-independent con-
+stants We thus have
+akHC block
+This suggests that the state blocked is a complex state
+consisting of two substates B1 and B2 between which
+there exists a passage B1  B2 in the direction opposite
+We further postulate that the state B1 is unliganded
+This in particular means that the opening of the recep-
+tor B1  open is caused by a binding of the agonist to
+the binding activating site It also means that in an
+open receptor the agonist is not permanently attached
+to the binding site It switches between the state when
+it is bound the states when it is o the binding site
+again the state in which it is bound and so on The ex-
+istence of two binding sites prevents the receptor from
+being shut
+in moments when the agonist leaves one
+binding site the receptor will still be in an open state
+provided that another agonist molecule is bound in the
+second binding site The same is true when the second
+agonist molecule leaves the binding site as only when
+the rst agonist molecule is bound will the receptor be
+B1openB2a-kHCkHCk-B1openB2a-kHCkHCk-aopened We assume that after leaving the binding site
+the agonist eventually comes back due to the attractive
+electric force associated with the negative charge of the
+close-to-the-binding-site-amino acid D200 This assump-
+tion was conrmed by our experiments we performed a
+series of experiments with a mutated D200Q receptor
+in which the amino acid D200 was replaced by a polar
+amino acid Q with much smaller negative charge As
+we expected in such a mutated receptor the openings
+were much shorter than the openings of the wild type
+receptor Fig 1B
+These considerations enable us to formulate the follow-
+ing oscillating model of the receptor opening
+ The receptor has two sites say A and B at which
+the agonist also called the activator can be bound
+It opens immediately after one molecule of the ac-
+tivator is bound to A or B and stays open as long
+as at least one of the binding sites A or B is occu-
+pied The activators dissociate from A and B after
+some time tA and tB respectively These times
+have the same exponential probability distribution
+with parameter   0
+ Let us assume that the receptor opens because of
+an agonist binding at A Then the agonist stays
+bound to the receptor at A for time tA We also
+assume that the second binding site binds the sec-
+ond agonists molecule after some time which de-
+pends on agonist concentration say  measured
+from the moment of the opening of the receptor 
+is a random variable which if it is greater than tA
+the opening time of the receptor is simply tA
+ If   tA the receptor is still opened but now with
+both A and B occupied In such situation each of
+the two agonists may dissociate independently af-
+ter the respective times tA and tB Each of them
+returns to its binding site after time tx provided
+that the other agonist is still bound The time tx is
+a random variable having the exponential distribu-
+tion with the parameter   0 which is the same
+for both agonist molecules
+ The situation in which the molecules from A and
+B leave and return from and to their binding sites
+repeats until the moment in which both binding
+sites are empty In such situation the receptor shuts
+The above assumptions about the receptors kinetics
+suce to derive an explicit formula for the probability
+Popentime  t of the receptors open time This orig-
+inal derivation is given in the Appendix
+Assuming that the shift time  is a random variable
+with probability distribution F x not depending on tA
+tB and  and denoting opentime we obtain the for-
+mula for P  t given in the Theorem 1 in the Ap-
+pendix expression 7
+We emphasize that the analytic expression 7 for the
+open time distribution is in total agreement with Monte
+Carlo simulations of the open time assuming that the
+receptor obeys the proposed model and has the shift time
+distribution F x  1  ex see Fig6
+The formula 7 is a superposition of three exponen-
+tial functions The rst one which has the time constant
+-1s1 we attribute to the distribution of long openings
+The brief openings consist of two closely spaced compo-
+nents with the corresponding time constants equal to -
+1s2 and 1  Note that neither of them has a time
+constant equal to the mean time a single agonist molecule
+stays in the activating site contrary to what is often as-
+sumed for brief openings Note also that three compo-
+nents in the open time distribution were already observed
+in high resolution Hallermann et al 2005 Parzefall et
+al 1998 and classical Hatton et al 2003 single chan-
+nel recordings The formula 7 tted by the minimum
+2 method was in perfect agreement with the open time
+distributions measured for WT and D200Q receptors
+in all 38 recordings Examples of the comparison of the
+theoretical distribution 7 with experimentally obtained
+distributions of the open events for both receptors are
+shown on Fig6 The mean values of the tting param-
+eters  and  did not depend on agonist concentration
+and were   103019 ms1   19046 ms1 for
+the WT receptor n  17 and   135011 ms1 
+ 330076 ms1 for the D200Q receptor n  21
+Similar values of the  parameter suggest that the times
+the agonist stays in the activating site tA and tB are
+not aected by the presence of the amino acid D How-
+ever since the  parameter obtained for the WT receptor
+diers signicantly P 00001 from the same param-
+eter obtained for the mutated receptor we suggest that
+when closed to the activating site the agonist stays in
+the electric eld of the amino acid D This refers to the
+open receptor Mean parameters  obtained for both
+receptors do not dier signicantly for the WT recep-
+tor   364120 ms1 and for the D200Q receptor
+  164047 ms1 despite the dierent agonist con-
+centration used in the experiments Thus  parameter
+depends not only on the agonist concentration but also
+on the presence of the amino acid D
+We now pass to the discussion of the receptorss block-
+ing mechanism
+We assume that the unblocked receptor acts according
+to the kinetic model presented above This model admits
+a shortening of the opening time in the situation when
+one of the binding sites is unoccupied In such situation
+the returning-to-its-binding-site-agonist may encounter a
+molecule that blocks its entrance to the site without re-
+ally binding to this site resulting in turn in the closure
+of the receptor We postulate that the molecule respon-
+sible for such a block is HC
+To present the detailed blocking mechanism we rst
+explain what happens in the blocked receptor with the
+agonist molecules which activated it The observed ex-
+istence of bursts suggests that these molecules do not
+return to the extracellular solution Indeed if the recep-
+tor in the B1 state was activated by binding the agonist
+molecules from the extracellular solution then blocked
+would decrease with the agonist concentration Since this
+is not observed Fig 5B we conclude that the agonist
+needed for the transition B1  open comes from the re-
+gion which is not accessible to other molecules of the acti-
+vator Since it is widely accepted Miyazawa et al 1999
+that the receptors activating sites are located in cavities
+accessed through narrow tunnels we conclude that even
+after the dissociation the activating molecules remain in
+their tunnel-cavities Since these cavities are of the cor-
+rect size and shape to accommodate one ACh molecule
+Miyazawa et al 1999 no other agonist molecule could
+bind to its binding site until the ACh molecule leaves the
+tunnel-cavity Note that the agonist staying in the cavity-
+tunnel experiences the electrostatic repulsion from other
+agonist molecules trying to enter the tunnel It forces the
+agonist to stay at the bottom of the tunnel If the ago-
+nist binding site is not located there then blocked should
+increase with the ACh concentration Such a behavior
+of blocked was observed in our experiments with receptor
+D200Q P 0001 Fig 5B We thus postulate that
+the agonist binding site is situated in another place than
+the end of the tunnel Fig 7
+The main dierence between state B1 and the closed
+state is that in state B1 both tunnels associated with the
+activating sites are occupied by the corresponding ago-
+nist molecules which at every moment may be bound to
+the activating sites recall that state B1 is a state with-
+out a blocker Surprisingly state B1 without a bound
+blocker lasts longer than the blocked state B2 This is
+again caused by the repulsive action of the outside ago-
+nists molecules which are close to the entrance to the tun-
+nel They prevent the agonist in the tunnel from reaching
+the binding site Since these molecules are not present
+at the entrance to the tunnel all of the time there are
+moments when the entrance to the tunnel is free This
+occurs with frequency a At such moments the agonist
+within the tunnel can approach the entrance and bind to
+the site opening the receptor again Moments when the
+entrance to the tunnel is not occupied by the outside ag-
+onist molecules can be also used by the blocker to enter
+the tunnel The blocker as electrically neutral does not
+feel the repulsive potential of the agonist within the tun-
+nel Entering the tunnel it can freely penetrate it up to
+the agonist binding site Once there it prevents the in-
+side agonist from binding Note that the presence of the
+blocker does not decrease the duration of the B1 state
+the blocker has a chance to enter the tunnel only when an
+agonist may return to the binding site thus only when
+the receptor leaves state B1 This agrees with scheme
+Since external molecules repulse the inside tunnel-
+cavity agonist from the activating site it is clear that
+block is longer in a receptor in which the entrance to the
+tunnel is more frequently occupied by the agonist The
+measured blocked Fig 5A indicates that such situation
+occurs in the WT receptor despite of the lower concen-
+tration of the agonist which thus must have agonists
+molecules at the entrance to the tunnel more often than
+the D200Q receptor We believe that the reason for
+this dierence is the negative charge of the amino acid
+D200 which most probably attracts positively charged
+molecules of the activator towards the entrance of the
+tunnel in the WT receptor This also explains why the
+probability of the opening of the WT receptor is higher
+than the probability of the opening of the D200Q re-
+ceptor
+This justies our next postulate that the location of
+amino acid 200 is dierent in an open and a closed re-
+ceptor
+if the receptor is open the location of amino
+acid 200 is close to the activating site inside the cavity-
+tunnel if the receptor is closed 200 is located outside
+the cavity-tunnel but still close to its entrance
+Summing up it is the HC molecule that initiates the
+blockage of the receptor At the initial stage of the block
+ACh molecules do not act as blockers since the open
+receptor does not attract them from the extracellular re-
+gion toward the tunnel-cavity where the block occurs
+Once the receptor is in the blocked state the situation
+changes the closed receptor exposes the negative charge
+to the outside of the tunnel starting the process of at-
+tracting the extracellular molecules towards the tunnel-
+cavity Thus in the process of blocking both ACh and
+HC participate On the one hand the ACh molecule lo-
+cated at the entrance to the tunnel-cavity repulses the
+agonist trapped in the tunnel from the activating site
+on the other hand the HC molecule when the tunnel en-
+trance is empty enters into it preventing other molecules
+from reaching the activating site If the location of the
+amino acid D was changing with the membrane poten-
+tial then the action of HC would be unaected HC is
+an uncharged molecule But it would alter the action
+of ACh We postulate that the amino acid D location is
+voltage dependent This implies the voltage dependency
+of block in the WT receptor In D200Q the situation
+is dierent The frequency of the ACh approaches to
+the tunnel cavity mainly depends on the ACh concentra-
+tion and not on the attraction of the amino acid 200
+which in the case of the amino acid Q is weak Thus in
+the mutated receptor blocked has no signicant voltage
+dependence Fig 4
+Finally we emphasize that although the state B1 is
+very peculiar we believe that it occurs very commonly
+For this state to exist the blocker is not needed It is a
+closed state which diers from the usual closed state
+by the presence of unbound agonist molecules in the
+tunnel-cavities in both subunits If such a state randomly
+emerges eg in high concentration of the agonist then
+if the agonist concentration remains high exiting from
+this state would be very dicult the highly concentrated
+activator molecules will be present at the entrance to the
+tunnel-cavity repulsing the agonist from the binding site
+We associate our state B1 with a particular closed state
+of the receptor which is reported to be observed only in
+high agonist concentration and to be characterized by a
+very long duration Thus state B1 corresponds to the
+desensitization of the receptor That in the process of
+this desensitization amino acid D200 plays a role is con-
+rmed by our experiments in which such desensitization
+was not present in the receptor D200Q even if we went
+to agonists concentration as high as 01 mM
+Experiments with other blockers and D200 mutants
+are needed to conrm the role of D200 amino acid in
+mechanisms of the receptor block and desensitization A
+presence of charged amino acids close to the agonist bind-
+ing pockets may be in this family of receptors shared by
+the nicotinic the GABAA and the 5-HT3 receptors the
+common feature Schreiter et al 2003 Hartvig et al
+2000 making the proposed model of the receptor desen-
+sitization universal for other ligand-gated ion channels
+V APPENDIX
+Let us consider a system formed by two identical
+servers say A and B  working independently and let
+1 2 stand for the time of their trouble-free operation
+It is supposed that Pi  t  et   0 t  0 i 
+1 2 At the initial time t  0 both servers are in working
+condition and say server A starts to work The second
+server starts to work with some delay   0 having a
+distribution P  t  F t t  0 In the case of a
+breakdown of any server its repairing starts immediately
+and it lasts 1 2 time-unites respectively It is supposed
+that Pi  t  et   0 t  0i  1 2 After the
+repair is nished the server starts to work again The
+above mentioned random variables are all supposed to
+be independent
+The breakdown of the whole system occurs if both
+servers are not in working conditions ie they are being
+repaired
+Let  denote the time at which the system breaks down
+for the rst time We are interested in nding P  t
+This is given in the following theorem
+Theorem 1
+P  t 
+tcid90
+eut  udF u  1  F tet
+t 
+s2    3es2t  s1    3es1t
+  3 cid1122  6  2
+s2  s1
+And if F t  1  et   0 t  0 then
+P  t 
+  
+cid16 s2    3
+      2  22 et
+s2  s1
+es2t  s1    3
+    s1
+    s2
+es1tcid17
+Consider rst the simple case when only one server is
+present and let P t denote the probability of its being
+in working condition at time t The memoryless property
+of an exponential distribution allows us to write down
+the following equation
+tcid90
+tucid90
+  etcid17
+which implies
+P t 
+cid16
+  
+P t  et  
+eu
+evP t  u  vdvdu
+t  0
+Now we consider the original system but without delay
+ie   0 and let t denote the probability that such a
+system will be work without breakage up to time t Using
+the memoryless property of exponential distributions of
+the random variables i i i  1 2 and the formula 8
+t  et  
+  
+tucid90
+eu  eu
+evt  u  vdvdu
+eu  euetudu
+tcid90
+  
+tcid90
+To nd the function t we use the method of Laplace
+transform If we denote
+s 
+esttdt
+cid90
+and apply to 9 the Laplace transform with a parameter
+s  0 we get
+cid0 
+cid0 
+  
+cid1
+s    2
+cid1
+s    
+s    2
+s 
+  
+which gives
+s    
+s 
+s    3
+s2  s  3  22 
+cid16 s2    3
+s2  s1
+s  s2
+ s1    3
+s  s1
+cid17
+where the numbers s12 are dened in 6 Taking the
+inverse Laplace transform we obtain 5 If now a delay
+is present and its distribution is P  t  F t then
+we obtain 4 End of Proof
+Adam Szewczyk for the mito-GFP construct EN
+thanks Prof Andrzej Majhofer for a suggestion to per-
+form the Monte Carlo simulations for the dwell-time dis-
+tributions
+VI ACKNOWLEDGMENTS
+The authors are grateful to Prof Steven Sine for
+the generous gift of ACh receptor subunit cDNAs Prof
+1 Akk G Sine S Auerbach A 1996 Binding sites con-
+tribute unequally to the gating of mouse nicotinic D200N
+acetylcholine receptors J Physiol 496 185-196
+2 Akk G Steinbach JH 2003 Activation and block of
+mouse muscle-type nicotinic receptors by tetraethylam-
+monium J Physiol 555 155-168
+3 Arias HR 2000 Localization of agonist and compet-
+itive antagonist binding sites on nicotinic acetylcholine
+receptors Neurochem Int 36 595-645
+4 Bouzat C Barrantes FJ 1996 Modulation of mus-
+cle nicotinic acetylcholine receptors by the glucocorticoid
+hydrocortisone Possible allosteric mechanism of channel
+blockade J Biol Chem 271 25835-25841
+5 Buisson B Bertrand D 1998 Open-channel block-
+ers at the human alpha4beta2 neuronal nicotinic acetyl-
+choline receptor Mol Pharmacol53 555-5 63
+6 Colquhoun D Sakmann B 1985 Fast events in single-
+channel currents activated by acetylcholine and its ana-
+logues at the frog muscle end-plate J Physiol 369 501-
+7 Hallermann S Heckmann S Dudel J Heckmann M
+2005 Short openings in high resolution single channel
+recordings of mouse nicotinic receptors J Physiol 563
+645-662
+8 Hamill OP Marty A Neher E Sakmann B Sig-
+worth FJ 1981 Improved patch-clamp techniques for
+high-resolution current recording from cells and cell-free
+membrane patches Pugers Arch 391 85-100
+9 Hartvig L Lukensmejer B Liljefors T Dekermend-
+jian K 2000 Two conserved arginines in the extracel-
+lular N-terminal domain of the GABAA receptor 5 sub-
+unit are crucial for receptor function J Neurochem 75
+1746-53
+10 Hatton CJ Shelley C Brydson M Beeson D
+Colquhoun D 2003 Properties of the human muscle
+nicotinic receptor and of the slow-channel myasthenic
+syndrome mutant eL221F inferred from maximum like-
+lihood ts J Physiol 547 729-760
+11 Hille B 2001 Ion Channels of Excitable Membranes Sin-
+auer Associates Massachusetts
+12 Leonard RJ Labarca CG Charnet P Davidson
+N Lester HA 1988 Evidence that the M2 membrane-
+spanning region lines the ion channel pore of the nicotinic
+receptor Science 242 1578-1581
+13 Loftsson T Matthiasson K Masson M 2003 The
+eects of organic salts on the cyclodextrin solubilization
+of drugs Int J Pharm 262 101-107
+14 Miyazawa A Fujiyoshi Y Stowell M Unwin N
+1999 Nicotinic Acetylcholine Receptor at 46 A resolu-
+tion Transverse Tunnels in the Channel Wall J Mol Biol
+228 765-786
+15 Mukhtasimova N Free C Sine SM 2005 Initial cou-
+pling of binding to gating mediated by conserved residues
+in the muscle nicotinic receptor J Gen Physiol 126 23-
+16 Neher E Steinbach JH 1978 Local anesthetics
+transiently block currents through single acetylcholine-
+receptor channels J Physiol 277 153-176
+17 Nurowska E Ruzzier F 2002 Modulation of acetyl-
+choline receptor channel kinetics by hydrocortisone
+Biochim Biophys Acta 1564 14-20
+18 OLeary ME White MM 1992 Mutational analy-
+sis of ligand-indduced activation of the Torpedo acetyl-
+choline receptor J Biol Chem 267 8360-8365
+19 Parzefall F Wilhelm R Heckmann M Dudel J
+1998 Single channel currents at six microsecond resolu-
+tion elicited by acetylcholine in mouse myoballs J Physiol
+512 181-188
+20 Schreiter C Hovius R Costioli M Pick H Kellen-
+berger S Schild L Vogel H 2003 Characterization
+of the ligand-binding site of the serotonin 5-HT3 recep-
+tor the role of glutamate residues 97 224 and 235 J
+Biol Chem 278 22709-16
+21 Sine SM 1994 Molecular dissection of subunit in-
+terfaces in the acetylcholine receptor
+identication of
+residues that determine curare selectivity PNAS 90
+9436-9440
+22 Sine SM Steinbach JH 1987 Activation of acetyl-
+choline receptors on clonal mammalian BC3H-1 cells by
+high concentrations of agonist J Physiol 385 325-359
+23 Wachtel RE 1993 Physostigmine block of ion channels
+activated by acetylcholine in BC3H1 cells Mol Pharma-
+col 44 1051-1055
+FIG 1
+ADwell-time histograms obtained from single-channel recordings from WT and D200Q receptors at 60 mV of
+pipette potential in control conditions and in the presence of 05 mM HC tted with a single or a double exponential function
+with time constants i ACh concentration was 500 nM in recordings from WT and 100 M from D200Q receptors B
+Voltage dependency of the open of the WT and D200Q receptors Data points represent the mean  SEM from n membrane
+patches Points are plotted on a logarithmic scale and tted with a function f  A expV  60b where V is a pipette
+potential A  693 ms b  139 mV for the WT receptor and A  08 ms b  119 mV for D200Q receptor note the similar
+slope similar voltage-dependency of both plots
+FIG 2 HC decreased the open-channel lifetime Plots show the mean open  SEM from n patches at 60 mV of pipette
+potential ACh concentration was 500 nM in recordings from WT and 100 M from D200Q receptors Solid line points are
+tted with a function f  1  kbxh where x is HC concentration   013 ms1 kb 1554 mMh ms1 h  184
+in WT receptor   078 ms1 kb 198 mMhms1 h  07 in D200Q receptor
+FIG 3 The mean open  SEM at dierent membrane potentials and dierent HC concentrations Solid lines are determined
+by a linear regression n - from 2 to 7
+-101204080t1023mst2822mslogdurationmscounts-1012304080t1038mst2284mslogdurationmscounts-101060120t1049mslogdurationmscounts-1012303060t1917mst22218mscountslogdurationms-101050100t1107mslogdurationmscounts-10123050100150countst16301mslogdurationms-101060120180t1040mslogdurationmscounts-1012304080120t1356mst21006mslogdurationmscountsWTOpenClosedOpen HCClosed HCaD200QOpenClosedOpen HCClosed HC4080120160100272739n21n9logtopenmsWTD200QPipettepotentialmVBA0002040608100246810n7n10n5n3n5n4topoenmsHCconcentrationmM000204060810012n16n12n12n4n4topenmsHCconcentrationmMWTaD200QWTaD200Q40801200123010mM025mM050mM100mMtopenmsPipettepotentialmV40801200406081012topenmsPipettepoptentialmV9
+FIG 4 The mean blocked  SEM at dierent membrane potentials and dierent HC concentrations n - from 2 to 7 WT
+receptor each solid line determined by a linear regression the slope signicantly diers from 0 for all HC concentrations
+P 001 D200Q receptor for HC 1 mM any clear relationship of the mean blocked with membrane potential increase is
+not present
+FIG 5 A The reciprocal of the mean blocked  SEM at 60 mV of pipette potential at dierent HC concentrations n -
+the same as in Fig 2 ACh concentration was 500 nM in recordings from WT and 100 M from D200Q receptors each line
+determined by a linear regression B The mean blocked  SEM in the presence of 05 mM HC n - number of cells  P
+0001
+40801202468010mM025mM050mM100mMtblockedmsPipettepotentialmV408012012345tblockedmsPipettepotentialmVaD200QWT0123n12n161050-100tblockedmsAChconcentrationmMWTD200Qa0369n5n450050tblockedmsAChconcentrationnMWTHCABaD200Q  HC0004080102030405061tblockedms-1HCconcentrationmM10
+FIG 6 A The example of the experimentally obtained open time distribution of WT receptor tted with the derivative of
+the function 7 Fitting parameters are   0529 ms1   4343 ms1   1986 ms1 The function is 3558039e25t
+ 019030e584t  041e009t B The example of the distribution obtained by Monte Carlo simulation of the oscillating
+model presented in the paper with the same parameters as in A tted with the derivative of the function 7 simulation
+performed for 10000 events tting parameters are   0540 ms1   4409 ms1 and   1903 ms1 C The example of
+the experimentally obtained open time distribution of D200Q receptor tted with the derivative of the function 7 Fitting
+parameters are   1562 ms1   1624 ms1   0648 ms1 The function is 4648081e22t  070031e54t 
+077e090t D The example of the distribution obtained by Monte Carlo simulation of the oscillating model presented
+in the paper with the same parameters as in C tted with the derivative of the function 7 simulation performed for 10000
+events tting parameters are   1510 ms1   1305 ms1 and   0473 ms1
+FIG 7 Model of nACh receptor in two congurations open and desensitized
+000000001515400200112525800400224020206001010200100080120553344aD200QMonte CarloMonte CarloWTACBDcountscountscountscountsduration msduration msduration msduration msagonist binding sitetunnelopen channelOpen receptoragonistclosed channelDesensitized receptor

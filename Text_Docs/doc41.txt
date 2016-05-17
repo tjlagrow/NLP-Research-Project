@@ -1,1150 +1,1039 @@
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-HIDDEN MARKOV MODEL BASED PART OF SPEECH 
-TAGGER FOR SINHALA LANGUAGE  
-AJPMP Jayaweera1 and NGJ Dias2 
-1 Virtusa Pvt Ltd No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka  
-2Department of Statistics  Computer Science University of Kelaniaya  
-Kelaniya Sri Lanka 
-ABSTRACT 
-In this paper we present a fundamental lexical semantics of Sinhala language and a Hidden Markov Model 
-HMM  based  Part  of  Speech  POS  Tagger  for  Sinhala  language  In  any  Natural  Language  processing 
-task Part of Speech is a very vital topic which involves analysing of  the construction behaviour and the 
-dynamics  of  the  language  which  the  knowledge  could  utilized  in  computational  linguistics  analysis  and 
-automation applications Though Sinhala is a morphologically rich and agglutinative language in which 
-words are inflected with various grammatical features tagging is very essential for further analysis of the 
-language  Our  research  is  based  on  statistical  based  approach  in  which  the  tagging  process  is  done  by 
-computing the tag sequence probability and the word-likelihood probability from the given corpus where 
-the  linguistic  knowledge  is  automatically  extracted  from  the  annotated  corpus  The  current  tagger  could 
-reach more than 90 of accuracy for known words  
-KEYWORDS 
-Part  of  Speech  tagging  Morphology  Natural  Language  Processing  Hidden  Markov  Model  Stochastic 
-based tagging 
-1 INTRODUCTION 
-According  to  figures  from  UNESCO  The  United  Nations  Educational  Scientific  and  Cultural 
-Organization there are around 6900 spoken languages are exist in this world only 20 languages 
-are spoken by 50 of the world population Each of these languages are spoken by more than 50 
-million speakers Most of the world population speaks Chinese Mandarin and that is spoken by 
-around 1000 million people Spanish English Hindi Arabic Portuguese and Russian   are other 
-top most languages spoken by the largest population in this world and each language is spoken 
-by 200 million speakers or more People who speak those top most languages are spread across 
-different  geographical  regions in  multiple  countries Also  50 of the  languages  are  endangered 
-and  most  of  them  are  spoken  by  small  communities  and  they  are  always  limited  to  a  specific 
-geographical region 1 2 3  
-Sinhala  is  also  one  unique  language  that  speaks  only  by  people  in  Sri  Lanka  and  more  than  17 
-million  speakers  speak  Sinhala  as  their  mother  tongue  We  believe  that  Sinhala  is  not  an 
-endangered language yet though speakers are limited only to a small geographical region But we 
-think  our  mother  language  need  more  attention  and  need  to  get  more  provision  to  develop  the 
-language  with  latest  technology  trends  So  our effort  here  is to  address one  pitfall  that  we  have 
-identified in area of computational linguistics and Natural Language Processing NLP related to 
-Sinhala language 
-105121ijnlc20143302                                                                                                                                   9 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Though research on NLP has taken giant leap in the last two decades with the advent of efficient 
-machine  learning  algorithms  and  the  creation  of  large  annotated  corpora  for  various  languages 
-only few languages in the world have the advantage of having enough lexical resources such as 
-English NLP researches for Sinhala are still far behind than other South Asian languages Further 
-we  have  very  limited  lexical  resources  available  for  Sinhala  language  Researches  on  NLP  for 
-Sinhala  language  can  be  pushed  by  creation  of  required  lexical  resources  and  tools    So  the 
-attempt  of  this  research  is  to  develop  a  Part  of  speech  Tagger  for  Sinhala  language  which  is  a 
-fundamental need for further computational linguistic analysis for our mother language  
-Sinhala is a complex language morphologically rich and agglutinative in nature words of which 
-are inflected with various grammatical features Sinhala root noun lemma inflects for plural and 
-singular and Sinhala verb specifies almost everything like gender number and person markings 
-and represents the tense of the activity 
-POS tagging is a well-studied problem in the field of NLP and one of the fundamental processing 
-step  for  any  language  in  NLP  and  language  automation  ie  the  capability  of  a  computer  to 
-automatically  POS  tag  a  given  sentence  Throughout  the  history  of  NLP  different  approaches 
-have  already  been  tried  out  to  automate  the  task  of  POS  tagging  of  languages  such  as  English 
-German Chinese and few South Asian languages such as Hindi Tamil and Bengali 
-Words are the fundamental building block of a language Every human language spoken signed 
-or written is composed of words 7 Every area of speech and language processing from speech 
-recognition  to  machine  translation  text  to  speech  spelling  and  grammar  checking  to  language-
-based  information  retrieval  on  the  Web  requires  extensive  knowledge  about  words  that  are 
-heavily  based  on  the  lexical  knowledge  In  contrast  to  other  data  processing  systems  language 
-processing applications use knowledge of the language 
-The basic processing step in tagging consists of assigning POS tags to every token in the text with 
-a corresponding POS tag like noun verb preposition etc based both on its definition as well as 
-its context The number of part of speech tags in a tagger may vary depending on the information 
-one wants to capture 7 
-In this paper we present a fundamental lexical and morphological analysis of Sinhala language 
-theory of Hidden Markov Model and the algorithm of the implementation Section 2 of this paper 
-gives an idea of history and previous research on NLP and section 3 discusses previous work on 
-Sinhala  language    Section  4  and  5  give  a comprehensive  lexical  and  morphological  analysis  of 
-Sinhala language Section 6 and 7 give details about available lexical resources which we use in 
-this  research  Section  8  and  9  describe  POS  tagging  and  the  Hidden  Markov  Model 
-implementation  algorithm  Section  10 and  11  discuss the  Evaluation testing  and  the result  and 
-section 12 concludes the paper and describes the future work 
-2 PREVIOUS WORK ON NLP 
-Natural  language  processing  history  started  from  Shanon  1948  Kleen  1951  then  Chomsky 
-1956 to Harris 1959 they contributed a lot in early 1950s to formulate the basic concepts and 
-principles of language processing In the last 50 years of research in language processing various 
-kinds  of  knowledge  had  been  captured  through  the  use  of  small  number  of  formal  models  or 
-theories  Most  of  these  models  and  theories  are  all  extracted  from  the  standard  toolkit  of 
-Computer  Science  Mathematics  and  Linguistics  Among  the  most  important  elements  in  these 
-toolkits  are  state  machine  formal  rules  system  logic  as  well  as  probability  theory  and  other 
-machine  learning  tools  7  But  in  the  last  decade  probabilistic  and  data-driven  models  had 
-become quite standard throughout the natural language processing 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-For  English  there  are  many  POS  taggers  available  employing  machine  learning  techniques 
-based on Hidden Markov Models 15 transformation based error driven learning 10 decision 
-trees 9 and maximum entropy methods 6 There are some taggers which are hybrid using both 
-stochastic and rule-based approaches Most of the POS taggers have reached a success between 
-92-97    accuracy  However  these  accuracies  are  aided  by  the  availability  of  large  annotated 
-corpus  for  English  Further  there  are  few  Tagging  systems  available  for  South  Asian languages 
-like  Hindi  Tamil  and  Bengali  8  12  13  14  In  2006  a  POS  tagger  was  proposed  for  Hindi 
-which  uses  an  annotated  corpus  of  15562  words  and  a  decision  tree  based  learning  algorithm 
-They reached an accuracy of 9345 with a tag set of 23 POS tags 14 For Bengali a tagger was 
-developed using a corpus based semi-supervised learning algorithm based on HMMs 13 
-3 PREVIOUS WORK ON SINHALA NLP ANALYSIS 
-There were some important language analysis work has done for Sinhala language and created a 
-Tag set 16 and a corpus of one million words 17 which was an important initiative that gives 
-a  substantial  influence  to  perform  NLP  research  on  Sinhala  language  But  unfortunately  the 
-progress  of  computational  linguistic  analysis  on  Sinhala  language  is  far  behind  than  other 
-languages According to our knowledge there is no well-known automated POS tagging system 
-available for Sinhala language 
-4 MORPHOLOGY IN SINHALA LANGUAGE 
-Sinhala is morphologically rich and agglutinative language in which root words are inflected in 
-different  contexts  In  Sinhala  words  are  defined  as  written  stream  of  letters  forming  a  sensible 
-understanding to a person that denotes or relation to the physical world or to an abstract concept  
-Basic  building  blocks  of  Sinhala  words  are  also  sound  units  not  the  letters  same  as  English 
-language  which  distinguish  two  broad  classes  of  morphemes  lemma    and  affixes   The lemma 
-stem is the main morpheme of the word supplying the main meaning while the affixes add 
-additional  meaning  of  various  kinds  Often  Sinhala  words  are  postpositionally  inflected  with 
-various grammatical features  Sinhala verb inflects to specifying almost everything like gender 
-singularity  or  plurality  person  markings  and  represents  the  tense  Sinhala  nouns  inflect  and 
-specifying singularity or plurality gender person marking and case of the noun 18 
-According to tradition below are four main types of words exist in Sinhala language 4 5 
-1  Noun - kdu mo  
-2  Verb - lshd mo 
-3  Upasarga  Wmi mo  no direct matching with English grammar 
-4  Nipatha  ksmd mo no direct matching with English grammar 
-5 SINHALA WORD CLASSES 
-Traditionally the definition of POS has been based on morphological and syntactic functions 7 
-Similar to most of other languages POS in Sinhala language also can be divided into two broad 
-categories  closed  class  type  and  open  class  type  Closed  classes  are  those  that  have  relatively 
-fixed membership Closed class words are generally function words which tend to be very short 
-occur frequently and play an important role in grammar  By contrast open class is the type that 
-lager  numbers  of  words  are  belongs  in  any  language  and  new  words  are  continually  coined  or 
-borrowed from other languages The words that are usually containing main content of a sentence 
-are belonged to open word class category 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-In  Sinhala  all  Nouns  and  Verbs  can  be  categorized  under  open  word  class  But  Nipatha  and 
-Upasarga behave differently in Sinhala grammar Words belong to Nipatha and Upasarga are not 
-changed according to time and gender Upasarga always join with nouns and provide additional 
-improve  meaning  to  the  noun  therefore  Upasarga  are  not  categorized  under  any  of  word 
-classes but Nipatha can be categorized as closed class words based on their existence 
-In-addition  to  that  Sinhala  Pronouns  also  can  be  classified  as  open  class  words  based  on  their 
-morphological  properties  but  also  Pronouns  can  be  classified  as  closed  class  words  based  on 
-their  existence  of  fixed  membership  in  the  language  Sinhala  Pronouns  are  forms  of  noun 
-commonly referring to person place or things 11 
-6 POS TAG SET FOR SINHALA LANGUAGE 
-In  Table  I  presents  the  Tag  set  defined  for  Sinhala  language  which  was  developed  by  UCSC 
-under PAN Localization project in 2005 16 and this tag set contains 26 tags which are mostly 
-based  on  morphological  and  syntactical  features  of  Sinhala  language  Currently  this  is  the  only 
-tag set available for Sinhala Language and we use this tag set in our research 
-However  there  are few issues  that  the  authors  have  encountered  during  the  process  of  defining 
-the tag set based on the syntactical complexity of Sinhala Language 16 
-1  Separation of Participle1 and Post-positions2 
-2  Separation of Compound Nouns - Combination of multiple nouns act as a single noun 
-3  Multiword  -  Certain  word  combinationphrases  can  function  as  one  grammatical 
-category 
-Table 1 Sinhala Tag Set 
-Description 
-Common Noun Root 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Pronoun Masculine 
-Pronoun Feminine 
-Pronoun Neuter 
-Pronoun Common 
-Number Quantifier 
-Determiner 
-Adjective 
-Adverb 
-Particle 
-11  QFNUM  
-12  DET  
-14  RB  
-15  RP  
-                                                 
-1 Particle   is a word that resembles a preposition 
-2 By definition a post-position follows a noun or a noun phrase 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-16  VFM  
-17  VNF  
-18  VP 
-19  VNN  
-21  CC  
-22  NVB  
-24  UH  
-Description 
-Verb Finite Main 
-Verb Non Finite 
-Verb Ptharticiple  
-Verbal Non Finite Noun 
-Postpositions 
-Conjunctions 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Interjection 
-Foreign Word 
-Not Classified 
-7 SINHALA TEXT CORPUS 
-Corpus is also an important lexical resource in the field of NLP In this research we use the Beta 
-version  of  the  Corpus  developed  by  the  UCSC  under  PAN  Localization  project  in  2005  17 
-which contains  around  650  000  words  and  out  of  which  70000  distinct  words that comprise of 
-data drawn from different kinds of Sinhala newspaper articles 
-8 POS TAGGING 
-Part-of-speech tagging is the process of assigning a part-of-speech or other lexical class marker to 
-each word in a sentence 7 The input to a tagging algorithm is a string of words and a tag set 
-The output is a single best tag for each word For example here is a sample sentence from Sinhala 
-Text Corpus of a news report about Silsamadana on a Wesak poya day which each word tagged 
-with mapping tag using the tag set defined in Table I 
-Example  NNPI   NNN  POST  NNPI  2NUM  QFNUM 
-NNN   VP  JJ   NNN 
-RP  QFNUM   RP 
-NNM  NVB  VFM    Refer  the  Sinhala  glossary  for  meaning  of  Sinhala 
-words 
-Sinhala is a morphologically rich and agglutinative language which words are made up of lexical 
-roots  combined  with  affixes  or  prefixes  So  automatically  assigning  a  tag  to  each  word  in  a 
-language like Sinhala is very complex The main challenge in Sinhala POS tagging is solving the 
-complexity  of  words  Ambiguity  is  also  adding  some  complexity  in  the  process  of  tagging  but 
-fortunately most words in Sinhala are unambiguous The example below shows how a word can 
-be ambiguous in Sinhala language 
-Ambiguity is the existence of more than one possible usage of POS in different context The noun 
-bnd ibba containing two meanings tortoise and padlock bear intimateness and inanimateness 
-according to the context The problem of POS tagging is to resolve these ambiguities choosing 
-the  proper  tag  for  the  context  not  for  the  word  So  this  can  be  resolved  by  looking  at  the 
-associated words with the word 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Example 
-bfndNNPA fokAfklA bkAkjd There are two tortoises 
-bfndNNPI fokAfklA odd shkjd Two padlocks have been fixed 
-Most  of  tagging  algorithms  fall  into  one  of  the  two  classes  rule-based  taggers  and  stochastic 
-taggers 7 Rule-based taggers generally involve a large database of hand written disambiguation 
-rules  Stochastic  tagger  generally  resolves  tagging  ambiguities  by  using  a  training  corpus  to 
-compute the probability of a given word having a given tag in a given context In addition to that 
-there are taggers which use a hybrid approach which employees both of the above  methods to 
-resolve the tagging ambiguity which is called transformation-based taggers or Brill taggers 7  
-Under this research we have tried out the applicability of Stochastic based tagging approach for 
-Sinhala language 
-9 OUR APPROACH 
-We next describe the approach and the overall application architecture defined for Sinhala POS 
-tagger in this Research  To find a suitable tagging approach for Sinhala language we  analysed 
-multiple approaches that has already been discussed for other morphologically rich languages and 
-decided to use a well-known stochastic based approach which is known as Hidden Markov Model 
-that  has  proven  evidence  of  better  results  for  other  languages  Probability  is  the  basic  principle 
-behind HMM The model described here follows the concepts given in the reference 7 
-The intuition behind all stochastic taggers is simple generalization of the pick the most-likely tag 
-for this word For a given sentence or a word sequence HMM tagger chooses the tag sequence 
-that maximizes 
-P word  tag   P tag  previous n tags 
-HMM tagger generally chooses a tag sequence for a given sentence rather than for a single word 
- of tags T 
-This approach assumes that we are trying to compute the most probable tag sequence
- t1t2tn for a given sequence of words in the sentence W  w1w2wn 
-where   
-is the set of values of t for which PTW attains its maximum value 
-By Bayes law P TW can be expressed as 
-So we choose the sequence of tags that gives 
-where 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-is the set of values of t for which PTPWTPW attains its maximum value 
-Since  we  are  looking  for  the  most  likely  tag  sequence  for  a  sentence  given  a  particular  word 
-sequence the probability of the word sequence P W will be same for each tag sequence and we 
-can ignore it So we get 
-where PT is the Prior probability and PWT is the Likelihood probability 
-From the chain rule of probability we get  
-But  for  a  long  sequence  of  words  calculating  probabilities  like  P  wiw1t1wi-1ti-1tiP 
-tiw1t1wi-1ti-1 is not an easy task there is no easy way to calculate probability for selecting tag 
-to  a  word  given  a  long  sequence  of  preceding  words  We  could  solve  this  problem  by  making 
-useful  simplification  we  approximate  the  probability  of  a  word  given  all  previous  words  The 
-probability  of  the  word  given  the  single  previous  word  called  bigram  model  Bigram  model 
-approximates the probability of a word given all the previous words by the conditional probability 
-of the preceding word 
-This  assumption  that  the  probability  of  a  word  depends  only  on  the  previous  words  is  called 
-Markov assumption Markov models are the class of probabilistic models that assume that we can 
-predict the probability of some future unit without looking too far into the past We can generalize 
-the bigram to the trigram which looks two words into the past 7 
-In  practice  trigram  model  is  always  used  in  NLP  applications  So  that  let  us  define  the 
-simplifying assumptions for this scenario 
-First make the assumption that the probability of a word depends only on its tag ie 
-Next we make the assumption that the tag history can be approximated by the most recent two 
-From 1 2 and 3 we get 
-Thus the best tag sequence can be choose so that it maximize 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Now  as  usual  we  can  use  maximum  likelihood  estimation  from  relative  frequency  to  compute 
-these probabilities We use corpus to find  counts of  tag sequences of tags ti-2ti-1ti and  tags ti-2ti-
-1 where ti is the tag i and ti-1ti-2 are previous two tags and count of witi where wi is the word i and 
-ti is the tag assigned to word i 
-We compute the probabilities 
-for all wi  where 1in  
-91 The Algorithm 
-The algorithm explains below is based on the Viterbi Algorithm 7 which is widely used in the 
-NLP applications that allows considering all the words in the given sentence simultaneously and 
-computes  the  most  likely  tag  sequence  More  formally  the  algorithm  searches  for  the  best  tag 
-sequence   for  given  an  observation  sequence  W    w1w2wn  based  on  the  text  corpus  Each 
-cell viterbiti a two dimension array with ij elements of the matrix contains the probability of 
-the path which contains the probability for the first t observations ends in state i This is the most-
-probable path out of all possible sequence of the tags of length t-1  
-The  algorithm  sets  up  a  probability  matrix  with  one column  for  each  observation  index t  and 
-one  row  for  each  state  i  in  the  state  graph  The  algorithm  first  creates  t2  columns  The  first 
-column is the initial observation which is the start of the sequence then next corresponds to the 
-first observation and so on Then begin with the first column by setting the probability of the start 
-to  1  and  other  probabilities  to  0  For  each  column  of  the  matrix  that is  for  each  time  index  t 
-each cell viterbitj will contain the probability of the most likely path to end in that cell  j We 
-calculate this probability recursively by maximizing over the probability of the coming from all 
-possible  preceding  states Then  we  move  to the  next  state for  each  of the  state  i viterbi0i in 
-column 0 then compute the probability of moving into each of the cell j   viterbi1j in column 1 
-and finally the probability for the best path will appear in the final column  Finally back tracing 
-can be done to find the path that gives the best possible tag sequence 
-92 Overall Application Architecture and the Design 
-Figure 1 shows the overall architecture of the proposed tagger which is a two-step process that 
-first runs through the tagged corpus and extract the linguistic knowledge Then it runs through the 
-row text inputs and generating the best tag sequence for the sequence of input words based on the 
-knowledge that gathered from the corpus 
-Lexical  Parser  Checks  boundary  conditions  of  each  sentences  and  words  as  defined  in  the 
-lexical rules and prepare for Tokenizing and Pre-processing 
-Tokenization  Run  through  the  tagged  corpus  separate  out  the  words  and  tags  prepare  for 
-probability calculation 
-Probability  Calculation    Calculate  the  Transition  probability  and  the  observation  likelihood 
-probability  for  each  pairs  of  Words  Tag  sequences  in  the  corpus  as  explained  in  section  93 
-below 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Viterbi  Matrix  Analyzer  Prepare  a  state  graph  that  has  all  possible  state  transitions  for  the 
-given text input calculate and assign state transition probability for each transition in the matrix 
-as explained in section A 
-Tag  Sequence  Analyzer  Back  trace  the  viterbi  matrix  analyse  the  maximum  probability  path 
-and assign tags to each word in the sentence based on highest probability 
-93 Train the Tagger 
-The next important step is training the tagger The training method we describe here is based on 
-supervised learning approach It runs on the corpus makes use of tagged data  and estimates the 
-probabilities of transition Ptag  previous tag and observation likelihood Pword  tag for the 
-Then the transition probability Ptiti-1  is calculated simply by using the following formula 
-where cti-1ti  is the count of tag sequence ti-1ti in the corpus 
-For  calculating  observation  likelihood  probability  Pwiti  we  calculate  the  unigram  unigram 
-model uses only one piece of information which is the one that is considering of a word along 
-with  its  tag  assigned  in  the  tagged  data  The  likelihood  probability  is  calculated  simply  by  the 
-following formula 
-where ctiwi is the count of word i wi is assigned tag i ti in the corpus 
-Figure 1 The Architecture of the Tagger 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-10 EVALUATION 
-The  evaluation  of  the  system  was  mainly  driven  by  train  the  system  using  Sinhala  text  corpus 
-which comprised of 2754 sentences and 90551 words The training data set was selected from the 
-Sinhala  text  corpus  developed  by  UCSC  and  we  used  only  articles  which  drown  from  various 
-Sinhala  newspapers  Example  given  below  shows  a  part  of  the  corpus  in  which  each  word  is 
-annotated with corresponding mapping tag  
-Example  NNPA  PRP  NNN  JVB  NNN  VNF 
-VNF  VP  POST    PRP  NNN  NVB  NNN 
-NNN  POST  NNM  CC  NNN  VNF  VNN 
-NNN  POST    NNN  DET  NNN  VNF  VNN 
-JVB VP  VFM  
-The testing was performed on a test data extracted from the corpus and accuracy was calculated 
-using number of correct tags proposed by the system and total number of words in the sentences 
-by the following formula 
-The  results  were  obtained  by  performing  a  cross  validation  over  the  corpus  The  accuracy  for 
-known and unknown words was also measured separately  
-11 RESULT AND DISCUSSION 
-Testing was done under two classifications first tested only with known words which is already 
-tagged and the tagger is trained that gives a very high accuracy close to 95 secondly tested the 
-data set with few unknown words and that gives a less accuracy The tagger doesnt perform after 
-reaching an unknown word 
-Table 2 contains part of test results that were obtained by performing tests for evaluating known 
-word scenarios Actual and predicted tag assignment for each word in the sentences is shown in 
-the table 
-Table 3 below presents the confusion matrix which summarized the test results given in Table 2 
-In this confusion matrix all correct predictions are located in the diagonal of the table Only one 
-tag  assignment  has  deviated  from  the  actual  out  of  9  actual  NNN  tag  assignments  system  has 
-predicted  NNN  tags  for  7  words  NVB  tag  was  assigned  for  other  two  words  In  this  case  the 
-accuracy of the system has reached to 9091 for known words scenarios  
-Hence increasing the size of the training corpus is required to increase the tagging accuracy  Not 
-only that it is required to include data from a wide range of domains that makes the corpus more 
-unbiased and representative  and  also further research  are  required  in  increasing  and  optimizing 
-the tagging accuracy for   known words scenarios 
-Further tagging data with unknown words is also an essential need to handle in the tagger When 
-the system reach an unknown word current tagger fails to propose a tag since the system is not 
-trained for that word and the tagging algorithm doesnt have enough intelligence to propose tags 
-for untrained words So improvements can be suggested to the algorithm by extracting knowledge 
-mainly  from  open  class  word  category  since  new  words  are  coined  or  browed  from  other 
-languages more commonly belongs to open word class Due to fixed number of membership of 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-closed  class  word  category  we  can  assume  that  the  words  belongs  to  closed  class  category  are 
-well  defined  in  Sinhala  grammar  and  that  is  fixed  So  improvements  of  the  algorithm  can  be 
-suggested to focus more on words belongs to sub categories of open class words such as noun 
-verbs  and  pronouns  This  could  be  done  by  incurring  some  intelligence  to  the  tagger  by  set  of 
-hand written disambiguation rules and follow the hybrid approach in the tagging algorithm 
-Table 2 Test Data 
-Test Data 
-Predicted  NNM  NNN    
-Actual  NNM  NNN  
-Predicted  NNPI  NNM  QFNUM  
-NNM  NVB  
-Actual    NNPI    NNM    QFNUM   
-NNM  NNN  
-Predicted  NNN  NNN  NNPI 
- NNM  NVB  
-Actual  NNN  NNN  NNPI 
- NNM  NNN  
-Predicted  NNPI  JJ  NNM  
-NNN  VFM  
-Actual  NNPI  JJ  NNM  
-NNN  VFM  
-Predicted  JJ  NNN  NNN  NNN  
-VP  NNPI  NNPA  
-Actual  JJ  NNN  NNN  NNN  
-VP  NNPI  NNPA  
-Further our research opens more areas to continue researches on tagging Sinhala language which 
-leads  more  work  to  be  carried  out  on  finding  optimization  techniques  and  unknown  word 
-handling approaches 
-Table 3 Confusion Matrix of the Test Result 
-Predicted 
-NNM  NNN  NNPI  NVB 
-JJ  VFM  VP 
-NNM  5 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-12 CONCLUSION AND FUTURE WORK 
-In  this  research  our  effort  was  mainly  focused  on  giving  a  push  to  NLP  and  computational 
-linguistics  analysis  for  Sinhala  language  by  developing  a  tagging  system  according  to  our 
-knowledge there is no language specific tagging system available for Sinhala  language In this 
-paper  we  have  described  the  POS  tagging  approach  that  we  have  developed  which  is  an 
-implementation of stochastic model approach based on HMM An algorithm has been produced 
-for  the  said  model  The  model  was  tested  against  90551  words  2754  sentences  of  Sinhala  text 
-corpus  the  tagger  gave  more  than  90  accuracy  for  known  words  but  the  system  is  not 
-performing  well for  the  text  with  unknown  words  yet  So  unknown  words scenarios  are still  an 
-open area for further researches 
-Though this research produced a tagger for Sinhala language more research is required in this to 
-improve and optimize the algorithm Hence several interesting directions are suggested here for 
-future work 
-  Since  new  words  are  continuously  coming  into  the  language  handling  the  unknown 
-words Out-Of-Vocabulary is required 
-In-addition  to  disambiguation  there  are  few  other  complex  scenarios  exist  in  Sinhala 
-language  which  separate  particles  and  post-positions  separation  of  compound  nouns 
-multiword  combination  phrases  can  be  function  as  one  grammatical  category  and 
-separation of using Nipatha ksmd in different contexts which  are not handled in this 
-research 
-  Smoothing technique can be applied to get a better outcome  
-ACKNOWLEDGEMENTS 
-I  express  my  immense  gratitude  and  many  thanks  to  Mr  Harsha  Kumara  at  University  of 
-Kelaniya for his invaluable support in providing an initiative to NLP in Sinhala language Many 
-thanks to Mrs Kumudu Gamage at the Department of Linguistics University of Kelaniya for her 
-kind support 
-Glossary of Sinhala Terms 
-Sinhala Term 
-English Translation 
-   
-Vesak Poya 
- 
-due to 
-  2  
-on May 2nd 
-  
-    
-program of observing Sill 
-   
-around two hundred 
- 
-persons 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Sinhala Term 
-English Translation 
-  
-participated 
-bfnd 
-fokAfklA 
-bkAkjd 
-tortoises padlock 
-there are 
-odd shkjd 
-have been fixed 
- 
-name Aristed 
-  
-in his rule 
-   
-during the last period of 
-   
-as told 
- 
- 
-presidency 
-    
-during remaining time period 
- 
-opposition 
- 
- 
-  
-distribution of 
- 
- 
- 
-trouble 
-   
- 
- 
-Expanded in to this level   
-    
-could be avoided 
- 
-for Sri Lankans 
- 
- 
- 
-  
-summoned called 
-British 
-nationalist 
-5 5 people 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Sinhala Term 
-English Translation 
- 
-freedom is released 
- 
-united party 
-  
-high commissioner 
- 
- 
-to the north 
-       
- 
-ruled by religion 
-  
-Afghan  Talabanish 
-isxy jHdlrKh 
-Sinhala grammar 
-NdIdf 
-of the language 
-ksjer jHdlrKh  
-correct grammar in use 
-REFERENCES 
-List of languages by number of native speakers from wwwwikipediaorg  
-Endangered Language from wwwwikipediaorg 
-Languages of the world from wwwbbccouklanguagesguide languagesshtml 
-Alecx  Perera  Sinhala  grammer  isxy  jHdlrKh  Wasana  publication  Dankotuwa  Sri  Lanka 
-AAS Adikari Sinhala grammer isxy jHdlrKh Udaya Publications Niwandama Ja-ela Sri 
-Lanka 2008 
-A Ratnaparkhi A maximum entropy Part of Speech tagger Proceedings of EMNLP 1996 
-Daniel  Jurafsky  and  James  H  Martin  Speech  and  Language  Processing  Introduction  to  Natural 
-Language Processing Computational Linguistics and Speech Recognition Person Education Inc 
-Singapore Pte Ltd 5th Edition 2005 
-V Dhanalakshmi M Anand kumar KP Soman and S Rajendran POS tagger and chunker for 
-Tamil language Proceedings of the 8th Tamil Internet Conference Cologne Germany 2009 
-E  Black  Decision  tree  models  applied  to  the  labeling  of  text  with  Parts  of  Speech  In  Darpa 
-workshop on speech and natural language processing 1992 
-E  Brill  Transformation  based  error  driven  learning  and  natural  language  processing  A  case 
-study in Part of Speech tagging in computational linguistics 1995 
-KDC  Gunasakara  Sinhala  grammer  isxy  NdIdf  ksjer  jHdlrKh    Tharanji  Prints 
-Navinna Maharagama Sri Lanka 2008 
-kshar Bharathi and Prashanth R  Mannen  Introduction to the shallow parsing contest  for South 
-Asian  languages  Language  technilogy  research  center  International  institute  of  information 
-technology Hyderabad India 
-Sandipan Dandapat Sudeshna Sarkar Anupam Basu A Hybrid model for Part of Speech tagging 
-and  its  application  to  Bengali  Proceedings  of  international  conference  on  computational 
-intelligence 2004 
-Smriti  Singh  Kuhoo  Gupta  Manish  Shrivastava  and  Pushpak  Morphological  richness  offsets 
-resource  demand  experiences  in  constructing  a  POS  tagger  for  Hindi  Department  of  computer 
-science and engineering Indian Institute of Technology Bombay 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-T  Brants  A  statistical  Part  of  Speech  Ttagger  Proceedings  of  6th  applied  NLP  conference 
-UCSC Tagset from http wwwucsccmbaclk 
- UCSCLTRL Sinhala Corpus from     httpwwwucsccmbaclk Beta Version April 2005 
-Dulip  Herath  Kumudu  Gamage  and  Anuradha  MalalasekaraResearch  report  on  Sinhala 
-lexicon Langugae Technology Research Laboratory UCSC 
-Authors 
-AJPMP  Jayaweera  is  graduated  from  the  University  of  Colombo  Sri  Lanka  and  has 
-completed Masters in computer science from the University of Kelaniaya Sri Lanka and 
-currently  working  on  a  Master  of  Philosophy  degree  in  the  field  of  Natural  Language 
-Processing  and  Computational  Linguistics  at  the  same  university  Professionally  he  is  a 
-professional  Software  engineer  with  11  years  of  experience  in  divers  technologies  A 
-proven  career  records  in  enterprise  application  development  which  involved  providing 
-business  critical  real  time  application  for  leading  industries  At  present  he  is  working  as  a  software 
-Architect at Virtusa Pvt Ltd No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka 
-Dr  N  G  J  Dias  is  graduated  from  the  University  of  Colombo  Sri  Lanka  specializing 
-Mathematics  as  the  main  subject  He  has  completed  Masters  and  Doctoral  Degrees  in 
-Computer  Science  from  the  Queens  University  of  Belfast  Northern  Ireland  and 
-University  of  Wales  College  of  Cardiff  Cardiff  of  the  United  Kingdom  respectively  At 
-present  Dr  Dias  is  a  Professor  in  Computer  Science  attached  to  the  Department  of 
-Statistics    Computer  Science  of  the  University  of  Kelaniya  Sri  Lanka  He  has  been 
-working  in  the  field  of  Computer  Science  for  the  last  30  years  and  he  is  the  team  leader  of  the  Natural 
-Language Processing and Computational Mathematics research groups of the University 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-HIDDEN MARKOV MODEL BASED PART OF SPEECH 
-TAGGER FOR SINHALA LANGUAGE  
-AJPMP Jayaweera1 and NGJ Dias2 
-1 Virtusa Pvt Ltd No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka  
-2Department of Statistics  Computer Science University of Kelaniaya  
-Kelaniya Sri Lanka 
-ABSTRACT 
-In this paper we present a fundamental lexical semantics of Sinhala language and a Hidden Markov Model 
-HMM  based  Part  of  Speech  POS  Tagger  for  Sinhala  language  In  any  Natural  Language  processing 
-task Part of Speech is a very vital topic which involves analysing of  the construction behaviour and the 
-dynamics  of  the  language  which  the  knowledge  could  utilized  in  computational  linguistics  analysis  and 
-automation applications Though Sinhala is a morphologically rich and agglutinative language in which 
-words are inflected with various grammatical features tagging is very essential for further analysis of the 
-language  Our  research  is  based  on  statistical  based  approach  in  which  the  tagging  process  is  done  by 
-computing the tag sequence probability and the word-likelihood probability from the given corpus where 
-the  linguistic  knowledge  is  automatically  extracted  from  the  annotated  corpus  The  current  tagger  could 
-reach more than 90 of accuracy for known words  
-KEYWORDS 
-Part  of  Speech  tagging  Morphology  Natural  Language  Processing  Hidden  Markov  Model  Stochastic 
-based tagging 
-1 INTRODUCTION 
-According  to  figures  from  UNESCO  The  United  Nations  Educational  Scientific  and  Cultural 
-Organization there are around 6900 spoken languages are exist in this world only 20 languages 
-are spoken by 50 of the world population Each of these languages are spoken by more than 50 
-million speakers Most of the world population speaks Chinese Mandarin and that is spoken by 
-around 1000 million people Spanish English Hindi Arabic Portuguese and Russian   are other 
-top most languages spoken by the largest population in this world and each language is spoken 
-by 200 million speakers or more People who speak those top most languages are spread across 
-different  geographical  regions in  multiple  countries Also  50 of the  languages  are  endangered 
-and  most  of  them  are  spoken  by  small  communities  and  they  are  always  limited  to  a  specific 
-geographical region 1 2 3  
-Sinhala  is  also  one  unique  language  that  speaks  only  by  people  in  Sri  Lanka  and  more  than  17 
-million  speakers  speak  Sinhala  as  their  mother  tongue  We  believe  that  Sinhala  is  not  an 
-endangered language yet though speakers are limited only to a small geographical region But we 
-think  our  mother  language  need  more  attention  and  need  to  get  more  provision  to  develop  the 
-language  with  latest  technology  trends  So  our effort  here  is to  address one  pitfall  that  we  have 
-identified in area of computational linguistics and Natural Language Processing NLP related to 
-Sinhala language 
-105121ijnlc20143302                                                                                                                                   9 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Though research on NLP has taken giant leap in the last two decades with the advent of efficient 
-machine  learning  algorithms  and  the  creation  of  large  annotated  corpora  for  various  languages 
-only few languages in the world have the advantage of having enough lexical resources such as 
-English NLP researches for Sinhala are still far behind than other South Asian languages Further 
-we  have  very  limited  lexical  resources  available  for  Sinhala  language  Researches  on  NLP  for 
-Sinhala  language  can  be  pushed  by  creation  of  required  lexical  resources  and  tools    So  the 
-attempt  of  this  research  is  to  develop  a  Part  of  speech  Tagger  for  Sinhala  language  which  is  a 
-fundamental need for further computational linguistic analysis for our mother language  
-Sinhala is a complex language morphologically rich and agglutinative in nature words of which 
-are inflected with various grammatical features Sinhala root noun lemma inflects for plural and 
-singular and Sinhala verb specifies almost everything like gender number and person markings 
-and represents the tense of the activity 
-POS tagging is a well-studied problem in the field of NLP and one of the fundamental processing 
-step  for  any  language  in  NLP  and  language  automation  ie  the  capability  of  a  computer  to 
-automatically  POS  tag  a  given  sentence  Throughout  the  history  of  NLP  different  approaches 
-have  already  been  tried  out  to  automate  the  task  of  POS  tagging  of  languages  such  as  English 
-German Chinese and few South Asian languages such as Hindi Tamil and Bengali 
-Words are the fundamental building block of a language Every human language spoken signed 
-or written is composed of words 7 Every area of speech and language processing from speech 
-recognition  to  machine  translation  text  to  speech  spelling  and  grammar  checking  to  language-
-based  information  retrieval  on  the  Web  requires  extensive  knowledge  about  words  that  are 
-heavily  based  on  the  lexical  knowledge  In  contrast  to  other  data  processing  systems  language 
-processing applications use knowledge of the language 
-The basic processing step in tagging consists of assigning POS tags to every token in the text with 
-a corresponding POS tag like noun verb preposition etc based both on its definition as well as 
-its context The number of part of speech tags in a tagger may vary depending on the information 
-one wants to capture 7 
-In this paper we present a fundamental lexical and morphological analysis of Sinhala language 
-theory of Hidden Markov Model and the algorithm of the implementation Section 2 of this paper 
-gives an idea of history and previous research on NLP and section 3 discusses previous work on 
-Sinhala  language    Section  4  and  5  give  a comprehensive  lexical  and  morphological  analysis  of 
-Sinhala language Section 6 and 7 give details about available lexical resources which we use in 
-this  research  Section  8  and  9  describe  POS  tagging  and  the  Hidden  Markov  Model 
-implementation  algorithm  Section  10 and  11  discuss the  Evaluation testing  and  the result  and 
-section 12 concludes the paper and describes the future work 
-2 PREVIOUS WORK ON NLP 
-Natural  language  processing  history  started  from  Shanon  1948  Kleen  1951  then  Chomsky 
-1956 to Harris 1959 they contributed a lot in early 1950s to formulate the basic concepts and 
-principles of language processing In the last 50 years of research in language processing various 
-kinds  of  knowledge  had  been  captured  through  the  use  of  small  number  of  formal  models  or 
-theories  Most  of  these  models  and  theories  are  all  extracted  from  the  standard  toolkit  of 
-Computer  Science  Mathematics  and  Linguistics  Among  the  most  important  elements  in  these 
-toolkits  are  state  machine  formal  rules  system  logic  as  well  as  probability  theory  and  other 
-machine  learning  tools  7  But  in  the  last  decade  probabilistic  and  data-driven  models  had 
-become quite standard throughout the natural language processing 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-For  English  there  are  many  POS  taggers  available  employing  machine  learning  techniques 
-based on Hidden Markov Models 15 transformation based error driven learning 10 decision 
-trees 9 and maximum entropy methods 6 There are some taggers which are hybrid using both 
-stochastic and rule-based approaches Most of the POS taggers have reached a success between 
-92-97    accuracy  However  these  accuracies  are  aided  by  the  availability  of  large  annotated 
-corpus  for  English  Further  there  are  few  Tagging  systems  available  for  South  Asian languages 
-like  Hindi  Tamil  and  Bengali  8  12  13  14  In  2006  a  POS  tagger  was  proposed  for  Hindi 
-which  uses  an  annotated  corpus  of  15562  words  and  a  decision  tree  based  learning  algorithm 
-They reached an accuracy of 9345 with a tag set of 23 POS tags 14 For Bengali a tagger was 
-developed using a corpus based semi-supervised learning algorithm based on HMMs 13 
-3 PREVIOUS WORK ON SINHALA NLP ANALYSIS 
-There were some important language analysis work has done for Sinhala language and created a 
-Tag set 16 and a corpus of one million words 17 which was an important initiative that gives 
-a  substantial  influence  to  perform  NLP  research  on  Sinhala  language  But  unfortunately  the 
-progress  of  computational  linguistic  analysis  on  Sinhala  language  is  far  behind  than  other 
-languages According to our knowledge there is no well-known automated POS tagging system 
-available for Sinhala language 
-4 MORPHOLOGY IN SINHALA LANGUAGE 
-Sinhala is morphologically rich and agglutinative language in which root words are inflected in 
-different  contexts  In  Sinhala  words  are  defined  as  written  stream  of  letters  forming  a  sensible 
-understanding to a person that denotes or relation to the physical world or to an abstract concept  
-Basic  building  blocks  of  Sinhala  words  are  also  sound  units  not  the  letters  same  as  English 
-language  which  distinguish  two  broad  classes  of  morphemes  lemma    and  affixes   The lemma 
-stem is the main morpheme of the word supplying the main meaning while the affixes add 
-additional  meaning  of  various  kinds  Often  Sinhala  words  are  postpositionally  inflected  with 
-various grammatical features  Sinhala verb inflects to specifying almost everything like gender 
-singularity  or  plurality  person  markings  and  represents  the  tense  Sinhala  nouns  inflect  and 
-specifying singularity or plurality gender person marking and case of the noun 18 
-According to tradition below are four main types of words exist in Sinhala language 4 5 
-1  Noun - kdu mo  
-2  Verb - lshd mo 
-3  Upasarga  Wmi mo  no direct matching with English grammar 
-4  Nipatha  ksmd mo no direct matching with English grammar 
-5 SINHALA WORD CLASSES 
-Traditionally the definition of POS has been based on morphological and syntactic functions 7 
-Similar to most of other languages POS in Sinhala language also can be divided into two broad 
-categories  closed  class  type  and  open  class  type  Closed  classes  are  those  that  have  relatively 
-fixed membership Closed class words are generally function words which tend to be very short 
-occur frequently and play an important role in grammar  By contrast open class is the type that 
-lager  numbers  of  words  are  belongs  in  any  language  and  new  words  are  continually  coined  or 
-borrowed from other languages The words that are usually containing main content of a sentence 
-are belonged to open word class category 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-In  Sinhala  all  Nouns  and  Verbs  can  be  categorized  under  open  word  class  But  Nipatha  and 
-Upasarga behave differently in Sinhala grammar Words belong to Nipatha and Upasarga are not 
-changed according to time and gender Upasarga always join with nouns and provide additional 
-improve  meaning  to  the  noun  therefore  Upasarga  are  not  categorized  under  any  of  word 
-classes but Nipatha can be categorized as closed class words based on their existence 
-In-addition  to  that  Sinhala  Pronouns  also  can  be  classified  as  open  class  words  based  on  their 
-morphological  properties  but  also  Pronouns  can  be  classified  as  closed  class  words  based  on 
-their  existence  of  fixed  membership  in  the  language  Sinhala  Pronouns  are  forms  of  noun 
-commonly referring to person place or things 11 
-6 POS TAG SET FOR SINHALA LANGUAGE 
-In  Table  I  presents  the  Tag  set  defined  for  Sinhala  language  which  was  developed  by  UCSC 
-under PAN Localization project in 2005 16 and this tag set contains 26 tags which are mostly 
-based  on  morphological  and  syntactical  features  of  Sinhala  language  Currently  this  is  the  only 
-tag set available for Sinhala Language and we use this tag set in our research 
-However  there  are few issues  that  the  authors  have  encountered  during  the  process  of  defining 
-the tag set based on the syntactical complexity of Sinhala Language 16 
-1  Separation of Participle1 and Post-positions2 
-2  Separation of Compound Nouns - Combination of multiple nouns act as a single noun 
-3  Multiword  -  Certain  word  combinationphrases  can  function  as  one  grammatical 
-category 
-Table 1 Sinhala Tag Set 
-Description 
-Common Noun Root 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Pronoun Masculine 
-Pronoun Feminine 
-Pronoun Neuter 
-Pronoun Common 
-Number Quantifier 
-Determiner 
-Adjective 
-Adverb 
-Particle 
-11  QFNUM  
-12  DET  
-14  RB  
-15  RP  
-                                                 
-1 Particle   is a word that resembles a preposition 
-2 By definition a post-position follows a noun or a noun phrase 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-16  VFM  
-17  VNF  
-18  VP 
-19  VNN  
-21  CC  
-22  NVB  
-24  UH  
-Description 
-Verb Finite Main 
-Verb Non Finite 
-Verb Ptharticiple  
-Verbal Non Finite Noun 
-Postpositions 
-Conjunctions 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Interjection 
-Foreign Word 
-Not Classified 
-7 SINHALA TEXT CORPUS 
-Corpus is also an important lexical resource in the field of NLP In this research we use the Beta 
-version  of  the  Corpus  developed  by  the  UCSC  under  PAN  Localization  project  in  2005  17 
-which contains  around  650  000  words  and  out  of  which  70000  distinct  words that comprise of 
-data drawn from different kinds of Sinhala newspaper articles 
-8 POS TAGGING 
-Part-of-speech tagging is the process of assigning a part-of-speech or other lexical class marker to 
-each word in a sentence 7 The input to a tagging algorithm is a string of words and a tag set 
-The output is a single best tag for each word For example here is a sample sentence from Sinhala 
-Text Corpus of a news report about Silsamadana on a Wesak poya day which each word tagged 
-with mapping tag using the tag set defined in Table I 
-Example  NNPI   NNN  POST  NNPI  2NUM  QFNUM 
-NNN   VP  JJ   NNN 
-RP  QFNUM   RP 
-NNM  NVB  VFM    Refer  the  Sinhala  glossary  for  meaning  of  Sinhala 
-words 
-Sinhala is a morphologically rich and agglutinative language which words are made up of lexical 
-roots  combined  with  affixes  or  prefixes  So  automatically  assigning  a  tag  to  each  word  in  a 
-language like Sinhala is very complex The main challenge in Sinhala POS tagging is solving the 
-complexity  of  words  Ambiguity  is  also  adding  some  complexity  in  the  process  of  tagging  but 
-fortunately most words in Sinhala are unambiguous The example below shows how a word can 
-be ambiguous in Sinhala language 
-Ambiguity is the existence of more than one possible usage of POS in different context The noun 
-bnd ibba containing two meanings tortoise and padlock bear intimateness and inanimateness 
-according to the context The problem of POS tagging is to resolve these ambiguities choosing 
-the  proper  tag  for  the  context  not  for  the  word  So  this  can  be  resolved  by  looking  at  the 
-associated words with the word 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Example 
-bfndNNPA fokAfklA bkAkjd There are two tortoises 
-bfndNNPI fokAfklA odd shkjd Two padlocks have been fixed 
-Most  of  tagging  algorithms  fall  into  one  of  the  two  classes  rule-based  taggers  and  stochastic 
-taggers 7 Rule-based taggers generally involve a large database of hand written disambiguation 
-rules  Stochastic  tagger  generally  resolves  tagging  ambiguities  by  using  a  training  corpus  to 
-compute the probability of a given word having a given tag in a given context In addition to that 
-there are taggers which use a hybrid approach which employees both of the above  methods to 
-resolve the tagging ambiguity which is called transformation-based taggers or Brill taggers 7  
-Under this research we have tried out the applicability of Stochastic based tagging approach for 
-Sinhala language 
-9 OUR APPROACH 
-We next describe the approach and the overall application architecture defined for Sinhala POS 
-tagger in this Research  To find a suitable tagging approach for Sinhala language we  analysed 
-multiple approaches that has already been discussed for other morphologically rich languages and 
-decided to use a well-known stochastic based approach which is known as Hidden Markov Model 
-that  has  proven  evidence  of  better  results  for  other  languages  Probability  is  the  basic  principle 
-behind HMM The model described here follows the concepts given in the reference 7 
-The intuition behind all stochastic taggers is simple generalization of the pick the most-likely tag 
-for this word For a given sentence or a word sequence HMM tagger chooses the tag sequence 
-that maximizes 
-P word  tag   P tag  previous n tags 
-HMM tagger generally chooses a tag sequence for a given sentence rather than for a single word 
- of tags T 
-This approach assumes that we are trying to compute the most probable tag sequence
- t1t2tn for a given sequence of words in the sentence W  w1w2wn 
-where   
-is the set of values of t for which PTW attains its maximum value 
-By Bayes law P TW can be expressed as 
-So we choose the sequence of tags that gives 
-where 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-is the set of values of t for which PTPWTPW attains its maximum value 
-Since  we  are  looking  for  the  most  likely  tag  sequence  for  a  sentence  given  a  particular  word 
-sequence the probability of the word sequence P W will be same for each tag sequence and we 
-can ignore it So we get 
-where PT is the Prior probability and PWT is the Likelihood probability 
-From the chain rule of probability we get  
-But  for  a  long  sequence  of  words  calculating  probabilities  like  P  wiw1t1wi-1ti-1tiP 
-tiw1t1wi-1ti-1 is not an easy task there is no easy way to calculate probability for selecting tag 
-to  a  word  given  a  long  sequence  of  preceding  words  We  could  solve  this  problem  by  making 
-useful  simplification  we  approximate  the  probability  of  a  word  given  all  previous  words  The 
-probability  of  the  word  given  the  single  previous  word  called  bigram  model  Bigram  model 
-approximates the probability of a word given all the previous words by the conditional probability 
-of the preceding word 
-This  assumption  that  the  probability  of  a  word  depends  only  on  the  previous  words  is  called 
-Markov assumption Markov models are the class of probabilistic models that assume that we can 
-predict the probability of some future unit without looking too far into the past We can generalize 
-the bigram to the trigram which looks two words into the past 7 
-In  practice  trigram  model  is  always  used  in  NLP  applications  So  that  let  us  define  the 
-simplifying assumptions for this scenario 
-First make the assumption that the probability of a word depends only on its tag ie 
-Next we make the assumption that the tag history can be approximated by the most recent two 
-From 1 2 and 3 we get 
-Thus the best tag sequence can be choose so that it maximize 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Now  as  usual  we  can  use  maximum  likelihood  estimation  from  relative  frequency  to  compute 
-these probabilities We use corpus to find  counts of  tag sequences of tags ti-2ti-1ti and  tags ti-2ti-
-1 where ti is the tag i and ti-1ti-2 are previous two tags and count of witi where wi is the word i and 
-ti is the tag assigned to word i 
-We compute the probabilities 
-for all wi  where 1in  
-91 The Algorithm 
-The algorithm explains below is based on the Viterbi Algorithm 7 which is widely used in the 
-NLP applications that allows considering all the words in the given sentence simultaneously and 
-computes  the  most  likely  tag  sequence  More  formally  the  algorithm  searches  for  the  best  tag 
-sequence   for  given  an  observation  sequence  W    w1w2wn  based  on  the  text  corpus  Each 
-cell viterbiti a two dimension array with ij elements of the matrix contains the probability of 
-the path which contains the probability for the first t observations ends in state i This is the most-
-probable path out of all possible sequence of the tags of length t-1  
-The  algorithm  sets  up  a  probability  matrix  with  one column  for  each  observation  index t  and 
-one  row  for  each  state  i  in  the  state  graph  The  algorithm  first  creates  t2  columns  The  first 
-column is the initial observation which is the start of the sequence then next corresponds to the 
-first observation and so on Then begin with the first column by setting the probability of the start 
-to  1  and  other  probabilities  to  0  For  each  column  of  the  matrix  that is  for  each  time  index  t 
-each cell viterbitj will contain the probability of the most likely path to end in that cell  j We 
-calculate this probability recursively by maximizing over the probability of the coming from all 
-possible  preceding  states Then  we  move  to the  next  state for  each  of the  state  i viterbi0i in 
-column 0 then compute the probability of moving into each of the cell j   viterbi1j in column 1 
-and finally the probability for the best path will appear in the final column  Finally back tracing 
-can be done to find the path that gives the best possible tag sequence 
-92 Overall Application Architecture and the Design 
-Figure 1 shows the overall architecture of the proposed tagger which is a two-step process that 
-first runs through the tagged corpus and extract the linguistic knowledge Then it runs through the 
-row text inputs and generating the best tag sequence for the sequence of input words based on the 
-knowledge that gathered from the corpus 
-Lexical  Parser  Checks  boundary  conditions  of  each  sentences  and  words  as  defined  in  the 
-lexical rules and prepare for Tokenizing and Pre-processing 
-Tokenization  Run  through  the  tagged  corpus  separate  out  the  words  and  tags  prepare  for 
-probability calculation 
-Probability  Calculation    Calculate  the  Transition  probability  and  the  observation  likelihood 
-probability  for  each  pairs  of  Words  Tag  sequences  in  the  corpus  as  explained  in  section  93 
-below 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Viterbi  Matrix  Analyzer  Prepare  a  state  graph  that  has  all  possible  state  transitions  for  the 
-given text input calculate and assign state transition probability for each transition in the matrix 
-as explained in section A 
-Tag  Sequence  Analyzer  Back  trace  the  viterbi  matrix  analyse  the  maximum  probability  path 
-and assign tags to each word in the sentence based on highest probability 
-93 Train the Tagger 
-The next important step is training the tagger The training method we describe here is based on 
-supervised learning approach It runs on the corpus makes use of tagged data  and estimates the 
-probabilities of transition Ptag  previous tag and observation likelihood Pword  tag for the 
-Then the transition probability Ptiti-1  is calculated simply by using the following formula 
-where cti-1ti  is the count of tag sequence ti-1ti in the corpus 
-For  calculating  observation  likelihood  probability  Pwiti  we  calculate  the  unigram  unigram 
-model uses only one piece of information which is the one that is considering of a word along 
-with  its  tag  assigned  in  the  tagged  data  The  likelihood  probability  is  calculated  simply  by  the 
-following formula 
-where ctiwi is the count of word i wi is assigned tag i ti in the corpus 
-Figure 1 The Architecture of the Tagger 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-10 EVALUATION 
-The  evaluation  of  the  system  was  mainly  driven  by  train  the  system  using  Sinhala  text  corpus 
-which comprised of 2754 sentences and 90551 words The training data set was selected from the 
-Sinhala  text  corpus  developed  by  UCSC  and  we  used  only  articles  which  drown  from  various 
-Sinhala  newspapers  Example  given  below  shows  a  part  of  the  corpus  in  which  each  word  is 
-annotated with corresponding mapping tag  
-Example  NNPA  PRP  NNN  JVB  NNN  VNF 
-VNF  VP  POST    PRP  NNN  NVB  NNN 
-NNN  POST  NNM  CC  NNN  VNF  VNN 
-NNN  POST    NNN  DET  NNN  VNF  VNN 
-JVB VP  VFM  
-The testing was performed on a test data extracted from the corpus and accuracy was calculated 
-using number of correct tags proposed by the system and total number of words in the sentences 
-by the following formula 
-The  results  were  obtained  by  performing  a  cross  validation  over  the  corpus  The  accuracy  for 
-known and unknown words was also measured separately  
-11 RESULT AND DISCUSSION 
-Testing was done under two classifications first tested only with known words which is already 
-tagged and the tagger is trained that gives a very high accuracy close to 95 secondly tested the 
-data set with few unknown words and that gives a less accuracy The tagger doesnt perform after 
-reaching an unknown word 
-Table 2 contains part of test results that were obtained by performing tests for evaluating known 
-word scenarios Actual and predicted tag assignment for each word in the sentences is shown in 
-the table 
-Table 3 below presents the confusion matrix which summarized the test results given in Table 2 
-In this confusion matrix all correct predictions are located in the diagonal of the table Only one 
-tag  assignment  has  deviated  from  the  actual  out  of  9  actual  NNN  tag  assignments  system  has 
-predicted  NNN  tags  for  7  words  NVB  tag  was  assigned  for  other  two  words  In  this  case  the 
-accuracy of the system has reached to 9091 for known words scenarios  
-Hence increasing the size of the training corpus is required to increase the tagging accuracy  Not 
-only that it is required to include data from a wide range of domains that makes the corpus more 
-unbiased and representative  and  also further research  are  required  in  increasing  and  optimizing 
-the tagging accuracy for   known words scenarios 
-Further tagging data with unknown words is also an essential need to handle in the tagger When 
-the system reach an unknown word current tagger fails to propose a tag since the system is not 
-trained for that word and the tagging algorithm doesnt have enough intelligence to propose tags 
-for untrained words So improvements can be suggested to the algorithm by extracting knowledge 
-mainly  from  open  class  word  category  since  new  words  are  coined  or  browed  from  other 
-languages more commonly belongs to open word class Due to fixed number of membership of 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-closed  class  word  category  we  can  assume  that  the  words  belongs  to  closed  class  category  are 
-well  defined  in  Sinhala  grammar  and  that  is  fixed  So  improvements  of  the  algorithm  can  be 
-suggested to focus more on words belongs to sub categories of open class words such as noun 
-verbs  and  pronouns  This  could  be  done  by  incurring  some  intelligence  to  the  tagger  by  set  of 
-hand written disambiguation rules and follow the hybrid approach in the tagging algorithm 
-Table 2 Test Data 
-Test Data 
-Predicted  NNM  NNN    
-Actual  NNM  NNN  
-Predicted  NNPI  NNM  QFNUM  
-NNM  NVB  
-Actual    NNPI    NNM    QFNUM   
-NNM  NNN  
-Predicted  NNN  NNN  NNPI 
- NNM  NVB  
-Actual  NNN  NNN  NNPI 
- NNM  NNN  
-Predicted  NNPI  JJ  NNM  
-NNN  VFM  
-Actual  NNPI  JJ  NNM  
-NNN  VFM  
-Predicted  JJ  NNN  NNN  NNN  
-VP  NNPI  NNPA  
-Actual  JJ  NNN  NNN  NNN  
-VP  NNPI  NNPA  
-Further our research opens more areas to continue researches on tagging Sinhala language which 
-leads  more  work  to  be  carried  out  on  finding  optimization  techniques  and  unknown  word 
-handling approaches 
-Table 3 Confusion Matrix of the Test Result 
-Predicted 
-NNM  NNN  NNPI  NVB 
-JJ  VFM  VP 
-NNM  5 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-12 CONCLUSION AND FUTURE WORK 
-In  this  research  our  effort  was  mainly  focused  on  giving  a  push  to  NLP  and  computational 
-linguistics  analysis  for  Sinhala  language  by  developing  a  tagging  system  according  to  our 
-knowledge there is no language specific tagging system available for Sinhala  language In this 
-paper  we  have  described  the  POS  tagging  approach  that  we  have  developed  which  is  an 
-implementation of stochastic model approach based on HMM An algorithm has been produced 
-for  the  said  model  The  model  was  tested  against  90551  words  2754  sentences  of  Sinhala  text 
-corpus  the  tagger  gave  more  than  90  accuracy  for  known  words  but  the  system  is  not 
-performing  well for  the  text  with  unknown  words  yet  So  unknown  words scenarios  are still  an 
-open area for further researches 
-Though this research produced a tagger for Sinhala language more research is required in this to 
-improve and optimize the algorithm Hence several interesting directions are suggested here for 
-future work 
-  Since  new  words  are  continuously  coming  into  the  language  handling  the  unknown 
-words Out-Of-Vocabulary is required 
-In-addition  to  disambiguation  there  are  few  other  complex  scenarios  exist  in  Sinhala 
-language  which  separate  particles  and  post-positions  separation  of  compound  nouns 
-multiword  combination  phrases  can  be  function  as  one  grammatical  category  and 
-separation of using Nipatha ksmd in different contexts which  are not handled in this 
-research 
-  Smoothing technique can be applied to get a better outcome  
-ACKNOWLEDGEMENTS 
-I  express  my  immense  gratitude  and  many  thanks  to  Mr  Harsha  Kumara  at  University  of 
-Kelaniya for his invaluable support in providing an initiative to NLP in Sinhala language Many 
-thanks to Mrs Kumudu Gamage at the Department of Linguistics University of Kelaniya for her 
-kind support 
-Glossary of Sinhala Terms 
-Sinhala Term 
-English Translation 
-   
-Vesak Poya 
- 
-due to 
-  2  
-on May 2nd 
-  
-    
-program of observing Sill 
-   
-around two hundred 
- 
-persons 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Sinhala Term 
-English Translation 
-  
-participated 
-bfnd 
-fokAfklA 
-bkAkjd 
-tortoises padlock 
-there are 
-odd shkjd 
-have been fixed 
- 
-name Aristed 
-  
-in his rule 
-   
-during the last period of 
-   
-as told 
- 
- 
-presidency 
-    
-during remaining time period 
- 
-opposition 
- 
- 
-  
-distribution of 
- 
- 
- 
-trouble 
-   
- 
- 
-Expanded in to this level   
-    
-could be avoided 
- 
-for Sri Lankans 
- 
- 
- 
-  
-summoned called 
-British 
-nationalist 
-5 5 people 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-Sinhala Term 
-English Translation 
- 
-freedom is released 
- 
-united party 
-  
-high commissioner 
- 
- 
-to the north 
-       
- 
-ruled by religion 
-  
-Afghan  Talabanish 
-isxy jHdlrKh 
-Sinhala grammar 
-NdIdf 
-of the language 
-ksjer jHdlrKh  
-correct grammar in use 
-REFERENCES 
-List of languages by number of native speakers from wwwwikipediaorg  
-Endangered Language from wwwwikipediaorg 
-Languages of the world from wwwbbccouklanguagesguide languagesshtml 
-Alecx  Perera  Sinhala  grammer  isxy  jHdlrKh  Wasana  publication  Dankotuwa  Sri  Lanka 
-AAS Adikari Sinhala grammer isxy jHdlrKh Udaya Publications Niwandama Ja-ela Sri 
-Lanka 2008 
-A Ratnaparkhi A maximum entropy Part of Speech tagger Proceedings of EMNLP 1996 
-Daniel  Jurafsky  and  James  H  Martin  Speech  and  Language  Processing  Introduction  to  Natural 
-Language Processing Computational Linguistics and Speech Recognition Person Education Inc 
-Singapore Pte Ltd 5th Edition 2005 
-V Dhanalakshmi M Anand kumar KP Soman and S Rajendran POS tagger and chunker for 
-Tamil language Proceedings of the 8th Tamil Internet Conference Cologne Germany 2009 
-E  Black  Decision  tree  models  applied  to  the  labeling  of  text  with  Parts  of  Speech  In  Darpa 
-workshop on speech and natural language processing 1992 
-E  Brill  Transformation  based  error  driven  learning  and  natural  language  processing  A  case 
-study in Part of Speech tagging in computational linguistics 1995 
-KDC  Gunasakara  Sinhala  grammer  isxy  NdIdf  ksjer  jHdlrKh    Tharanji  Prints 
-Navinna Maharagama Sri Lanka 2008 
-kshar Bharathi and Prashanth R  Mannen  Introduction to the shallow parsing contest  for South 
-Asian  languages  Language  technilogy  research  center  International  institute  of  information 
-technology Hyderabad India 
-Sandipan Dandapat Sudeshna Sarkar Anupam Basu A Hybrid model for Part of Speech tagging 
-and  its  application  to  Bengali  Proceedings  of  international  conference  on  computational 
-intelligence 2004 
-Smriti  Singh  Kuhoo  Gupta  Manish  Shrivastava  and  Pushpak  Morphological  richness  offsets 
-resource  demand  experiences  in  constructing  a  POS  tagger  for  Hindi  Department  of  computer 
-science and engineering Indian Institute of Technology Bombay 
-International Journal on Natural Language Computing IJNLC Vol 3 No3 June 2014 
-T  Brants  A  statistical  Part  of  Speech  Ttagger  Proceedings  of  6th  applied  NLP  conference 
-UCSC Tagset from http wwwucsccmbaclk 
- UCSCLTRL Sinhala Corpus from     httpwwwucsccmbaclk Beta Version April 2005 
-Dulip  Herath  Kumudu  Gamage  and  Anuradha  MalalasekaraResearch  report  on  Sinhala 
-lexicon Langugae Technology Research Laboratory UCSC 
-Authors 
-AJPMP  Jayaweera  is  graduated  from  the  University  of  Colombo  Sri  Lanka  and  has 
-completed Masters in computer science from the University of Kelaniaya Sri Lanka and 
-currently  working  on  a  Master  of  Philosophy  degree  in  the  field  of  Natural  Language 
-Processing  and  Computational  Linguistics  at  the  same  university  Professionally  he  is  a 
-professional  Software  engineer  with  11  years  of  experience  in  divers  technologies  A 
-proven  career  records  in  enterprise  application  development  which  involved  providing 
-business  critical  real  time  application  for  leading  industries  At  present  he  is  working  as  a  software 
-Architect at Virtusa Pvt Ltd No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka 
-Dr  N  G  J  Dias  is  graduated  from  the  University  of  Colombo  Sri  Lanka  specializing 
-Mathematics  as  the  main  subject  He  has  completed  Masters  and  Doctoral  Degrees  in 
-Computer  Science  from  the  Queens  University  of  Belfast  Northern  Ireland  and 
-University  of  Wales  College  of  Cardiff  Cardiff  of  the  United  Kingdom  respectively  At 
-present  Dr  Dias  is  a  Professor  in  Computer  Science  attached  to  the  Department  of 
-Statistics    Computer  Science  of  the  University  of  Kelaniya  Sri  Lanka  He  has  been 
-working  in  the  field  of  Computer  Science  for  the  last  30  years  and  he  is  the  team  leader  of  the  Natural 
-Language Processing and Computational Mathematics research groups of the University 
+A biophysical model of cell adhesion mediated by
+immunoadhesin drugs and antibodies
+Ryan N Gutenkunst1 2  Daniel Coombs3 Toby Starr4  Michael L Dustin4 and Byron Goldstein1
+1Theoretical Biology and Biophysics Group Theoretical Division
+Los Alamos National Laboratory Los Alamos NM 87545
+2Center for Nonlinear Studies Theoretical Division
+Los Alamos National Laboratory Los Alamos NM 87545
+3Department of Mathematics and Institute of Applied Mathematics
+University of British Columbia Vancouver British Columbia V6T 1Z2 Canada
+4Department of Pathology New York University School of Medicine and Program in Molecular Pathogenesis
+Skirball Institute of Biomolecular Medicine 540 First Avenue New York NY 10016
+A promising direction in drug development is to exploit the ability of natural killer cells to kill
+antibody-labeled target cells Monoclonal antibodies and drugs designed to elicit this eect typically
+bind cell-surface epitopes that are overexpressed on target cells but also present on other cells Thus
+it is important to understand adhesion of cells by antibodies and similar molecules We present an
+equilibrium model of such adhesion incorporating heterogeneity in target cell epitope density and
+epitope immobility We compare with experiments on the adhesion of Jurkat T cells to bilayers
+containing the relevant natural killer cell receptor with adhesion mediated by the drug alefacept
+We show that a model in which all target cell epitopes are mobile and available is inconsistent with
+the data suggesting that more complex mechanisms are at work We hypothesize that the immobile
+epitope fraction may change with cell adhesion and we nd that such a model is more consistent
+with the data We also quantitatively describe the parameter space in which binding occurs Our
+results point toward mechanisms relating epitope immobility to cell adhesion and oer insight into
+the activity of an important class of drugs
+Keywords Alefacept CD2 CD58 FcRIII Immobility
+INTRODUCTION
+When a pathogen elicits a humoral immune response
+antibodies are produced that bind to specic epitopes
+on the surface of the pathogen Once antibodies have
+bound to the pathogen it is labeled as foreign and vari-
+ous processes can follow that lead to its elimination One
+such process antibody-dependent cell-mediated cytotox-
+icity ADCC involves natural killer NK cells binding
+through their FcRIIIa CD16a receptors to IgG anti-
+bodies decorating the pathogen reviewed in 1 The
+coupling of an NK cell to a target cell brings parts of the
+surfaces of the two cells into proximity within roughly
+100 A In the region of tight contact where antibodies
+form bridges between the two cells both the density of
+epitopes on the target cell and the density of Fc receptors
+on the NK cell are locally increased When the density
+of Fc receptors in the contact region on the NK cell is
+suciently high a cellular response is triggered the end
+point of which is the release of lytic granules containing
+perforin and granzymes whose combined eect results
+in the killing of the target cell 24 Depending on the
+nature of the epitope and type of cell the aggregation
+of epitopes on the target cell may also trigger cellular
+responses 5 6
+Monoclonal antibodies and antibody-like fusion pro-
+Electronic address ryangutenkunstorg
+Deceased February 29 2008
+teins have been developed to take advantage of ADCC
+These drugs target naturally occurring proteins that are
+overexpressed on tumor cells and on populations of cells
+that drive autoimmune responses 1 710 Unfortu-
+nately the drug will also target a subset of healthy cells
+because the target is a naturally occurring protein An
+obvious question which we address in this paper is what
+properties of the drug the cells that express the target
+protein and the NK cells determine the drugs ability
+to discriminate between pathogenic and healthy cells A
+second question that we consider that is closely related
+to the rst is what determines the range of drug concen-
+trations over which the drug will couple target cells to
+NK cells These drugs either in animal models or pa-
+tients must compete for Fc receptors on NK cells with
+endogenous IgG 11 We therefore also look at how back-
+ground IgG inuences the range of drug concentrations
+over which adhesion occurs
+We previously presented an equilibrium model that de-
+scribes the coupling via a monoclonal antibody or an
+appropriate fusion protein of identical target cells to a
+surface expressing mobile Fc receptors 12 Here we
+signicantly extend our model to allow for a target cell
+population with a heterogeneous surface epitope density
+This allows us to analyze experiments where the percent-
+age of target cells bound is determined as a function of
+the ligand concentration We also extend the model to
+address the possibility that some fraction of the target
+epitopes are immobile including cases in which the im-
+mobile fraction depends on epitope cross-linking or the
+size of the contact region These cases model some po-
+tential target cell responses to adhesion
+To test predictions of the model we use an experi-
+mental system consisting of a planar bilayer containing
+mobile FcRIIIb CD16b receptors Jurkat T cells ex-
+pressing the cell-adhesion molecule CD2 and a drug
+alefacept that binds the target cell to the bilayer 12
+FcRIIIb diers from FcRIIIa the receptor on NK
+cells in that it lacks a transmembrane region and a cyto-
+plasmic tail and anchors to membranes via glycosolphos-
+phatidylinositol 13 Further the extracellular domains
+of the two receptors dier by six amino acids which
+probably accounts for FcRIIIb having a lower anity
+for IgG than FcRIIIa 13 14 Alefacept is a recombi-
+nant fusion protein that has an antibody-like architec-
+ture where the Fab binding sites have been replaced by
+the natural ligand for CD2 the extracellular domain of
+CD58 15 16 fused to the human IgG1 hinge CH 2 and
+CH 3 domains 2 It is used in the treatment of psoriasis
+an autoimmune disease where it targets memory-eector
+T cells that have increased levels of CD2 on their surface
+Alefacept reduces the number of circulating memory-
+eector T cells in treated patients and mediates ADCC
+in vitro 2 1720
+Alefacept is an example of an immunoadhesin which
+is molecule that uses the basic framework of an IgG
+antibody but replaces the Fab binding sites with the
+ecotodomain of an adhesion molecule Immunoadhesins
+have the specicity of an adhesion molecule as well as
+some properties of an antibody such as the ability to
+bind to Fc receptors and a half-life in plasma that is sim-
+ilar to IgG 21 22 An interesting property of alefacept
+is that it mediates adhesion and killing of target cells by
+NK cells at nM concentrations 12 even though both the
+binding of IgG to FcRIIIa and the binding of CD58 to
+CD2 23 are low anity in the M range The model we
+present will show how the range of drug concentrations
+over which adhesion occurs depends on these equilibrium
+constants as well as the other parameters of the system
+II MODEL AND METHODS
+We consider a population of target cells expressing a
+particular epitope with some fraction of the epitopes
+freely diusing in the target cell membrane and the re-
+mainder immobile
+ie xed in position on the mem-
+brane Additionally we consider a bilayer with mobile
+receptors diusing on its surface and a ligand capable of
+simultaneously binding both the epitope and the recep-
+tor through dierent sites The ligand is either a mono-
+clonal antibody or an immunoadhesin its Fab arms bind
+monovalently or divalently to the epitope on the target
+cells and its Fc leg binds monovalently to the receptor
+on the bilayer At some ligand concentration a contact
+region forms between the cell and the bilayer its area is
+an increasing function of the number of ligand-mediated
+bridging bonds that form
+FIG 1 Model reaction network All molecular species and
+reactions are labeled All reactions are reversible the arrow
+in the gure denotes the forward direction for dening the
+equilibrium constant which labels the arrow Underlined rate
+constants are eliminated using detailed balance
+A Concentrations and equilibrium constants
+The potential reactions between epitopes ligand and
+receptor are illustrated in Fig 1 Each molecular com-
+plex is labeled by our mathematical notation for its sur-
+face concentration All species except those involving a
+bridging bond b10 b20 b11 and b01 exist both inside
+and outside the contact region and the subscript in
+denotes species inside the contact region Detailed bal-
+ance places six constraints on the equilibrium constants
+which we use to eliminate the underlined constants in
+Fig 1 see Supporting Material for more detail To nd
+the equilibrium state of this system for any given bulk
+ligand concentration L we solve ve algebraic equations
+for ve unknowns the free immobile epitope concentra-
+tion outside i and inside iin the contact region the free
+mobile epitope e and receptor r concentrations outside
+the contact region and the fraction of the target cell
+surface  comprising the contact region To make anal-
+ysis tractable we make several simplifying assumptions
+regarding the equilibrium conguration of receptors and
+epitopes
+Our rst assumption is that the equilibrium constants
+for reactions involving immobile epitopes are identical to
+the corresponding constants involving mobile epitopes
+KI  KE KHE  Kx Kb01  Kb10  Kb1 and
+KF H  Kb20  Kb2 Making this assumption substan-
+2KEKx2Kb20Kb10KRKHE2KIKb01KHI2KIKFHKx22KEKFIKFEAlefacept LMobile CD2epitope eImmobile CD2epitope iCD16receptor re1r1i1b11b01b10hb20e2tially reduces the number of unknown parameters We
+expect that this assumption leads to negligible error be-
+cause the relevant physical interactions are identical for
+mobile and immobile epitopes
+Our second assumption is that the typical distance be-
+tween immobile epitopes on the target cell is large com-
+pared with the span of the two arms of the ligand so that
+the ligand cannot cross-link immobile epitopes Thus we
+do not consider complexes containing more than one im-
+mobile receptor Given a CD2 surface density  and as-
+suming the CD2 epitopes are uniformly distributed the
+probability P d  a that an epitopes nearest neighbor
+is a distance a away or closer is 24
+TABLE I Fixed parameter values
+parameter
+10  106 M1
+67  105 M1
+45  102 m2
+800 m2
+62 m2
+reference
+2729
+this work
+this work
+receptor a mobile epitope and an immobile epitope is
+P d  a  1  ea2
+b11  Kb2hinrin  Kb2hinRr
+As detailed later each T-cell contains of order 64000
+CD2 epitopes over a surface area of roughly 800 m2
+yielding a density of   80 m2 Given this den-
+sity the probability that an epitopes nearest neighbor
+is closer than the span of roughly 10 nm 25 between
+epitope binding arms of an antibody-like molecule such
+as alefacept is less than 3 We expect that cross-links
+between immobile epitopes will indeed be rare because
+the density of immobile epitopes is even lower than the
+total epitope surface density
+Our third assumption relates the free mobile epitope
+and receptor concentrations inside and outside the con-
+tact region In earlier experiments uorescently labeled
+CD48 Cy5-CD48 was coupled to the bilayer and it was
+observed that the uorescence from CD48 was reduced
+in the contact region to approximately 75 of its value
+outside the contact region 12 This suggests that the
+contact region introduces steric hindrance and partitions
+mobile surface proteins between the inside and outside
+of the contact region We assume that at equilibrium
+ein  Ee and rin  Rr where ein and rin are the
+free epitope and free receptor concentrations inside the
+contact region and E and R are equilibrium partition
+coecients The partition coecients for FcRIIIb and
+CD2 have not been determined we assume they behave
+similarly to CD48 because they are of similar size so we
+take R  E  075
+Using the law of mass action and these additional as-
+sumptions we can write down the equilibrium concentra-
+tion of all bound complexes in terms of the free epitope
+receptor and ligand concentrations For example the
+concentration hin of complexes inside the contact region
+consisting of a ligand cross-linking a mobile and an im-
+mobile epitope is
+hin  Kxiine1in  2KxKELiinein  2KxKELEiine
+The factor of 2 in calculating the concentration e1in of
+complexes between a ligand and mobile epitope arises be-
+cause KE is a single-site equilibrium constant and there
+are two potential binding sites on the ligand Similarly
+the concentration b11 of bridging complexes involving a
+The full system of equilibrium relations is given in Sup-
+porting Material
+Given our assumptions in the limit that target cells
+are sparse the equilibrium state will depend on ve equi-
+librium constants KR KE Kx Kb1 and Kb2 two par-
+tition coecients E and R the total receptor rT  epi-
+tope eT  and ligand concentrations LT  the epitope im-
+mobile fraction  and a parameter  that relates the area
+of the contact region to the number of bridging bonds In
+addition to connect our model with the data we require
+the surface area Acell of the Jurkat T cells studied and
+an oset area Ao that accounts for non-specic adhesion
+between the cells and the bilayer detailed later In our
+analyses a number of these parameters were held xed
+Table I
+Most of our xed parameter values come directly from
+measurements an exception is Kx the cross-linking con-
+stant for alefacept binding To estimate Kx we equate
+the measured apparent dissociation constant KD for ale-
+facept adhering to T cells to the inverse of the initial slope
+m0 of a Scatchard plot for a bivalent ligand binding to a
+monovalent receptor 26
+m0   2KE1  KxeT 2
+1  KxeT 2
+  1
+Using the mean CD2 count measured for our cells of
+64  104 and Acell to calculate eT  along with KD 
+100 nM 12 yields the value for Kx in Table I With the
+exception of the t parameter Kb2 our results are insen-
+sitive to the precise value of Kx Fig S1 in Supporting
+Material The parameter Ao is inferred from our data
+as discussed below
+B Conservation laws
+In the experiments we consider there is negligible de-
+pletion of ligand so the free ligand concentration is well
+approximated by the total ligand concentration L 
+LT  Conservation of epitopes and receptors however
+introduces additional constraints on the concentration of
+various complexes
+In our model there are three classes of epitopes mo-
+bile epitopes immobile epitopes outside the contact re-
+gion and immobile epitopes inside the contact region
+We assume that the concentrations of all species have
+reached equilibrium For mobile epitopes we have
+Acell1  eT  Acell  Ae  e1  2e2  h
+ Ab10  2b20  b11  ein  e1in  2e2in  hin
+where eT is the average epitope density on the cell sur-
+face equal to the total epitope count ET divided by the
+cell area Acell and A is the area of the contact region
+This equation expresses the fact that the total number
+of mobile epitopes left-hand side must be equal to the
+total number in complexes outside and inside the contact
+region In terms of the fraction  of the cell surface in
+the contact region the above conservation law is
+1  eT  1  e  e1  2e2  h
+ b10  2b20  b11  ein  e1in  2e2in  hin
+Similarly for immobile epitopes outside the contact re-
+gion we have
+ eT  i  i1  h
+and for immobile epitopes inside the contact region we
+ eT  iin  i1in  hin  b01  b11
+For receptors in the bilayer we have
+Abl rT  Arin  r1in  b10  b20  b01  b11
+ Abl  Ar  r1
+where Abl is the total area of the bilayer divided by the
+number of adhered cells Dividing by Acell and rearrang-
+ing yields
+rT  rin  r1in  b10  b20  b01  b11
+ 1  r  r1
+where   AcellAbl In the experiments we analyze for
+all ligand concentrations the adhered cells are sparsely
+distributed over the bilayer so we take   0
+C Contact region growth law
+Bell Dembo and Bongrand argued 30 that the bridg-
+ing bond density between two adhered cells is determined
+by a constant repulsive pressure arising from electrostatic
+repulsion caused by negative charges associated with cell
+surfaces and steric stabilization eects The steric ef-
+fects arise because cell membranes are coated by a hy-
+drated layer of long-chain polymers glycocalyces that
+must compress as cells are brought together and water
+is squeezed out of the contact region Together with the
+assumption that cells are easily deformed this argument
+implies that the area of the contact region grows linearly
+with the number of bridging bonds
+Although we expect the repulsion between our tar-
+get cells and bilayer to be smaller than that between
+two cells we expect the repulsive forces to be of similar
+origin Moreover in our experiments the small contact
+regions observed cause only small cellular deformations
+and our target Jurkat T cells are signicantly more easily
+deformed than some other cell types such as neutrophils
+and HL60 cells 31 However in our equilibrium data
+the observed average area of the contact region cid104Aobscid105
+does not go to zero as the number of bridging bonds goes
+to zero Fig 3A an eect seen previously in the bind-
+ing of Jurkat T cells to bilayers containing the natural
+CD2 ligand CD58 32 We hypothesize that some addi-
+tional non-specic adhesion occurs after cells settle onto
+the membrane We account for this eect by subtracting
+an oset area Ao from our data so that in our modeling
+we compare with the average specic adhered area cid104Acid105
+which is cid104Aobscid105 Ao  Our procedure for estimating Ao
+is discussed in the Results section Once we have sub-
+tracted the oset we observe a linear relationship be-
+tween average contact area and average bridging bond
+number suggesting that the bond density  is indeed a
+constant In addition to the constraints from conserva-
+tion of epitopes and receptors we thus have an additional
+constraint on bond density
+  b10  b20  b01  b11
+Solving the ve constraint equations Eq 6 7 8 10
+and 11 for the ve unknowns e i iin r and  allows us
+to calculate the area of the contact region for a cell with
+a specied epitope density eT given the ligand concentra-
+tion L We solve the constraint equations and perform all
+numerics using the Python library SciPy 33 Uncertain-
+ties on t parameters are calculated via bootstrapping
+with over 250 bootstrap data sets for each model
+D Heterogeneous density of epitopes on target
+We now consider a target cell population with a nor-
+malized distribution f eT  of epitope densities For a
+given ligand concentration if eT min is the minimum epi-
+tope density at which adhesion will occur the fraction of
+cells bound to the bilayer is
+cid90 
+fraction bound 
+f eT  deT 
+and the average area of the specic contact region is
+cid104Acid105  Acell cid104cid105 
+cid82 
+cid82 
+eT f eT  deT
+f eT  deT
+Similarly for a xed ligand concentration adhesion oc-
+curs only above a minimal epitope density eT min As L or
+eT approach these bounds the contact area approaches
+some minimal value Amin below which there is no adhe-
+sion We make the approximation that Amin  0 Plug-
+ging   0 into Eq 6 10 and 11 and substituting our
+expressions for equilibrium species concentrations such
+as Eq 2 yields a system of three equations for the un-
+knowns e r and L For a xed epitope density eT  this
+system can be reduced to a single cubic equation in L
+which is given in Supporting Material This cubic equa-
+tion may have either two positive roots L and L or
+no positive roots no adhesion irrespective of L Sim-
+ilarly for a xed ligand concentration L the system of
+three equations can be reduced to a quadratic equation
+for eT  the larger root of which is eT min see Supporting
+Material
+We expect that taking   0 rather than setting it
+equal to some minimal value introduces negligible error in
+our estimates of L L and eT min In our experiments
+adhesion was determined in the absence of ow based
+on whether there was accumulation of the receptor CD58
+in the contact area Even in the presence of weak ows
+estimates suggest that few bonds and thus small contact
+areas are needed to maintain adhesion 35 36
+2 Average contact area
+When the cells adhered to the bilayer negligibly deplete
+the receptors so that   0 and all epitopes are mobile
+so that   0 then
+where cid104eTcid105 is the average epitope density of adhered cells
+cid104cid105  cid104eTcid105
+cid104eTcid105 
+eT f eT  deT
+f eT  deT
+To prove this we rst note the constraint imposed by our
+relation for the bond density Eq 11 when   0 and
+  0
+In this case after substituting our equilibrium
+relations  is equal to a function of e and r which does
+not involve eT  When   0 r is simply rT 1  KRL
+from Eq 10 again not involving eT  Thus our relation
+for the bond density provides a constraint on the free
+epitope density e that is independent of the total epitope
+density eT 
+In other words all adhered cells will have
+the same density of free epitopes and thus of all other
+complexes irrespective of their total epitope density eT 
+When   0 and   0 our conservation equation for
+mobile epitopes Eq 6 yields the following expression
+for 
+eT  e  e1  2e2
+b10  2b20  ein  e1in  2e2in  e  e1  2e2
+cid82 
+cid82 
+FIG 2 Distribution of CD2 epitope count on Jurkat T cells
+like those used in our experiments as determined by ow
+cytometry
+We will primarily model the distribution of target cell
+epitope densities by the three parameter Weibull distri-
+bution which has density
+cid16 x
+cid17k1
+ k
+f x  k  
+e x
+if x  
+if x  
+In our ts we x the location parameter  to zero The
+parameter k is the Weibull shape parameter For k 
+26 f x is skewed to the right for 26  k  37 it is
+essentially unskewed and looks like a normal distribution
+and for k  37 it is skewed to the left For k  1 and
+  0 the Weibull distribution reduces to the exponential
+distribution
+Shown in Fig 2 is the distribution of expression of CD2
+on the surfaces of a population of Jurkat T cells the tar-
+get cells in our study as determined by ow cytometry
+This distribution serves as a baseline to judge the distri-
+butions arising from our model ts These measurements
+were performed on a Becton Dickinson FacsCaliber Flu-
+orescein isothiocyanate FITC labeling of antibodies and
+the determination of the uoresceineprotein ratio was
+determined using absorption spectroscopy 34 Calibra-
+tion was performed using FITC standard beads obtained
+from Bangs Laboratories Fishers IN Antibody-stained
+cells were washed twice prior to analysis
+E Analysis of the model with fully mobile epitopes
+When all epitopes are mobile   0 and there is no
+depletion of bilayer receptors   0 the model simpli-
+es substantially to a system of three equations for e r
+and  This reduced system oers several useful analytic
+results
+1 Requirements for adhesion
+For a xed epitope density adhesion occurs over a
+range of soluble ligand concentrations L  L  L
+103104105106CD2 per cellNote that all complex concentrations on the right-hand-
+side e e1 e2 b10 b20 ein e1in and e2in are functions of
+e and r only which we have just shown are independent
+of eT  Thus taking the average over adhered cells we
+cid104cid105 
+cid104eTcid105  e  e1  2e2
+b10  2b20  ein  e1in  2e2in  e  e1  2e2
+where the right-hand-side is simply the specic contact
+area calculated using the average epitope density of ad-
+hered cells cid104eTcid105 Thus for the case in which   0 and
+all receptors are mobile calculating cid104cid105 does not require
+explicitly integrating eT  over our epitope density dis-
+tribution f eT  Instead we need only calculate eT min
+then cid104eTcid105 and nally cid104cid105
+F Calculations with immobile fraction
+Analysis of the model with non-zero immobile epitope
+fraction   0 is considerably more dicult than the
+case of completely mobile epitopes even with   0 To
+calculate  we must now numerically solve a system of
+ve rather than three algebraic equations Addition-
+ally the simplications of the previous section no longer
+apply so we must nd the bounding ligand and epitope
+concentrations for adhesion using numerical root-nding
+and we must calculate cid104cid105 by explicit numerical integra-
+tion of eT  over the distribution f eT 
+When   0 direct solution of our system of ve
+constraint equations will give non-physical results for
+those cases in which the immobile epitopes themselves
+are dense enough to drive adhesion Because the im-
+mobile epitope density is assumed constant over the cell
+surface this case results in a divergent contact area  as
+demonstrated in Fig S2 In our application this phe-
+nomenon only occurs at very high total epitope densities
+eT  so it makes only a small contribution in our typical in-
+tegrations over f eT  but we must handle it carefully to
+avoid numerical diculties The value of  which leads to
+this divergence div can be found by solving our conser-
+vation equation for immobile epitopes inside the contact
+region Eq 8 with b01   yielding
+div  
+1  2KI L1  Kb1rin
+2Kb1KI LeT rin
+When   div we set   05 consistent with a cell
+completely attened against the surface Similarly we
+set   05 whenever direct solution of the equations
+would yield a larger value for  Altering this maximum
+value of  has very small inuence on our results data
+not shown as in our experiments the vast majority of
+cells have only a small fraction of their area adhered
+In our analyses we consider ts with a constant im-
+mobile fraction and ts in which the immobile fraction
+ is a function of either  or the fraction  of target cell
+epitopes that are cross-linked by ligand
+2e2in  b20  hin  b11  21  e2  h
+In both cases we consider a linear dependence of  on 
+  013  s
+  013  s
+Here 013 is the experimentally observed immobile epi-
+tope fraction in the absence of ligand 12 Eq 21 or 22
+represents an additional constraint to our previous ve
+to account for the additional free variable  There may
+be multiple self-consistent solutions of our expanded sys-
+tem of six constraint equations see Fig S2 Physically
+we expect the cell to adopt the solution corresponding
+to smaller  as the cell begins in a state with minimal
+epitope immobility In our calculations we always adopt
+the smallest possible solution
+III RESULTS
+Experiments were previously carried out to character-
+ize alefacept-mediated bridging of CD2 epitopes on Ju-
+rkat T-cells to uorescently-labeled FcRIIIb receptors
+on supported bilayers 12 The alefacept concentration L
+was varied from 1 nM to 100 M and the fraction of cells
+bound to the bilayer the average size of the contact area
+and the average number of bonds in the contact area were
+determined These types of measurements were made at
+two dierent FcRIIIb densities rT on the bilayer 1200
+m2 and 625 m2 Here we t several models of in-
+creasing complexity to this data Using these models we
+then consider the requirements for alefacept-mediated T-
+cell adhesion deriving compact expressions for the lim-
+iting alefacept concentrations Finally we consider the
+eect of background nonspecic IgG on adhesion
+In Fig 3A the bridging bond data is plotted against
+the area of the contact region From this data we extract
+a best-t value for the non-specic contact area of Ao 
+617 m2 with a 95 condence interval of 2885 m2
+In all our subsequent ts this value is subtracted from
+the contact area data so we only t the specic contact
+A Fit of fully mobile model
+We rst considered an adhesion model with free diu-
+sion of all FcRIIIb receptors on the bilayer and all CD2
+epitopes on the T cell Simultaneous nonlinear least-
+squares ts of this model to the data are shown by the
+solid lines in Fig 3B We weighted the experiments so
+TABLE II Fit results best-ts and 95 condence intervals
+ 103
+cid104ETcid105 103
+1723
+5183
+4573
+1722
+5290
+4680
+ m2 Kb1 m2 Kb2 m2
+364487
+0330
+23108
+  constant
+368495
+0426
+26102
+0001
+  013  s
+362483
+0426
+  013  s
+2594
+361487
+0316
+22174
+0006
+17  22
+5997
+2656
+1218
+1136
+5386
+1032
+average number of epitopes per cell was roughly 5500
+which is much smaller than the average value of 64000
+determined from ow cytometry Fig 2 A reasonable
+t could not be obtained when the distribution of epi-
+topes per cell was taken directly from the ow cytometry
+data data not shown
+One counter-intuitive property of the ts is that at high
+and low ligand concentrations it appears as if there is a
+slow decline in the average contact area and number of
+bridging bonds long after the number of bound cells has
+gone to zero
+In these cases the average contact area
+is being calculated over the miniscule fraction of cells
+that are adhered For example with rT  1200m2 at
+L  104 M an average of 125 bonds per adhered cell is
+predicted but this involves only a fraction 1027 of the
+total cells In the experiments only a few hundred cells
+were sampled per data point so the tails of the Weibull
+distribution are a poor description of the cell population
+Whether the Weibull distribution is a reasonable descrip-
+tion of the epitope density on a target cell population in
+vivo is an open question We have also considered a log-
+normal distribution Although it can t the ow cytome-
+try data in Fig 2 well when it is used to analyze the data
+in Fig 3 it predicts that as the ligand concentration de-
+creases the average contact area and number of bridging
+bonds go through minima and then rise yielding a very
+poor t to this data results not shown Thus for the
+lognormal distribution and possibly other distributions
+the average number of bonds in the contact region can
+increase as the ligand concentration goes to zero
+This model with freely diusing CD2 epitopes dramat-
+ically underestimates the amount of CD2 present on the
+T cells Therefore we consider more complex models in-
+corporating immobile CD2 epitopes in the following sec-
+FIG 3 A Experimental data on average bridging bond count
+versus average contact area Once the non-specic adhesion
+oset Ao is removed a linear relationship is evident We
+plot the model with   410m2 line B Fits to contact
+area bridging bond and fraction-adhered data for the best-
+t model with all T-cell epitopes mobile solid lines and the
+best-t model with epitope immobility  a linear function of
+the contact area  dashed lines
+that both the bond and contact area data went between
+zero and one and we t ve parameters the bridging
+bond density  the equilibrium constants Kb1 and Kb2
+and the Weibull distribution parameters k and  Ta-
+ble II lists the best-t values of the free parameters along
+with 95 condence intervals The best-t value for the
+In prior experiments on Jurkat T cells it was observed
+that 13 of CD2 epitopes were immobile in the absence
+of ligand 12
+It has further been observed in T cells
+that cell stimulation may increase CD2 immobility 37
+Thus we extended our mathematical model to include
+B Fit of models with epitope immobility
+BApotential CD2 epitope immobility and t several such
+models to the data
+We rst considered a model in which the immobile epi-
+tope fraction  was a t constant In this case the best-t
+value of  was found to be zero yielding an identical t
+to the fully mobile case This motivated us to consider
+models in which the immobile fraction was a function of
+the fraction  of epitopes cross-linked by ligand or the
+fractional area  of the specic contact region
+When we t a model in which the immobile fraction
+was a linear function of  restricting our search to slopes
+ 0 the best-t value for the slope of that function was
+0 yielding a constant immobile fraction of 013 The
+resulting model t was slightly worse than the completely
+mobile model
+The dashed curves in Fig 3B show the results from
+a t with the immobile fraction a linear function of the
+specic contact area  In this case the t is somewhat
+improved and the best-t estimate of total epitope count
+per cell is driven upward to roughly 19 000 This esti-
+mate of ET is still only a about a third of the value
+inferred from the ow cytometry data but it is much
+closer than the other models The best-t function for
+ is   013  43 so the immobile fraction increases
+very rapidly with cell adhesion Note that in our data
+the largest average specic contact area seen is roughly
+12 m2Acell  0015 so that only small values of  are
+typically explored and adding higher-order terms to 
+yields negligible improvement in the t data not shown
+C Requirements for adhesion
+For drug design an important consideration is what
+combinations of ligand concentration and target cell epi-
+tope count will yield binding The curves in Fig 4A sepa-
+rate the region where more than 50 of cells are adhered
+inside each curve from the region where less than 50
+are adhered for three dierent scenarios The outermost
+thick solid curve is the predicted separation curve for the
+parameters obtained from the t with all receptors mo-
+bile that shown by the solid lines in Fig 3B From this
+curve we can see that the minimal ligand concentration
+for adhesion L is inversely proportional to the square of
+the epitope density ie the bottom portion of the curve
+has a slope of approximately negative two
+From the complete set of equations for the model with
+  0 and   0 we can obtain simple approximations
+for L and L for a xed target cell epitope density eT 
+L 
+T KEKb2KxrT 2
+L  eT Kb1rT ER
+To approximate L we assume that at the lowest ligand
+concentrations that mediate adhesion all bridging bonds
+arise from epitopes bound bivalently so Kb1  0 For
+the L approximation we assume that at the highest
+ligand concentrations that mediate adhesion all ligands
+bound to epitopes are bound singly so Kx  Kb2  0
+As seen in Fig 4A Eq 23 and 24 closely predict the
+ligand concentration of 50 adhesion when we replace
+eT by the average epitope density Our approximate ex-
+pression for L suggests that ligands similar to alefacept
+can achieve considerable selectivity in epitope density
+on adhered cells because L falls with the square of
+the epitope density Further since the ligand-epitope
+cross-linking constant Kx is proportional to the ligand-
+epitope binding constant KE Eq 23 implies that L
+falls inversely with the square of KE suggesting that a
+good strategy for lowering L is to develop ligands with
+higher KE values
+The dashed curve in Fig 4A bounds the region of ad-
+hesion for the best-t model in which the immobile frac-
+tion  is a linear function of the contact area  Again
+the minimal ligand concentration for adhesion falls as the
+square of the epitope density Our expressions for L and
+L Eq 23 and 24 are no longer good approximations in
+this case but the dependence of L on the ligand-epitope
+binding constants KE and Kx is the same This is illus-
+trated by the dotted curve which bounds the region of
+adhesion for the same model and parameters with the
+exception that KE and Kx have been divided by 10 As
+expected from Eq 23 the minimal ligand concentration
+for adhesion has increased by a factor of 100
+D Adhesion inhibition by non-specic IgG
+In vivo alefacept-mediated adhesion depends not only
+on the concentration of alefacept and the density of CD2
+on the T cells but also on the presence of background
+nonspecic IgG which can bind the NK cell receptor and
+inhibit adhesion To test the sensitivity of adhesion to
+background concentrations of nonspecic IgG the per-
+centage of cells bound to the bilayer was determined in
+the presence of 500 nM of the ligand alefacept and dif-
+fering concentrations G of puried human IgG with a re-
+ceptor concentration in the bilayer of 450 m2 12 For
+inhibition to be signicant we expect that KGG must
+be greater than 1 where in these experiments the IgG
+binding constant KG is equal to our KR In Fig 4B an
+inhibition of 50 is achieved with an IgG concentration
+of about 7 M suggesting that KR  15 105 M1 In
+our ts we took KR  10  106 M1 2729 Fig 4B
+shows good agreement between our predicted inhibition
+curve using the best-t parameters for the  model
+and the experimental data providing further validation
+of our model
+a quadratic function of the epitope-ligand binding con-
+stants even for our more complex models suggesting
+that tuning this interaction may be a fruitful route for
+drug design
+It is instructive to compare our t parameters with
+with those from previous investigations of Jurkat T cell
+adhesion A previous analysis of adhesion to bilayers con-
+taining the natural CD2 binding partner CD58 found
+a non-specic contact area of 76 m2 similar to the
+617 m2 we nd 32 That analysis found the density
+of bridging bonds  at equilibrium to be approximately
+1000 m2 substantially greater than our value of 400
+m2 This is unsurprising because the direct CD2-
+CD58 interaction draws the cell closer to the bilayer
+leading to a larger repulsive force which requires more
+bonds to overcome Our value for the 2D association
+constant Kb1 between the alefacept-epitope complex and
+CD16b are of order 1 m2 This value is similar to previ-
+ous results for the 2D association constant between CD2
+and CD58 which range from 01 to 09 m2 16 37 38
+Thus our t parameters are consistent with those from
+the literature
+Our data are best described by a model in which the
+level of immobilized CD2 on the T cell is proportional to
+the contact area rather than the degree of CD2 cross-
+linking This suggests that signaling from isolated cross-
+linked CD2 pairs may be less eective than signaling from
+larger aggregates or from regions of high CD2 density
+such as the contact region A similar eect is seen in
+signaling from the immune receptor FcRI on rat ba-
+sophilic leukemia cells in which receptor dimers signal
+weakly compared to larger aggregates 39 Furthermore
+recent experiments have observed signaling in Jurkat T
+cells adhering to bilayers presenting CD58 the natural
+binding partner of CD2 40
+In our system comparing the bridging bond density 
+of approximately 400 m2 with the initial cellular CD2
+density of roughly 80 m2 we see that the density in-
+crease in the contact region is roughly a factor of 5 This
+increases the fraction of CD2 nearest neighbors within a
+given distance by the same factor of 5 Eq 1 substan-
+tially increasing the probability of interaction Thus the
+increased density of CD2 in the contact region may have
+a large eect in promoting interactions between CD2
+molecules and driving signaling When alefacept adheres
+T cells to NK cells in vivo FcRIIIa receptors on the NK
+cell will be similarly concentrated in the contact region
+and this concentration may contribute to the signal that
+drives NK-mediated killing of target cells Moreover we
+expect the repulsive force to be greater between cells than
+between a cell and a bilayer so the in vivo bridging bond
+density is probably larger leading to greater in vivo re-
+ceptor concentration than seen in our experiments
+In summary we have developed an equilibrium model
+for the immunoadhesin-mediated adhesion of cells to sur-
+faces Our analysis suggests guidelines for the design of
+therapeutic immunoadhesins Furthermore applying our
+model to experiments on Jurkat T cells suggests that an
+FIG 4 A Curves shown enclose the region of greater than
+50 cell adhesion for the best-t all-mobile model thick
+solid the best t model with  dashed and the 
+model with ligand-epitope binding constants KE and Kx each
+divided by 10 dotted The thin solid lines show our approx-
+imations for the bounding ligand concentrations L and L
+B Experimental data on the inhibition of adhesion by non-
+specic IgG open circles compared with predictions from
+our model with the immobile epitope fraction a function of
+the contact area The black line is from the best-t model
+while the dashed lines denote 95 condence intervals from
+our bootstrap parameter uncertainties
+IV DISCUSSION
+We have developed an equilibrium model
+for the
+ligand-mediated adhesion of cells to surfaces Our model
+incorporates potential heterogeneities in target cell epi-
+tope density immobility of epitopes and the possibility
+that ligand binding or adhesion alters the immobile epi-
+tope fraction We have applied our model to experiments
+on the alefacept-mediated adhesion of Jurkat T cells ex-
+pressing CD2 to bilayer membranes containing the recep-
+tor FcRIIIb a close relative of the relevant receptor on
+natural killer cells We nd that our data are best de-
+scribed by a model in which the immobile epitope fraction
+is a function of the contact area between the target cell
+and bilayer Nevertheless our best-t model still under-
+estimates the epitope density on Jurkat T cells perhaps
+indicating that other factors inuence CD2-mediated ad-
+hesion and opening a direction for future study
+Our results also suggest general guidelines for the de-
+sign of immuno-adhesive molecules We nd that for
+bivalent ligands the minimal ligand concentration L
+required for adhesion is inversely related to the square
+of the target cell epitope density illustrating the poten-
+tial selectivity of these ligands We also show that L is
+ABactive cellular process may be increasing CD2 immobility
+in response to alefacept-mediated surface adhesion
+Acknowledgments
+This work was supported by the Department of En-
+ergy through contract W-7405-ENG-36 and the National
+Institutes of Health through grants R37-GM035556 and
+R56-AI44931 Further support was provided by the Na-
+tional Science and Engineering Research Council and the
+Mathematics of Information Technology and Complex
+Systems National Centre of Excellence
+1 A Iannello and A Ahmad Cancer Metastasis Rev 24
+487 2005
+2 A J da Silva M Brickelmaier G R Majeau Z Li
+L Su Y-M Hsu and P S Hochman J Immunol 168
+4462 2002
+3 J A Trapani and M J Smyth Nat Rev Immunol 2
+735 2002
+A Khatcherian I Novitskaya et al Proc Natl Acad
+Sci USA 102 2075 2005
+21 R A Byrn J Mordenti C Lucas D Smith S A
+Marsters J S Johnson P Cossum S M Chamow
+F M Wurm T Gregory et al Nature 334 667 1990
+22 A Ashkenazi and S M Chamow Methods 8 104 1995
+23 M Dustin L Ferguson P Chan T Springer and
+4 Y T Bryceson M E March D F Barber H-G Ljung-
+D Golan J Cell Biol 132 465 1996
+gren and E O Long J Exp Med 202 1001 2005
+5 M-A Ghetie E M Podar A Ilgen B E Gordon J W
+Uhr and E S Vitetta Proc Nat Acad Sci USA 94 7509
+1997
+6 L M Friedman A Rinon B Schechter L Lyass
+S Lavi S S Bacus M Sela and Y Yarden Proc Nat
+Acad Sci USA 102 1915 2005
+7 R A Clynes T L Towers L G Presta and J V
+Ravetch Nat Med 6 443 2000
+8 T A Waldmann Nat Med 9 269 2003
+9 L Arnould M Gelly F Penault-Llorca L Benoit
+F Bonnetain C Migeon V Cabaret V Fermeaux
+P Bertheau J Garnier et al Br J Cancer 94 259
+2006
+10 H Koon P Severy D Hagg K Butler T Hill A Jones
+T Waldmann and R Junghans Leuk Res 30 190
+2006
+11 S Preithner S Elm S Lippold M Locher A Wolf
+A J da Silva P A Baeuerle and N S Prang Mol
+Immunol 43 1183 2006
+12 M L Dustin T Starr D Coombs G R Majeau
+W Meier P S Hochman A Douglass R Vale B Gold-
+stein and A Whitty J Biol Chem 282 34748 2007
+13 B J Scallon E Scigliano V H Freedman M C Miedel
+Y C Pan J C Unkeless and J P Kochan Proc Natl
+Acad Sci USA 86 5079 1989
+14 C Anderson R Looney D Culp D Ryan H Fleit
+M Utell M Frampton P Manganiello and P Guyre J
+Immunol 145 196 1990
+24 S Chandrasekhar Rev Mod Phys 15 1 1943
+25 L J Harris S B Larson K W Hasel J Day A Green-
+wood and A McPherson Nature 360 369 1992
+26 C Wofsy and B Goldstein Math Biosci 112 115 1992
+ISSN 0025-5564
+27 J Galon M W Robertson A Galinha N Mazieres
+R Spagnoli W-H Fridman and C Sautes Eur J Im-
+munol 27 1928 1997
+28 S E Chesla P Li S Nagarajan P Selvaraj and C Zhu
+J Biol Chem 275 10235 2000
+29 K Maenaka P A van der Merwe D I Stuart E Y
+Jones and P Sondermann J Biol Chem 276 44898
+2001
+30 G Bell M Dembo and P Bongrand Biophys J 45 1051
+1984
+31 M J Rosenbluth W A Lam and D A Fletcher Bio-
+phys J 90 2994 2006
+32 J-Y Shao Y Yu and M L Dustin Ann Biomed Eng
+33 483 2005
+33 E Jones T Oliphant P Peterson et al SciPy Open
+source scientic tools for Python 2001 URL http
+wwwscipyorg
+34 A F Wells C E Miller and M K Nadel Appl Micro-
+biol 14 271 1966
+35 G I Bell Cell Biochem Biophys 3 289 1981
+36 D A Hammer and D A Lauenburger Cell Biochem
+Biophys 14 139 1989
+37 D-M Zhu M L Dustin C W Cairo H S Thatte and
+D E Golan ACS Chem Biol 1 649 2006
+15 M L Dustin and T A Springer Annu Rev Immunol 9
+38 D-M Zhu M L Dustin C W Cairo and D E Golan
+Biophys J 92 1022 2007
+39 C Fewtrell and H Metzger J Immunol 125 701 1980
+40 Y Kaizuka A D Douglass S Vardhana M L Dustin
+and R D Vale J Cell Biol 185 521 2009
+27 1991
+16 M L Dustin D E Golan D-M Zhu J M Miller
+W Meier E A Davies and P A van der Merwe J
+Biol Chem 272 30889 1997
+17 G Majeau W Meier B Jimmo D Kioussis and
+P Hochman J Immunol 152 2753 1994
+18 C N Ellis and G G Krueger N Engl J Med 345 248
+2001
+19 J Cooper G Morgan S Harding M Subramanyam
+G Majeau K Moulder and D Alexander Eur J Im-
+munol 33 666 2003
+20 F Chamian M A Lowes S-L Lin E Lee T Kikuchi
+I Cardinale
+P Gilleaudeau M Sullivan-Whalen
+A biophysical model of cell adhesion mediated by immunoadhesin drugs and antibodies
+Supporting Material
+S1 Full model
+The full set of equilibrium relations among the molecular complexes considered in our model is given by Eq S1
+through S16 which express all complex concentrations as functions of e r i and iin
+ein  Ee
+rin  Rr
+e1  2KELe
+e2  Kxe1e2
+e1in  2KELein
+e2in  Kxe1inein2
+b10  Kb10e1inrin
+b20  Kb20e2inrin
+r1  KRLr
+r1in  KRLrin
+i1  2KI Li
+i1in  2KI Liin
+h  KHEe1i
+hin  KHEe1iniin
+b01  Kb01i1inrin and
+b11  KF H hinrin
+Note that the above equations do not involve any of the underscored equilibrium constants indicated in Fig 1 of
+the main text This is because enforcing detailed balance around all loops in the reaction diagram introduces six
+constraints on the equilibrium constants which we use to eliminate the underlined constants
+KxKb20  KxKb10
+KEKb10  KEKR
+Kb10KF E  KF H KHE
+KI Kb01  KI KR
+KEKHE  KI KHI  and
+KI Kb01KF I  KF H KHEKE
+S2 Requirements for adhesion
+As described in the main text for the model with all receptors mobile we can nd equations for the bounds on
+ligand concentration L and epitope density eT for adhesion by setting   0 in Eq 6 10 and 11
+In the model with all receptors mobile to nd the minimal epitope density eT min for adhesion we solve the quadratic
+equation
+T  be eT  ce  0
+where the coecients are given by
+cid1044Kcid48
+ce  1  KRL  KGGcid84KEL Kcid48
+be  2KELrT
+2KEL rT  Kcid48
+ae  Kcid48
+2KEKxLr2
+b2rT 1  2KEL  2Kcid48
+b1Kcid48
+b1rT  2KELrT   Kx1  KRL  KGG  Kcid48
+b2Kx1  KRL  KGG
+cid105
+b2rT 1  2KEL2cid9 
+with Kcid48
+b1  REKb1 and Kcid48
+b2  R2
+EKb2 Eq S23 has two solutions the larger of which is eT min
+To nd the limits on ligand concentration for adhesion we solve the cubic equation
+aL L3  bL L2  cL L  dL  0
+where the coecients are given by
+cid8rT Kcid48
+bL  4KE
+aL  4KEKR2rT Kcid48
+b1KE  rT Kcid48
+ eT rT 2Kcid48
+b2KE  KR  Kcid48
+2KErT  Kcid48
+dL  rT Kcid48
+T Kcid48
+b2KE  KRKx
+b1rT 2KE  KR  2KRKx
+b1Kcid48
+b2KRKxcid9
+b2KErT  Kcid48
+cL  2rT Kcid48
+b1KE2  eT rT Kcid48
+b2  42KEKx  e2
+2KEKx  rT Kcid48
+b2 KR  4KE1  KxeT   and
+Eq S27 has either two positive solutions which are L and L or no positive solutions in which case adhesion is
+not possible for any ligand concentration
+S3 Sensitivity to Kx
+FIG S1 Sensitivity to Kx The change in best-t parameter values for the completely mobile model is plotted as Kx varies
+from our inferred value of 45  102 m2 With the exception of Kb2 changing Kx by a factor of 10 up or down from this
+value changes the best-t results by less than 30 The best-t value of Kb2 on the other hand is inversely proportional to
+the value of Kx assumed
+10-1100101Kx45102m203020100010203fractional change in result2Kb1Kb2khETiS4 Model solutions and divergence
+FIG S2 Illustrative solutions of our model as a function of immobile fraction  We show the solution for  as a function of
+ for a particular set of model parameters open circles Note divergence at div  095 We show the ltered solution for 
+accounting for the divergence and xing   05 thick solid line and the fraction  of cross-linked epitopes as a function of 
+dashed line We also show two potential models with  constrained to be a linear function of  or  thin solid lines The
+solution for  with   013  2 is shown by the star while the solution for  with   013   is shown by the large
+diamond
+0002040608100002040608100132013

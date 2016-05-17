@@ -1,1432 +1,588 @@
-Semi-supervised Classication for
-Natural Language Processing
-Department of Computer Science University of Western Ontario
-Rushdi Shams
-London ON N6A 5B7 Canada
-email rshamscsduwoca
-AbstractSemi-supervised classication is an interesting idea
-where classication models are learned from both labeled and
-unlabeled data It has several advantages over supervised clas-
-sication in natural language processing domain For instance
-supervised classication exploits only labeled data that are ex-
-pensive often difcult to get inadequate in quantity and require
-human experts for annotation On the other hand unlabeled
-data are inexpensive and abundant Despite the fact that many
-factors limit the wide-spread use of semi-supervised classication
-it has become popular since its level of performance is empirically
-as good as supervised classication This study explores the
-possibilities and achievements as well as complexity and limita-
-tions of semi-supervised classication for several natural langue
-processing tasks like parsing biomedical information processing
-text classication and summarization
-Keywords Semi-supervised learning classication natural
-language processing data mining
-INTRODUCTION
-Classical supervised methods use labeled data to train
-their classier models These methods are widespread and
-used in many different domains including natural language
-processing The key material used in different natural language
-processing tasks is text The number of text however is
-increasing everyday due to the pervasive use of computing
-There are more unlabeled than labeled text since data labeling
-is expensive due to engagement of human for data annotation
-The process also consumes time These difculties have serious
-effects on supervised learning since a good t of a classier
-model requires as much labeled data as possible for its training
-Semi-supervised learning can be a good means to overcome
-the aforementioned problems The basic principle of semi-
-supervised learning is simple use both unlabeled and labeled
-data to generate classier models This makes semi-supervised
-learning substantially useful for a domain like natural lan-
-guage processing because of a good note unlabeled text is
-inexpensive abundant and more available than labeled text
-In addition empirically semi-supervised models have good
-performance records On many tasks they are as good as
-supervised models and in most cases they are better than
-cluster-based unsupervised models 2 However many of
-these results are not conclusive and proper care therefore
-should be taken due to some serious concerns related to semi-
-supervised learning
-This study explores the use of semi-supervised learning
-for natural language processing Interestingly like traditional
-machine learning methods semi-supervised learning can be
-used to solve classication regression and clustering prob-
-lems The particular focus of this study however is on semi-
-supervised classication In this study popular research papers
-and classic books are explored to outline the possibilities and
-achievements of semi-supervised classication for natural lan-
-guage processing As well thorough investigations are carried
-out both from theoretical and empirical data to explain the
-complexity and limitations of this method Natural language
-processing is one of the largest research areas of articial
-intelligence The scope of this study is however limited to
-most popular tasks such as parsing biomedical information
-processing text classication and summarization
-The organization of the paper is as follows Section II
-presents an overview of semi-supervised learning that includes
-learning problems and different
-types of semi-supervised
-algorithms and learning techniques Following that Section III
-outlines the use of semi-supervised classication for different
-natural
-language processing tasks In Section IV several
-considerations and conclusions are drawn
-II OVERVIEW OF SEMI-SUPERVISED LEARNING
-Unlike supervised and unsupervised learning
-supervised learning exploits both labeled and unlabeled data
-To start with semi-supervised methods train models with a
-very little labeled data Surprisingly test results show that
-marginal labeled data are sufcient to train models with good
-t for semi-supervised learning 3 The generated models are
-then applied on unlabeled data in an attempt to label them
-The condence of the models in labeling them is measured
-against a condence threshold set a priori by users Note that
-Fig 1 The overview of semi-supervised learning The gure
-also outlines the scope of transductive and inductive learning
-a Supervised decision boundaries for labeled data
-b Supervised and semi-supervised decision boundaries for
-labeled and unlabeled data
-Fig 2 Supervised and semi-supervised decision boundaries drawn by a random classier for two labeled and 100 unlabeled data
-2 In 2a the supervised decision boundary is in the middle by averaging the values of the data points In 2b the supervised
-decision boundary produces more classication errors due to the distribution of the data
-learning algorithms often have their own condence measures
-that generally depend on their working principles For instance
-class probability values for each data instance are considered
-as condence measures for Nave Bayes models 4 For an
-unlabeled data if the models reach the pre-set condence
-threshold then the newly labeled data are added to the pool of
-originally labeled data This process continues unless i the
-models condences for the labels stop reaching the threshold
-or ii the models condently label all the unlabeled data and
-there are no unlabeled data remaining in the dataset The
-interesting cycle of labeling and re-labeling of semi-supervised
-learning is illustrated in Figure 1
-A Learning Problems
-Semi-supervised learning problems can be broadly cat-
-egorized into two groups i transductive learning and ii
-inductive learning Transductive learning is like a take-home
-exam This group of semi-supervised learning tries to evaluate
-the goodness of a model assumption on unlabeled data after
-training a classier with the available labeled data Inductive
-learning on the contrary is often seen as an in-class exam
-it evaluates the goodness of a model assumption on unseen
-unlabeled test data after training a classier with both labeled
-and unlabeled data Figure 1 shows the boundaries between
-these two types of semi-supervised learning While the entire
-cycle in the gure illustrates inductive learning steps 13
-describe transductive learning
-B Working Principle
-Figure 2 can be referred to understand how semi-supervised
-learning works with a very few labeled but abundant unlabeled
-data Figure 2a shows that based on the position of a positive
-x  1 and a negative x  1 labeled data a supervised
-decision boundary is drawn right at x  0 based on the average
-of the data points However given only these two labeled data
-and 100 unlabeled data represented by green dots in Figure
-2b this supervised decision boundary still remains at x  0
-In contrast had a semi-supervised classier been used the
-boundary would have shifted more to the right say some point
-at x  04 than the supervised decision boundary This shift
-is due to the distribution of unlabeled data points considering
-the position of the positive and negative examples In this
-particular case the semi-supervised classier assumes that the
-green dots near to the red cross point form one kind of data
-distribution while the green dots near to the blue circle form
-a different one Interestingly semi-supervised learning fails in
-many intriguing cases where the distributions of labeled and
-unlabeled data are not as distinguishable as seen in Figure 2
-C Types of Algorithms
-There are several semi-supervised algorithms and most
-of them can be categorized into two groups based on their
-properties i generative algorithms and ii discriminative
-algorithms The models generated by these two types of
-algorithms are therefore called generative and discriminative
-models respectively The following can explain the key dif-
-ference between the two types of models Say we are given
-a set of speeches given by human presenters As well a set
-of languages are provided The task is to simply classify
-every speech into one of the languages This learning problem
-can be solved in either of the following two ways rst the
-learner learns each language and then attempts to classify
-the speeches according to its learning Second the learner
-learns the differences among the speeches according to various
-attributes or features present in them and then attempts to
-classify the speeches according to its learning Note that
-for the second case the learner does not need to learn all
-the languages The prior is called a generative learner and
-the latter is known as a discriminative learner Let us take
-a look into these two types of algorithms mathematically
-Say we are given a set of instances x and their classes y
-in the form of x y 1 0 1 0 2 0 2 1 Generative
-algorithms attempt to nd out the joint probability px y
-a Joint probability calculated
-by generative algorithms
-b Conditional probability cal-
-culated by discriminative algo-
-rithms
-Fig 3 Probability distribution of the data as seen by generative
-and discriminative algorithms Generative algorithms calculate
-the joint probability distribution of the data while discrimina-
-tive algorithms deal with their conditional probability
-from these data see Figure 3a while discriminative algorithms
-calculate their conditional probability pxy Figure 3b
-Now for supervised algorithms a discriminative model predicts
-the label y from training example x as follows
-f x  argmax
-pyx
-However from the Bayes theorem we know that
-pyx 
-pxypy
-However for Equation 1 px can be ignored since it nds
-the function f x for the maximum value of y Therefore
-ignoring px in Equation 2 gives us
-f x  argmax
-pxypy
-Interestingly Equation 3 is what supervised generative
-algorithms use to induce their models In other words for
-supervised algorithms Equation 1 is used to nd out class
-boundaries based on the given training instances x and Equa-
-tion 3 is used to generate x for any given y The latter
-however is not found as easily for semi-supervised algorithms
-as for supervised algorithms The rst and foremost reason
-for this is that in semi-supervised problems the algorithms
-cannot completely ignore px because most of what it has are
-the distributions of training examples ie px Moreover
-for semi-supervised algorithms a very few class labels are
-provided for training examples and therefore from the few
-given ys the conditional probabilities pxy are difcult to
-generate This is a key difference between supervised and
-semi-supervised algorithms An example is provided to un-
-derstand the difference better For semi-supervised algorithms
-Equation 1 can be substituted by
-pyx 
-pxypy
- pxy py 
-where y  denotes the classes of the few given training examples
-x Equation 4 has a probability density function pxy in its
-numerator If the distribution of x comes from a Gaussian and
-it is a function of mean vector and covariance matrix of the
-Gaussian then using a Maximum Likelihood Estimate the
-mean vector and covariance matrix can be tuned to maximize
-the density function Thereafter this tuning can be optimized
-using an Expectation-Maximization EM algorithm Note that
-according to the distribution of x different algorithms use
-different
-techniques for tuning and optimizing the density
-function pxy in Equation 4 Among the semi-supervised
-algorithms Transductive Support Vector Machine TSVM and
-graph-based methods are generative algorithms while EM and
-self-learning are discriminative algorithms
-D Types of Learning
-The semi-supervised learning can be broadly categorized
-into three i self-training ii co-training and iii active
-learning
-1 Self-training
-In self-training from a set of initially
-labeled data L a classier C1 is generated This classier is
-then applied on a set of initially unlabeled data U  According to
-a pre-set condence threshold the classications of unlabeled
-data are observed If the classiers condence reaches the
-threshold the newly classied instances are concatenated with
-L to produce a set Lnew and removed from U to produce Unew
-A second classier C2 is generated from Lnew and thereafter
-applied on Unew This cycle continues until
-the classier
-convergeswhich means that either a all the unlabeled data
-are condently labeled by the classier or b the classiers
-condence stops reaching the threshold for several cycles
-Self-training is very simple and particularly useful
-supervised algorithm is difcult to modify Nonetheless self-
-training performs poorly for datasets that contain large number
-of outliers
-2 Co-training In contrast to self-training for co-training
-two partitions L1 and L2 are created from the initially labeled
-data L The partitions are based on two different sets of
-attributes or features V1 and V2 in semi-supervised literature
-they are often referred to as views Then two classiers
-independently generates respective models F1 and F2 from L1
-and L2 using V1 and V2 Following that from the unlabeled
-data pool U  k most condent predictions of F1 are added to
-L2 and k most condent predictions of F2 are added to L1
-These added examples are removed from U  F1 is re-trained
-with L1 and F2 is re-trained with L2 This cycle continues until
-the classiers converge Finally using a voting or averaging
-method test data are classied Note that co-training can be
-seen as self-training with two or more classiers Co-training
-is very useful if the attributes or features naturally split into
-two distinguishable sets However there are two important
-conditions that should be met for co-training to work Given
-enough labeled data
-each view alone should be sufcient to make good
-classications and
-the co-trained algorithms should individually perform
-3 Active Learning Finally for active learning a model is
-generated from labeled data and attempts to classify unlabeled
-instances The classication it makes is then provided to a
-human expert called the oracle for her judgment The correctly
-labeled instances according to the oracle are then added to the
-pool of labeled data while the instances with incorrect labels
-remain in the unlabeled data pool This process continues until
-the unlabeled data pool becomes empty Active learning is very
-useful for limited available data both labeled and unlabeled
-Because of the presence of an oracle this semi-supervised
-learning is slow and almost always expensive
-III SEMI-SUPERVISED CLASSIFICATION FOR NATURAL
-LANGUAGE PROCESSING
-In this section different natural language processing ap-
-plications of semi-supervised classication are discussed The
-discussion is mainly based on the ndings from several classic
-and state-of-the-art literature from the domain of parsing text
-classication text summarization and biomedical information
-mining
-A Parsing
-Steedman et al 5 found that self-training has very small
-effects on parser improvements Similar results are reported
-by Clark et al 6 who applied self-training to part-of-speech
-POS tagging The only works that reported successful ex-
-ecution of self-training to improve parsers are very few 7
-8 This paper concentrates on the work of McClosky et al
-because they do not adapt the parser in use that because
-adaptation has some drastic effects on self-training Rather
-than using an adaptive parser the Charniak parser used in
-their research utilized both labeled and unlabeled data that
-come from the same source domain Using of a re-ranker
-besides the parser is also what makes their work different
-than many contemporary work The parser uses third order
-Markov grammar and ve probability distributions that are
-conditioned with more than ve linguistic attributes Firstly
-the parser produces 50-best parses for the sentences in the
-datasets Secondly a maximum entropy re-ranker with over
-a million attributes re-ranks these parses The experiment is
-extensive datasets used in this experiment are Penn treebank
-section 2  21 for training approximately 40 000 wall street
-journal articles section 23 for testing and section 24 for held-
-out data 24 million LA Times articles were used as unlabelled
-data collected from the North American News Text Corpus
-NANC The authors experiment with and without the re-
-ranker as they added unlabelled sentences to their labeled data
-pool They found that the parser performs better with the re-
-ranker system The improvement reported is about 11 F-
-scoreamong which the self-trained parser contributes 08
-and the re-ranker contributes 03 The authors also did
-some experiments with sentences in section 1 22 and 24
-to see how the self-trained parser performs at sentence level
-Each sentence in these sections was labelled as better no
-change or worse compared to the baseline F-score for the
-sentences Interestingly the outcomes showed that the parser
-had improvement neither for unknown words nor for prepo-
-sitional phrases However there was an explicit improvement
-for intermediate-length sentences but no improvement for the
-extremes Goldilocks effect The parser performs poorly for
-conjunctions
-Zhu 9 however asserted that in semi-supervised classi-
-cation unlabeled sentences for which the parser accuracy is
-unusually better than normal should be restricted to be included
-in the pool of labeled data McClosky et al 7 however
-stated that they did not followed this approach particularly The
-speed of the semi-supervised Charniak parser is similar to its
-supervised version but it requires more memory to execute the
-cycles involved in self-training Also the labeled and unlabeled
-data were collected from two different datasets although they
-are both newspaper sources that usually limits the success of
-self-training Nevertheless the experiment is a success and this
-question is unanswered in their paper
-B Text Classication
-Semi-supervised classication has been used widely in
-natural language processing tasks such as spam classication
-which is a form of text classication The results in 2006
-ECMLPKDD spam discovery challenge 10 indicated that
-spam lters based on semi-supervised classication outper-
-formed supervised lters Extensive experiments showed that
-semi-supervised lters work better when source of available
-labeled examples differs from those to be classied Interest-
-ingly Mojdeh and Cormack 11 found completely different
-results when they re-designed the challenge with different
-collections of email datasets
-The 2006 ECMLPKDD discovery challenge had two in-
-teresting tasks The rst task is called the Delayed Feedback
-where the lters are trained with emails T1 and then they
-classify some test emails t1 In their second cycle of training
-they are trained with T1 and t1 combined and the training
-continues for the entire dataset for the challenge The best
-1AUC reported in the challenge is a remarkable 001
-The second task for the challenge is called the Cross-user
-Train where the classiers are trained on one particular set of
-emails and then tested on a completely different set of emails
-The best 1AUC reported for this task is greater than the rst
-task 01 The best performing lters in the challenge were all
-semi-supervised lters and based on support vector machines
-SVM and TSVM 12 Dynamic Markov Compression DMC
-13 and Logistic regression with self-training LR 14 On
-the other hand in 2007 TREC Spam Track Challenge 15 the
-participating spam lters were trained with publicly available
-emails and their model accuracy was tested on emails collected
-from user inboxes ie personalized emails In an attempt
-to see whether semi-supervised lters perform as good as it
-was reported in 10 Mojdeh and Cormack 11 reproduced
-the work by replacing the datasets of ECMLPKDD challenge
-with TREC challenge datasets The delayed feedback task
-was reproduced as follows rst 10 000 messages were used
-for training and the next 60 000 messages were divided into
-six batches each containing 10 000 messages Second the
-remaining 5 000 messages were kept for testing the models
-On the other hand to reproduce the Cross-user Train task
-30 338 messages from particular user inboxes were used for
-training while 45 081 messages from other users were used
-for model evaluation
-The experimental outcomes showed that for both the
-tasks the semi-supervised versions of DMC LR and TSVM
-underperformed for LREC dataset Their respective 1AUC
-scores for the delayed feedback task were 0090 0046 and
-0230 On the other hand the 1AUC of their supervised
-versions were 0016 0049 and 0030 for the task For the
-cross-user task the 1AUC of the semi-supervised DMC LR
-and TSVM lters were 997 1072 and 243 respectively
-For the same task their supervised versions performed way
-better The authors also reported a cross-corpus experiment
-to reproduce the results of ECMLPKDD Challenge Here
-the rst 10 000 messages from the TREC 2005 dataset were
-considered Besides the TREC 2007 dataset was split into
-10 000 message segments The outcomes again showed that
-self-training is harmful for the lters Except the TSVM lter
-the rest of the two semi-supervised lters failed to perform as
-good as their supervised versions
-Keeping the aforementioned results in mind we can say
-that semi-supervised classication is applicable to text clas-
-sication but the performance depends on the labeled and
-unlabeled training data and the source from which the data
-are derived
-C Extractive Text Summarization
-Wong et al 16 have conducted a comparative study
-where they produced extractive summaries by using both
-supervised and semi-supervised classiers The authors used
-four traditional groups of attributes to train their classiers 1
-surface 2 relevance 3 event and 4 content attributes They
-tried different combinations of the attributes and found that the
-classiers had produced better summaries when the surface
-relevance and content attributes were combined The novelty
-of their work is that they used supervised SVM as well as
-its semi-supervised version called probabilistic SVM or PSVM
-to generate classiers and compared their performances As
-performance measure they considered ROUGE scores and found
-that the ROUGE-I score of their SVM classier is 0396 while
-the human ROUGE-I was 042 when compared to the gold
-standard summaries On the other hand the co-training with
-the PSVM and Nave Bayes classiers produced summaries
-that have ROUGE-I of 0366 Although this performance is not
-better than what they found with the supervised SVM or human
-summaries it was better than supervised PSVM and Nave
-Bayes classiers Note that as their datasets the authors used
-the DUC 2001 dataset1 The dataset contains 30 clusters of
-relevant documents Each cluster comes with model summaries
-created by the dataset annotators 50 100 200 and 400-word
-summaries are provided for each cluster Among the clusters
-25 are used as training data while the remaining 5 clusters are
-used for testing The authors also concluded that the ROUGE-I
-scores of their classier are better if they produce 400-word
-summaries for the test clusters
-Nevertheless the reported methodology of the paper has
-some serious drawbacks Many of the methods used in this
-research are not in line with what had been found by classic
-empirical studies For instance the co-training is done on the
-same attribute space that violates the primary hypothesis of co-
-training two classiers used in co-training should use separate
-views see Section II-D2 Secondly the authors selected the
-set of attributes surface relevance and content attributes by
-only considering the performance of PSVM with them and
-ignoring the performance of the supervised Nave Bayes with
-D Biomedical Information Mining
-Now-a-days there is much impetus for information mining
-from biomedical research papers Researchers put signicant
-to mine secondary information such as protein in-
-teraction relations from biomedical research papers to help
-identify primary information like DNA replication genotype-
-phenotype relations and signaling pathways The rst and
-foremost task for protein interaction relation miners is to
-classify sentences in research papers that describe one or more
-protein interactions These sentences are called the candidate
-sentences A number of supervised tools are developed to
-classify candidate sentences from biomedical articles see
-for example 17 18 and 19 However the rst semi-
-supervised approach for the task was reported by Erkan et al
-20 Their approach identied candidate sentences using sim-
-ilarities of the paths present between two protein names found
-from the dependency parses of the sentences What follows are
-1Download at httpducnistgov
-the brief descriptions of their method The authors produced
-dependency trees for each sentence from two given datasets
-The paths between two protein names in the parse trees were
-then analyzed According to these paths the sentences were
-labeled and treated as the gold standard for the tools eval-
-uation Given the paths two distance-based measures cosine
-similarity and edit distance were used by their tool to nd
-out interactions between the proteins These measures were
-provided to both supervised and semi-supervised algorithms to
-generate models to classify the sentences in the datasets The
-labels predicted by the supervised and semi-supervised classi-
-ers were then evaluated against the gold standard According
-to the outcomes the semi-supervised classiers performed
-better than their supervised versions by a wide margin Four
-algorithms were used to generate the classiers among which
-two are supervised SVM and K-Nearest Neighbor KNN
-and the rest were their respective semi-supervised versions
-TSVM and Harmonic Functions The distance-based measures
-were used to generate attributes for the classiers and were
-extracted from two datasets named AIMED and Christine-
-Brun CB The AIMED dataset contains 4 026 sentences of
-which 951 describe protein interactions while the CB dataset is
-composed of 4 056 sentences of which 2 202 describe protein
-interactions Each of the four algorithms then generated a
-classier from the two sets of attributes found from the two
-distance measures Experimental outcomes show that for the
-AIMED dataset TSVM with edit distance attributes performed
-the best with 5996 F-score This F-score was signicantly
-better than the F-scores found using the supervised classiers
-Comparisons showed that the F-score with TSVM was signif-
-icantly better than those reported by two contemporary work
-18 21 On the other hand the tool performed even better
-on the CB dataset where its TSVM classier with edit distance
-based attributes produced an F-score of 8520 Similar to
-the result found with the AIMED dataset the performances
-of the supervised classiers were not satisfactory The authors
-also examined the effect of the size of the labeled training
-data for the classiers In the case of AIMED the authors
-found that with small labeled training data semi-supervised
-algorithms were better In addition SVM performed poorly
-with less training data but as more data became available for its
-training it started to perform well On the other hand for the
-CB dataset KNN performed poorly with much labeled data
-Interestingly SVM performed competitively with the semi-
-supervised classiers with more labeled data
-Note that TSVM is susceptible to the distribution of the
-labeled data However the work did not report any test on the
-data distribution The AIMED dataset in addition has class
-imbalance problem that seriously affects the performance of
-TSVM classiers This can be seen as the limitation of the work
-since it did not explain why in their case the TSVM classier
-performed better than the rest
-IV CONCLUSIONS
-The ndings of empirical research on parsing text classi-
-cation text summarization and biomedical information mining
-are investigated in this study According to most of them
-semi-supervised classication has substantial advantages over
-supervised classication when labeled data are difcult to
-manage and unlabeled data are abundant This paper also
-outlines the theories behind the success of semi-supervised
-rithms must match the problem in hand For in-
-stance
-if the classes produce well-clustered data
-then expectation-maximization is a good algorithm
-to choose if the attribute space can be naturally
-split into two sets then co-training is preferred if
-two points with similar attribute values tend to be
-in the same class then graph-based method not
-discussed in this paper can be a reasonable choice
-if SVM performs well on labeled data then TSVM is a
-natural extension and given the supervised algorithm
-is complicated and difcult to modify self-training is
-useful
-The distributions of both labeled and unlabeled data
-need to be investigated TSVM for instance per-
-forms poorly with unlabeled data that have highly
-overlapped positive and negative distribution since it
-assumes that its decision boundary would go right
-through the densest region Therefore in this case
-a TSVM classier usually produces a lot of false
-positives and false negatives
-The proportion of labeled and unlabeled data is
-important to notice before choosing an algorithm
-However there is not conclusive remark on how the
-proportion affects the overall classication perfor-
-It has been found empirically that there is an effect
-of dependency among attributes on semi-supervised
-classication To be more specic with fewer labeled
-examples the number of dependent attributes should
-be kept as low as possible
-5 Data noises should be investigated as they have effect
-on classication performance It is easier to detect
-noise in the labeled data than in unlabeled data Note
-that data noise has less effect on semi-supervised
-classication than supervised classication
-The labeled and unlabeled data usually are collected
-from different sources and this can affect the classi-
-cation performance If the labeled and unlabeled data
-are collected from completely different sources and
-their properties differ then rather than using semi-
-supervised classication transfer learning and self-
-taught classication are encouraged to use 22
-REFERENCES
-1 L Shih J D Rennie Y-H Chang and D R Karger Text
-bundling Statistics based data-reduction in ICML T Fawcett and
-N Mishra Eds AAAI Press 2003 pp 696703 Online Available
-httpdblpuni-trierdedbconficmlicml2003htmlShihRCK03
-2 X Zhu A B Goldberg R Brachman and T Dietterich Introduction
-to Semi-Supervised Learning Morgan and Claypool Publishers 2009
-3 O Chapelle B Schlkopf and A Zien Semi-Supervised Learning
-1st ed The MIT Press 2010
-4 G H John and P Langley Estimating continuous distributions in
-bayesian classiers in Proceedings of the Eleventh Conference on
-Uncertainty in Articial Intelligence ser UAI95 San Francisco CA
-USA Morgan Kaufmann Publishers Inc 1995 pp 338345
-5 M Steedman M Osborne A Sarkar S Clark R Hwa
-J Hockenmaier P Ruhlen S Baker and J Crim Bootstrapping
-statistical parsers from small datasets in Proceedings of the Tenth
-Conference on European Chapter of the Association for Computational
-Linguistics - Volume 1 ser EACL 03
-Stroudsburg PA USA
-Association for Computational Linguistics 2003 pp 331338
-Online Available httpdxdoiorg10311510678071067851
-Fig 4 The use of labeled and unlabeled data in semi-
-supervised classication A dot represents a paper that uses
-semi-supervised classication Light gray dots mean older
-papers while dark gray dots mean newer papers 9
-classication According to the theories there is no free lunch
-for semi-supervised classication rather its success depends on
-underlying data distribution data complexity model assump-
-tion choice of proper algorithm problem in hand and most of
-allexperience Surprisingly the investigation has found that
-the classic studies often do not consider the dos and donts
-suggested by the theories Despite the success reported in the
-empirical studies it is therefore inconclusive whether semi-
-supervised classication can be really as useful as supervised
-classication
-The complexity associated with semi-supervised classi-
-cation limits its use This can be seen from the illustration
-in Figure 4 It shows the use of labeled and unlabeled data
-in semi-supervised classication Each dot in the illustration
-represents a paper that uses semi-supervised classication
-While the light gray dots represent older papers the dark gray
-dots represent recent papers We can come to two conclusions
-from this data
-there are not much reported work that implement
-semi-supervised classication and a bulk of the re-
-ported work are old and
-although the main purpose of using semi-supervised
-classication is the abundance of unlabeled data the
-amount of unlabeled data used in research are at most
-106 so farin laymans term which is just above the
-number of people in a stadium
-Nevertheless semi-supervised classication is the only op-
-tion until now to deal the natural language processing problems
-where there are more unlabeled than labeled data This study
-however points out the following suggestions for dealing with
-semi-supervised classication more effectively
-The model assumption for semi-supervised algo-
-6 S Clark J R Curran and M Osborne Bootstrapping pos taggers
-using unlabelled data in Proceedings of
-the Seventh Conference
-on Natural Language Learning at HLT-NAACL 2003 - Volume
-Stroudsburg PA USA Association for
-Computational Linguistics 2003 pp 4955
-Online Available
-httpdxdoiorg10311511191761119183
-ser CONLL 03
-7 D Mcclosky E Charniak and M Johnson Effective self-training for
-parsing in In Proc N American ACL NAACL 2006 pp 152159
-ser COLING 08
-supervised and semi-supervised learning in Proceedings of
-22Nd International Conference on Computational Linguistics - Volume
-Stroudsburg PA USA Association for
-Computational Linguistics 2008 pp 985992 Online Available
-httpdlacmorgcitationcfmid15990811599205
-I M Donaldson
-J D Martin B de Bruijn C Wolting
-V Lay B Tuekam S Zhang B Baskin G D Bader
-C W V Hogue
-K Michalickova
-Prebind and textomy - mining the biomedical
-vector machine
-protein-protein
-BMC Bioinformatics vol 4 p 11 2003
-Online Available
-httpdblpuni-trierdedbjournalsbmcbibmcbi4htmlDonaldsonMBWLTZBBMPH03
-interactions
-literature
-Pawson
-support
-8 M Bacchiani M Riley B Roark
-adaptation
-vol 20 no 1 pp 4168
-httpdxdoiorg101016jcsl200412001
-stochastic
-Jan 2006
-grammars Comput
-and R Sproat
-Online Available
-9 X Zhu Semi-supervised learning literature survey Computer Sci-
-ences University of Wisconsin-Madison Tech Rep 1530 2005 On-
-line Available httppagescswiscedujerryzhupubssl surveypdf
-10 S Bickel Ecml-pkdd discovery challenge 2006 overview in Proceed-
-ings of the ECML-PKDD Discovery Challenge Workshop 2006
-11 M Mojdeh and G V Cormack Semi-supervised spam ltering does it
-work in SIGIR S-H Myaeng D W Oard F Sebastiani T-S Chua
-and M-K Leong Eds ACM 2008 pp 745746 Online Available
-httpdblpuni-trierdedbconfsigirsigir2008htmlMojdehC08
-Advances
-Joachims
-J C Burges and A
-kernel methods B Scholkopf
-12 T
-Cambridge MA
-USA MIT Press 1999 ch Making Large-scale Support Vector
-Machine Learning Practical pp 169184
-Online Available
-httpdlacmorgcitationcfmid299094299104
-J Smola Eds
-13 A Bratko G V Cormack D R B Filipic P Chan T R Lynam and
-T R Lynam Spam ltering using statistical data compression models
-Journal of Machine Learning Research vol 7 pp 26732698 2006
-14 G V Cormack Harnessing unlabeled examples through iterative
-application of dynamic markov modeling in In Proceedings of the
-ECML-PKDD Discovery Challenge Workshop 2006
-15 G Cormack Trec 2006 spam track overview in Proceedings of TREC
-2006 2006
-16 K-F Wong M Wu and W Li Extractive summarization using
-18 T Mitsumori M Murata Y
-H Doi
-from biomedical
-httpdblpuni-trierdedbjournalsieicetieicet89dhtmlMitsumoriMFDD06
-text with
-IEICE Transactions
-protein-protein
-information
-Online Available
-Fukuda K Doi
-24642466
-Extracting
-interaction
-svm
-19 K Sugiyama K Hatano M Yoshikawa and S Uemura Extracting
-information on protein-protein interactions from biological literature
-based on machine learning approaches Genome Informatics Series
-pp 699700 2003
-20 G Erkan A Ozgur and D Radev Semi-supervised classication for
-extracting protein interaction sentences using dependency parsing in In
-Proceedings of the Joint Conference on Empirical Methods in Natural
-Language Processing and Computational Natural Language Learning
-EMNLP-CoNLL 2007 pp 228237
-21 A Yakushiji Y Miyao Y Tateisi and J Tsujii Biomedical
-formation extraction with predicate-argument structure patterns in
-Proceedings of the 11th Annual Meeting of the Association for Natural
-Language Processing 2005 pp 6069
-22 R Raina A Battle H Lee B Packer and A Y Ng Self-taught
-learning Transfer learning from unlabeled data in Proceedings of the
-24th International Conference on Machine Learning ser ICML 07
-New York NY USA ACM 2007 pp 759766 Online Available
-httpdoiacmorg10114512734961273592
-Semi-supervised Classication for
-Natural Language Processing
-Department of Computer Science University of Western Ontario
-Rushdi Shams
-London ON N6A 5B7 Canada
-email rshamscsduwoca
-AbstractSemi-supervised classication is an interesting idea
-where classication models are learned from both labeled and
-unlabeled data It has several advantages over supervised clas-
-sication in natural language processing domain For instance
-supervised classication exploits only labeled data that are ex-
-pensive often difcult to get inadequate in quantity and require
-human experts for annotation On the other hand unlabeled
-data are inexpensive and abundant Despite the fact that many
-factors limit the wide-spread use of semi-supervised classication
-it has become popular since its level of performance is empirically
-as good as supervised classication This study explores the
-possibilities and achievements as well as complexity and limita-
-tions of semi-supervised classication for several natural langue
-processing tasks like parsing biomedical information processing
-text classication and summarization
-Keywords Semi-supervised learning classication natural
-language processing data mining
-INTRODUCTION
-Classical supervised methods use labeled data to train
-their classier models These methods are widespread and
-used in many different domains including natural language
-processing The key material used in different natural language
-processing tasks is text The number of text however is
-increasing everyday due to the pervasive use of computing
-There are more unlabeled than labeled text since data labeling
-is expensive due to engagement of human for data annotation
-The process also consumes time These difculties have serious
-effects on supervised learning since a good t of a classier
-model requires as much labeled data as possible for its training
-Semi-supervised learning can be a good means to overcome
-the aforementioned problems The basic principle of semi-
-supervised learning is simple use both unlabeled and labeled
-data to generate classier models This makes semi-supervised
-learning substantially useful for a domain like natural lan-
-guage processing because of a good note unlabeled text is
-inexpensive abundant and more available than labeled text
-In addition empirically semi-supervised models have good
-performance records On many tasks they are as good as
-supervised models and in most cases they are better than
-cluster-based unsupervised models 2 However many of
-these results are not conclusive and proper care therefore
-should be taken due to some serious concerns related to semi-
-supervised learning
-This study explores the use of semi-supervised learning
-for natural language processing Interestingly like traditional
-machine learning methods semi-supervised learning can be
-used to solve classication regression and clustering prob-
-lems The particular focus of this study however is on semi-
-supervised classication In this study popular research papers
-and classic books are explored to outline the possibilities and
-achievements of semi-supervised classication for natural lan-
-guage processing As well thorough investigations are carried
-out both from theoretical and empirical data to explain the
-complexity and limitations of this method Natural language
-processing is one of the largest research areas of articial
-intelligence The scope of this study is however limited to
-most popular tasks such as parsing biomedical information
-processing text classication and summarization
-The organization of the paper is as follows Section II
-presents an overview of semi-supervised learning that includes
-learning problems and different
-types of semi-supervised
-algorithms and learning techniques Following that Section III
-outlines the use of semi-supervised classication for different
-natural
-language processing tasks In Section IV several
-considerations and conclusions are drawn
-II OVERVIEW OF SEMI-SUPERVISED LEARNING
-Unlike supervised and unsupervised learning
-supervised learning exploits both labeled and unlabeled data
-To start with semi-supervised methods train models with a
-very little labeled data Surprisingly test results show that
-marginal labeled data are sufcient to train models with good
-t for semi-supervised learning 3 The generated models are
-then applied on unlabeled data in an attempt to label them
-The condence of the models in labeling them is measured
-against a condence threshold set a priori by users Note that
-Fig 1 The overview of semi-supervised learning The gure
-also outlines the scope of transductive and inductive learning
-a Supervised decision boundaries for labeled data
-b Supervised and semi-supervised decision boundaries for
-labeled and unlabeled data
-Fig 2 Supervised and semi-supervised decision boundaries drawn by a random classier for two labeled and 100 unlabeled data
-2 In 2a the supervised decision boundary is in the middle by averaging the values of the data points In 2b the supervised
-decision boundary produces more classication errors due to the distribution of the data
-learning algorithms often have their own condence measures
-that generally depend on their working principles For instance
-class probability values for each data instance are considered
-as condence measures for Nave Bayes models 4 For an
-unlabeled data if the models reach the pre-set condence
-threshold then the newly labeled data are added to the pool of
-originally labeled data This process continues unless i the
-models condences for the labels stop reaching the threshold
-or ii the models condently label all the unlabeled data and
-there are no unlabeled data remaining in the dataset The
-interesting cycle of labeling and re-labeling of semi-supervised
-learning is illustrated in Figure 1
-A Learning Problems
-Semi-supervised learning problems can be broadly cat-
-egorized into two groups i transductive learning and ii
-inductive learning Transductive learning is like a take-home
-exam This group of semi-supervised learning tries to evaluate
-the goodness of a model assumption on unlabeled data after
-training a classier with the available labeled data Inductive
-learning on the contrary is often seen as an in-class exam
-it evaluates the goodness of a model assumption on unseen
-unlabeled test data after training a classier with both labeled
-and unlabeled data Figure 1 shows the boundaries between
-these two types of semi-supervised learning While the entire
-cycle in the gure illustrates inductive learning steps 13
-describe transductive learning
-B Working Principle
-Figure 2 can be referred to understand how semi-supervised
-learning works with a very few labeled but abundant unlabeled
-data Figure 2a shows that based on the position of a positive
-x  1 and a negative x  1 labeled data a supervised
-decision boundary is drawn right at x  0 based on the average
-of the data points However given only these two labeled data
-and 100 unlabeled data represented by green dots in Figure
-2b this supervised decision boundary still remains at x  0
-In contrast had a semi-supervised classier been used the
-boundary would have shifted more to the right say some point
-at x  04 than the supervised decision boundary This shift
-is due to the distribution of unlabeled data points considering
-the position of the positive and negative examples In this
-particular case the semi-supervised classier assumes that the
-green dots near to the red cross point form one kind of data
-distribution while the green dots near to the blue circle form
-a different one Interestingly semi-supervised learning fails in
-many intriguing cases where the distributions of labeled and
-unlabeled data are not as distinguishable as seen in Figure 2
-C Types of Algorithms
-There are several semi-supervised algorithms and most
-of them can be categorized into two groups based on their
-properties i generative algorithms and ii discriminative
-algorithms The models generated by these two types of
-algorithms are therefore called generative and discriminative
-models respectively The following can explain the key dif-
-ference between the two types of models Say we are given
-a set of speeches given by human presenters As well a set
-of languages are provided The task is to simply classify
-every speech into one of the languages This learning problem
-can be solved in either of the following two ways rst the
-learner learns each language and then attempts to classify
-the speeches according to its learning Second the learner
-learns the differences among the speeches according to various
-attributes or features present in them and then attempts to
-classify the speeches according to its learning Note that
-for the second case the learner does not need to learn all
-the languages The prior is called a generative learner and
-the latter is known as a discriminative learner Let us take
-a look into these two types of algorithms mathematically
-Say we are given a set of instances x and their classes y
-in the form of x y 1 0 1 0 2 0 2 1 Generative
-algorithms attempt to nd out the joint probability px y
-a Joint probability calculated
-by generative algorithms
-b Conditional probability cal-
-culated by discriminative algo-
-rithms
-Fig 3 Probability distribution of the data as seen by generative
-and discriminative algorithms Generative algorithms calculate
-the joint probability distribution of the data while discrimina-
-tive algorithms deal with their conditional probability
-from these data see Figure 3a while discriminative algorithms
-calculate their conditional probability pxy Figure 3b
-Now for supervised algorithms a discriminative model predicts
-the label y from training example x as follows
-f x  argmax
-pyx
-However from the Bayes theorem we know that
-pyx 
-pxypy
-However for Equation 1 px can be ignored since it nds
-the function f x for the maximum value of y Therefore
-ignoring px in Equation 2 gives us
-f x  argmax
-pxypy
-Interestingly Equation 3 is what supervised generative
-algorithms use to induce their models In other words for
-supervised algorithms Equation 1 is used to nd out class
-boundaries based on the given training instances x and Equa-
-tion 3 is used to generate x for any given y The latter
-however is not found as easily for semi-supervised algorithms
-as for supervised algorithms The rst and foremost reason
-for this is that in semi-supervised problems the algorithms
-cannot completely ignore px because most of what it has are
-the distributions of training examples ie px Moreover
-for semi-supervised algorithms a very few class labels are
-provided for training examples and therefore from the few
-given ys the conditional probabilities pxy are difcult to
-generate This is a key difference between supervised and
-semi-supervised algorithms An example is provided to un-
-derstand the difference better For semi-supervised algorithms
-Equation 1 can be substituted by
-pyx 
-pxypy
- pxy py 
-where y  denotes the classes of the few given training examples
-x Equation 4 has a probability density function pxy in its
-numerator If the distribution of x comes from a Gaussian and
-it is a function of mean vector and covariance matrix of the
-Gaussian then using a Maximum Likelihood Estimate the
-mean vector and covariance matrix can be tuned to maximize
-the density function Thereafter this tuning can be optimized
-using an Expectation-Maximization EM algorithm Note that
-according to the distribution of x different algorithms use
-different
-techniques for tuning and optimizing the density
-function pxy in Equation 4 Among the semi-supervised
-algorithms Transductive Support Vector Machine TSVM and
-graph-based methods are generative algorithms while EM and
-self-learning are discriminative algorithms
-D Types of Learning
-The semi-supervised learning can be broadly categorized
-into three i self-training ii co-training and iii active
-learning
-1 Self-training
-In self-training from a set of initially
-labeled data L a classier C1 is generated This classier is
-then applied on a set of initially unlabeled data U  According to
-a pre-set condence threshold the classications of unlabeled
-data are observed If the classiers condence reaches the
-threshold the newly classied instances are concatenated with
-L to produce a set Lnew and removed from U to produce Unew
-A second classier C2 is generated from Lnew and thereafter
-applied on Unew This cycle continues until
-the classier
-convergeswhich means that either a all the unlabeled data
-are condently labeled by the classier or b the classiers
-condence stops reaching the threshold for several cycles
-Self-training is very simple and particularly useful
-supervised algorithm is difcult to modify Nonetheless self-
-training performs poorly for datasets that contain large number
-of outliers
-2 Co-training In contrast to self-training for co-training
-two partitions L1 and L2 are created from the initially labeled
-data L The partitions are based on two different sets of
-attributes or features V1 and V2 in semi-supervised literature
-they are often referred to as views Then two classiers
-independently generates respective models F1 and F2 from L1
-and L2 using V1 and V2 Following that from the unlabeled
-data pool U  k most condent predictions of F1 are added to
-L2 and k most condent predictions of F2 are added to L1
-These added examples are removed from U  F1 is re-trained
-with L1 and F2 is re-trained with L2 This cycle continues until
-the classiers converge Finally using a voting or averaging
-method test data are classied Note that co-training can be
-seen as self-training with two or more classiers Co-training
-is very useful if the attributes or features naturally split into
-two distinguishable sets However there are two important
-conditions that should be met for co-training to work Given
-enough labeled data
-each view alone should be sufcient to make good
-classications and
-the co-trained algorithms should individually perform
-3 Active Learning Finally for active learning a model is
-generated from labeled data and attempts to classify unlabeled
-instances The classication it makes is then provided to a
-human expert called the oracle for her judgment The correctly
-labeled instances according to the oracle are then added to the
-pool of labeled data while the instances with incorrect labels
-remain in the unlabeled data pool This process continues until
-the unlabeled data pool becomes empty Active learning is very
-useful for limited available data both labeled and unlabeled
-Because of the presence of an oracle this semi-supervised
-learning is slow and almost always expensive
-III SEMI-SUPERVISED CLASSIFICATION FOR NATURAL
-LANGUAGE PROCESSING
-In this section different natural language processing ap-
-plications of semi-supervised classication are discussed The
-discussion is mainly based on the ndings from several classic
-and state-of-the-art literature from the domain of parsing text
-classication text summarization and biomedical information
-mining
-A Parsing
-Steedman et al 5 found that self-training has very small
-effects on parser improvements Similar results are reported
-by Clark et al 6 who applied self-training to part-of-speech
-POS tagging The only works that reported successful ex-
-ecution of self-training to improve parsers are very few 7
-8 This paper concentrates on the work of McClosky et al
-because they do not adapt the parser in use that because
-adaptation has some drastic effects on self-training Rather
-than using an adaptive parser the Charniak parser used in
-their research utilized both labeled and unlabeled data that
-come from the same source domain Using of a re-ranker
-besides the parser is also what makes their work different
-than many contemporary work The parser uses third order
-Markov grammar and ve probability distributions that are
-conditioned with more than ve linguistic attributes Firstly
-the parser produces 50-best parses for the sentences in the
-datasets Secondly a maximum entropy re-ranker with over
-a million attributes re-ranks these parses The experiment is
-extensive datasets used in this experiment are Penn treebank
-section 2  21 for training approximately 40 000 wall street
-journal articles section 23 for testing and section 24 for held-
-out data 24 million LA Times articles were used as unlabelled
-data collected from the North American News Text Corpus
-NANC The authors experiment with and without the re-
-ranker as they added unlabelled sentences to their labeled data
-pool They found that the parser performs better with the re-
-ranker system The improvement reported is about 11 F-
-scoreamong which the self-trained parser contributes 08
-and the re-ranker contributes 03 The authors also did
-some experiments with sentences in section 1 22 and 24
-to see how the self-trained parser performs at sentence level
-Each sentence in these sections was labelled as better no
-change or worse compared to the baseline F-score for the
-sentences Interestingly the outcomes showed that the parser
-had improvement neither for unknown words nor for prepo-
-sitional phrases However there was an explicit improvement
-for intermediate-length sentences but no improvement for the
-extremes Goldilocks effect The parser performs poorly for
-conjunctions
-Zhu 9 however asserted that in semi-supervised classi-
-cation unlabeled sentences for which the parser accuracy is
-unusually better than normal should be restricted to be included
-in the pool of labeled data McClosky et al 7 however
-stated that they did not followed this approach particularly The
-speed of the semi-supervised Charniak parser is similar to its
-supervised version but it requires more memory to execute the
-cycles involved in self-training Also the labeled and unlabeled
-data were collected from two different datasets although they
-are both newspaper sources that usually limits the success of
-self-training Nevertheless the experiment is a success and this
-question is unanswered in their paper
-B Text Classication
-Semi-supervised classication has been used widely in
-natural language processing tasks such as spam classication
-which is a form of text classication The results in 2006
-ECMLPKDD spam discovery challenge 10 indicated that
-spam lters based on semi-supervised classication outper-
-formed supervised lters Extensive experiments showed that
-semi-supervised lters work better when source of available
-labeled examples differs from those to be classied Interest-
-ingly Mojdeh and Cormack 11 found completely different
-results when they re-designed the challenge with different
-collections of email datasets
-The 2006 ECMLPKDD discovery challenge had two in-
-teresting tasks The rst task is called the Delayed Feedback
-where the lters are trained with emails T1 and then they
-classify some test emails t1 In their second cycle of training
-they are trained with T1 and t1 combined and the training
-continues for the entire dataset for the challenge The best
-1AUC reported in the challenge is a remarkable 001
-The second task for the challenge is called the Cross-user
-Train where the classiers are trained on one particular set of
-emails and then tested on a completely different set of emails
-The best 1AUC reported for this task is greater than the rst
-task 01 The best performing lters in the challenge were all
-semi-supervised lters and based on support vector machines
-SVM and TSVM 12 Dynamic Markov Compression DMC
-13 and Logistic regression with self-training LR 14 On
-the other hand in 2007 TREC Spam Track Challenge 15 the
-participating spam lters were trained with publicly available
-emails and their model accuracy was tested on emails collected
-from user inboxes ie personalized emails In an attempt
-to see whether semi-supervised lters perform as good as it
-was reported in 10 Mojdeh and Cormack 11 reproduced
-the work by replacing the datasets of ECMLPKDD challenge
-with TREC challenge datasets The delayed feedback task
-was reproduced as follows rst 10 000 messages were used
-for training and the next 60 000 messages were divided into
-six batches each containing 10 000 messages Second the
-remaining 5 000 messages were kept for testing the models
-On the other hand to reproduce the Cross-user Train task
-30 338 messages from particular user inboxes were used for
-training while 45 081 messages from other users were used
-for model evaluation
-The experimental outcomes showed that for both the
-tasks the semi-supervised versions of DMC LR and TSVM
-underperformed for LREC dataset Their respective 1AUC
-scores for the delayed feedback task were 0090 0046 and
-0230 On the other hand the 1AUC of their supervised
-versions were 0016 0049 and 0030 for the task For the
-cross-user task the 1AUC of the semi-supervised DMC LR
-and TSVM lters were 997 1072 and 243 respectively
-For the same task their supervised versions performed way
-better The authors also reported a cross-corpus experiment
-to reproduce the results of ECMLPKDD Challenge Here
-the rst 10 000 messages from the TREC 2005 dataset were
-considered Besides the TREC 2007 dataset was split into
-10 000 message segments The outcomes again showed that
-self-training is harmful for the lters Except the TSVM lter
-the rest of the two semi-supervised lters failed to perform as
-good as their supervised versions
-Keeping the aforementioned results in mind we can say
-that semi-supervised classication is applicable to text clas-
-sication but the performance depends on the labeled and
-unlabeled training data and the source from which the data
-are derived
-C Extractive Text Summarization
-Wong et al 16 have conducted a comparative study
-where they produced extractive summaries by using both
-supervised and semi-supervised classiers The authors used
-four traditional groups of attributes to train their classiers 1
-surface 2 relevance 3 event and 4 content attributes They
-tried different combinations of the attributes and found that the
-classiers had produced better summaries when the surface
-relevance and content attributes were combined The novelty
-of their work is that they used supervised SVM as well as
-its semi-supervised version called probabilistic SVM or PSVM
-to generate classiers and compared their performances As
-performance measure they considered ROUGE scores and found
-that the ROUGE-I score of their SVM classier is 0396 while
-the human ROUGE-I was 042 when compared to the gold
-standard summaries On the other hand the co-training with
-the PSVM and Nave Bayes classiers produced summaries
-that have ROUGE-I of 0366 Although this performance is not
-better than what they found with the supervised SVM or human
-summaries it was better than supervised PSVM and Nave
-Bayes classiers Note that as their datasets the authors used
-the DUC 2001 dataset1 The dataset contains 30 clusters of
-relevant documents Each cluster comes with model summaries
-created by the dataset annotators 50 100 200 and 400-word
-summaries are provided for each cluster Among the clusters
-25 are used as training data while the remaining 5 clusters are
-used for testing The authors also concluded that the ROUGE-I
-scores of their classier are better if they produce 400-word
-summaries for the test clusters
-Nevertheless the reported methodology of the paper has
-some serious drawbacks Many of the methods used in this
-research are not in line with what had been found by classic
-empirical studies For instance the co-training is done on the
-same attribute space that violates the primary hypothesis of co-
-training two classiers used in co-training should use separate
-views see Section II-D2 Secondly the authors selected the
-set of attributes surface relevance and content attributes by
-only considering the performance of PSVM with them and
-ignoring the performance of the supervised Nave Bayes with
-D Biomedical Information Mining
-Now-a-days there is much impetus for information mining
-from biomedical research papers Researchers put signicant
-to mine secondary information such as protein in-
-teraction relations from biomedical research papers to help
-identify primary information like DNA replication genotype-
-phenotype relations and signaling pathways The rst and
-foremost task for protein interaction relation miners is to
-classify sentences in research papers that describe one or more
-protein interactions These sentences are called the candidate
-sentences A number of supervised tools are developed to
-classify candidate sentences from biomedical articles see
-for example 17 18 and 19 However the rst semi-
-supervised approach for the task was reported by Erkan et al
-20 Their approach identied candidate sentences using sim-
-ilarities of the paths present between two protein names found
-from the dependency parses of the sentences What follows are
-1Download at httpducnistgov
-the brief descriptions of their method The authors produced
-dependency trees for each sentence from two given datasets
-The paths between two protein names in the parse trees were
-then analyzed According to these paths the sentences were
-labeled and treated as the gold standard for the tools eval-
-uation Given the paths two distance-based measures cosine
-similarity and edit distance were used by their tool to nd
-out interactions between the proteins These measures were
-provided to both supervised and semi-supervised algorithms to
-generate models to classify the sentences in the datasets The
-labels predicted by the supervised and semi-supervised classi-
-ers were then evaluated against the gold standard According
-to the outcomes the semi-supervised classiers performed
-better than their supervised versions by a wide margin Four
-algorithms were used to generate the classiers among which
-two are supervised SVM and K-Nearest Neighbor KNN
-and the rest were their respective semi-supervised versions
-TSVM and Harmonic Functions The distance-based measures
-were used to generate attributes for the classiers and were
-extracted from two datasets named AIMED and Christine-
-Brun CB The AIMED dataset contains 4 026 sentences of
-which 951 describe protein interactions while the CB dataset is
-composed of 4 056 sentences of which 2 202 describe protein
-interactions Each of the four algorithms then generated a
-classier from the two sets of attributes found from the two
-distance measures Experimental outcomes show that for the
-AIMED dataset TSVM with edit distance attributes performed
-the best with 5996 F-score This F-score was signicantly
-better than the F-scores found using the supervised classiers
-Comparisons showed that the F-score with TSVM was signif-
-icantly better than those reported by two contemporary work
-18 21 On the other hand the tool performed even better
-on the CB dataset where its TSVM classier with edit distance
-based attributes produced an F-score of 8520 Similar to
-the result found with the AIMED dataset the performances
-of the supervised classiers were not satisfactory The authors
-also examined the effect of the size of the labeled training
-data for the classiers In the case of AIMED the authors
-found that with small labeled training data semi-supervised
-algorithms were better In addition SVM performed poorly
-with less training data but as more data became available for its
-training it started to perform well On the other hand for the
-CB dataset KNN performed poorly with much labeled data
-Interestingly SVM performed competitively with the semi-
-supervised classiers with more labeled data
-Note that TSVM is susceptible to the distribution of the
-labeled data However the work did not report any test on the
-data distribution The AIMED dataset in addition has class
-imbalance problem that seriously affects the performance of
-TSVM classiers This can be seen as the limitation of the work
-since it did not explain why in their case the TSVM classier
-performed better than the rest
-IV CONCLUSIONS
-The ndings of empirical research on parsing text classi-
-cation text summarization and biomedical information mining
-are investigated in this study According to most of them
-semi-supervised classication has substantial advantages over
-supervised classication when labeled data are difcult to
-manage and unlabeled data are abundant This paper also
-outlines the theories behind the success of semi-supervised
-rithms must match the problem in hand For in-
-stance
-if the classes produce well-clustered data
-then expectation-maximization is a good algorithm
-to choose if the attribute space can be naturally
-split into two sets then co-training is preferred if
-two points with similar attribute values tend to be
-in the same class then graph-based method not
-discussed in this paper can be a reasonable choice
-if SVM performs well on labeled data then TSVM is a
-natural extension and given the supervised algorithm
-is complicated and difcult to modify self-training is
-useful
-The distributions of both labeled and unlabeled data
-need to be investigated TSVM for instance per-
-forms poorly with unlabeled data that have highly
-overlapped positive and negative distribution since it
-assumes that its decision boundary would go right
-through the densest region Therefore in this case
-a TSVM classier usually produces a lot of false
-positives and false negatives
-The proportion of labeled and unlabeled data is
-important to notice before choosing an algorithm
-However there is not conclusive remark on how the
-proportion affects the overall classication perfor-
-It has been found empirically that there is an effect
-of dependency among attributes on semi-supervised
-classication To be more specic with fewer labeled
-examples the number of dependent attributes should
-be kept as low as possible
-5 Data noises should be investigated as they have effect
-on classication performance It is easier to detect
-noise in the labeled data than in unlabeled data Note
-that data noise has less effect on semi-supervised
-classication than supervised classication
-The labeled and unlabeled data usually are collected
-from different sources and this can affect the classi-
-cation performance If the labeled and unlabeled data
-are collected from completely different sources and
-their properties differ then rather than using semi-
-supervised classication transfer learning and self-
-taught classication are encouraged to use 22
-REFERENCES
-1 L Shih J D Rennie Y-H Chang and D R Karger Text
-bundling Statistics based data-reduction in ICML T Fawcett and
-N Mishra Eds AAAI Press 2003 pp 696703 Online Available
-httpdblpuni-trierdedbconficmlicml2003htmlShihRCK03
-2 X Zhu A B Goldberg R Brachman and T Dietterich Introduction
-to Semi-Supervised Learning Morgan and Claypool Publishers 2009
-3 O Chapelle B Schlkopf and A Zien Semi-Supervised Learning
-1st ed The MIT Press 2010
-4 G H John and P Langley Estimating continuous distributions in
-bayesian classiers in Proceedings of the Eleventh Conference on
-Uncertainty in Articial Intelligence ser UAI95 San Francisco CA
-USA Morgan Kaufmann Publishers Inc 1995 pp 338345
-5 M Steedman M Osborne A Sarkar S Clark R Hwa
-J Hockenmaier P Ruhlen S Baker and J Crim Bootstrapping
-statistical parsers from small datasets in Proceedings of the Tenth
-Conference on European Chapter of the Association for Computational
-Linguistics - Volume 1 ser EACL 03
-Stroudsburg PA USA
-Association for Computational Linguistics 2003 pp 331338
-Online Available httpdxdoiorg10311510678071067851
-Fig 4 The use of labeled and unlabeled data in semi-
-supervised classication A dot represents a paper that uses
-semi-supervised classication Light gray dots mean older
-papers while dark gray dots mean newer papers 9
-classication According to the theories there is no free lunch
-for semi-supervised classication rather its success depends on
-underlying data distribution data complexity model assump-
-tion choice of proper algorithm problem in hand and most of
-allexperience Surprisingly the investigation has found that
-the classic studies often do not consider the dos and donts
-suggested by the theories Despite the success reported in the
-empirical studies it is therefore inconclusive whether semi-
-supervised classication can be really as useful as supervised
-classication
-The complexity associated with semi-supervised classi-
-cation limits its use This can be seen from the illustration
-in Figure 4 It shows the use of labeled and unlabeled data
-in semi-supervised classication Each dot in the illustration
-represents a paper that uses semi-supervised classication
-While the light gray dots represent older papers the dark gray
-dots represent recent papers We can come to two conclusions
-from this data
-there are not much reported work that implement
-semi-supervised classication and a bulk of the re-
-ported work are old and
-although the main purpose of using semi-supervised
-classication is the abundance of unlabeled data the
-amount of unlabeled data used in research are at most
-106 so farin laymans term which is just above the
-number of people in a stadium
-Nevertheless semi-supervised classication is the only op-
-tion until now to deal the natural language processing problems
-where there are more unlabeled than labeled data This study
-however points out the following suggestions for dealing with
-semi-supervised classication more effectively
-The model assumption for semi-supervised algo-
-6 S Clark J R Curran and M Osborne Bootstrapping pos taggers
-using unlabelled data in Proceedings of
-the Seventh Conference
-on Natural Language Learning at HLT-NAACL 2003 - Volume
-Stroudsburg PA USA Association for
-Computational Linguistics 2003 pp 4955
-Online Available
-httpdxdoiorg10311511191761119183
-ser CONLL 03
-7 D Mcclosky E Charniak and M Johnson Effective self-training for
-parsing in In Proc N American ACL NAACL 2006 pp 152159
-ser COLING 08
-supervised and semi-supervised learning in Proceedings of
-22Nd International Conference on Computational Linguistics - Volume
-Stroudsburg PA USA Association for
-Computational Linguistics 2008 pp 985992 Online Available
-httpdlacmorgcitationcfmid15990811599205
-I M Donaldson
-J D Martin B de Bruijn C Wolting
-V Lay B Tuekam S Zhang B Baskin G D Bader
-C W V Hogue
-K Michalickova
-Prebind and textomy - mining the biomedical
-vector machine
-protein-protein
-BMC Bioinformatics vol 4 p 11 2003
-Online Available
-httpdblpuni-trierdedbjournalsbmcbibmcbi4htmlDonaldsonMBWLTZBBMPH03
-interactions
-literature
-Pawson
-support
-8 M Bacchiani M Riley B Roark
-adaptation
-vol 20 no 1 pp 4168
-httpdxdoiorg101016jcsl200412001
-stochastic
-Jan 2006
-grammars Comput
-and R Sproat
-Online Available
-9 X Zhu Semi-supervised learning literature survey Computer Sci-
-ences University of Wisconsin-Madison Tech Rep 1530 2005 On-
-line Available httppagescswiscedujerryzhupubssl surveypdf
-10 S Bickel Ecml-pkdd discovery challenge 2006 overview in Proceed-
-ings of the ECML-PKDD Discovery Challenge Workshop 2006
-11 M Mojdeh and G V Cormack Semi-supervised spam ltering does it
-work in SIGIR S-H Myaeng D W Oard F Sebastiani T-S Chua
-and M-K Leong Eds ACM 2008 pp 745746 Online Available
-httpdblpuni-trierdedbconfsigirsigir2008htmlMojdehC08
-Advances
-Joachims
-J C Burges and A
-kernel methods B Scholkopf
-12 T
-Cambridge MA
-USA MIT Press 1999 ch Making Large-scale Support Vector
-Machine Learning Practical pp 169184
-Online Available
-httpdlacmorgcitationcfmid299094299104
-J Smola Eds
-13 A Bratko G V Cormack D R B Filipic P Chan T R Lynam and
-T R Lynam Spam ltering using statistical data compression models
-Journal of Machine Learning Research vol 7 pp 26732698 2006
-14 G V Cormack Harnessing unlabeled examples through iterative
-application of dynamic markov modeling in In Proceedings of the
-ECML-PKDD Discovery Challenge Workshop 2006
-15 G Cormack Trec 2006 spam track overview in Proceedings of TREC
-2006 2006
-16 K-F Wong M Wu and W Li Extractive summarization using
-18 T Mitsumori M Murata Y
-H Doi
-from biomedical
-httpdblpuni-trierdedbjournalsieicetieicet89dhtmlMitsumoriMFDD06
-text with
-IEICE Transactions
-protein-protein
-information
-Online Available
-Fukuda K Doi
-24642466
-Extracting
-interaction
-svm
-19 K Sugiyama K Hatano M Yoshikawa and S Uemura Extracting
-information on protein-protein interactions from biological literature
-based on machine learning approaches Genome Informatics Series
-pp 699700 2003
-20 G Erkan A Ozgur and D Radev Semi-supervised classication for
-extracting protein interaction sentences using dependency parsing in In
-Proceedings of the Joint Conference on Empirical Methods in Natural
-Language Processing and Computational Natural Language Learning
-EMNLP-CoNLL 2007 pp 228237
-21 A Yakushiji Y Miyao Y Tateisi and J Tsujii Biomedical
-formation extraction with predicate-argument structure patterns in
-Proceedings of the 11th Annual Meeting of the Association for Natural
-Language Processing 2005 pp 6069
-22 R Raina A Battle H Lee B Packer and A Y Ng Self-taught
-learning Transfer learning from unlabeled data in Proceedings of the
-24th International Conference on Machine Learning ser ICML 07
-New York NY USA ACM 2007 pp 759766 Online Available
-httpdoiacmorg10114512734961273592
+Accurate sensing of multiple ligands with a single receptor
+Vijay Singh1 and Ilya Nemenman1 2
+1Department of Physics Emory University Atlanta GA 30322 USA
+2Department of Biology Emory University Atlanta GA 30322 USA
+Cells use surface receptors to estimate the concentration of external ligands Limits on the accu-
+racy of such estimations have been well studied for pairs of ligand and receptor species However the
+environment typically contains many ligands which can bind to the same receptors with dierent
+anities resulting in cross-talk In traditional rate models such cross-talk prevents accurate infer-
+ence of individual ligand concentrations In contrast here we show that knowing the precise timing
+sequence of stochastic binding and unbinding events allows one receptor to provide information
+about multiple ligands simultaneously and with a high accuracy We argue that such high-accuracy
+estimation of multiple concentrations can be realized by the familiar kinetic proofreading mechanism
+Introduction Cells obtain information about their en-
+vironment by capturing ligand molecules with receptors
+on their surface and estimating the ligand concentration
+from the receptor activity Limits on the accuracy of such
+estimation have been a subject of interest since the semi-
+nal work of Berg and Purcell 1 with several substantial
+extensions found recently 28 All of these assume one
+ligand species coupled to one receptor species However
+cells carry many types of receptors and have many species
+of ligands around them The same ligands can bind to
+many receptors albeit with dierent anities and vice
+versa This is commonly referred to as cross-talk
+In traditional deterministic chemical kinetics one can-
+not estimate concentrations of more ligands than there
+are receptor types Further even a weak cross-talk pre-
+vents determination of concentrations of individual chem-
+ical species since activity of a receptor is a function of a
+weighted sum of concentrations of all ligands that can
+bind to it In contrast here we argue that with cross-
+talk concentration of more than one chemical species
+can be inferred from the activity of one receptor pro-
+vided that the entire stochastic temporal sequence of
+receptor binding and unbinding events is accessible in-
+stead of its mean occupancy This surprising result can
+be understood by noting that a typical duration of time
+that a ligand remains bound to the receptors depends on
+its unbinding rate Thus observing the statistics of the
+receptors unbound time durations allows estimation of
+a weighted average of all chemical species that interact
+with it 5 and then observing the statistics of the bound
+time durations allows to tell how common each ligand is
+In this article we derive these results for the simplest
+problem of the class namely one receptor interacting
+with two ligand species While the exact solution of the
+inference problem for nding both ligand concentrations
+is hard to implement using common biochemical machin-
+ery we show that an accurate approximation is possible
+using the familiar kinetic proofreading mechanism 9 10
+The Model Consider a single receptor estimating con-
+centrations of a cognate and a non-cognate ligand Fig 1
+The ligands bind to the receptor with on-rates kc and
+knc These are proportional to the ligand concentra-
+FIG 1 The model a Two lignads cognate and non-
+cognate bind to a receptor R with binding rates kc and knc
+respectively The cognate unbinding rate is dened as lower
+than the non-cognate one rc  rnc b Time series of re-
+ceptor occupancy is used to determine both on-rates
+i  and unbinding tu
+tions with known coecients of proportionality Thus
+estimating kcnc is equivalent to estimating the concen-
+trations themselves The unbinding or o-rates rc and
+rnc distinguish the two ligands rnc  rc and a cog-
+nate molecule typically stays bound for longer Follow-
+ing Ref 5 we estimate kc and knc from the time-series
+of binding tb
+i  events of a total
+duration T using Maximum Likelihood techniques The
+numbers of binding and unbinding events are dierent
+by at most one which is insignicant since we consider
+T   Thus without loss of generality we assume that
+the rst event was a binding event at tb
+1 and the last
+one was the unbinding at tu
+n We write the probability
+distribution of observing the sequence tb
+or alternatively the sequence of binding and unbinding
+i1  tu
+cid104
+intervals  b
+ncid89
+i  and  u
+i  tb
+1     tb
+e u
+i kcknc
+P  P  b
+i   u
+cid17cid105
+cid16
+i kc knc 
+kc rc e b
+i rc  knc rnc e b
+Here the rst term under the product sign is the proba-
+bility of the receptor staying unbound for  u
+i  The second
+term which we from now on denote by Dkc knc  b
+i  is
+proportional to the probability of staying bound for  b
+which has contributions from being bound to the cog-
+nate and the noncognate ligands with odds of kcknc
+R kc knc time bound unbound t1b t1u t2b t2u tib tiu tnu tnb 1b 1u T a b 1  T  tu
+Finally Z is the normalization Note that here we dene
+n so that the nth unbound interval
+includes the incomplete unbound intervals before the
+rst binding and after the last unbinding
+The log-likelihood of kcnc is the logarithm of P 
+Eq 1 Taking the derivatives of the log-likelihood
+w r t kc and knc and setting them to zero gives the
+Maximum Likelihood ML equations for the two con-
+i the total time
+centrations Denoting by T u  cid80n
+i1  u
+T u 
+the receptor is unbound these are
+rce b
+c  k
+rnce b
+c  k
+T u 
+ncid88
+ncid88
+nc  b
+nc  b
+where  denotes the ML solution Multiplying Eqs 2
+3 by k
+nc respectively and adding them gives
+c and k
+c  k
+which determines the sum of the two concentrations
+showing that the estimates are negatively correlated As
+in Ref 5 the total on-rate the weighted average of the
+external concentrations is determined only by the aver-
+age duration of the unbound interval nT u1 because
+no binding is possible when the receptor is already bound
+In general the ML equations cannot be solved analyt-
+ically requiring numerical approaches However as all
+ML estimators they are unbiased to the leading order
+in n The standard errors of the ML estimates can be
+obtained by inverting the Hessian matrix
+cid20
+ncid88
+c k
+c e2 b
+rcrnce b
+i rcrnc
+Dkc knc  b
+rcrnce b
+nce2 b
+i rcrnc
+cid33cid35
+cid12cid12cid12cid12k
+2 log P
+kk
+cid32
+cid11
+cid02 log Pk2
+where  stands for c nc The inverse of 2 log P
+kk  which
+scales as  1n sets the minimum variance of any unbi-
+ased estimator according to the Cramer-Rao bound It
+has straightforward analytical approximations in various
+regimes For example for kcknc cid29 1 and rcrnc cid28 1
+when the noncognate ligand is almost absent and its
+c  
+few molecules do not bind for long one gets 2k
+ 1n matching the accuracy of
+sensing one ligand with one receptor 5 A regime rel-
+evant for detection of a rare but highly specic ligand
+11 12 can be investigated as well Instead we focus on
+how the receptor estimates rather than detects concen-
+trations of both ligands simultaneously which requires us
+to investigate the full range of on-rates
+To study the variability of the ML estimator we dene
+its error as Ecnc  n2k
+cnc the squared coe-
+cient of variation multiplied by n which has a nite limit
+cnck2
+kck
+at n   E  1 corresponds to the accuracy that a
+receptor measuring a single ligand would obtain 5 We
+show log10 E for dierent on- and o-rates in Fig 2
+If the two ligands are readily distinguishable rc cid28 rnc
+then the ligand with the dominant k has E  1 When
+kc  knc E  4    5 and it grows to 10    30 for a lig-
+and with a very small relative on-rate Emphasizing the
+importance of the time scale separation E  100 if the
+ligands are hard to distinguish rc  rnc Here in ad-
+dition the correlation coecient  of the two estimates
+reaches 1 because the same binding event can be at-
+tributed to either ligand Finally the asymmetry of the
+plots w r t the exchange of kc and knc is because the
+cognate ligand can generate short binding events while
+long events from the noncognate ligand are exponentially
+unlikely In summary it is possible to infer two ligand
+concentrations from one receptor with the error of only
+1    10 times larger than for ligand-receptor pairs with no
+cross talk as long as the two o-rates are substantially
+dierent
+Approximate solution Solving Eqs 2 3 to nd the
+ML on-rates would be hard for the cell Luckily an ap-
+proximate solution exists To nd it we notice that most
+of the long binding events come from the cognate ligand
+since the noncognate one dissociates faster Dening long
+events as  b
+i  T c we rewrite Eqs 2 4 as
+ cid88
+cid88
+ rce b
+c  k
+nc  b
+c  k
+i T c
+Assuming that almost all long events are cognate T c cid29
+1rnc this gives
+rce b
+nc  b
+where nl is the number of long events and the superscript
+a stands for the approximate solution If further T is
+long enough so that there are many short events and a
+single binding duration hardly aects k
+c  then the sum
+in Eq 7 can be approximated by the expectation value
+nnl
+rce brcP  bka
+ncd b
+nc  b
+where P  bka
+nc is the probability of observing a bind-
+ing event of the duration  b for the given binding rates
+P  bka
+nc  b
+Plugging Eq 9 into Eq 8 we obtain
+1  nl
+cid16
+cid17 1  ercT c
+cid88
+cid90 Tc
+FIG 2 Variability of the ML estimators represented by log10 Ec left log10 Enc center and the correlation coecient
+ between k
+nc right as functions of k and r Here we use rnc  kc  knc  1 The plotted quantities are estimated
+as averages over 30 000 randomly generated bindingunbinding sequences for each combination of the rates Each sequence
+consists of n  30 000 binding events simulated using the Gillespie algorithm Standard errors are too small to be represented
+c and k
+Finally since nl cid28 n using Eq 4 we get
+The variance obviously grows with T c
+T u erc T c
+T u  nl
+T u erc T c
+In other words the approximate cognate ligand concen-
+tration is proportional to the number of long events
+nc  r1
+We can estimate the bias and the variance of ka
+cnc in
+a limiting case If rc and rnc are not very dierent from
+each other then T c must be much larger than the in-
+verse of either of them T c cid29 r1
+c  and nl cid28 n
+Then most of the variance of ka
+cnc in Eqs 11 12 comes
+ccid105 
+from variability of nl but not T u Thus we write cid104ka
+cid104nlcid105
+cid104T ucid105 ercT c
+ Further the individual unbound periods are
+independent so that cid104T ucid105  ncid104 ucid105  nkc  knc no-
+tice the use of k rather than ka in this relation Further
+cid104nlcid105  n P  b  T c 
+Combining these expressions we get
+ kncerncT ccid1
+cid0kcercT c
+cid104ka
+ccid105  kc  kncerncrcT c
+Thus for large T c the bias of the approximate estima-
+tor kncerncrcT c
+ grows with the relative number of
+noncognate long bindings events In turn the latter is
+proportional to knc but decreases exponentially with T c
+Within the same approximation the variance of the es-
+timator is 2ka
+ But long binding events
+are rare independent of each other and hence obey the
+Poisson statistics Thus 2nl  cid104nlcid105 so that
+c   2nl
+cid104T ucid1052 e2rcT c
+c   cid104ka
+ccid105 kc  knc
+cid104
+Knowing that the bias and the variance of the approx-
+imation change in opposite directions with T c we can
+nd the optimal cuto by minimizing the overall error
+or in other words solving the bias-variance tradeo
+T c  arg min
+L  arg min
+kc  cid104ka
+ccid1052  2ka
+where L is the sum of the squared bias and the variance
+of the estimator Near the optimal cuto the bias is
+small and we use kc instead of ka
+c for the variance of the
+estimator Eq 14 Then solving Eq 15 gives
+cid105
+cid20
+cid18 rnc
+cid19 k2
+cid21
+T c 
+2rnc  rc
+Plugging this into Eqs 13 14 we can get the minimal
+error of the estimator which we omit here for brevity
+The optimal cuto is  1rnc if rnc cid29 rc and it grows
+with rc allowing for better disambiguation of cognate
+and noncognate events Crucially the o-rates are spec-
+ied with the ligand identities In contrast the on-rates
+kcnc are what the receptors measures Therefore it is
+encouraging that T c depends only logarithmically on the
+on-rates and also on the duration of the measurement
+T u xing T c as T c at some xed values of kcnc re-
+mains near-optimal for a broad range of on-rates To
+illustrate this we use T c  T c kc  knc  12  T0
+and analyze the quality of the approximation in Fig 3
+where we plot the ratio LcncT02
+ Since the ratio
+approaches 1 when rcrnc  0 specically for rcrnc 
+ 121 we
+01 LcT02
+conclude that the approximation is accurate even at
+ 147 and LncT02
+1rcrnc05log10Ec0-1log101kcknc201014321rcrnc05log10Enc0-1log101kcknc201432101rcrnc050-1log101kcknc2010-02-04-06-08-14
+FIG 3 Comparison of errors of the approximate and the ML solutions We plot log10LcT02
+log10LncT02
+tions are performed in the same way as in Fig 2
+ left
+ center and the covariance of the approximate estimates right as functions of on- and o-rates Simula-
+xed T c  T0 when its assumptions are satised
+contrast when the ligands are nearly indistinguishable
+ 100 but here one would not use one
+LcncT02
+receptor to estimate two concentrations since even the
+ML solution is bad cf Fig 2 Note also that both Lc
+and Lnc are smaller for rc  rnc if kc cid29 knc This is be-
+cause our main assumption that almost all long events
+are cognate holds better when cognate ligands dominate
+Finally the correlation coecient between the approxi-
+mate estimates a right panel reaches -1 earlier than
+in Fig 2 This is a direct consequence of Eqs 11 12
+Kinetic Proofreading for approximate estimation The
+approximate solution can be computed by cells using
+the well-known kinetic proofreading KPR mechanism
+9 10 13 14 In the simplest model of KPR 15 inter-
+mediate states between an inactive and an active state of
+a receptor delay the activation Thus bound ligands can
+dissociate before the receptor activates at which point
+it quickly reverts to the inactive state Since rc  rnc
+cognate ligands dominate among bindings that actually
+lead to activation The resulting increase in specicity
+in various KPR schemes has led to their exploration in
+the context of detection of rare ligands 11 12 14 and
+here we extend them to measurement of concentration of
+cognate and noncognate ligands simultaneously
+Consider a biochemical network in Fig 4 the receptor
+R activates two messenger molecules A and B The
+rst one is activated with the rate kA whenever the re-
+ceptor is bound The second one is activated only if the
+receptor stays bound for longer than a certain T c with
+the delay achieved using the KPR intermediate states
+The activation rate after the delay is kB The molecules
+deactivate with the rates rA and rB respectively and all
+FIG 4 Kinetic Proofreading for estimating multiple
+concentrations Molecules A and B are produced when the
+receptor is bound but A is produced only for long bindings
+Another chemical species C subtracts A from B so that A
+approximates kc and C approxiates knc
+activationsdeactivations are rst-order reactions Then
+the mean concentrations of the messenger molecules are
+kcrc  kncrnc
+1  kcrc  kncrnc
+kcrcercT c
+ kncrncerncT c
+1  kcrc  kncrnc
+Assuming again that most bindings longer than T c are
+cognate we solve Eqs 17 18 for the on-rates
+cid18
+cid19
+cid20
+BercT c
+kArA  A
+cid18
+kArA  A
+ BercT c
+kArA  A
+cid19cid21
+1rcrnc05log103Lc2kc40-1log101kcknc201432101rcrnc05log103Lnc2knc40-1log101kcknc201432101rcrnc050a-1log101kcknc2010-02-04-06-08-1R kc knc B kc A kcknc C knc Delay The corrections of the form AkArA  A appear be-
+cause bindings only happen to unbound receptors as
+emphasized in Ref 5 However these nonlinear rela-
+tions are still hard to implement with simple biochem-
+ical components We solve this by further assuming
+  AkArA cid28 1 which is true if the receptor is
+mostly unbound both on-rates are small compared to
+the respective o-rates This gives
+ BercT c
+cid18 rA A
+ BercT c
+cid19
+These equations are analogous to Eqs 11 12 They are
+easy to realize biochemically cf Fig 4 kc is related to
+the concentration of the proofread species B by a rescal-
+ing and knc comes from subtracting rescaled versions of
+A and B from each other The subtraction can be done
+by the third species C activated by A and suppressed
+by B Since  cid28 1 then A and B are small and many
+such activation-suppression schemes are linearized as the
+subtraction 8
+kc  knc
+The bias of ka
+erc T c 1
+cnc due to long but noncognate binding
+events Eq 13 carries over to kKPR
+cnc  However there
+is an additional contribution since the time to traverse
+the intermediate states is random Thus T c has some
+variance 2
+T c 15 16 This variability changes the rate of
+occurence of long biding events but they are still rare
+nearly independent and Poisson-distributed Denoting
+by cid104cid105 the averaging at a xed T c and by  the averaging
+over T c we get
+cid104nlcid105
+T c eectively renormalizes the cuto to T c 
+Thus 2
+2 rc2
+T c  which is independent of the on-rates Replac-
+ing T c in Eqs 21 22 by its renormalized value which
+is an easy change in the scaling factors removes this ad-
+ditional bias due to the random T c in the KPR scheme
+Since long bindings are rare the variance of the KPR
+estimator is dominated again generally by B but not A
+The intrinsic stochasticity in production of molecules of
+B contributes to the variance However this contribution
+can be made arbitrarily small by increasing kB and we
+neglect it here A larger contribution comes from the
+random number of long bound intervals and a random
+duration of each of them To calculate this in the limit
+of rare long binding events we use well-known results in
+the theory of noise propagation in chemical networks 17
+ 1  kcrc  kncrnc ercT c 1
+kc1rc  1rB
+ercT c 1
+kc1rc  1rB
+ O
+This is a direct analog of Eq 14
+Discussion The realization of Refs 5 18 and oth-
+ers that the detailed temporal sequence of binding and
+unbinding events carries more information about the lig-
+and concentration than the mean receptor occupancy is
+a conceptual breakthrough
+It parallels the realization
+in the computational neuroscience community that pre-
+cise timing of spikes carries more information about the
+stimulus than the mean neural ring rate 1924 and it
+has a potential to be equally impactful This extra in-
+formation when measuring one ligand concentration with
+one receptor 5 amounted to increasing the sensing ac-
+curacy by a constant prefactor or equivalently getting
+only a nite number of additional bits from even a very
+long measurement 25 In contrast here we show that
+two concentrations can be measured with one receptor
+with the variance that decreases inversely proportionally
+to the number of observations n Eq 14 or to the inte-
+gration time 1rB Eq 24 so that the accuracy is only
+a small prefactor lower than would be possible with one
+receptor per ligand species Asymptotically this doubles
+the information obtained by the receptor 25
+In principle one can measure more than two concen-
+trations similarly as long as all species have suciently
+distinct o-rates While the error the variance for the
+ML estimator and both the bias and the variance for
+the approximate and the KPR estimators would grow
+with a larger number of ligand species this would still
+represent a dramatic increase in the information gained
+by the receptor that keeps track of its precise temporal
+dynamics rather than just the average binding state
+Crucially such improvement would not be possible
+without the cross-talk or binding among noncognate lig-
+ands and receptors Normally the cross-talk is consid-
+ered a nuisance that must be suppressed 26 27
+stead we argue that cross-talk can be benecial by re-
+cruiting more receptor types to measure concentration
+of the same ligand
+In particular this allows having
+fewer receptor than ligand species potentially illuminat-
+ing how cells function reliably in chemically complex en-
+vironments with few receptor types Further the cross-
+talk can increase the dynamic range of the entire system
+a ligand may saturate its cognate receptor preventing
+accurate measurement of its high concentration but
+it may be in the sensitive range of non-cognate recep-
+tors at the same time Finally the increased bandwidth
+may lead to improvements in sensing a time-dependent
+ligand concentration 11 18 We will explore such many-
+to-many sensory schemes extending ideas of Ref 28 to
+tracking temporal sequences of activation of receptor and
+to varying environments in forthcoming publications
+While the exact maximum likelihood inference of mul-
+tiple concentrations from a temporal binding-unbinding
+sequence is rather complex we showed that when the
+cognate and the non-cognate o-rates are substantially
+dierent there is a simpler approximate but accurate
+inference procedure
+In various immune system prob-
+lems rncrc  5 which would allow the approximation
+to work Moreover when the receptor is not saturated
+and spends most of its time unbound this inference can
+be performed by biochemical motifs readily available to
+the cell Namely one needs two branches of activation
+downstream of the receptor with one of them having a
+kinetic proofreading KPR time delay and then an esti-
+mate of the dierence of activities of the branches This
+suggests a possible signal estimation role for the KPR
+scheme in addition to the more traditional signal detec-
+tion one 11 12 18 Such branching and merging of
+signaling pathways downstreams of a receptor is com-
+mon in signaling 27 29 Thus exploring the function of
+such complex organization in the context of estimation
+of multiple signals with cross-talk is in order
+In summary monitoring precise temporal sequences of
+receptor activationdeactivation opens up new and excit-
+ing possibilities for environment sensing by cells
+Acknowledgements This work was supported in
+part by the James S McDonnell foundation and the Na-
+tional Science Foundation
+1 H Berg and E Purcell Biophys J 20 193 1977
+2 D Bray M D Levin and C J Morton-Firth Nature
+393 85 1998
+3 W Bialek and S Setayeshgar Proc Natl Acad Sci USA
+102 10040 2005
+4 R Endres and N Wingreen Proc Natl Acad Sci USA
+105 15749 2008
+5 R G Endres and N S Wingreen Phys Rev Lett 103
+158101 2009
+6 B Hu W Chen W-J Rappel and H Levine Physi
+Rev Lett 105 048104 2010
+7 K Kaizu W de Ronde J Paijmans K Takahashi
+F Tostevin and P R ten Wolde Biophys J 106 976
+2014
+8 A Mugler A Levchenko
+and I Nemenman
+arXiv150504346 2015
+9 J J Hopeld Proc Natl Acad Sci USA 71 4135 1974
+10 J Ninio Biochimie 57 587 1975
+11 J-B Lalanne and P Francois Proc Natl Acad Sci USA
+112 1898 2015
+12 P Francois G Voisinne E Siggia G Altan-Bonnet and
+M Vergassola Proc Natl Acad Sci USA 110 E888
+2013
+13 T McKeithan Proc Natl Acad Sci USA 92 5042
+1995
+14 B Goldstein D Coombs J Faeder and W Hlavacek
+Adv Exp Med Biol 640 82 2008
+15 G Bel B Munsky and I Nemenman Phys Biol 7
+0610003 2010
+16 X Cheng L Merchan M Tchernookov and I Nemen-
+man Phys Biol 10 035008 2013
+17 J Paulsson Phys Life Rev pp 157175 2005
+18 E D Siggia and M Vergassola Proceedings of the Na-
+tional Academy of Sciences 110 E3704 2013
+19 S Strong R Koberle R R d R v Steveninck and
+W Bialek Phys Rev Lett 80 197 1998
+20 P Reinagel and R C Reid J Neurosci 20 5392 2000
+21 R Liu S Tzonev S Rebrik and K Miller J Neuro-
+physiol 86 2789 2001
+22 I Nemenman G D Lewen W Bialek and R R
+de Ruyter van Steveninck PLoS Comp Biol 4 e1000025
+2008
+23 A Fairhall E Shea-Brown and A Barreiro Curr Opin
+Neurobiol 22 653 2012
+24 C Tang D Chehayeb K Srivastava I Nemenman and
+S J Sober PLoS Biol 12 e1002018 2014
+25 W Bialek I Nemenman and N Tishby Neural Comput
+13 2409 2001
+26 M McClean A Mody J Broach and S Ramanathan
+Nat Gen 39 409 2007
+27 M Laub and M Goulian Ann Rev Genet 41 121 2007
+28 J Tsitron A Ault J Broach and A Morozov PLoS
+Comput Biol 7 e1002224 2011
+29 R Cheong A Rhee C Wang I Nemenman and
+A Levchenko Science 334 354 2011

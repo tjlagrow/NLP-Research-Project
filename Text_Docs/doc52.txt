@@ -1,1434 +1,783 @@
-A fast partial parse of natural language sentences
-using a connectionist method
-Caroline Lyon
-Bob Dickerson
-Division of Computer Science
-Division of Computer Science
-University of Hertfordshire
-University of Hertfordshire
-Hateld AL10 9AB UK
-comrcmlhertsacuk
-Hateld AL10 9AB UK
-comqrgdhertsacuk
-Abstract
-The pattern matching capabilities of neu-
-ral networks can be used to locate syntac-
-tic constituents of natural language This
-paper describes a fully automated hybrid
-system using neural nets operating within
-a grammatic framework It addresses the
-representation of language for connection-
-ist processing and describes methods of
-constraining the problem size The func-
-tion of the network is briey explained and
-results are given
-1 Introduction
-The pattern matching capabilities of neural net-
-works can be used to detect syntactic constituents
-of natural language This approach bears compari-
-son with probabilistic systems but has the advan-
-tage that negative as well as positive information
-can be modelled Also most computation is done
-in advance when the nets are trained so the run
-time computational load is low In this work neu-
-ral networks are used as part of a fully automated
-system that nds a partial parse of declarative sen-
-tences The connectionist processors operate within
-a grammatic framework and are supported by pre-
-processors that lter the data and reduce the prob-
-lem to a computationally tractable size A prototype
-can be accessed via the Internet on which users can
-try their own text details from the authors It will
-take a sentence locate the subject and then nd
-the head of the subject Typically 10 sentences take
-about 2 seconds 50 sentences about 4 seconds to
-process on a Sparc10 workstation Using the proto-
-type on technical manuals the subject and its head
-can be detected in over 90 of cases See Section 7
-The well known complexity of parsing is addressed
-by decomposing the problem and then locating one
-syntactic constituent at a time The sentence is rst
-decomposed into the broad syntactic categories
-pre-subject - subject - predicate
-by locating the subject Then these constituents can
-be processed further The underlying principle em-
-ployed at each step is to take a sentence or part
-of a sentence and generate strings with the bound-
-ary markers of the syntactic constituent in question
-placed in all possible positions Then a neural net
-selects the string with the correct placement
-This paper gives an overview of how natural lan-
-guage is converted to a representation that the neu-
-ral nets can handle and how the problem is re-
-duced to a manageable size
-It then outlines the
-neural net selection process A comprehensive ac-
-count is given in Lyon 1994 descriptions of the
-neural net process are also in Lyon 1993 and
-Lyon and Frank 1992 This is a hybrid system
-The core process is data driven as the parameters of
-the neural networks are derived from training text
-The neural net is trained in supervised mode on ex-
-amples that have been manually marked correct
-and incorrect
-It will then be able to classify
-unseen examples However the initial processing
-stages in which the problem size is constrained op-
-erate within a skeletal grammatic framework Com-
-putational tractability is further addressed by reduc-
-ing data through the application of prohibitive rules
-as local constraints The pruning process is remark-
-ably eective
-2 The corpus of sentences from
-technical manuals
-This work has principally been developed on text
-of technical manuals from Perkins Engines Ltd
-which have been translated by a semi-automatic pro-
-cess Pym 1993 Now a partial parse can support
-such a process For instance frequently occurring
-modal verbs such as must are not distinguished
-Number of
-occurrences
-2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-11 12 13 14 15 16
-Number of words before the subject
-Number of words in the subject
-Figure 1 The frequency of constituent length for pre-subject and subject in 351 sentences
-by number in English but they are in many other
-languages It is necessary to locate the subject then
-identify the head and determine its number in order
-to translate the main verb correctly in sentences like
-1 below
-If a cooler is tted to the gearbox  the pipe 
-connections  of the cooler  must be regularly
-checked for corrosion
-This parser has been trained to nd the syntactic
-subject head that agrees in number with the main
-verb The manuals are written using the PACE
-Perkins Approved Clear English guidelines with
-the aim of producing clear unambiguous texts All
-declarative sentences have been extracted for pro-
-cessing about half were imperatives This level of
-classication can be done automatically in future
-Table 1 and Figure 1 show some of the characteris-
-tics of the corpus
-Number of sentences
-Average length
-No of subordinate clauses
-In pre-subject
-In subject
-In predicate
-Co-ordinated clauses
-1798 words
-Punctuation marks are counted as words formulae as 1
-Table 1 Corpus statistics
-3 Language representation I
-In order to reconcile computational feasibility to em-
-pirical realism an appropriate form of language rep-
-resentation is critical The rst step in constraining
-the problem size is to partition an unlimited vocabu-
-lary into a restricted number of part-of-speech tags
-Dierent stages of processing place dierent require-
-ments on the classication system so customised
-tagsets have been developed For the rst processing
-stage we need to place the subject markers and as
-a further task disambiguate tags It was not found
-necessary to use number information at this stage
-For example consider the sentence
-Still waters run deep
-The word waters could be a 3rd person singular
-present verb or a plural noun However in order to
-disambiguate the tag and place the subject markers
-it is only necessary to know that it is a noun or else a
-verb The sentence parsed at the rst level returns
- Still waters  run deep
-The tagset used at this stage mode 1 has 21 classes
-not distinguished for number However the head
-of the subject is then found and number agreement
-with the verb can be assessed At this stage the
-tagset mode 2 includes number information and
-has 28 classes Devising optimal tagsets for given
-tasks is a eld in which further work is planned
-We need larger tagsets to capture more linguistic
-information but smaller ones to constrain the com-
-putational load Information theoretic tools can be
-used to nd the entropy of dierent tag sequence
-languages and support decisions on representation
-A functional approach is taken to tagging words
-are allocated to classes depending on their syntactic
-role For instance superlative adjectives can act as
-nouns so they are initially given the 2 tags noun
-or adjective This approach can be extended by tak-
-ing adjacent words which act jointly as single lexical
-items as a unit Thus the pair most adjective
-is taken as a single superlative adjective
-Text is automatically tagged using the rst mod-
-ules of the CLAWS program 1985 version in which
-words are allocated one or more tags from 134 classes
-Garside 1987 These 134 tags are then mapped
-onto the small customised tagsets Tag disambigua-
-tion is part of the parsing task handled by the neural
-net and its pre-processor This version of CLAWS
-has a dictionary of about 6300 words only Other
-words are tagged using sux information or else de-
-faults are invoked The correct tag is almost always
-included in the set allocated but more tags than
-necessary are often proposed A larger dictionary in
-later versions will address this problem
-Representing syntactic boundary markers
-In the same way that tags are allocated to words
-or to punctuation marks they can represent the
-boundaries of syntactic constituents such as noun
-phrases and verb phrases Boundary markers can
-be considered invisible tags or hypertags which
-have probabilistic relationships with adjacent tags
-in the same way that words do Atwell 1987 and
-Church 1989 have used this approach
-bedded syntactic constituents are sought in a sin-
-gle pass this can lead to computational overload
-Pocock and Atwell 1994 Our approach uses a
-similar concept but diers in that embedded syntac-
-tic constituents are detected one at a time in sepa-
-rate steps There are only 2 hypertags - the opening
-and closing brackets marking the possible locations
-of the syntactic constituent in question Using this
-representation a hierarchical language structure is
-converted to a string of tags represented by a linear
-vector
-4 Constraining the generation of
-candidate strings
-This system generates sets of tag strings for each
-sentence with the hypertags placed in all possible
-positions Thus for the subject detection task
-Then the performance of the pump must be mon-
-itored
-maximum of 10 words in the pre-subject and 10
-words within the subject for the initial work de-
-scribed here These are now extended to 15 words
-in the pre-subject 12 in the subject - see Section
-7 There must be at least one word beyond the end
-of the subject and before the end-of-sentence mark
-Therefore using the initial restrictions in a sentence
-of 22 words or more counting punctuation marks as
-words there could be 100 alternative placements
-However some words will have more than one pos-
-sible tag For instance in sentence 1 above 5 words
-have 2 alternative tags which will generate 25 pos-
-sible strings before the hypertags are inserted Since
-there are 22 words including punctuation  the to-
-tal number of strings would be 25
- 100  3200 It
-is not feasible to detect one string out of this num-
-ber if the classier marked all strings incorrect the
-percentage wrongly classied would only be 003
-yet it would be quite useless In order to nd the
-correct string most of the outside candidates must
-be dropped
-The skeletal grammatic framework
-A minimal grammar set out in Lyon 1994 in
-EBNF form is composed of 9 rules For instance
-the subject must contain a noun-type word Apply-
-ing this particular rule to sentence 3 above would
-eliminate candidate strings 31 and 32 We also
-have the 2 arbitrary limits on length of pre-subject
-and subject There is a small set of 4 extensions
-to the grammar or semi-local constraints For in-
-stance if a relative pronoun occurs then a verb must
-follow in that constituent On the technical manuals
-the constraints of the grammatic framework put up
-to 6 of declarative sentences outside our system
-most commonly because the pre-subject is too long
-A small number are excluded because the system
-cannot handle a co-ordinated head With the length
-of pre-subject extended to 15 words and subject to
-12 words an average of 2 are excluded 7 out of
-will generate strings of tags including
-Prohibition tables
- Then  the performance of the pump must be
-monitored
- Then the  performance of the pump must be
-monitored
+Dynamics  of  Natural  Killer  cell  receptor  revealed  by  quantitative  analysis  of 
+photoswitchable protein 
+Sophie  V  Pageon12  Gerardo  Aquino1  Kathryn  Lagrue13  Karsten  Khler1  Robert  G 
+Endres14 and Daniel M Davis134 
+1Department  of  Life  Sciences  Imperial  College  London  Exhibition  Road  London  SW7 
+2AZ UK 
+2Present address Centre for Vascular Research Lowy Cancer Research Centre University of 
+New South Wales Kensington New South Wales 2052 Australia 
+3Manchester  Collaborative  Centre  for  Inflammation  Research  Core  Technology  Facility 
+University of Manchester Oxford Road Manchester M13 9PT UK 
+4Correspondence to Daniel M Davis E-mail danieldavismanchesteracuk or Robert G 
+Endres E-mail rendresimperialacuk  
+ Sophie V Pageon and Gerardo Aquino contributed equally to this work 
+Running title Receptor dynamics through photoswitching 
+Keywords  protein  dynamics  photoswitchable  protein  Natural  Killer  cells  KIR2DL1 
+mathematical modeling membrane biophysics 
+  
+Abstract 
+the  photoswitchable  fluorescent  protein 
+Natural  Killer  NK  cell  activation  is  dynamically  regulated  by  numerous  activating  and 
+inhibitory surface receptors that accumulate at the immune synapse Quantitative analysis of 
+receptor dynamics has been limited by methodologies which rely on indirect measurements 
+such  as  fluorescence  recovery  after  photobleaching  Here  we  report  a  novel  approach  to 
+study how proteins traffic to and from the immune synapse using NK cell receptors tagged 
+irreversibly 
+photoswitched  from  a  green  to  red  fluorescent  state  by  ultraviolet  light  Thus  following  a 
+localized switching event the movement of the photoswitched molecules can be temporally 
+and spatially resolved by monitoring fluorescence in two regions of interest By comparing 
+images  with  mathematical  models  we  evaluated  the  diffusion  coefficient  of  the  receptor 
+KIR2DL1  023    006  m2s-1  and  assessed  how  synapse  formation  affects  receptor 
+dynamics  Our  data  conclude  that  the  inhibitory  NK  cell  receptor  KIR2DL1  is  continually 
+trafficked into the synapse and remains surprisingly stable there Unexpectedly however in 
+NK  cells  forming  synapses  with  multiple  target  cells  simultaneously  KIR2DL1  at  one 
+synapse  can  relocate  to  another  synapse  Thus  our  results  reveal  a  previously  undetected 
+inter-synaptic exchange of protein  
+tdEosFP  which  can  be 
+  
+Introduction 
+NK cells are characterized by their ability to lyse a variety of diseased cells without the need 
+for prior antigen recognition One way in which NK cells can discriminate healthy cells from 
+abnormal cells is according to the missing-self hypothesis that NK cells can recognize and 
+eliminate  target  cells  which  have  down-regulated  surface  expression  of  class  I  major 
+histocompatibility  complex  MHC  proteins  a  feature  of  many  virally-infected  or 
+transformed cells 1 2 Broadly NK cell activation is regulated by the balance of signals 
+from a large repertoire of activating and inhibitory receptors expressed at their surface When 
+an NK cell meets a potential target cell activating receptors can be ligated If the appropriate 
+MHC class I protein is also present on the target cell inhibitory receptors will be engaged to 
+transduce inhibitory signals that can interfere with activating signaling to protect the target 
+cell from being lysed Inhibitory receptors expressed by human NK cells include three main 
+families  killer  immunoglobulin-like  receptors  KIRs  the  CD94NKG2  receptors  and  the 
+leukocyte immunoglobulin-like receptors LIRs also known as ILT Receptors from the KIR 
+family  recognize  classical  MHC  class  I  proteins  -  human  leukocyte  antigens  HLA-A  -B 
+and -C 35  
+Imaging  NK  cells  in  contact  with  susceptible  and  resistant  target  cells  has  shown  that 
+inhibitory signals do not inhibit cell function globally but are spatially restricted towards a 
+specific target cell 6 7 This is facilitated by the assembly of an immune synapse - a cell-
+cell  interface  at  which  receptors  and  signaling  molecules  organize  The  formation  of  an 
+activating  or  cytolytic  synapse  is  dependent  on  ATP  and  the  reorganization  of  the  actin 
+cytoskeleton 8 9 However the accumulation of inhibitory receptors and ligands at the NK 
+cell synapse has been shown to occur to a large extent independently from remodeling of the 
+actin cytoskeleton or other ATP-driven processes 6 1012 Importantly however there has 
+been a long-standing controversy as to whether or not the accumulation of KIR receptors at 
+synapses is entirely independent of the cytoskeleton since the speed of KIR accumulation at 
+the  synapse  is  influenced  by  pharmacological  inhibitors  of  actin  polymerization  11 
+However  diffusion  of  KIR  proteins  in  the  NK  cell  membrane  and  the  dynamics  of  the 
+recruitment of KIR to the immune synapse have been little studied quantitatively 
+More broadly cellular signaling and cell-fate decisions are tightly regulated and dependent 
+on protein dynamics which are difficult to observe in real time Typically imaging of protein 
+behavior in cell membranes has relied on indirect measurements based on photobleaching of 
+fluorophores  However  these  methods  do  not  allow  direct  visualization  of  proteins  within 
+cells Here to demonstrate our quantitative analysis of photoswitchable fluorescent proteins 
+for studying protein dynamics we consider the specific example of receptor recruitment to an 
+immune synapse By photoconverting molecules from green to red fluorescence in selected 
+regions  of  the  cell  membrane  this  technique  can  be  used  to  monitor  the  movements  of 
+KIR2DL1 within NK cell membranes We found that in unconjugated NK cells the dynamics 
+of  KIR2DL1  fit  a  free  diffusion  model  In  the  presence  of  a  target  cell  expressing  an 
+appropriate  ligand  for  KIR2DL1  the  KIR2DL1  protein  was  continuously  recruited  to  the 
+immune synapse where it remained stable unless a second synapse was formed in which 
+case KIR2DL1 was able to traffic from one synapse to another We explored the mechanism 
+of accumulation within the synapse using different mathematical models of KIR dynamics 
+and found that receptor confinement in the synapse can be modeled by imposing either an 
+apparent force or reduced diffusion in the synapse 
+  
+Materials and Methods 
+Cell culture The NK cell line YTS and the target cell line 721221 an EBV-transformed B 
+cell  line  selected  to  lack  endogenous  cell  surface  expression  of  HLA  proteins  hereafter 
+referred to as 221 were maintained in RPMI-1640 GIBCO supplemented with 10 FCS 
+2mM L-glutamine and 1mM penicillinstreptomycin all Invitrogen complete medium 221 
+cells  transfected  to  express  HLA-Cw4  221Cw4  were  generated  as  previously  described 
+13 YTS cells transfected to express tdEosFP-tagged KIR2DL1 YTSKIR2DL1-tdEosFP 
+were generated by retroviral transduction of YTS cells as previously described 14 Briefly 
+the packaging cell line Phoenix-amphotropic Nolan lab Stanford was transfected with the 
+retroviral vector PINCO encoding the KIR2DL1-tdEosFP fusion protein using Lipofectamine 
+LTX Invitrogen Viral supernatant collected 24 and 48 hours post-transfection was used in 
+three sequential centrifugations 45 minutes 1600 rpm 30C for infection of 106 YTS cells 
+Two weeks post-infection cells expressing KIR2DL1 were enriched by flow cytometry  
+Plasmid generation We have described the generation of the KIR2DL1-tdEosFP construct 
+elsewhere 14 In brief to generate the C-terminal tag of KIR2DL1001 with tdEosFP the 
+coding  sequence  for  tdEosFP  Mobitec  Germany  was  inserted  to  replace  the  GFP  in  the 
+retroviral vector PINCO expressing KIR2DL1-GFP 15 using the BamHINotI sites 
+Live cell confocal fluorescence microscopy For live cell microscopy cells were imaged in 
+eight-well  chambered  borosilicate  coverglasses  LabTek  Nunc  Rochester  NY  pre-coated 
+with 10 g ml-1 fibronectin Sigma Cells were imaged by confocal microscopy using an SP5 
+inverted  confocal  microscope  TCS  SP5  RS  Leica  Microsystems  using  a  63x  water 
+immersion  objective  with  a  numerical  aperture  of  12  Simultaneous  imaging  in  different 
+channels was performed by sequential line scanning Live cell images were acquired at 37C 
+and 5 CO2 YTSKIR2DL1-tdEosFP and 221Cw4 cells were gently added to fibronectin-
+coated chamber slides at a 11 ratio just before imaging During live cell acquisitions a small 
+region of the YTSKIR2DL1-tdEosFP membrane was selected and the tdEosFP molecules in 
+this region were photoconverted from green to red fluorescence FRAP Wizard Leica This 
+photoswitching involved firing the 405 nm UV laser at 80 laser power at a specific region 
+of the cell membrane for seven seconds The cells were then imaged for a further 20 minutes 
+at one frame every ten seconds to follow the movement of the photoswitched molecules The 
+green emission from tdEosFP was visualized using the 496 nm laser line fluorescence was 
+collected between 500 and 550 nm and the red emission wavelengths were visualized using 
+excitation with a 543 nm laser line and fluorescence collected at 575-650 nm 
+Image  processing  Imaging  data  obtained  from  the  photoswitching  experiments  were 
+processed and analyzed ImageJ US National Institutes of Health Bethesda MA To correct 
+for  movement  of  cells  or  cell  conjugates  across  the  field  of  view  during  acquisition  the 
+frames within each image sequence were aligned plug-in for ImageJ StackReg Philippe 
+Thvenaz Swiss Federal Institute of Technology Lausanne Switzerland The images were 
+then  assigned  a  threshold  to  minimize  background  fluorescence  before  further  analysis 
+Measurements in the red channel were taken at the region where tdEosFP molecules were 
+photoconverted to red during the acquisition as well as the membrane region directly opposite 
+Fig S1 in the Supporting Material Fluorescence was monitored in narrow strip regions to 
+take into account any remaining cell movement and changes in cell shape that might have 
+occurred during the acquisition For each region the number of fluorescent pixels within that 
+region  was  measured  This  method  was  validated  by  measuring  the  length  of  membrane 
+  
+differential operator which on a sphere of radius r is given by 
+detected within the two monitoring regions in a typical image sequence Fig S1 The error 
+of the mean was smaller than 06 indicating that for each region that is selected the length 
+of  membrane  under  analysis  remains  constant  for  the  whole  image  sequence  Following 
+validation  this  method  was  applied  to  all  cells  in  further  experiments  The  data  were 
+normalized  to  the  first  time  point  after  photoswitching  This  normalization  allowed  the 
+comparison of different cells that might have had different initial levels of red fluorescence 
+after photoswitching 
+Mathematical  modeling  Given  the  size  of  the  initial  photoswitched  area  an  accurate 
+estimate  of  the  receptor  density  at  any  subsequent  time  can  be  determined  by  modeling 
+receptor diffusion over a surface When no target cell is attached to the NK cell ie when no 
+immune synapse is formed a reasonable assumption is that of free diffusion of the receptor 
+on a membrane The distribution of the receptors is then obtained by exactly solving the free-
+diffusion equation on a spherical cell  
 
-Then  the performance of the  pump must be
-monitored
-Then  the performance of the pump  must be
-monitored
+where  is  the  receptor  density  on  a  point  on  the  sphere  of  radius  r  at  a  given 
+azimuthal  angle   and  polar  angle    D  is  the  diffusion  coefficient  which  is  directly 
+proportional  to  the  receptor  mobility  through  the  Einstein  relation  and   the  Laplacian 
+1sin
+ 2 sin cos
+   3 
+which depends only on D and the initial condition    are the Legendre polynomials 
+The exact solution is obtained for  but convergence is obtained for 20 terms in the 
+to the projection on the sphere of a rectangular strip of size s0 10 x 14  ie the area 
+            1 
+1sin sin           2  
+ sin cos
+21 21 
+The general solution of the free-diffusion equation is 
+sum The initial condition is given by the experimental procedure and therefore corresponds 
+activated  through  controlled  photoswitching  The  above  solution  integrated  over  the 
+experimental detection area is proportional to the recorded red light intensity coming from 
+that area As dictated by the experimental protocol this area is taken either within or opposite 
+to the photoswitched area The diffusion coefficient and proportionality constant converting 
+the integrated density of receptors into their red luminosity were fitted using minimization of 
+2 quality-of-fit function 
+In  the  presence  of  a  target  cell  imaging  data  show  an  accumulation  of  receptors  at  the 
+synaptic attachment with the target cell ruling out that free diffusion is taking place inside 
+the synapse We therefore resort to numerical modeling adding to free diffusion inside the 
+synapse the binding and unbinding process of KIR2DL1 receptors to ligands on the target cell 
+and either of the two following conditions i recruitment of KIR2DL1 receptors modeled 
+with an attractive force which traps the receptors in the synapse or ii a slower diffusion 
+coefficient  due  to  trafficking  occurring  only  inside  the  synapse  effectively  trapping  the 
+receptors therein  
+Both models include free diffusion outside the synapse ie Eq 1 Inside the synapse model 
+i is mathematically described by the following equations 
+  
 
-3n  1
-Hypertags are always inserted in pairs so that clo-
-sure is enforced There were arbitrary limits of a
-The grammatic framework alone does not
-duce the number of candidate strings suciently
-for the subject detection stage
-This problem
-is addressed further by a method suggested by
-Barton Berwick and Ristad 1987 that local con-
-straints can rein in the generation of an intractable
-number of possibilities In our system the local con-
-straints are prohibited tag pairs and triples These
-are adjacent tags which are not allowed such as de-
-terminer - verb or start of subject - verb If dur-
-ing the generation of a candidate string a prohibited
-INPUT  SENTENCE
-generate input 1
-mode 1 tags
-       find subject
-neural network 1
-tag  sentence
-generate input 2
-from  subject
-mode 2 tags
-with number
-process
-data store
-neural network
-find head of subject
-neural network 2
-HEAD  OF  SUBJECT
-SUBJECT
-Figure 2 Overview of the syntactic pattern recognition process
-tuple is encountered then the process is aborted
-There are about 100 prohibited pairs and 120 triples
-By using these methods the number of candidate
-strings is drastically reduced For the technical man-
-uals an average of 4 strings seldom more than 15
-strings are left Around 25 of sentences are left
-with a single string These lters or rules dier
-fundamentally from generative rules that produce
-allowable strings in a language In those cases only
-productions that are explicitly admitted are allowed
-Here in contrast anything that is not expressly pro-
-hibited is allowed At this stage the data is ready to
-present to the neural net Figure 2 gives an overview
-of the whole process
-5 Language representation II
-Dierent network architectures have been investi-
-gated but they all share the same input and output
-representation The output from the net is a vector
-whose 2 elements or nodes represent correct and
-incorrect yes and no - see Figure 3 The in-
-put to the net is derived from the candidate strings
-the sequences of tags and hypertags These must
-be converted to binary vectors Each element of the
-vector will represent a feature that is agged 0 or 1
-absent or present
-Though the form in which the vector is written
-may give an illusion of representing order no sequen-
-tial order is maintained A method of representing
-a sequence must be chosen The sequential order of
-the input is captured here partially by taking adja-
-cent tags pairs and triples as the feature elements
-The individual tags are converted to a bipos and
-tripos representation Using this method each tag
-is in 3 tripos and 2 bipos elements This highly re-
-dundant code will aid the processing of sparse data
-typical of natural language
-For most of the work described here the sentence
-was dynamically truncated 2 words beyond the hy-
-pertag marking the close of the subject This process
-has now been improved by going further along the
-sentence
-6 The function of the net
-The net that gave best results was a simple single
-layer net Figure 3 derived from the Hodyne net of
-Wyard and Nightingale 1990 This is convention-
-ally a single layer net since there is one layer of
-processing nodes Multi-layer networks which can
-process linearly inseparable data were also investi-
-gated but are not necessary for this particular pro-
-cessing task The linear separability of data is re-
-lated to its order and this system uses higher order
-pairs and triples as input The question of appropri-
-ate network architecture is examined in Pao 1989
-Widrow and Lehr 1992 and Lyon 1994
-output   nodes
-weighted links
-input nodes
-nounverbnoun
-adjnoun
-   det
-  prep
-   represents the start of the subject  The node   cid10determiner   would occur
-often in both correct and incorrect strings  The node  cid10preposition would not
-occur in a correct string so it is not connected to the  yescid10output node 
- represents summing function
-Figure 3 The single layer net showing the feed forward process
-The training process
-The net is presented with training strings whose de-
-sired classication has been manually marked The
-weights on the connections between input and out-
-put nodes are adjusted until a required level of per-
-formance is reached Then the weights are xed
-and the trained net is ready to classify unseen sen-
-tences The prototype accessible via the Internet has
-been trained on sentences from the technical manu-
-als slightly augmented
-Initially the weighted links are disabled When a
-string is presented to the network in training mode
-it activates a set of input nodes If an input node is
-not already linked to the output node representing
-the desired response it will be connected and the
-weight on the connection will be initialised to 10
-Most input nodes are connected to both outputs
-since most tuples occur in both grammatical and
-ungrammatical strings However some will only be
-connected to one output - see Figure 3
-The input layer potentially has a node for each
-possible tuple With 28 tags 2 hypertags and a
-start symbol the upper bound on the number of in-
-put nodes is 313  312 In practice the maximum ac-
-tivated is currently about 1000 In testing mode if
-a previously unseen tuple appears it makes zero con-
-tribution to the result The activations at the input
-layer are fed forward through the weighted connec-
-tions to the output nodes where they are summed
-The highest output marks the winning node If the
-desired node wins then no action is taken If the
-desired node does not win then the weight on con-
-nections to the desired node are incremented while
-the weights on connections to the unwanted node are
-decremented
-This algorithm diers from some commonly used
-methods
-In feed forward networks trained in su-
-pervised mode to perform a classication task dif-
-ferent penalty measures can be used to trigger a
-weight update Back propagation and some single
-layer training methods typically minimise a metric
-based on the least squared error LSE between de-
-sired and actual activation of the output nodes The
-reason why a dierentiable error measure of this sort
-is necessary for multi-layer nets is well documented
-for example see Rumelhart and McClelland 1986
-However for single layer nets we can choose to up-
-date weights directly the error at an output node
-can trigger weight updates on the connections that
-feed it Solutions with LSE are not necessarily the
-same as minimising the number of misclassications
-and for certain types of data this second method
-of direct training may be appropriate Now in the
-natural language domain it is desirable to get infor-
-mation from infrequent as well as common events
-Rare events rather than being noise can make a
-useful contribution to a classication task We need
-a method that captures information from infrequent
-events and adopt a direct measure of misclassi-
-cation This may be better suited to data with a
-Zipan distribution Shannon 1951
-The update factor is chosen to meet several re-
-quirements
-It should always be positive and
-asymptotic to maximum and minimum bounds The
-factor should be greatest in the central region least
-as it moves away in either direction We are cur-
-rently still using the original Hodyne function be-
-cause it works well in practice The update factor is
-given in the following formula If  1 for strength-
-ening weights and   -1 for weakening them then
-nient is whether or not the subject and head mark-
-ers are placed correctly - the type of measure used in
-the IBMLancaster work Black Garside and Leech
-1993 Since we are working towards a hierarchical
-language structure we may want the words within
-constituents correctly tagged ready for the next
-stage of processing correct- A also requires that
-the words within the subject are correctly tagged
-The results in Tables 2 and 3 give an indication of
-performance levels
-wnew  cid201 
-  wold
-1    wold4cid21 wold
-Recall that weights are initialised to 10 After train-
-ing we nd that the weight range is bounded by
-103  w  50
-Total time for training is measured in seconds The
-number of iterative cycles that are necessary de-
-pends on the threshold chosen for the trained net
-to cross and on details of the vector representa-
-tion The demonstration prototype takes about 15
-seconds With the most recent improved represen-
-tation about 1000 strings can be trained in 1 sec-
-ond to 97 The results from using these nets are
-given in Table 3
-It was found that triples alone
-gave as good results as pairs and triples together
-And though the nets easily train to 99 correct the
-lower threshold gives slightly better generalisation
-and thus gives better results on the test data
-The testing process
-When the trained net is run on unseen data the
-weights on the links are xed Any link that is still
-disabled is activated and initialised to 0 so that tu-
-ples which have not occurred in the training corpus
-make no contribution to the classication task Sen-
-tences are put through the pre-processer one at a
-time and the candidate strings which are generated
-are then presented to the network The output is
-now interpreted dierently The dierence between
-the yes and no activation levels is recorded for
-each string and this score is considered a measure
-of grammaticality  The string with the highest 
-score is taken as the correct one
-For the results given below the networks were
-trained on part of the corpus and tested on another
-part of the corpus For the prototype in which users
-can process their own text the net was trained on
-the whole corpus slightly augmented
-7 Results
-There are several measures of correctness that can
-be taken when results are evaluated The most le-
-8 Using negative information
-When parses are postulated for a sentence nega-
-tive as well as positive examples are likely to oc-
-cur Now in natural language negative correlations
-are an important source of information the occur-
-rence of some words or groups of words inhibit oth-
-ers from following We wish to exploit these con-
-straints Brill et al
-1990 recognised this and in-
-troduced the idea of distituents These are elements
-of a sentence that should be separated as opposed
-to elements of constituents that cling together Brill
-addresses the problem of nding a valid metric for
-distituency by using a generalized mutual informa-
-tion statistic Distituency is marked by a mutual
-information minima His method is supported by a
-small 4 rule grammar
-However this approach does not fully capture the
-sense in which inhibitory factors play a negative and
-not just a neutral role We want to distinguish be-
-tween items that are unlikely to occur ever and
-those that have just not happened to turn up in the
-training data For example in sentence 3 above
-strings 31 32 and 3n can never be correct These
-should be distinguished from possibly correct parses
-that are not in the training data In order that im-
-probabilities can be modelled by inhibitory connec-
-tions Niles and Silverman 1990 show how a Hid-
-den Markov Model can be implemented by a neural
-network
-The theoretical ground for incorporating nega-
-tive examples in a language learning process orig-
-inates with the work of Gold 1967 developed by
-Angluin 1980 He examined the process of learning
-the grammar of a formal language from examples
-He showed that for languages at least as high in the
-Chomsky hierarchy as CFGs inference from posi-
-tive data alone is strictly less powerful than inference
-from both positive and negative data together To
-illustrate this informally consider a case of inference
-from a number of examples as they are presented to
-the inference machine possible grammars are postu-
-lated However with positive data alone a problem
-of over generalization arises the postulated gram-
-no of
- sents with
-training sents
-test sents
-subject
- sents
-correct
- sents with
-subject and head
-measure A
-Table 2 Performance on text from Perkins manuals after 6 sentences have been excluded
- sents with
-training sents
-test sents
-subject
- sents
-correct
-measure A
- sents with
-subject and head
-Table 3 Performance on text from Perkins manuals using improved representation and larger training set
-after 2 sentences have been excluded
-mar may be a superset of the real grammar and sen-
-tences that are outside the real grammar could be
-accepted If both positive and negative data is used
-counter examples will reduce the postulated gram-
-mar so that it is nearer the real grammar Gold de-
-veloped his theory for formal languages it is argued
-that similar considerations apply here A grammar
-may be inferred from positive examples alone for cer-
-tain subsets of regular languages Garcia and Vidal
-1990 or an inference process may degenerate into
-a look up procedure if every possible positive exam-
-ple is stored In these cases negative information is
-not required but they are not plausible models for
-unbounded natural language In our method the re-
-quired parse is found by inferring the grammar from
-both positive and negative information which is ef-
-fectively modelled by the neural net Future work
-will investigate the eect of training the networks
-on the positive examples alone With our current
-size corpus there is not enough data
-Relationship between the neural net and
-prohibition table
-The relationship between the neural net and the
-rules in the prohibition table should be seen in the
-following way Any single rule prohibiting a tuple of
-adjacent tags could be omitted and the neural net-
-work would handle it by linking the node represent-
-ing that tuple to no only However for some pro-
-cessing steps we need to reduce the number of candi-
-date tag strings presented to the neural network to
-manageable proportions see Section 4 The data
-must be pre-processed by ltering through the pro-
-hibition rule constraints If the number of candidate
-strings is within desirable bounds such as for the
-head detection task no rules are used Our system
-is data driven as far as possible the rules are in-
-voked if they are needed to make the problem com-
-putationally tractable
-9 Conclusion
-Our working prototype indicates that the methods
-described here are worth developing and that con-
-nectionist methods can be used to generalise from
-the training corpus to unseen text Since data can
-be represented as higher order tuples single layer
-networks can be used The traditional problems of
-training times do not arise We have also used multi-
-layer nets on this data they have no advantages and
-perform slightly less well Lyon 1994
-The supporting role of the grammatic framework
-and the prohibition lters should not be underes-
-timated Whenever the scope of the system is ex-
-tended it has been found necessary to enhance these
-elements
-The most laborious part of this work is preparing
-the training data Each time the representation is
-modied a new set of strings is generated that need
-marking up An autodidactic check is now included
-which speeds up this task We run marked up train-
-ing data through an early version of the network
-trained on the same data so the results should be
-almost all correct If an incorrect parse occurs we
-can then check whether that sentence was properly
-marked up
-Some of the features of the system described here
-could be used in a stochastic process However con-
-nectionist methods have low computational loads at
-runtime Moreover they can utilise more of the im-
-plicit information in the training data by modelling
-negative relationships This is a powerful concept
-that can be exploited in the eort to squeeze out ev-
-ery available piece of useful information for natural
-language processing
-Future work is planned to extend this very limited
-partial parser and decompose sentences further into
-their hierarchical constituent parts In order to do
-this a number of subsidiary tasks will be addressed
-The system is being improved by identifying groups
-of words that act as single lexical items The decom-
-position of the problem can be investigated further
-for instance should the tag disambiguation task pre-
-cede the placement of the subject boundary mark-
-ers in a separate step More detailed investigation
-of language representation issues will be undertaken
-And the critical issues of investigating the most ap-
-propriate network architectures will be carried on
-References
-Angluin1980 D Angluin 1980 Inductive inference
-of formal languages from positive data Informa-
-tion and Control 45
-Atwell1987 E Atwell 1987 Constituent-likelihood
-grammar In R Garside G Leech and G Samp-
-son editors The Computational Analysis of En-
-glish a corpus-based approach Longman
-Barton Berwick and Ristad1987 G E Barton R C
-Berwick and E S Ristad 1987 Computational
-Complexity and Natural Language MIT Press
-Black Garside and Leech1993 E Black R Garside
-1993 Statistically driven com-
-the IBMLancaster
-and G Leech
-puter grammars of English
-approach Rodopi
-Brill et al 1990 E Brill D Magerman M Marcus
-and B Santorini 1990 Deducing linguistic struc-
-ture from the statistics of
-DARPA Speech and Natural Language Workshop
-large corpora
-Church1989 K W Church Bell Laboratories 1989
-A stochastic parts program and noun phrase
-parser for unrestricted text In IEEE conference
-record of ICASSP
-Garcia and Vidal1990 P Garcia and E Vidal 1990
-Inference of k-testable languages in the strict sense
-and application to syntactic pattern recognition
-IEEE Trans on Pattern Analysis and Machine
-Intelligence 12
-Garside1987 R Garside 1987 The CLAWS word-
-tagging system
-In R Garside G Leech and
-G Sampson editors The Computational Analysis
-of English a corpus based approach Longman
-Gold1967 E M Gold 1967 Language identication
-in the limit Information and Control 10
-Lyon1994 C Lyon 1994 The representation of nat-
-ural language to enable neural networks to detect
-syntactic features PhD thesis
-Lyon1993 C Lyon 1993 Using neural networks to
-infer grammatical structures in natural language
-In Proc of IEE Colloquium on Grammatical In-
-ference
-Lyon and Frank1992 C Lyon and R Frank 1992
-language using
-Detecting structures in natural
-a neural net with rules
-In Proc of Interna-
-tional Conference on Articial Neural Networks
-ICANN
-Niles and Silverman1990 L Niles and H Silverman
-1990 Combining Hidden Markov Models and
-Neural Network Classiers
-In IEEE conference
-record of ICASSP
-Pao1989 Yoh-Han Pao
-1989 Adaptive Pattern
-Recognition and Neural Networks Addison Wes-
-Pocock and Atwell1994 R Pocock and E Atwell
-1994 Treebank trained probabilistic parsing of
-lattices
-School of Computer Studies Leeds
-University In The Speech-Oriented Probabilistic
-Parser Project Final Report to MoD
-Pym1993 P Pym 1993 Perkins Engines and Pub-
-lications In Proceedings of Technology and Lan-
-guage in Europe 2000 DGXIII-E of the European
-Commission
-Rumelhart and McClelland1986 D Rumelhart and
-J McClelland 1986 Parallel Distributed Process-
-ing MIT
-Shannon1951 C E Shannon 1951 Prediction and
-Entropy of Printed English In Bell System Tech-
-nical Journal
-Widrow and Lehr1992 B Widrow and M Lehr
-30 years of adaptive neural networks
-theoretical foundations and
-In Neural networks
-analysis edited by C Lau IEEE press
-Wyard and Nightingale1990 P
-C Nightingale
-1990 A Single Layer Higher
-Order Neural Net and its Application to Con-
-text Free Grammar Recognition In Connection
-Science 4
-A fast partial parse of natural language sentences
-using a connectionist method
-Caroline Lyon
-Bob Dickerson
-Division of Computer Science
-Division of Computer Science
-University of Hertfordshire
-University of Hertfordshire
-Hateld AL10 9AB UK
-comrcmlhertsacuk
-Hateld AL10 9AB UK
-comqrgdhertsacuk
-Abstract
-The pattern matching capabilities of neu-
-ral networks can be used to locate syntac-
-tic constituents of natural language This
-paper describes a fully automated hybrid
-system using neural nets operating within
-a grammatic framework It addresses the
-representation of language for connection-
-ist processing and describes methods of
-constraining the problem size The func-
-tion of the network is briey explained and
-results are given
-1 Introduction
-The pattern matching capabilities of neural net-
-works can be used to detect syntactic constituents
-of natural language This approach bears compari-
-son with probabilistic systems but has the advan-
-tage that negative as well as positive information
-can be modelled Also most computation is done
-in advance when the nets are trained so the run
-time computational load is low In this work neu-
-ral networks are used as part of a fully automated
-system that nds a partial parse of declarative sen-
-tences The connectionist processors operate within
-a grammatic framework and are supported by pre-
-processors that lter the data and reduce the prob-
-lem to a computationally tractable size A prototype
-can be accessed via the Internet on which users can
-try their own text details from the authors It will
-take a sentence locate the subject and then nd
-the head of the subject Typically 10 sentences take
-about 2 seconds 50 sentences about 4 seconds to
-process on a Sparc10 workstation Using the proto-
-type on technical manuals the subject and its head
-can be detected in over 90 of cases See Section 7
-The well known complexity of parsing is addressed
-by decomposing the problem and then locating one
-syntactic constituent at a time The sentence is rst
-decomposed into the broad syntactic categories
-pre-subject - subject - predicate
-by locating the subject Then these constituents can
-be processed further The underlying principle em-
-ployed at each step is to take a sentence or part
-of a sentence and generate strings with the bound-
-ary markers of the syntactic constituent in question
-placed in all possible positions Then a neural net
-selects the string with the correct placement
-This paper gives an overview of how natural lan-
-guage is converted to a representation that the neu-
-ral nets can handle and how the problem is re-
-duced to a manageable size
-It then outlines the
-neural net selection process A comprehensive ac-
-count is given in Lyon 1994 descriptions of the
-neural net process are also in Lyon 1993 and
-Lyon and Frank 1992 This is a hybrid system
-The core process is data driven as the parameters of
-the neural networks are derived from training text
-The neural net is trained in supervised mode on ex-
-amples that have been manually marked correct
-and incorrect
-It will then be able to classify
-unseen examples However the initial processing
-stages in which the problem size is constrained op-
-erate within a skeletal grammatic framework Com-
-putational tractability is further addressed by reduc-
-ing data through the application of prohibitive rules
-as local constraints The pruning process is remark-
-ably eective
-2 The corpus of sentences from
-technical manuals
-This work has principally been developed on text
-of technical manuals from Perkins Engines Ltd
-which have been translated by a semi-automatic pro-
-cess Pym 1993 Now a partial parse can support
-such a process For instance frequently occurring
-modal verbs such as must are not distinguished
-Number of
-occurrences
-2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-11 12 13 14 15 16
-Number of words before the subject
-Number of words in the subject
-Figure 1 The frequency of constituent length for pre-subject and subject in 351 sentences
-by number in English but they are in many other
-languages It is necessary to locate the subject then
-identify the head and determine its number in order
-to translate the main verb correctly in sentences like
-1 below
-If a cooler is tted to the gearbox  the pipe 
-connections  of the cooler  must be regularly
-checked for corrosion
-This parser has been trained to nd the syntactic
-subject head that agrees in number with the main
-verb The manuals are written using the PACE
-Perkins Approved Clear English guidelines with
-the aim of producing clear unambiguous texts All
-declarative sentences have been extracted for pro-
-cessing about half were imperatives This level of
-classication can be done automatically in future
-Table 1 and Figure 1 show some of the characteris-
-tics of the corpus
-Number of sentences
-Average length
-No of subordinate clauses
-In pre-subject
-In subject
-In predicate
-Co-ordinated clauses
-1798 words
-Punctuation marks are counted as words formulae as 1
-Table 1 Corpus statistics
-3 Language representation I
-In order to reconcile computational feasibility to em-
-pirical realism an appropriate form of language rep-
-resentation is critical The rst step in constraining
-the problem size is to partition an unlimited vocabu-
-lary into a restricted number of part-of-speech tags
-Dierent stages of processing place dierent require-
-ments on the classication system so customised
-tagsets have been developed For the rst processing
-stage we need to place the subject markers and as
-a further task disambiguate tags It was not found
-necessary to use number information at this stage
-For example consider the sentence
-Still waters run deep
-The word waters could be a 3rd person singular
-present verb or a plural noun However in order to
-disambiguate the tag and place the subject markers
-it is only necessary to know that it is a noun or else a
-verb The sentence parsed at the rst level returns
- Still waters  run deep
-The tagset used at this stage mode 1 has 21 classes
-not distinguished for number However the head
-of the subject is then found and number agreement
-with the verb can be assessed At this stage the
-tagset mode 2 includes number information and
-has 28 classes Devising optimal tagsets for given
-tasks is a eld in which further work is planned
-We need larger tagsets to capture more linguistic
-information but smaller ones to constrain the com-
-putational load Information theoretic tools can be
-used to nd the entropy of dierent tag sequence
-languages and support decisions on representation
-A functional approach is taken to tagging words
-are allocated to classes depending on their syntactic
-role For instance superlative adjectives can act as
-nouns so they are initially given the 2 tags noun
-or adjective This approach can be extended by tak-
-ing adjacent words which act jointly as single lexical
-items as a unit Thus the pair most adjective
-is taken as a single superlative adjective
-Text is automatically tagged using the rst mod-
-ules of the CLAWS program 1985 version in which
-words are allocated one or more tags from 134 classes
-Garside 1987 These 134 tags are then mapped
-onto the small customised tagsets Tag disambigua-
-tion is part of the parsing task handled by the neural
-net and its pre-processor This version of CLAWS
-has a dictionary of about 6300 words only Other
-words are tagged using sux information or else de-
-faults are invoked The correct tag is almost always
-included in the set allocated but more tags than
-necessary are often proposed A larger dictionary in
-later versions will address this problem
-Representing syntactic boundary markers
-In the same way that tags are allocated to words
-or to punctuation marks they can represent the
-boundaries of syntactic constituents such as noun
-phrases and verb phrases Boundary markers can
-be considered invisible tags or hypertags which
-have probabilistic relationships with adjacent tags
-in the same way that words do Atwell 1987 and
-Church 1989 have used this approach
-bedded syntactic constituents are sought in a sin-
-gle pass this can lead to computational overload
-Pocock and Atwell 1994 Our approach uses a
-similar concept but diers in that embedded syntac-
-tic constituents are detected one at a time in sepa-
-rate steps There are only 2 hypertags - the opening
-and closing brackets marking the possible locations
-of the syntactic constituent in question Using this
-representation a hierarchical language structure is
-converted to a string of tags represented by a linear
-vector
-4 Constraining the generation of
-candidate strings
-This system generates sets of tag strings for each
-sentence with the hypertags placed in all possible
-positions Thus for the subject detection task
-Then the performance of the pump must be mon-
-itored
-maximum of 10 words in the pre-subject and 10
-words within the subject for the initial work de-
-scribed here These are now extended to 15 words
-in the pre-subject 12 in the subject - see Section
-7 There must be at least one word beyond the end
-of the subject and before the end-of-sentence mark
-Therefore using the initial restrictions in a sentence
-of 22 words or more counting punctuation marks as
-words there could be 100 alternative placements
-However some words will have more than one pos-
-sible tag For instance in sentence 1 above 5 words
-have 2 alternative tags which will generate 25 pos-
-sible strings before the hypertags are inserted Since
-there are 22 words including punctuation  the to-
-tal number of strings would be 25
- 100  3200 It
-is not feasible to detect one string out of this num-
-ber if the classier marked all strings incorrect the
-percentage wrongly classied would only be 003
-yet it would be quite useless In order to nd the
-correct string most of the outside candidates must
-be dropped
-The skeletal grammatic framework
-A minimal grammar set out in Lyon 1994 in
-EBNF form is composed of 9 rules For instance
-the subject must contain a noun-type word Apply-
-ing this particular rule to sentence 3 above would
-eliminate candidate strings 31 and 32 We also
-have the 2 arbitrary limits on length of pre-subject
-and subject There is a small set of 4 extensions
-to the grammar or semi-local constraints For in-
-stance if a relative pronoun occurs then a verb must
-follow in that constituent On the technical manuals
-the constraints of the grammatic framework put up
-to 6 of declarative sentences outside our system
-most commonly because the pre-subject is too long
-A small number are excluded because the system
-cannot handle a co-ordinated head With the length
-of pre-subject extended to 15 words and subject to
-12 words an average of 2 are excluded 7 out of
-will generate strings of tags including
-Prohibition tables
- Then  the performance of the pump must be
-monitored
- Then the  performance of the pump must be
-monitored
+  
+ F                                                                          4 
 
-Then  the performance of the  pump must be
-monitored
-Then  the performance of the pump  must be
-monitored
+                             4 
+with F the force field in the synapse of strength KS  the density of ligand on the 
+target  cell  and      the  total  density  of  receptors  in 
+the synapse given by the sum of those bound to the target cell pb and those unbound pu Eqs 
+4 are of reaction-diffusion type with a force field and can be interpreted as a Fokker-Planck 
+equation 16 with the addition of the terms carrying the parameters kb  and ku which describe 
+the binding and unbinding of receptors to ligand on the target cell inside the synapse Setting 
+KS0  in  Eqs  4  amounts  to  having  only  uniform  diffusion  of  receptors  with  binding  and 
+unbinding to ligand inside the synapse 
+In contrast model ii describes the receptor dynamics inside the synapse as follows 
+     5  
+                                             5 
 
-3n  1
-Hypertags are always inserted in pairs so that clo-
-sure is enforced There were arbitrary limits of a
-The grammatic framework alone does not
-duce the number of candidate strings suciently
-for the subject detection stage
-This problem
-is addressed further by a method suggested by
-Barton Berwick and Ristad 1987 that local con-
-straints can rein in the generation of an intractable
-number of possibilities In our system the local con-
-straints are prohibited tag pairs and triples These
-are adjacent tags which are not allowed such as de-
-terminer - verb or start of subject - verb If dur-
-ing the generation of a candidate string a prohibited
-INPUT  SENTENCE
-generate input 1
-mode 1 tags
-       find subject
-neural network 1
-tag  sentence
-generate input 2
-from  subject
-mode 2 tags
-with number
-process
-data store
-neural network
-find head of subject
-neural network 2
-HEAD  OF  SUBJECT
-SUBJECT
-Figure 2 Overview of the syntactic pattern recognition process
-tuple is encountered then the process is aborted
-There are about 100 prohibited pairs and 120 triples
-By using these methods the number of candidate
-strings is drastically reduced For the technical man-
-uals an average of 4 strings seldom more than 15
-strings are left Around 25 of sentences are left
-with a single string These lters or rules dier
-fundamentally from generative rules that produce
-allowable strings in a language In those cases only
-productions that are explicitly admitted are allowed
-Here in contrast anything that is not expressly pro-
-hibited is allowed At this stage the data is ready to
-present to the neural net Figure 2 gives an overview
-of the whole process
-5 Language representation II
-Dierent network architectures have been investi-
-gated but they all share the same input and output
-representation The output from the net is a vector
-whose 2 elements or nodes represent correct and
-incorrect yes and no - see Figure 3 The in-
-put to the net is derived from the candidate strings
-the sequences of tags and hypertags These must
-be converted to binary vectors Each element of the
-vector will represent a feature that is agged 0 or 1
-absent or present
-Though the form in which the vector is written
-may give an illusion of representing order no sequen-
-tial order is maintained A method of representing
-a sequence must be chosen The sequential order of
-the input is captured here partially by taking adja-
-cent tags pairs and triples as the feature elements
-The individual tags are converted to a bipos and
-tripos representation Using this method each tag
-is in 3 tripos and 2 bipos elements This highly re-
-dundant code will aid the processing of sparse data
-typical of natural language
-For most of the work described here the sentence
-was dynamically truncated 2 words beyond the hy-
-pertag marking the close of the subject This process
-has now been improved by going further along the
-sentence
-6 The function of the net
-The net that gave best results was a simple single
-layer net Figure 3 derived from the Hodyne net of
-Wyard and Nightingale 1990 This is convention-
-ally a single layer net since there is one layer of
-processing nodes Multi-layer networks which can
-process linearly inseparable data were also investi-
-gated but are not necessary for this particular pro-
-cessing task The linear separability of data is re-
-lated to its order and this system uses higher order
-pairs and triples as input The question of appropri-
-ate network architecture is examined in Pao 1989
-Widrow and Lehr 1992 and Lyon 1994
-output   nodes
-weighted links
-input nodes
-nounverbnoun
-adjnoun
-   det
-  prep
-   represents the start of the subject  The node   cid10determiner   would occur
-often in both correct and incorrect strings  The node  cid10preposition would not
-occur in a correct string so it is not connected to the  yescid10output node 
- represents summing function
-Figure 3 The single layer net showing the feed forward process
-The training process
-The net is presented with training strings whose de-
-sired classication has been manually marked The
-weights on the connections between input and out-
-put nodes are adjusted until a required level of per-
-formance is reached Then the weights are xed
-and the trained net is ready to classify unseen sen-
-tences The prototype accessible via the Internet has
-been trained on sentences from the technical manu-
-als slightly augmented
-Initially the weighted links are disabled When a
-string is presented to the network in training mode
-it activates a set of input nodes If an input node is
-not already linked to the output node representing
-the desired response it will be connected and the
-weight on the connection will be initialised to 10
-Most input nodes are connected to both outputs
-since most tuples occur in both grammatical and
-ungrammatical strings However some will only be
-connected to one output - see Figure 3
-The input layer potentially has a node for each
-possible tuple With 28 tags 2 hypertags and a
-start symbol the upper bound on the number of in-
-put nodes is 313  312 In practice the maximum ac-
-tivated is currently about 1000 In testing mode if
-a previously unseen tuple appears it makes zero con-
-tribution to the result The activations at the input
-layer are fed forward through the weighted connec-
-tions to the output nodes where they are summed
-The highest output marks the winning node If the
-desired node wins then no action is taken If the
-desired node does not win then the weight on con-
-nections to the desired node are incremented while
-the weights on connections to the unwanted node are
-decremented
-This algorithm diers from some commonly used
-methods
-In feed forward networks trained in su-
-pervised mode to perform a classication task dif-
-ferent penalty measures can be used to trigger a
-weight update Back propagation and some single
-layer training methods typically minimise a metric
-based on the least squared error LSE between de-
-sired and actual activation of the output nodes The
-reason why a dierentiable error measure of this sort
-is necessary for multi-layer nets is well documented
-for example see Rumelhart and McClelland 1986
-However for single layer nets we can choose to up-
-date weights directly the error at an output node
-can trigger weight updates on the connections that
-feed it Solutions with LSE are not necessarily the
-same as minimising the number of misclassications
-and for certain types of data this second method
-of direct training may be appropriate Now in the
-natural language domain it is desirable to get infor-
-mation from infrequent as well as common events
-Rare events rather than being noise can make a
-useful contribution to a classication task We need
-a method that captures information from infrequent
-events and adopt a direct measure of misclassi-
-cation This may be better suited to data with a
-Zipan distribution Shannon 1951
-The update factor is chosen to meet several re-
-quirements
-It should always be positive and
-asymptotic to maximum and minimum bounds The
-factor should be greatest in the central region least
-as it moves away in either direction We are cur-
-rently still using the original Hodyne function be-
-cause it works well in practice The update factor is
-given in the following formula If  1 for strength-
-ening weights and   -1 for weakening them then
-nient is whether or not the subject and head mark-
-ers are placed correctly - the type of measure used in
-the IBMLancaster work Black Garside and Leech
-1993 Since we are working towards a hierarchical
-language structure we may want the words within
-constituents correctly tagged ready for the next
-stage of processing correct- A also requires that
-the words within the subject are correctly tagged
-The results in Tables 2 and 3 give an indication of
-performance levels
-wnew  cid201 
-  wold
-1    wold4cid21 wold
-Recall that weights are initialised to 10 After train-
-ing we nd that the weight range is bounded by
-103  w  50
-Total time for training is measured in seconds The
-number of iterative cycles that are necessary de-
-pends on the threshold chosen for the trained net
-to cross and on details of the vector representa-
-tion The demonstration prototype takes about 15
-seconds With the most recent improved represen-
-tation about 1000 strings can be trained in 1 sec-
-ond to 97 The results from using these nets are
-given in Table 3
-It was found that triples alone
-gave as good results as pairs and triples together
-And though the nets easily train to 99 correct the
-lower threshold gives slightly better generalisation
-and thus gives better results on the test data
-The testing process
-When the trained net is run on unseen data the
-weights on the links are xed Any link that is still
-disabled is activated and initialised to 0 so that tu-
-ples which have not occurred in the training corpus
-make no contribution to the classication task Sen-
-tences are put through the pre-processer one at a
-time and the candidate strings which are generated
-are then presented to the network The output is
-now interpreted dierently The dierence between
-the yes and no activation levels is recorded for
-each string and this score is considered a measure
-of grammaticality  The string with the highest 
-score is taken as the correct one
-For the results given below the networks were
-trained on part of the corpus and tested on another
-part of the corpus For the prototype in which users
-can process their own text the net was trained on
-the whole corpus slightly augmented
-7 Results
-There are several measures of correctness that can
-be taken when results are evaluated The most le-
-8 Using negative information
-When parses are postulated for a sentence nega-
-tive as well as positive examples are likely to oc-
-cur Now in natural language negative correlations
-are an important source of information the occur-
-rence of some words or groups of words inhibit oth-
-ers from following We wish to exploit these con-
-straints Brill et al
-1990 recognised this and in-
-troduced the idea of distituents These are elements
-of a sentence that should be separated as opposed
-to elements of constituents that cling together Brill
-addresses the problem of nding a valid metric for
-distituency by using a generalized mutual informa-
-tion statistic Distituency is marked by a mutual
-information minima His method is supported by a
-small 4 rule grammar
-However this approach does not fully capture the
-sense in which inhibitory factors play a negative and
-not just a neutral role We want to distinguish be-
-tween items that are unlikely to occur ever and
-those that have just not happened to turn up in the
-training data For example in sentence 3 above
-strings 31 32 and 3n can never be correct These
-should be distinguished from possibly correct parses
-that are not in the training data In order that im-
-probabilities can be modelled by inhibitory connec-
-tions Niles and Silverman 1990 show how a Hid-
-den Markov Model can be implemented by a neural
-network
-The theoretical ground for incorporating nega-
-tive examples in a language learning process orig-
-inates with the work of Gold 1967 developed by
-Angluin 1980 He examined the process of learning
-the grammar of a formal language from examples
-He showed that for languages at least as high in the
-Chomsky hierarchy as CFGs inference from posi-
-tive data alone is strictly less powerful than inference
-from both positive and negative data together To
-illustrate this informally consider a case of inference
-from a number of examples as they are presented to
-the inference machine possible grammars are postu-
-lated However with positive data alone a problem
-of over generalization arises the postulated gram-
-no of
- sents with
-training sents
-test sents
-subject
- sents
-correct
- sents with
-subject and head
-measure A
-Table 2 Performance on text from Perkins manuals after 6 sentences have been excluded
- sents with
-training sents
-test sents
-subject
- sents
-correct
-measure A
- sents with
-subject and head
-Table 3 Performance on text from Perkins manuals using improved representation and larger training set
-after 2 sentences have been excluded
-mar may be a superset of the real grammar and sen-
-tences that are outside the real grammar could be
-accepted If both positive and negative data is used
-counter examples will reduce the postulated gram-
-mar so that it is nearer the real grammar Gold de-
-veloped his theory for formal languages it is argued
-that similar considerations apply here A grammar
-may be inferred from positive examples alone for cer-
-tain subsets of regular languages Garcia and Vidal
-1990 or an inference process may degenerate into
-a look up procedure if every possible positive exam-
-ple is stored In these cases negative information is
-not required but they are not plausible models for
-unbounded natural language In our method the re-
-quired parse is found by inferring the grammar from
-both positive and negative information which is ef-
-fectively modelled by the neural net Future work
-will investigate the eect of training the networks
-on the positive examples alone With our current
-size corpus there is not enough data
-Relationship between the neural net and
-prohibition table
-The relationship between the neural net and the
-rules in the prohibition table should be seen in the
-following way Any single rule prohibiting a tuple of
-adjacent tags could be omitted and the neural net-
-work would handle it by linking the node represent-
-ing that tuple to no only However for some pro-
-cessing steps we need to reduce the number of candi-
-date tag strings presented to the neural network to
-manageable proportions see Section 4 The data
-must be pre-processed by ltering through the pro-
-hibition rule constraints If the number of candidate
-strings is within desirable bounds such as for the
-head detection task no rules are used Our system
-is data driven as far as possible the rules are in-
-voked if they are needed to make the problem com-
-putationally tractable
-9 Conclusion
-Our working prototype indicates that the methods
-described here are worth developing and that con-
-nectionist methods can be used to generalise from
-the training corpus to unseen text Since data can
-be represented as higher order tuples single layer
-networks can be used The traditional problems of
-training times do not arise We have also used multi-
-layer nets on this data they have no advantages and
-perform slightly less well Lyon 1994
-The supporting role of the grammatic framework
-and the prohibition lters should not be underes-
-timated Whenever the scope of the system is ex-
-tended it has been found necessary to enhance these
-elements
-The most laborious part of this work is preparing
-the training data Each time the representation is
-modied a new set of strings is generated that need
-marking up An autodidactic check is now included
-which speeds up this task We run marked up train-
-ing data through an early version of the network
-trained on the same data so the results should be
-almost all correct If an incorrect parse occurs we
-can then check whether that sentence was properly
-marked up
-Some of the features of the system described here
-could be used in a stochastic process However con-
-nectionist methods have low computational loads at
-runtime Moreover they can utilise more of the im-
-plicit information in the training data by modelling
-negative relationships This is a powerful concept
-that can be exploited in the eort to squeeze out ev-
-ery available piece of useful information for natural
-language processing
-Future work is planned to extend this very limited
-partial parser and decompose sentences further into
-their hierarchical constituent parts In order to do
-this a number of subsidiary tasks will be addressed
-The system is being improved by identifying groups
-of words that act as single lexical items The decom-
-position of the problem can be investigated further
-for instance should the tag disambiguation task pre-
-cede the placement of the subject boundary mark-
-ers in a separate step More detailed investigation
-of language representation issues will be undertaken
-And the critical issues of investigating the most ap-
-propriate network architectures will be carried on
-References
-Angluin1980 D Angluin 1980 Inductive inference
-of formal languages from positive data Informa-
-tion and Control 45
-Atwell1987 E Atwell 1987 Constituent-likelihood
-grammar In R Garside G Leech and G Samp-
-son editors The Computational Analysis of En-
-glish a corpus-based approach Longman
-Barton Berwick and Ristad1987 G E Barton R C
-Berwick and E S Ristad 1987 Computational
-Complexity and Natural Language MIT Press
-Black Garside and Leech1993 E Black R Garside
-1993 Statistically driven com-
-the IBMLancaster
-and G Leech
-puter grammars of English
-approach Rodopi
-Brill et al 1990 E Brill D Magerman M Marcus
-and B Santorini 1990 Deducing linguistic struc-
-ture from the statistics of
-DARPA Speech and Natural Language Workshop
-large corpora
-Church1989 K W Church Bell Laboratories 1989
-A stochastic parts program and noun phrase
-parser for unrestricted text In IEEE conference
-record of ICASSP
-Garcia and Vidal1990 P Garcia and E Vidal 1990
-Inference of k-testable languages in the strict sense
-and application to syntactic pattern recognition
-IEEE Trans on Pattern Analysis and Machine
-Intelligence 12
-Garside1987 R Garside 1987 The CLAWS word-
-tagging system
-In R Garside G Leech and
-G Sampson editors The Computational Analysis
-of English a corpus based approach Longman
-Gold1967 E M Gold 1967 Language identication
-in the limit Information and Control 10
-Lyon1994 C Lyon 1994 The representation of nat-
-ural language to enable neural networks to detect
-syntactic features PhD thesis
-Lyon1993 C Lyon 1993 Using neural networks to
-infer grammatical structures in natural language
-In Proc of IEE Colloquium on Grammatical In-
-ference
-Lyon and Frank1992 C Lyon and R Frank 1992
-language using
-Detecting structures in natural
-a neural net with rules
-In Proc of Interna-
-tional Conference on Articial Neural Networks
-ICANN
-Niles and Silverman1990 L Niles and H Silverman
-1990 Combining Hidden Markov Models and
-Neural Network Classiers
-In IEEE conference
-record of ICASSP
-Pao1989 Yoh-Han Pao
-1989 Adaptive Pattern
-Recognition and Neural Networks Addison Wes-
-Pocock and Atwell1994 R Pocock and E Atwell
-1994 Treebank trained probabilistic parsing of
-lattices
-School of Computer Studies Leeds
-University In The Speech-Oriented Probabilistic
-Parser Project Final Report to MoD
-Pym1993 P Pym 1993 Perkins Engines and Pub-
-lications In Proceedings of Technology and Lan-
-guage in Europe 2000 DGXIII-E of the European
-Commission
-Rumelhart and McClelland1986 D Rumelhart and
-J McClelland 1986 Parallel Distributed Process-
-ing MIT
-Shannon1951 C E Shannon 1951 Prediction and
-Entropy of Printed English In Bell System Tech-
-nical Journal
-Widrow and Lehr1992 B Widrow and M Lehr
-30 years of adaptive neural networks
-theoretical foundations and
-In Neural networks
-analysis edited by C Lau IEEE press
-Wyard and Nightingale1990 P
-C Nightingale
-1990 A Single Layer Higher
-Order Neural Net and its Application to Con-
-text Free Grammar Recognition In Connection
-Science 4
+
+with DS  D setting slow diffusion inside the synapse Notice that according to both models 
+only unbound receptors can diffuse inside the synapse while bound receptors are immobile 
+no diffusive term in Eqs 4b and 5b For the binding and unbinding rates kb  and ku we adopt 
+throughout the paper the values 2x105 M-1s-1 and 2 s-1 as derived from experiments 17 18 
+We  numerically  integrated  the  above  equations  on  a  planar  grid  with  periodic  boundary 
+conditions using once more a small area of size s0 either opposite to the synapse or within the 
+synapse The models were subsequently fitted to the fluorescence data from the experiments 
+The  fitting  parameters  were  the  diffusion  coefficient  and  the  force  parameter  for  the  force 
+model  and  the  two  diffusion  coefficients  inside  and  outside  the  synapse  for  the  slow 
+diffusion model An overall rescaling parameter was also used to account for the conversion 
+of the integrated receptor density provided by the models into light intensity  This rescaling 
+parameter  was  chosen  differently  for  the  conversion  at  the  synapse  and  the  conversion 
+opposite  to  the  synapse  since  the  presence  of  the  target  cell  at  the  synapse  is  expected  to 
+affect the transmitted fluorescence 
+  
+Results 
+Mobility of KIR2DL1 in unconjugated NK cells 
+To  investigate  the  membrane  dynamics  of  the  inhibitory  receptor  KIR2DL1  the  immortal 
+NK cell line YTS was transfected to express KIR2DL1 fused to the photoswitchable protein 
+tdEosFP A stable cell line expressing KIR2DL1-tdEosFP was established as demonstrated 
+by flow cytometry and confocal microscopy and the functionality of the construct in these 
+cells was tested in cytotoxicity assays 14 The photoswitchable fluorescent protein tdEosFP 
+is  capable  of  an  irreversible  photoconversion  from  green  fluorescence  to  red  fluorescence 
+upon near-UV irradiation at 390 nm 1921 With the development of such proteins it has 
+become possible to selectively photoactivate fluorescent molecules in specific regions of the 
+cell  membrane  by  locally  irradiating  these  regions  with  a  short  pulse  of  near-UV  light  as 
+demonstrated here in Fig 1  
+To  investigate  the  diffusion  of  KIR2DL1  in  the  membrane  of  unconjugated  NK  cells 
+YTSKIR2DL1-tdEosFP cells were imaged by confocal microscopy in the absence of target 
+cells  A  small  portion  of  the  membrane  was  selected  and  tdEosFP  molecules  were 
+photoconverted  from  green  to  red  fluorescence  within  this  region  by  illumination  with  the 
+UV laser Each cell was imaged for 20 minutes after photoswitching to follow the movement 
+of the KIR2DL1-tdEosFP fusion protein in the membrane of the cell during which time the 
+red fluorescence was seen to diffuse around the cell until it was uniformly distributed in the 
+cell membrane Fig 2A For each cell the fluorescence both at the site of photoswitching 
+and in the region opposite the site of photoswitching was quantified analyzed and modeled 
+Fig 2B C  D An exponential decrease in the amount of red fluorescence at the site of 
+photoswitching  was  observed  coupled  with  a  gradual  increase  of  red  fluorescence  in  the 
+region opposite the site of photoswitching Fig 2D Importantly the red fluorescence within 
+the  cell  membrane  appears  to  reach  equilibrium  in  the  two  sites  of  measurement  as 
+demonstrated by the two curves meeting on the graph after approximately 1000 seconds 16-
+17 minutes  
+variances the diffusion coefficient of KIR2DL1 was found to be   023  006 m2s-1 Fig 
+By  fitting  the  free  diffusion  model  in  Eq  3  to  the  mean  intensity  data  obtained  from 
+experiments  on  n    10  cells  with  deviations  weighted  by  the  inverse  of  the  experimental 
+2C    D  The  coefficient  of  determination R2  which  quantifies  the  goodness  of  fit  of  a 
+predictive model had a value of 090 indicating that the experimental data and the model 
+simulations  were  highly  correlated  It  is  important  to  note  that  due  to  cells  rarely  being 
+perfect  spheres  and  ruffling  of  the  plasma  membrane  our  diffusion  constants  may 
+underestimate the values of real diffusion coefficients Figure 2E shows the distribution of 
+values for the diffusion coefficients obtained by fitting each cell individually see also Fig S2 
+in the Supporting Material The average Dav of the values from individual fits coincides with 
+the  value  obtained  by  fitting  the  mean  curve  Fig  2D  Our  value  of  the  diffusion 
+coefficient  for  KIR2DL1  is  in  the  same  order  of  magnitude  as  values  obtained  for  other 
+immune membrane receptors using other techniques such as 012  001 m2s-1 for the T cell 
+receptor 22 and 0067 m2s-1 for the inhibitory NK cell receptor CD94NKG2A complex 
+23  
+One caveat of using tdEosFP is that since it is comprised of a dimer it is a relatively large tag 
+approximately twice the size of GFP that could potentially affect the mobility of KIR2DL1 
+at  the  plasma  membrane  Therefore  to  validate  our  experimental  approach  we  performed 
+  
+fluorescence  recovery  after  photobleaching  FRAP  with  a  non-dimerizing  tag  We 
+performed FRAP experiments on unconjugated YTS cells transfected to express KIR2DL1 
+tagged to GFP Using this method we found that the fluorescence recovery curves obtained 
+for KIR2DL1-GFP fit a free diffusion model and the average diffusion coefficient from n  
+11  cells  Dav    022    009  m2s-1  coincided  with  the  coefficient  obtained  for  KIR2DL1-
+tdEosFP Fig S3 in the Supporting Material In future studies an interesting option would 
+be to use the newest version of EosFP mEos2 a monomeric variant that folds efficiently at 
+37C 24 Together these data indicate that in unconjugated NK cells ie in the absence of 
+ligation the KIR2DL1 receptor can diffuse freely within the plasma membrane of the cell at 
+the micrometer-scale imaged by confocal microscopy  
+Continuous recruitment of KIR2DL1 to the immune synapse 
+To study how the dynamics of KIR2DL1 alters during the formation of an immune synapse 
+YTSKIR2DL1-tdEosFP  cells  were  imaged  in  the  presence  of  221Cw4  target  cells  When 
+incubated  together  the  cells  formed  inhibitory  immune  synapses  where  KIR2DL1 
+accumulates  at  the  site  of  contact  between  an  effector  cell  and  a  target  cell  as  previously 
+reported 6 To examine KIR diffusion tdEosFP molecules were photoswitched in the region 
+directly opposite the synapse Fig 3A  B  
+Two alternative mathematical models could be used to describe the recruitment of receptors 
+to the synapse In the first model an elastic potential introduces a force pointing towards the 
+center  of  the  synapse  and  proportional  to  the  distance  from  the  center  which  traps  the 
+receptors within the synapse area Fig 3C top In the second model slow diffusion inside 
+the synapse was assumed due to crowding Fig 3C bottom  
+Interestingly  photoswitched  KIR2DL1-tdEosFP  molecules  continuously  trafficked  to  the 
+immune synapse and accumulated there Fig 3A  D and the red fluorescence detected in 
+the region opposite the synapse steadily decreased Fig 3D Both modeling approaches lead 
+to an accumulation of the receptors inside the synapse in line with the experimental data Fig 
+3D  receptor  density  profiles  shown  in  Fig  S4  in  the  Supporting  Material  These  results 
+suggest that recruitment of KIR2DL1 to the immune synapse is a continuous and dynamic 
+process 
+Importantly simulations run with the two models Fig 3C show that a maximum coefficient 
+of determination is achieved for a value of the diffusion coefficient outside the synapse close 
+to  the  value  obtained  for  the  free  diffusion  case  ie  with  no  synapse  Fig  2E  the  slow 
+diffusion model provides a value D  023 m2s-1 while the force model provides D  022 
+m2s-1 Fig 3D These results show that when an immune synapse has formed KIR2DL1 
+receptors  freely  diffuse  around  the  cell  membrane  before  reaching  the  synapse  This  is 
+important because there has been considerable debate over whether or not KIRs are actively 
+recruited to the synapse or not 6 11 Crucially these data argue against active recruitment 
+eg an ATP-dependent cytoskeletal process for bringing KIR into the immune synapse  
+KIR2DL1 molecules remain trapped within the immune synapse 
+To  study  the  fate  of  KIR2DL1  molecules  once  at  the  immune  synapse  YTSKIR2DL1-
+tdEosFP  cells  were  again  imaged  whilst  in  contact  with  221Cw4  cells  but  only  tdEosFP 
+  
+molecules  present  within  the  synapse  were  photoswitched  from  green  to  red  fluorescence 
+Fig 4A  B  
+The fit with the two proposed models Fig 4C is shown in Fig 4D note that each model 
+was  fitted  simultaneously  to  the  fluorescence  data  of  Fig  3D  and  4D  Strikingly  the  red 
+fluorescence remained stable within the synapse Fig 4A  D  A slight decrease in signal 
+over the time of imaging could be accounted for in the control experiments testing for the 
+decrease  in  intensity  due  to  photobleaching  Fig  S5  in  the  Supporting  Material  The 
+fluorescence detected in the opposite area remained very low and stable throughout Fig 4A 
+  D  These  results  show  that  once  the  receptors  have  entered  the  immune  synapse  they 
+remain constrained or trapped within the immune synapse suggesting that relatively little 
+KIR2DL1 is rapidly internalized degraded or diffuses away 
+Figure  4D  suggests  that  our  two  models  with  receptor  confinement  in  the  synapse  are 
+similarly  good  at  describing  the  data  -  the  overall  quality  of  fit  parameters  2  and  the 
+coefficient of determination R show the force model to give a 10-15 better result residual 
+errors plotted in Fig S6 in the Supporting Material The best fit was obtained when a force 
+parameter corresponding to 20 pN was chosen see Discussion In contrast a model without 
+receptor confinement in the synapse ie one solely relying on ligand-receptor binding was 
+not able to explain the data Fig S7 in the Supporting Material  
+Trafficking of KIR2DL1 between synapses 
+NK  cells  can  form  synapses  with  multiple  target  cells  simultaneously  and  indeed 
+YTSKIR2DL1-tdEosFP cells incubated with 221Cw4 cells were occasionally seen to form 
+two  or  more  inhibitory  synapses  with  target  cells    This  begs  the  question  as  to  how 
+KIR2DL1  molecules  would  behave  in  the  context  of  multiple  synapses  with  similar  target 
+cells To address this when NK cells with multiple usually two synapses were found the 
+tdEosFP  molecules  in  one  of  the  synapses  were  photoconverted  and  the  cells  were  then 
+imaged  for  20  minutes  In  these  experiments  there  was  a  gradual  accumulation  of  red 
+fluorescence detected within the second synapse Fig 5A B C  Fig S8 in the Supporting 
+Material observed in seven different experiments Unexpectedly these results establish that 
+there  is  a  transfer  of  proteins  between  synapses  formed  by  the  same  effector  cell  with 
+different target cells 
+This  finding  led  us  to  wonder  about  the  mechanism  behind  this  intersynaptic  exchange  of 
+KIR2DL1  molecules  The  most  obvious  hypothesis  is  that  a  small  population  of 
+photoswitched  molecules  was  able  to  leak  out  of  the  first  synapse  undetected  at  the 
+resolution of confocal microscopy and was subsequently recruited to the second synapse by 
+simple free diffusion These molecules would either be too few to be detected or more likely 
+too few to be differentiated from the red fluorescence background see Fig S5 To test this 
+we  performed  simulations  using  the  same  two  models  as  above  but  this  time  with  two 
+synapses allowing for a small fraction of molecules to diffuse out of the first synapse Fig 
+5D  In  both  models  these  assumptions  were  sufficient  to  reproduce  the  accumulation  of 
+molecules  at  a  second  synapse  as  seen  in  the  experimental  data  and  within  the  same 
+timeframes Fig 5E and Fig S9 in the Supporting Material Thus we conclude that although 
+KIR2DL1 molecules are generally trapped within an immune synapse a small proportion of 
+molecules is able to diffuse out and translocate into the other synapse 
+  
+Discussion 
+To investigate receptor mobility in the membrane we applied a novel technique exploiting 
+the  photoswitchable  properties  of  the  tdEosFP  protein  This  fluorescent  protein  can  be 
+photoconverted from green to red fluorescence by UV light allowing direct visualization of a 
+specific population of fluorophores after photoswitching We have shown that this technique 
+can be successfully used to observe and quantitatively analyze the dynamics of membrane 
+proteins in the setting of the NK cell immune synapse Our study revealed new aspects of the 
+behavior  of  the  inhibitory  receptor  KIR2DL1  in  the  plasma  membrane  of  NK  cells 
+Specifically  we  establish  that  KIR2DL1  molecules  freely  diffuse  around  the  plasma 
+membrane of unconjugated NK cells In the presence of a target cell an immune synapse is 
+formed between the NK cell and the target cell where KIR2DL1 molecules are continuously 
+accumulated  and  to  a  large  extent  remain  trapped  Most  surprisingly  despite  the  fact  that 
+receptors were found to be predominantly trapped within a single synapse we observed that 
+when multiple immune synapses were formed KIR2DL1 molecules from one synapse were 
+able to accumulate at a second synapse 
+The  method  we  applied  here  may  prove  to  have  several  advantages  over  other  commonly 
+used techniques since it allows the simultaneous observation of all the fluorescent molecules 
+in the green and red fluorescence channels It is also relatively easy to implement The main 
+technique  that  is  currently  used  to  study  protein  diffusion  is  fluorescence  recovery  after 
+photobleaching FRAP 25 26 Even though FRAP enables the determination of membrane 
+protein diffusion coefficients these are obtained by indirect measurements and this technique 
+does not permit direct visualization of protein movement Other techniques have also been 
+developed  to  study  protein  mobility  such  as  fluorescence  loss  in  photobleaching  FLIP 
+which  is  used  to  monitor  the  continuity  of  cellular  compartments  through  continuous 
+photobleaching  of  a  specific  small  region  2729  and  fluorescence  localization  after 
+photobleaching FLAP where the protein of interest carries two fluorophores one of which 
+is  photobleached  within  localized  regions  of  the  cell  30  However  all  these  methods  are 
+based on photobleaching which requires long and intense illumination of a specific region 
+and generally rely on indirect ways to track protein movements Instead photoswitching can 
+provide a higher contrast between two subsets of molecules allowing molecules to be tracked 
+rapidly  and  more  efficiently  than  photobleaching  31  By  photoswitching  fluorescent 
+proteins molecules can easily be directly visualized moving around the cell This technique 
+is  particularly  well  suited  to  the  study  of  the  immune  synapse  as  receptors  can  be 
+photoswitched either within the synapse or elsewhere Molecules can be photoconverted in 
+one region and monitored as they move to another In addition when using this technique 
+two regions of interest are monitored following a single photoswitching event eg within the 
+immune  synapse  and  opposite  the  synapse  which  allows  the  extraction  of  additional 
+information  through  appropriate  modeling  Although  the  use  of  photoactivatable  and 
+photoswitchable  fluorescent  proteins  to  study  protein  dynamics  has  been  proposed  and 
+discussed 32 33 this type of technique has not been extensively applied 
+Regardless of whether or not an NK cell was in contact with a target cell KIR2DL1 receptors 
+freely  diffused  around  the  cell  membrane  In  contrast  the  population  of  accumulated 
+KIR2DL1  receptors  at  the  immune  synapse  remained  relatively  stable  with  little  if  any 
+diffusion of molecules out of the synapse indicating that KIR2DL1 molecules are effectively 
+trapped within the immune synapse This suggests that immobilization of receptors at the 
+site of contact as described here is a requirement for a sustained localized inhibitory signal 
+10 
+within cells that are continuously poised to kill the target cells that they encounter 23 The 
+kinetic parameters of KIR2DL1-HLA-C binding are known to be extremely rapid with very 
+fast  association  and  dissociation  rates  17  This  is  compatible  with  the  idea  that  receptors 
+trapped within the synapse may serve to enhance signaling through serial ligand binding 
+We  simulated  the  movement  of  receptors  using  two  models  the  first  with  receptors 
+constrained within the synapse by a force and the second with receptor diffusion within the 
+synapse  significantly  slower  than  outside  the  synapse  Comparison  with  experimental  data 
+showed that both models of receptor confinement can reproduce the integrated fluorescence 
+data  although  the  force  model  provided  a  slightly  better  fit  This  result  suggests  that  a 
+physical force may restrain KIR2DL1 receptors within the synapse Our fitted force constant 
+is  consistent  with  typical  forces  generated  by  polymerization  of  a  small  number  of  actin 
+filaments  1-10  pN  34  The  direction  of  the  proposed  force  towards  the  center  of  the 
+synapse may originate from retrograde actin flow which has been observed previously 35 
+However even in the slow diffusion model the reduced mobility of receptors might be caused 
+by binding of receptors to the underlying actin meshwork in the synapse This involvement of 
+the actin cytoskeleton in regulating KIR2DL1 dynamics may be direct such as in the picket 
+fence model 36 37 or indirect through the attachment of other molecules such as LFA-1 
+to  the  cytoskeleton  effectively  causing  trapping  of  KIR2DL1  molecules  in  the  synapse 
+Alternatively  slow  diffusion  in  the  synapse  may  arise  from  the  tethering  of  class  I  MHC 
+proteins to the target cell actin cytoskeleton Binding between KIR2DL1 and class I MHC 
+proteins  would  link  this  complex  to  the  target  cell  which  may  influence  the  dynamics  of 
+KIR2DL1 There is evidence that the target cell cytoskeleton can influence the dynamics for 
+NK cell synapses with dendritic cells 38 but perhaps not with other target cell types  
+Consistent with actin-dependent receptor confinement in our two models previous work has 
+shown that the actin cytoskeleton can control the efficiency and speed at which KIR2DL1 
+receptors  enrich  at  the  immune  synapse  11  When  actin  polymerization  was  inhibited 
+receptors have still been observed to accumulate at the immune synapse albeit after longer 
+times  11  suggesting  that  an  intact  actin  cytoskeleton  may  be  required  for  the  rapid 
+accumulation of KIR2DL1 receptors Our quantitative analysis adds a new line of evidence 
+for the hypothesis that receptors are physically trapped within the immune synapse perhaps 
+regulated by the actin cytoskeleton 
+Both  models  are  in  line  with  the  observed  nanometer-scale  organization  of  KIR2DL1  into 
+nanoclusters  within  the  synapse  14  KIR2DL1  receptor  nanoclusters  are  both  actin-
+dependent and slow down receptor diffusion Indeed KIR2DL1 has been observed in small 
+clusters containing 15-30 proteins both in the membrane of resting NK cells and of cells in 
+contact with a target cell 14 In resting cells the formation of nanoclusters is consistent with 
+the idea of membrane compartmentalization with short-term confinement of proteins within 
+domains and long-term hop diffusion over the compartments 37 At the scale of microns  
+imaging  whole  cells  such  as  in  our  experiments    this  hopping  effect  is  not  visible  but 
+molecules  effectively  follow  an  apparent  free  diffusion  as  described  here  and  observed 
+elsewhere  39  We  have  previously  shown  that  in  cells  forming  an  immune  synapse 
+KIR2DL1 nanoclusters become smaller and denser and that these changes are dependent on 
+an  intact  actin  cytoskeleton  14  which  is  consistent  with  actin  forces  controlling  the 
+dynamics of KIR2DL1 behavior 
+An observation that would not have been possible using photobleaching techniques to track 
+receptors is that proteins from one synapse can traffic to a second immune synapse formed by 
+the  same  NK  cell  with  a  second  target  cell  We  showed  that  the  movement  of  KIR2DL1-
+11 
+tdEosFP molecules from one synapse to another was rapid and in all cases occurred within a 
+few minutes It is surprising that although KIR2DL1 receptors are physically trapped within 
+an immune synapse they are able to traffic between synapses The most likely explanation 
+for this observation is that a small population of switched molecules  below the detection 
+limit of confocal microscopy  diffuses out of the first synapse diffuses in the cell membrane 
+and gradually populates the second synapse This hypothesis is supported by our simulations 
+with two synapses In the case of multiple synapses it is possible that KIR2DL1 receptors 
+that are already involved in signaling at one synapse and are then recruited to another synapse 
+can enhance and accelerate the response to another target cell  
+12 
+Conclusion 
+In summary our use of mathematical models in combination with imaging a photoswitchable 
+fluorescent  protein  has  revealed  new  aspects  of  KIR2DL1  recruitment  to  the  synapse 
+including the surprising observation that proteins can traffic between synapses Our analyses 
+best  fit  a  model  in  which  KIR2DL1  freely  diffuses  around  the  cell  membrane  and  then 
+becomes trapped within the synapse which can be modeled as a synaptic force and reduced 
+diffusion inside the synapse The apparent receptor confinement within the synapse is likely 
+related  to  the  formation  of  a  dense  cytoskeletal  meshwork  at  the  immune  synapse  These 
+results give rise to new questions regarding the mechanisms regulating KIR2DL1 dynamics 
+and  recruitment  such  as  how  receptors  traffic  between  multiple  synapses  Moreover  this 
+study  establishes  how  our  method  can  be  useful  in  studying  protein  dynamics  in  general 
+across a range of specific situations 
+13 
+Acknowledgements 
+We  thank  Martin  Spitaler  and  Stephen  Rothery  from  the  FILM  imaging  facility  Imperial 
+College  London  and  members  of  our  laboratories  for  discussion  We  thank  Shaun-Paul 
+Cordoba for critical reading of the manuscript 
+This research was funded by the Biotechnology and Biological Sciences Research Council 
+BBSRC funding to SVP a Wolfson Royal Society Research Merit Award to DMD the 
+Leverhulme Trust Grant no RPG-181 to GA and RGE and a European Research Council 
+Starting Grant Grant no 280492-PPHPI to RGE 
+The authors declare no financial or other conflicts of interest 
+14 
+Supporting Citations 
+References 40 41 appear in the Supporting Material 
+References 
+1   Krre K HG Ljunggren G Piontek and R Kiessling 1986 Selective rejection of 
+H-2-deficient lymphoma variants suggests alternative immune defence strategy 
+Nature 319 675678 
+Ljunggren HG and K Krre 1990 In search of the missing self MHC molecules 
+and NK cell recognition Immunol Today 11 237244 
+Colonna M and J Samaridis 1995 Cloning of immunoglobulin-superfamily 
+members associated with HLA-C and HLA-B recognition by human natural killer 
+cells Science 268 405408 
+4   Wagtmann N R Biassoni C Cantoni S Verdiani MS Malnati et al 1995 
+Molecular clones of the p58 NK cell receptor reveal immunoglobulin-related 
+molecules with diversity in both the extra- and intracellular domains Immunity 2 
+439449 
+5   Wagtmann N S Rajagopalan CC Winter M Peruzzi and EO Long 1995 Killer 
+cell inhibitory receptors specific for HLA-C and HLA-B identified by direct binding 
+and by functional transfer Immunity 3 801809 
+6   Davis DM I Chiu M Fassett GB Cohen O Mandelboim et al 1999 The human 
+natural killer cell immune synapse Proc Natl Acad Sci USA 96 1506215067 
+Eriksson M G Leitz E Fllman O Axner JC Ryan et al 1999 Inhibitory 
+receptors alter natural killer cell interactions with target cells yet allow simultaneous 
+killing of susceptible targets J Exp Med 190 10051012 
+Lou Z D Jevremovic DD Billadeau and PJ Leibson 2000 A balance between 
+positive and negative signals in cytotoxic lymphocytes regulates the polarization of 
+lipid rafts during the development of cell-mediated killing J Exp Med 191 347354 
+9   Watzl C and EO Long 2003 Natural killer cell inhibitory receptors block actin 
+cytoskeleton-dependent recruitment of 2B4 CD244 to lipid rafts J Exp Med 197 
+7785 
+10   Carlin LM K Eleme FE McCann and DM Davis 2001 Intercellular transfer and 
+supramolecular organization of human leukocyte antigen C at inhibitory natural killer 
+cell immune synapses J Exp Med 194 15071517 
+11   Standeven LJ LM Carlin P Borszcz DM Davis and DN Burshtyn 2004 The 
+actin cytoskeleton controls the efficiency of killer Ig-like receptor accumulation at 
+inhibitory NK cell immune synapses J Immunol 173 56175625 
+15 
+12   Almeida CR and DM Davis 2006 Segregation of HLA-C from ICAM-1 at NK 
+cell immune synapses is controlled by its cell surface density J Immunol 177 6904
+13   Biassoni R M Falco A Cambiaggi P Costa S Verdiani et al 1995 Amino acid 
+substitutions can influence the natural killer NK-mediated recognition of HLA-C 
+molecules Role of serine-77 and lysine-80 in the target cell protection from lysis 
+mediated by group 2 or group 1 NK clones J Exp Med 182 605609 
+14   Pageon S V S-P Cordoba DM Owen SM Rothery A Oszmiana et al 2013 
+Superresolution Microscopy Reveals Nanometer-Scale Reorganization of Inhibitory 
+Natural Killer Cell Receptors upon Activation of NKG2D Science signaling 6 ra62 
+15   Oddos S C Dunsby MA Purbhoo A Chauveau DM Owen et al 2008 High-
+speed high-resolution imaging of intercellular immune synapses using optical 
+tweezers Biophys J 95 L66L68 
+16   Risken H 1989 The Fokker-Planck Equation New York Springer-Verlag 
+17   Vals-Gmez M HT Reyburn M Mandelboim and JL Strominger 1998 Kinetics 
+of interaction of HLA-C ligands with natural killer cell inhibitory receptors Immunity 
+9 337344 
+18   Maenaka K T Juji T Nakayama JR Wyer GF Gao et al 1999 Killer cell 
+immunoglobulin receptors and T cell receptors bind peptide-major histocompatibility 
+complex class I with distinct thermodynamic and kinetic properties J Biol Chem 
+274 2832928334 
+19   Wiedenmann J S Ivanchenko F Oswald F Schmitt C Rcker et al 2004 EosFP 
+a fluorescent marker protein with UV-inducible green-to-red fluorescence conversion 
+Proc Natl Acad Sci USA 101 1590515910 
+20   Nienhaus K GU Nienhaus J Wiedenmann and H Nar 2005 Structural basis for 
+photo-induced protein cleavage and green-to-red conversion of fluorescent protein 
+EosFP Proc Natl Acad Sci USA 102 91569159 
+21   Nienhaus GU K Nienhaus A Hlzle S Ivanchenko F Renzi et al 2006 
+Photoconvertible fluorescent protein EosFP biophysical properties and cell biology 
+applications Photochem Photobiol 82 351358 
+22   Favier B NJ Burroughs L Wedderburn and S Valitutti 2001 TCR dynamics on 
+the surface of living T cells Int Immunol 13 15251532 
+23   Sanni TB M Masilamani J Kabat JE Coligan and F Borrego 2004 Exclusion 
+of lipid rafts and decreased mobility of CD94NKG2A receptors at the inhibitory NK 
+cell synapse Mol Biol Cell 15 32103223 
+24   McKinney SA CS Murphy KL Hazelwood MW Davidson and LL Looger 
+2009 A bright and photostable photoconvertible fluorescent protein Nature Methods 
+6 131133 
+16 
+25   Axelrod D DE Koppel J Schlessinger E Elson and WW Webb 1976 Mobility 
+measurement by analysis of fluorescence photobleaching recovery kinetics Biophys J 
+16 10551069 
+Jacobson K Z Derzko ES Wu Y Hou and G Poste 1976 Measurement of the 
+lateral mobility of cell surface components in single living cells by fluorescence 
+recovery after photobleaching J Supramol Struct 5 565417576428 
+27   Cole NB CL Smith N Sciaky M Terasaki M Edidin et al 1996 Diffusional 
+mobility of Golgi proteins in membranes of living cells Science 273 797801 
+28   Zaal KJ CL Smith RS Polishchuk N Altan NB Cole et al 1999 Golgi 
+membranes are absorbed into and reemerge from the ER during mitosis Cell 99 589
+29   Phair RD and T Misteli 2000 High mobility of proteins in the mammalian cell 
+nucleus Nature 404 604609 
+30   Dunn GA IM Dobbie J Monypenny MR Holt and D Zicha 2002 Fluorescence 
+localization after photobleaching FLAP a new method for studying protein dynamics 
+in living cells J Microsc 205 109112 
+31   Lippincott-Schwartz J and GH Patterson 2008 Fluorescent proteins for 
+photoactivation experiments Methods Cell Biol 85 4561 
+32   Lippincott-Schwartz J E Snapp and A Kenworthy 2001 Studying protein 
+dynamics in living cells Nature Rev Mol Cell Biol 2 444456 
+33   Lippincott-Schwartz J N Altan-Bonnet and GH Patterson 2003 Photobleaching 
+and photoactivation following protein dynamics in living cells Nature Cell Biol 
+Suppl S7S14 
+34   Footer MJ JWJ Kerssemakers JA Theriot and M Dogterom 2007 Direct 
+measurement of force generation by actin filament polymerization using an optical 
+trap Proc Natl Acad Sci USA 104 21812186 
+35   Yu C H Wu Y Kaizuka RD Vale and JT Groves 2010 Altered actin centripetal 
+retrograde flow in physically restricted immunological synapses PloS one 5 e11878 
+36   Sako Y A Nagafuchi S Tsukita M Takeichi and A Kusumi 1998 Cytoplasmic 
+regulation of the movement of E-cadherin on the free cell surface as studied by optical 
+tweezers and single particle tracking corralling and tethering by the membrane 
+skeleton The Journal of cell biology 140 12271240 
+37   Kusumi A C Nakada K Ritchie K Murase K Suzuki et al 2005 Paradigm shift 
+of the plasma membrane concept from the two-dimensional continuum fluid to the 
+partitioned fluid high-speed single-molecule tracking of membrane molecules Annual 
+Review of Biophysics and Biomolecular Structure 34 351378 
+17 
+38   Barreira da Silva R C Graf and C Mnz 2011 Cytoskeletal stabilization of 
+inhibitory interactions in immunologic synapses of mature human dendritic cells with 
+natural killer cells Blood 118 64876498 
+39   Wieser S J Weghuber M Sams H Stockinger and G Schutz 2009 Cell-to-cell 
+variability in the diffusion constants of the plasma membrane proteins CD59 and 
+CD14 Soft Matter 5 32873329 
+40   Yang J K Khler DM Davis and NJ Burroughs 2010 An improved strip FRAP 
+method for estimating diffusion coefficients correcting for the degree of 
+photobleaching J Microsc 238 240253 
+41   Soumpasis DM 1983 Theoretical analysis of fluorescence photobleaching recovery 
+experiments Biophysical journal 41 9597  
+18 
+Figure 1 Photoswitchable fluorescent protein as a tool for studying membrane protein 
+dynamics  A  The  photoswitchable  fluorescent  protein 
+is  capable  of  a 
+photoconversion from green fluorescence emission at 516 nm to red fluorescence 581 nm 
+upon  irradiation  with  UV  light    390  nm  By  photoswitching  tagged  receptors  only  in 
+limited  areas  it  is  possible  to  follow  their  subsequent  diffusion  over  the  cell  membrane 
+against  the  green  background  B  YTSKIR2DL1-tdEosFP  cells  were  imaged  by  confocal 
+microscopy A specific region of the cell membrane was selected and targeted with UV light 
+The  tdEosFP  molecules  within  this  region  were  seen  to  switch  from  green  to  red 
+fluorescence Images show a YTSKIR2DL1-tdEosFP cell before and after photoswitching t 
+ 20 s after photoswitching Scale bar represents 10 m 
+tdEosFP 
+19 
+Brighteld
+tdEosFP-green
+tdEosFP-red
+Opposite
+Switched
+t  5 mins
+t  20 mins
+t  5 mins
+t  20 mins
+D023 cid82m2s 
+Photoswitched area data
+Opposite area data
+Free diffusion model
+Time after photoswitching s
+DavD023 m2 s
+Diffusion coefficient  m2s
+Figure  2  KIR2DL1  dynamics  fit  a  free  diffusion  model  in  the  NK  cell  plasma 
+membrane A Representative images of a YTSKIR2DL1-tdEosFP cell where a specific 
+region  of  the  cell  membrane  was  targeted  with  UV  light  to  photoconvert  the  tdEosFP 
+molecules  within  this  region  t    0  The  cell  was  subsequently  imaged  by  confocal 
+microscopy for 20 minutes and KIR2DL1 can be seen to diffuse around the cell Scale bar 
+represents  15  m  B  Schematic  diagram  showing  the  method  used  for  measuring  the 
+diffusion of the receptor The red fluorescence was measured in the photoswitched region and 
+in the region directly opposite as indicated by the boxes The gray rectangle represents the 
+region  that  was  photoswitched  C  3D  plotting  on  a  sphere  of  the  time  evolution  of  the 
+photoswitched receptor density according to the mathematical model see Eq 3 in main text 
+using  the  diffusion  coefficients  obtained  by  fitting  to  data  D    023  m2s-1    D  Red 
+fluorescence  over  time  integrated  over  the  photoswitched  area  thin  red  line  and  opposite 
+area thin orange line with corresponding fits from the mathematical model of Eq 3 in main 
+text  thick  red  and  orange  lines    Data  are  taken  from  n    10  cells  and  3  independent 
+20 
+experiments  A  threshold  was  applied  to  the  images  to  remove  background  fluorescence  
+Error bars represent  SEM The diffusion coefficient of KIR2DL1 D was determined by 
+fitting the spherical diffusion equation to the experimental average data red line Fitting the 
+mathematical modeling to the mean fluorescence intensity from the experiments leads to the 
+value  D     023  m2s-1  for  the  diffusion  coefficient  E  Distribution  of  the  diffusion 
+coefficient values obtained by fitting the mathematical model to each set of data of the n  10 
+cells separately see Fig S2 in the Supporting Material The average value coincides with 
+the value obtained from fitting the mean curve see D and the variance around the average 
+value is 006 m2s-1 
+Brighteld
+tdEosFP-green
+tdEosFP-red
+t  10 mins
+t  20 mins
+Time after photoswitching s
+Time after photoswitching s
+ Opposite
+switched
+ Synapse
+NK cell
+Target cell
+Force model
+receptor
+Synapse
+Opposite area
+   switched   
+Slow diffusion model
+Synapse 
+Opposite area
+   switched   
+Opposite area data switched
+Synapse data
+Force model
+Slow diffusion model 
+21 
+is  continuously  trafficked  to  the 
+Figure  3  KIR2DL1 
+immune  synapse  A 
+Representative images of a conjugate formed between a YTSKIR2DL1-tdEosFP cell and a 
+221Cw4  cell  where  the  region  of  the  cell  membrane  directly  opposite  the  synapse  was 
+targeted with UV light to photoswitch the tdEosFP molecules within this region The cells 
+were  imaged  by  confocal  microscopy  for  20  minutes  and  KIR2DL1  movement  was 
+monitored  Scale  bar  represents  10  m  B  Schematic  diagram  showing  the  strategy  for 
+monitoring  the  movement  of  the  receptor  The  red  fluorescence  was  measured  in  the 
+photoswitched region opposite the synapse and in the synapse region as indicated by the 
+boxes  The  gray  rectangle  represents  the  region  that  was  photoswitched  C  Graphical 
+representation of the two proposed models for receptor diffusion in the presence of a target 
+cell top Receptor diffusion on the cell membrane is modeled on a 2D grid where receptors 
+diffuse  freely  outside  the  synapse  and  are  trapped  by  a  force  inside  the  synapse  bottom 
+Receptor diffusion is modeled with fast free diffusion outside the synapse and slow diffusion 
+inside  the  synapse  Photoswitched  area  and  receptors  are  marked  in  red  D  Fluorescence 
+intensity data observed after photoswitching receptors in an area opposite to the synapse and 
+detected at the synapse orange line and opposite red line from n  10 cells Fits of the 
+force model solid black lines and the slow diffusion model dashed black lines to the data 
+after rescaling to convert receptor density to fluorescence intensity The best fit is obtained 
+with a 2  91 for the force model when the value of the force is taken as 20 pN and the value 
+of the diffusion coefficient outside the synapse is D  022 m2s-1 For the slow diffusion 
+model the best fit is obtained with a 2  100 for D  023 m2s-1 and DS  D100  Both fits 
+have 2 values corresponding to a probability  05 of observing smaller value 2-test with 
+22 
+freedom 
+ Opposite
+ Synapse
+switched
+NK cell
+Target cell
+Force model
+Synapse
+   switched   
+Opposite area
+Slow diffusion model
+Synapse 
+   switched   
+Opposite area
+degrees 
+Brighteld
+tdEosFP-green
+tdEosFP-red
+t  5 mins
+t  95 mins
+Synapse area data switched
+Opposite area data
+Force model
+Slow diffusion model 
+Time after photoswitching s
+Figure  4  KIR2DL1  molecules  remain  trapped  at  the 
+immune  synapse  A 
+Representative images of a conjugate formed between a YTSKIR2DL1-tdEosFP cell and a 
+221Cw4  cell  where  the  synapse  region  was  targeted  with  UV  light  to  photoswitch  the 
+tdEosFP molecules within the synapse The cells were imaged by confocal microscopy for 
+10-15  minutes  and  KIR2DL1  movement  was  monitored  Scale  bar  represents  10  m  B 
+Schematic diagram showing the strategy for monitoring the movement of the receptor The 
+red fluorescence was measured in the photoswitched region the synapse and in the opposite 
+region  as  indicated  by  the  boxes  The  gray  rectangle  represents  the  region  that  was 
+photoswitched C Graphical representation of the proposed models similar to Fig 3C but 
+for photoswitching inside the synapse top force model bottom slow diffusion model D 
+Fluorescence intensity data observed after photoswitching receptors inside the synapse Fits 
+of the force model solid black lines and the slow diffusion model dashed black lines to the 
+data Fitting with the models was performed on this and the data from Fig 3D simultaneously 
+same fitting parameters including diffusion coefficients and force parameter  
+23 
+Brighteld
+tdEosFP-green
+tdEosFP-red
+Target 
+cell 1
+NK cell
+Target 
+cell 2
+Force model
+Synapse 2
+Synapse 1
+   switched   
+Raw data
+Smoothed curve
+t55 mins
+Distance along membrane perimeter
+Distance along membrane perimeter m
+t300 s
+Distance  x m
+t  55 mins
+Distance along membrane perimeter
+Distance along membrane perimeter m
+Force model
+t04 s
+Distance  x m
+Figure  5  KIR2DL1  can  traffic  between  synapses  A  Representative  images  of  a 
+YTSKIR2DL1-tdEosFP cell forming inhibitory immune synapses with two 221Cw4 cells 
+where  one  of  two  synapses  was  targeted  with  UV  light  to  photoconvert  the  tdEosFP 
+molecules  within  this  synapse  The  cells  were  imaged  by  confocal  microscopy  for  10-15 
+minutes and KIR2DL1 movement was monitored Scale bar represents 10 m B Schematic 
+diagram showing the strategy for monitoring the movement of the receptor when two target 
+cells  form  immune  synapses  with  the  same  NK  cell    One  of  the  two  synapses  was 
+24 
+photoswitched as indicated by the gray rectangle C Schematic of the force model applied 
+to the case of two synapses Two centers of force exist in this configuration corresponding to 
+each synapse D The red fluorescence was measured around the periphery of the NK cell 
+just after photoswitching t  0 where one fluorescence peak is visible corresponding to the 
+photoswitched synapse and again later on t  55 min where a second fluorescence peak is 
+appearing showing KIR2DL1 accumulation at the second synapse Data is representative of 
+n  7 E Results from simulations performed with the force model of Eqs 4 in the case of 
+two synapses located at a distance of 75 m from each other shown for times t  04 s and t 
+ 5 min The parameters used for the force strength Ks and the diffusion coefficient were the 
+same as obtained from fitting experiments in Figs 3D and 4D Leaking between the synapses 
+takes place on the same timescale as observed in experiments For the implementation of the 
+slow diffusion model in the case of two synapses and corresponding results see Fig S9 in the 
+Supporting Material 
+25 

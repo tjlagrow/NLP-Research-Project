@@ -1,1116 +1,899 @@
-A State of the Art of Word Sense Induction A Way Towards Word 
-Sense Disambiguation for Under-Resourced Languages 
-Laboratoire dInformatique de Grenoble-Groupe dtude pour la Traduction AutomatiqueTraitement 
-Mohammad Nasiruddin 
-Automatis des Langues et de la Parole 
-Univ Grenoble Alpes 
-mohammadnasiruddinimagfr 
-ABSTRACT   
-Word Sense Disambiguation WSD the process of automatically identifying the meaning of a 
-polysemous word in a sentence is a fundamental task in Natural Language Processing NLP 
-Progress in this approach to WSD opens up many promising developments in the field of NLP 
-and its applications Indeed improvement over current performance levels could allow us to 
-take a first step towards natural language understanding Due to the lack of lexical resources it 
-is  sometimes  difficult  to  perform  WSD  for  under-resourced  languages  This  paper  is  an 
-investigation on how to initiate research in WSD for under-resourced languages by applying 
-Word Sense Induction WSI and suggests some interesting topics to focus on 
-RSUM   
-tat de lart de linduction de sens une voie vers la dsambigusation lexicale pour les langues 
-peu dotes 
-La dsambigusation lexicale le processus qui consiste  automatiquement identifier le ou les 
-sens possible dun mot polysmique dans un contexte donn est une tche fondamentale pour 
-le  Traitement  Automatique  des  Langues  TAL  Le  dveloppement  et  lamlioration  des 
-techniques  de  dsambigusation  lexicale  ouvrent  de  nombreuses  perspectives  prometteuses 
-pour le TAL En effet cela pourrait conduire  un changement paradigmatique en permettant 
-de  raliser  un  premier  pas  vers  la  comprhension  des  langues  naturelles  En  raison  du 
-manque  de  ressources  langagires  il  est  parfois  difficile  dappliquer  des  techniques  de 
-dsambigusation    des  langues  peu  dotes  Cest  pourquoi  nous  nous  intressons  ici   
-enquter sur comment avoir un dbut de recherche sur la dsambigusation lexicale pour les 
-langues peu dotes en particulier en exploitant des techniques dinduction des sens de mots 
-ainsi que quelques suggestions de pistes intressantes  explorer 
-KEYWORDS  Word  Sense  Disambiguation  Word  Sense  Induction  under-resourced  languages 
-lexical resources 
-MOTS-CLS  dsambigusation  lexicale  induction  de  sens  langues  peu  dotes  ressources 
-langagires 
-Introduction 
-Word  Sense  Disambiguation  WSD  is  a  core  and  open  research  problem  in  Computational 
-Linguistics and Natural Language Processing NLP which was recognized at the beginning of 
-the scientific interest in Machine Translation MT and Artificial Intelligence AI On a variety 
-of  word  types  and  ambiguities  research  has  progressed  steadily  to  the  point  where  WSD 
-systems achieve relatively high levels of accuracy 
-The goal of a WSD is to computationally assign the correct sense of a word ie meaning in 
-context phrase sentence paragraph text from a predefined sense inventory when the word 
-has multiple meanings It is a pervasive characteristic of natural language The problem is that 
-words often have more than one meaning sometimes fairly similar and sometimes completely 
-different For example the word bank has several senses and may refer to the edge of a river 
-a building or a financial institution The specific sense  intended is determined by the textual 
-context in which an instance of the ambiguous word appears In The boy leapt from the bank 
-into the cold water the edge of a river is intended whereas in The van pulled up outside the 
-bank and three masked men got out the building sense is meant while in The bank sent me 
-a letter implies the financial institution sense 
-Human readers have the capability to understand the meaning of a word from its context but 
-machines  need  to  process  textual  information  and  transform  it  into  data  structures  which 
-must  then  be  analyzed  in  order  to  determine  the  underlying  meaning  To  perform  WSD  a 
-sense inventory must be available which lists possible senses for the word of a text A sense 
-inventory is a lexical resource which contains list of senses of a given word like the traditional 
-dictionaries  knowledge resources Manually annotated corpora with either word senses or 
-information from knowledge sources is also an important resource for WSD 
-Initially  WSD  was  mainly  applied  and  developed  on  English  texts  because  of  the  broad 
-availability and  the prevalence of lexical resources compared  to other languages  Due to the 
-lack of lexical resources ie sense inventories dictionaries lexical databases wordnets etc 
-and  sense-tagged  corpora  it  is  difficult  to  start  working  on  WSD  for  under-resourced 
-languages  Bangla  Assamese  Oriya  Kannada  etc  To  account  for  under-resourced 
-languages one can easily adopt techniques aimed at the automatic discovery of word senses 
-from text a task called Word Sense Induction WSI 
-Languages with large amounts of data or funding or political interests can be interpreted as 
-well-resourced languages whereas a lot of languages in the world do not enjoy  this status 
-which  is  referred  to  in  this  article  as  under-resourced  languages  This  paper  presents  the 
-state of the art of WSD and WSI in an under-resourced language perspective In the following 
-sections the paper is organized as follows firstly Sections 2 and 3 illustrate the main topics of 
-interest  in  WSD  and  WSI  respectively  then  Section  4  briefly  describes  WSI  from  an  under-
-resourced  language  view  and  finally  Section  5  concludes  the  article  and  discusses  some 
-perspectives for future work 
-2  Word Sense Disambiguation 
-Depending on the degree of polysemy there can be many different senses for a word and WSD 
-algorithms aim at choosing the most appropriate sense combination among all possible senses 
-for all words in a text unit sentence paragraph etc It is essentially a task of classification 
-for  word  of  a  text  word  senses  are  the  possible  classes  the  context  provides  evidence 
-features  and  each  occurrence  of  a  word  is  assigned  to  one  or  more  of  its  possible  classes 
-based  on  the  evidence  There  are  many  methods  to  perform  WSD  In  this  section  various 
-types of approaches and algorithms for WSD will be briefly presented 
-The  reader  can  refer  to  Ide  and  Veronis  1998  for  works  before  1998  and  Agirre  and 
-Edmonds 2006 Navigli 2009 or McCarthy 2009 for a complete and current state of the 
-art of WSD 
-21  Approaches 
-WSD  approaches  can  be  categorized  into  supervised  WSD  and  unsupervised  WSD  and  a 
-further  distinction  can  be  made  between  knowledge-rich  and  knowledge-poor  approaches 
-Navigli  2009  Knowledge-rich  methods  involve  the  use  of  external  knowledge  sources 
-whereas knowledge-poor methods do not Based on machine learning techniques researchers 
-distinguish  between  supervised  methods  and  unsupervised  methods  There  are  three 
-mainstream  approaches  to  WSD  namely  Supervised  WSD  Minimally-supervised  WSD  and 
-Unsupervised  WSD  Figure  1  presents  various  WSD  methods  according  to  two  axis  the 
-quantity  of  annotated  corpora  required  vertically  and  the  amount  of  static  knowledge 
-horizontally 
-FIGURE 1  Word Sense Disambiguation systems  Data versus Knowledge Schwab 2013 
-personal notes 
-Supervised WSD 
-Supervised WSD uses supervised machine learning techniques These approaches use a set of 
-manually labeled training examples ie sets of examples encoded as vectors whose elements 
-represent features to train a classifier for each target word Support Vector Machines SVMs 
-and memory-based learning have been shown to be the most successful approaches Hoste et 
-al 2002 Decadt et al 2004 Mihalcea et al 2004 Grozea 2004 Chan et al 2007 Zhong and 
-Ng 2010 to date probably because they can cope with the high-dimensionality of the feature 
-space 
-Supervised algorithms are progressively losing ground to the other methods Moreover they 
-cannot easily be adapted to other languages without retraining requires annotated data from 
-that particular language Furthermore reusing models from one language for another leads 
-at best to a poor classification performance Khapra et al 2009 
- Minimally-supervised WSD 
-Minimally  supervised  methods  use  a  sense  inventory  a  few  sense-annotated  example 
-instances  and  raw  corpora  From  the  sense-annotated  examples  the  system  induces  the 
-senses or categories of senses for the non-annotated data and then it functions exactly as an 
-unsupervised  clustering  approach  The  most  prominent  Minimally  supervised  method 
-Yarowsky 1995 however to our knowledge has not been evaluated on SemEval WSD tasks 
-2121  Knowledge-based WSD 
-Knowledge-based WSD algorithms are similar to Minimally-supervised WSD approaches The 
-objective  of  Knowledge-based  methods  is  to  exploit  static  knowledge  resources  such  as 
-dictionaries  thesauri  glossaries  ontologies  collocation  etc  to  infer  the  senses  of  words  in 
-context  Degree  Navigli  and  Lapata  2010  Ponzetto  and  Navigli  2010  or  Personalized 
-PageRank  Agirre  and  Soroa  2009  are  among  the  latest  knowledge-based  systems  in  the 
-literature  that  exploits  WordNet  Fellbaum  1998  or  other  resources  like  BabelNet  Navigli 
-and Ponzetto 2010 to build a semantic graph and use the structural properties of the graph 
-In  order  to  choose  the  appropriate  senses  of  words  knowledge-based  systems  use  the 
-structural properties of the graph in context either locally to the input sentence or globally 
-Unsupervised WSD 
-Unsupervised  learning  is  the  greatest  challenge  for  WSD  researchers  Unsupervised  WSD 
-approaches  are  composed  of  Word  Sense  Induction  or  discrimination  techniques  aimed  at 
-discovering  senses  automatically  based  on  unlabeled  corpora  and  then  applying  them  for 
-WSD By opposition to Supervised WSD these approaches use machine learning techniques on 
-non-sense-tagged corpora with no a priori knowledge about the task at all see Section 4 
-22  Evaluation 
-The evaluation of previous WSD algorithms is expressed in terms of the number of correctly 
-disambiguated words as evaluated through a Gold Standard GS Since 1998 there have been 
-several follow-up evaluation campaigns  Senseval-1 Kilgarriff 1998 Senseval-2 Edmonds 
-and  Cotton  2001  Senseval-3  Mihalcea  and  Edmonds  2004  SemEval-2007  Navigli  et  al 
-2007 SemEval-2010 Agirre et al 2010 SemEval-2012 Manandhar and Yuret 2012 and 
-recently  SemEval-2013  Navigli  et  al  2013  with  various  disambiguation  and  semantic 
-analysis tasks which have been very successful and beneficial to the progress of the field 
-In  the  evaluation  task  a  reference  corpus  is  given  with  the  lemmatized  and  part  of  speech 
-PoS  tagged  instances  ie  words  which  will  have  to  be  disambiguated  The  results  are 
-matched with the GS through Precision P Recall R and F1 score which are the standard-
-measures  for  evaluating  WSD  algorithms  Navigli  2009  The  evaluation  tools  provided 
-calculate 
-- P the number of correct answers provided over the total number of answers provided 
-- R the number of correct answers provided over the total number of expected answers 
-- F1 measure the harmonic mean between the two 2PRPR 
-When all words are annotated by a WSD algorithm then PRF1 
-3  Word Sense Induction 
-Word  sense  induction  WSI  is  the  task  of  automatically  identifying  the  senses  of  words  in 
-texts  without  the  need  of  handcrafted  resources  or  manually  annotated  data  It  is  an 
-unsupervised WSD technique use machine learning methods on raw corpora without relying 
-on  any  external  resources  such  as  dictionaries  or  sense-tagged  data  During  the  learning 
-phase  algorithms  induce  words  senses  from  raw  text  by  clustering  word  occurrences 
-following  the  Distributional Hypothesis  Harris  1954  Curran  2004  This  hypothesis  was 
-popularized with the phrase a word is characterized by the company it keeps Firth 1957 
-Two  words  are  considered  semantically  close  if  they  co-occur  with  the  same  neighboring 
-words As a result shifting the focus away from how to select the most suitable senses from an 
-inventory  towards  how  to  automatically  discover  senses  from  a  text  By  applying  WSI  it  is 
-possible  to  mitigate  the  Knowledge Acquisition Bottleneck  Wagner  2008  problem  The 
-single  common  thread  to  WSI  methods  is  the  reliance  on  clustering  algorithms  used  on  the 
-words in the unannotated corpus Although the role of WSI in a disambiguation context is to 
-build  a  sense  inventory  that  can  be  used  subsequently  for  WSD  therefore  WSI  can  be 
-considered  as  part  of  WSD  Of  course  WSI  can  have  many  more  applications  than  building 
-sense inventories and thus WSD 
-31  Approaches 
-WSI  algorithms  extract  the  different  senses  of  word  following  two  approaches    locally  and 
-globally  Local  algorithms  discover  senses  of  a  word  per-word  basis  ie  by  clustering  its 
-instances  in  contexts  according  to  their  semantic  similarity  whereas  global  algorithms 
-discovers senses in a global manner ie by comparing and determining them from the senses 
-of other words in a full-blown word space model Apidianaki and Van de Cruys 2011 Based 
-on  the  type  of  clustering  algorithms  used  will  be  reviewed  various  WSI  proposed  in  the 
-literature in the following subsections 
-Clustering Approaches 
-Returning to the idea of Harris 1954 Curran 2004 that word meaning can be derived from 
-context Pantel and Lin 2002 discover word senses from text The underlying hypothesis of 
-this  approach  is  that  words  are  semantically  similar  if  they  appear  in  similar  documents 
-within  similar  context  windows  or  in  similar  syntactic  contexts  Van  de  Cruys  2010 Lins 
-algorithm  Lin  1998  is  a  prototypical  example  of  word  clustering  which  is  based  on 
-syntactic dependency statistics between words that occur in a corpus to produce sets for each 
-discovered sense of a target word Van de Cruys and Apidianaki 2011 By using a similarity 
-function the following clustering algorithms are applied  to a test set of word feature vectors 
-Pantel  and  Lin  2002 K-means Bisecting K-means  Steinbatch et al  2000 Average-link 
-Buckshot  and UNICON  Lin  and  Pantel  2001 Clustering By Committee CBC  Pantel  and 
-Lin 2002 also uses syntactic contexts intended for the task of sense induction but exploits a 
-similarity  matrix  to  encode  the  similarities  between  words  It  relies  on  the  notion  of 
-committees to output the different senses of the word of interest However These approaches 
-are hard to apply on a large scale for many domains and languages 
-Extended-clustering Approaches 
-Considering the observation that words tend to manifest one sense per collocation Yarowsky 
-1995  Bordag  2006  uses word triplets  instead  of  word  pairs  A  well-known  approach  to 
-extended-clustering is the Context-group Discrimination algorithm Schtze 1998 based on 
-large  matrix  computation  methods  Another  approach  presented  by  Pinto  et al  2007 
-attempts  to  improve  the  usability  of  small  narrow-domain  corpora  through  self-term 
-expansion Brody and Lapata 2009 shows that the task of word sense induction can also be 
-framed in a Bayesian context by considering contexts of ambiguous words to be samples from 
-a multinomial distribution  There are other extended-clustering approaches that include the 
-bi-gram  clustering  technique  proposed  by  Schtze  1998  the  clustering  technique  using 
-phrasal co-occurrences  presented  by  Dorow  and  Widdows  2003  the  technique  for  word 
-clustering using a context window presented by Ferret 2004 and the method applying the 
-Information Bottleneck  algorithm  for  sense  induction  proposed  by  Niu et al  2007  These 
-additional  clustering  techniques  can  be  broadly  categorized  as  either  improving  feature 
-selection  and  enriching  features  or  introducing  more  effective  and  efficient  clustering 
-algorithms 
-Graph-based Approaches 
-The  main  hypothesis  of  co-occurrence  graphs  is  assuming  that  the  semantic  of  a  word  is 
-represented by means of co-occurrence graph  whose vertices are co-occurrences and  edges 
-are co-occurrence relations These approaches are related to word clustering methods where 
-co-occurrences  between  words  can  be  obtained  on  the  basis  of grammatical  Widdows  and 
-Dorow  2002  or  collocational relations  Vronis  2004  Klapaftis  and  Manandhar  2007 
-propose  the  idea  of  the  Hypergraph  model  for  such  WSI  approaches  HyperLex  Vronis 
-2004  is  a  successful  graph  based  algorithm  based  on  the  identification  of  hubs  in  co-
-occurrence  graphs  that  have  to  cope  with  the  need  to  tune  a  large  number  of  parameters 
-Agirre  et al  2006b  To  deal  with  this  issue  several  graph-based  algorithms  have  been 
-proposed which are based on simple graph patterns namely Curvature Clustering Dorow et 
-al  2005  Squares Triangles and Diamonds SquaT  Navigli  2010  and  Balanced 
-Maximum Spanning Tree Clustering B-MST  Di  Marco  et al  2011  The  patterns  aim  at 
-identifying word meanings using the local structural properties of the co-occurrence graph A 
-randomized  algorithm  which  partitions  the  graph  vertices  by  iteratively  transferring  the 
-mainstream message ie word sense to neighboring vertices proposed by Biemann 2006 
-is  Chinese Whispers  By  applying  co-occurrence  graph  approaches  Agirre  et al  2006a 
-Agirre and Soroa 2007 Korkontzelos and Manandhar 2010 have been  able to achieve state 
-of the art performance in standard evaluation tasks Jurgens 2011 reinterpret the challenge 
-of  identifying  sense  specic  information  in  a  co-occurrence  graph  as  one  of  community 
-detection  where  a  community  is  dened  as  a  group  of  connected  nodes  that  are  more 
-interconnected  than  to  the  rest  of  the  graph  Fortunato  2010  Recently  Hope  and  Keller 
-2013 introduced a linear time graph-based soft clustering algorithm for WSI named MaxMax 
-which  obtains  comparable  results  with  those  of  systems  based  on  existing  state  of  the  art 
-methods 
-Basic Word Co-occurrence 
-Features 
-Classical Clustering Algorithms 
-Classical Clustering 
-Novel Algorithms for WSI 
-Clustering by Committee CBC 
-Information Bottleneck 
-Additional Features 
-Triplet Clustering 
-Self-term Expansion 
-Context Clustering 
-Translation Features 
-Hypergraph 
-Collocation Graph 
-Bayesian Model 
-TABLE 1  Overview of Techniques for Word Sense Induction Denkowski 2009 
- Latent Semantic Analysis LSA  Landauer  and  Dumais  1997  Landauer  et al  1998  is 
-currently  a  very  popular  approach  to  WSI  that  operates  on  word  spaces  Van  de  Cruys  and 
-Apidianaki 2011 LAS aims at finding and  extract  latent  dimensions of  meaning using NMF 
-Non-negative Matrix Factorization PCA Principal Component Analysis  or SVD Singular 
-Value Decomposition The extracted latent dimensions are then used to distinguish between 
-different senses of a target word that are in turn used to disambiguate each given instance of 
-that word 
-Translation-oriented Approaches 
-WSI  approaches  described  above  cover  only  monolingual  data  in  the  context  of  Machine 
-Translation  MT  recent  work  has  been  done  to  incorporate  bilingual  data  into  the  sense 
-induction task Translation-oriented WSI approaches involve augmenting the source language 
-context with target language equivalents Apidianaki 2008 describes this process by using a 
-bilingual  corpus  that  has  been  word  aligned  by  type  and  token  to  construct  two  bilingual 
-dictionaries where each word type is associated with its translation equivalent The lexicon is 
-filtered such a way that words and their translation equivalents have matching PoS tags and 
-words appear in the translation lexicons for both directions 
-32  Evaluation 
-The evaluation of  WSI approaches is one of the key challenges for researchers As the sense 
-clusters  derived  by  these  algorithms  may  not  match  the  actual  senses  dened  in  lexical 
-resources  like  dictionaries  lexical  databases  wordnets  etc  the  evaluation  of  these 
-algorithms  needs  to  be  carried  out  manually  by  asking  language  experts  to  corroborate  the 
-results However it is hard to evaluate the results of WSI as the resulting clustered senses can 
-vary from algorithm to algorithm or even for various parameter values for a single algorithm 
-as even determining the number of clusters a difficult matter From the very beginning of WSI 
-depending  on  different  approaches  researchers  have  developed  various  evaluation 
-methodologies that can be separated into three main categories 
-Supervised Evaluation 
-In this evaluation method the target word corpus is divided into  two parts  a testing and a 
-training  part  Firstly  the  training  part  is  used  to  map  the  automatically  induced  clusters  to 
-Gold Standard GS  senses  In  the  next  step  the  test  corpus  is  used  to  evaluate  WSI 
-approaches  in  a  WSD  Agirre  and  Soroa  2007  setting  Finally  the  usual Precision P  and 
-Recall R are used to determine the quality of the resulting WSD 
-Unsupervised Evaluation 
-In  this  evaluation  setting  the  induced  senses  are  evaluated  as  clusters  of  examples  and 
-compared to sets of examples that have been tagged with sense labels from a Gold Standard 
-The V-measure Rosenberg and Hirschberg 2007 is used to determine the quality of clusters 
-by  combining  metrics  such  as  the Paired F-Score  Manandhar  et al  2010  the  RandIndex 
-Rand 1971 Navigli 2010 and others They measure both the coverage and the homogeneity 
-of a clustering output as opposed to the traditional clustering measure of F-Score Zhao et al 
-2005 that is most commonly used to assess the performance of WSI systems 
-Evaluation as an Application 
-Recently Navigli and Crisafulli 2010 Di Marco and Navigli 2013 proposed to evaluate WSI 
-approaches  as  part  of  a  specific  application  where  WSI  techniques  have  been  shown  to 
-consistently surpass symbolic state of the art systems See section 43 The evaluation of WSI 
-and WSD systems was performed in the context of Web search result clustering 
-SemEval WSI Evaluation Tasks 
-This section briefly describes the different SemEval workshops from 2007 to 2013 with WSI 
-evaluation tasks that focus on the evaluation of semantic analysis systems 
-SemEval-2007 Task 2 
-The  goal  of  SemEval-2007  Task  2  Agirre  and  Soroa  2007  is  to  allow  for  the  comparison 
-across  sense-induction  and  discrimination  systems  and  also  to  compare  these  systems  to 
-other supervised and knowledge-based systems This task evaluates WSI systems on 33 nouns 
-and  65  verbs  lexical  sample  where  the  corpus  consists  of  texts  of  the Wall Street Journal 
-WSJ corpus and is hand-tagged with OntoNotes senses Hovy et al 2006 For each tagged-
-word the task consists of first identifying the senses of target words eg as clusters of target 
-word  instances  co-occurring  words  etc  and  secondly  tagging  the  instances  of  the  target 
-word  using  the  automatically  induced  clusters  This  double  evaluation  methodology  ie 
-supervised  evaluation  and  unsupervised  evaluation  has  been  attempted  by  Agirre  et al 
-2006a 
-SemEval-2010 Task 14 
-SemEval-2010  Task  14  is  a  continuation  of  the  WSI  SemEval-2007  Task  2  with  some 
-significant changes to the evaluation setting The main difference in this task compared to the 
-SemEval-2007  WSI  task  is  that  the  training  and  testing  data  are  treated  separately  which 
-allows for a more realistic evaluation of the clustering models Readers may refer to Klapaftis 
-and Manandhar 2013 for a detailed analysis of the SemEval-2010 WSI task evaluation result 
-and new evaluation settings 
-SemEval-2013 Task 11 
-For  the  evaluation  in  SemEval-2013  Task  11  WSI  and  WSD  systems  are  applied  to  web 
-search result clustering where the test data consists of 100 topics all nouns each with a list 
-of 64 top-ranking documents The topics were selected from the list of ambiguous Wikipedia 
-entries  ie  those  with  disambiguation  in  the  title  among  queries  of  lengths  ranging 
-between 1 and 4 words The 64 snippets associated with each topic were collected from the 
-results provided by the Google search engine Three annotators tagged each snippet with the 
-most appropriate meaning from Wikipedia with adjudication in the case of disagreement For 
-a detailed description of the SemEval-2013 Task 11 evaluations please refer to Di Marco and 
-Navigli 2013 Navigli and Vannella 2013 
-4  WSI for Under-Resourced Languages 
-Given the above-mentioned difficulties WSI is an attractive alternative to WSD especially for 
-under-resourced languages 
-The Figure 2 shows an overview of the state of freely available resources for a certain number 
-of  representative  languages  and  the  aim  of  the  diagram  is  to  give  the  reader  an  idea  of  the 
-current  situation  Making  a  highly  precise  diagram  would  be  prohibitively  complex  and 
-furthermore  the  position  of  the  various  languages  must  be  interpreted  relatively  to  each 
-other rather than in an absolute manner except for English that we  placed in the top right-
-hand corner as a reference 
-FIGURE 2  Computationally language richness  Data versus Knowledge Schwab 2013 
-personal notes 
-As  described  previously  two  kinds  of  resources  are  difficultexpensive  to  build  annotated 
-corpora and lexical databases static versus dynamic knowledge While lexical databases can 
-be  used  directly  in  many  applications  or  by  humans  sense-annotated  corpora  have  less 
-applications and are much  more expensive to build An automatic procedure can  extract the 
-senses that are objectively present in a particular corpus and allows for the sense inventory to 
-be  straightforwardly  adapted  to  a  new  domain  By  applying  WSI  it  is  practical  to 
-disambiguate  particular  word  instances  using  the  automatically  extracted  sense  inventory 
-Words and contexts are mapped to a limited number of topic dimensions depending on the 
-topic  of  the  words  and  contexts  in  a  latent  semantic  word  space  A  particular  sense  is 
-associated  with  a  particular  topic  and  different  senses  can  be  discriminated  through  their 
-association  with  particular  topic  dimensions  Van  de  Cruys  and  Apidianaki  2011  describe 
-the induction step and disambiguation step as being based on the same principle 
-Currently Wikipedia  contains  285  languages  anyone  can  generate  corpus  from  a Wikipedia 
-dump  or  blogs  forums  newspaper  articles  in  any  language  As  WSI  is  a  kind  of  clustering 
-problem the evaluation of the clusters is normally difficult however if the evaluation process 
-is  followed  it  becomes  rather  straightforward  Though  semantic  evaluation  campaigns  are 
-based on some dominant languages progress for under-resourced languages is still ongoing 
-In  this  regard  Crowdsourcing  Sabou  et  al  2012  especially Games With A Purpose von 
-Ahn 2006 are considered as an attractive alternative for collecting annotated data Wang et 
-al 2010 which can be subsequently used as a GS for evaluating the systems 
-5  Conclusion and Discussions 
-The  state  of  the  art  of  Word  Sense  Disambiguation  followed  by  Word  Sense  Induction 
-techniques  for  under-resourced  languages  are  provided  in  this  article  and  also  tries  to 
-provide  a  basic  idea  of  the  essentials  of  the  field  Here  the  authors  show  a  way  to  work  on 
-WSD  by  using  WSI  approaches  in  an  unsupervised  way  where  very  few  resources  like 
-corpora are available Basically the performance of WSD systems depends heavily on which 
-sense  inventory  is  chosen  here  WSI  overcomes  this  issue  by  allowing  unrestrained  sets  of 
-senses Besides its evaluation is particularly hard because there is no easy way of comparing 
-and ranking different representations of senses 
-Acknowledgements 
-The  work  presented  in  this  paper  was  conducted  in  the  context  of  the  VideoSense  project 
-funded  by  the  French  National  Research  Agency  ANR  under  its  CONTINT  2009  program 
-grant ANR-09-CORD-026 
-References 
-AGIRRE  E  LOPEZ  DE  LACALLE  O  AND  SOROA  A  2009  Knowledge-Based  WSD  on  Specific 
-Domains  Performing  Better  than  Generic  Supervised  WSD In Proceedings of the 21st Intl 
-Joint Conference on Artificial Intelligence IJCAI pp 1501 1506 California 
-AGIRRE  E  MARTINEZ  D  LOPEZ  DE  LACALLE  O  AND  SOROA  A  2006a  Two  Graph-Based 
-Algorithms for State of the Art WSD In Proceedings of the Conference on EMNLP pp 585-593 
-AGIRRE E MARTNEZ D LPEZ DE LACALLE O AND SOROA A  2006b  Evaluating  and  Optimizing 
-the  Parameters  of  an  Unsupervised  Graph-Based  WSD  Algorithm  In  Proceedings  of 
-TextGraphs the 2nd Workshop on Graph Based Methods for NLP pp 8996 New York USA 
-AGIRRE E AND SOROA A  2007  SemEval-2007  Task  2  Evaluating  Word  Sense  Induction  and 
-Discrimination Systems In Proceedings of the 4th Intl Workshop on SemEval-2007 pp 712 
-AGIRRE E AND SOROA A  2009  Personalizing  PageRank  for  Word  Sense  Disambiguation In 
-Proceedings of the 12th Conference of the EACL 2009 pp 3341 Athens Greece 
-AGIRRE  E  LOPEZ  DE  LACALLE  O  FELLBAUM  C  HSIEH  SK  TESCONI  M  MONACHINI  M VOSSEN  P 
-AND SEGERS R  2010  SemEval-2010  Task  17  All-Words  Word  Sense  Disambiguation  on  a 
-Specific Domain In Proceedings of the 5th Intl Workshop on Semantic Evaluation pp 7580 
-APIDIANAKI M 2008 Translation-Oriented Word Sense Induction Based on Parallel Corpora 
-In Proceedings of the 6th Intl Conference on Language Resources and Evaluation Morocco 
-APIDIANAKI M  AND VAN  DE  CRUYS T 2011  A  Quantitative  Evaluation  of  Global  Word  Sense 
-Induction  In Proceedings of the 12th Intl Conference on Intelligent Text Processing and 
-Computational Linguistics CICLing-2011 pp 253264 Tokyo Japan 
-BALDWIN T KIM S BOND F FUJITA S MARTINEZ D AND TANAKA T  2010  A  Reexamination  of 
-MRD-Based Word Sense Disambiguation In ACM Transactions on Asian Language Information 
-Processing TALIP 9 pp 41421 ACM 
-BIEMANN  C  2006  Chinese  Whispers    An  Efcient  Graph  Clustering  Algorithm  and  Its 
-Application to Natural Language Processing Problems In Proceedings of the TextGraphs the 
-First Workshop on Graph Based Methods for Natural Language Processing pp 7380 USA 
-BORDAG S 2006 Word Sense Induction Triplet-Based Clustering and Automatic Evaluation 
-In Proceedings of the 11th Conference of the EACL 2006 pp 137144 Trento Italy 
-BRODY S AND LAPATA M  2009  Bayesian  Word  Sense  Induction In Proceedings of the 12th 
-Conference of the EACL 2009 pp 103111 Athens Greece 
-CHAN  YS  NG  HT  AND  ZHONG  Z  2007  NUS-PT  Exploiting  Parallel  Texts  for  Word  Sense 
-Disambiguation in the English All-Words Tasks In Proceedings of the 4th Intl Workshop on 
-Semantic Evaluations SemEval-2007 pp 253256 Prague Czech Republic 
-CURRAN  J  R  2004  PhD  Thesis  From  distributional  to  semantic  similarity  University of 
-Edinburgh Edinburg UK 
-DECADT B HOSTE V DAELEMANS W AND VAN DEN BOSCH A  2004  GAMBL  Genetic  Algorithm 
-Optimization  of  Memory-Based  WSD  In Proceedings of the 3rd Intl Workshop on the 
-Evaluation of Systems for the Semantic Analysis of Text pp 108112 Barcelona Spain 
-DENKOWSKI M  2009  A  Survey  of  Techniques  for  Unsupervised  Word  Sense  Induction In 
-Language  Statistics II Literature Review 
-DI MARCO A AND NAVIGLI R  2011  Clustering  Web  Search  Results  With  Maximum  Spanning 
-Trees In Proceedings of the 12th Intl Conference of the Italian Association for AI pp201212 
-DI  MARCO  A  AND  NAVIGLI  R  2013  Clustering  and  Diversifying  Web  Search  Results  with 
-Graph-Based Word Sense Induction In Computational Linguistics 394 pp 201212 MIT 
-DOROW B AND WIDDOWS D 2003  Discovering  Corpus-Specific  Word  Senses In Proceedings 
-of the 10th Conference of the European Chapter of the Association for Computational 
-Linguistics EACL 2003 pp 7982 Budapest Hungary 
-DOROW B WIDDOWS D LING K ECKMANN J SERGI D AND MOSES E 2005 Using Curvature and 
-Markov  Clustering  in  Graphs  for  Lexical  Acquisition  and  Word  Sense  Discrimination  In 
-Proceedings of the MEANING-2005 Workshop 
-EDMONDS  P  AND  COTTON  S  2001  SENSEVAL-2  Overview  In Proceedings of the 2nd Intl 
-Workshop on Evaluating Word Sense Disambiguation Systems pp 1-5 France 
-FELLBAUM C ED 1998 WordNet An Electronic Database MIT Press Cambridge MA USA 
-FERRET  O  2004  Discovering  Word  Senses  from  a  Network  of  Lexical  Cooccurrences  In 
-Proceedings of the 20th Intl Conference on Computational Linguistics pp 13261332 
-FIRTH JR 1957 A synopsis of linguistic theory 1930-1955 In Studies in Linguistic Analysis 
-Oxford Philological Society pp  132  Reprinted  in  Palmer  FR  ed  1968  Selected 
-Papers of JR Firth 1952-1959 London Longman 
-FORTUNATO S 2010 Community Detection in Graphs In Physics Reports 486 pp 75174 
-GROZEA  C  2004  Finding  Optimal  Parameter  Settings  for  High  Performance  Word  Sense 
-Disambiguation In Proceedings of the 3rd Intl Workshop on the Senseval-3 pp 125128 
-HARRIS  Z  1954  Distributional  Structure  In Papers in Structural and Transformational 
-Linguistics pp 775794 
-HOPE D AND KELLER B 2013  MaxMax  A  Graph-Based  Soft  Clustering  Algorithm  Applied  to 
-Word  Sense  Induction In Proceedings of the Intl Conference on Intelligent Text Processing 
-and Computational Linguistics CICLing-2013 pp 368381 Samos Greece 
-HOSTE V HENDRICKX I DAELEMANS W  AND  VAN  DEN BOSCH A 2002  Parameter  Optimization 
-for Machine-Learning of Word Sense Disambiguation In Natural Language Engineering 804 
-pp 311325 Cambridge University Press 
-HOVY E MARCUS M PALMER M RAMSHAW L AND WEISCHEDEL R 2006  OntoNotes  The  90 
-Solution  In Proceedings of the Human Language Technology Conference of the North 
-American Chapter of the Association for Computational Linguistics pp 5760 USA 
-IDE N AND VRONIS J 1998 Introduction to the special issue on word sense disambiguation 
-the state of the art In Computational Linguistics 241 pp 0240 Cambridge MA USA 
-IDE  N  ERJAVEC  T  AND  TUFIS  D  2002  Sense  Discrimination  with  Parallel  Corpora  In 
-Proceedings of ACL-02 Workshop on Word Sense Disambiguation pp 6166 USA 
-JABBARI S HEPPLE M  AND GUTHRIE L 2010  Evaluation  Metrics  for  the  Lexical  Substitution 
-Task In Proceedings of the Human Language Technology Conference of the North American 
-Chapter of the Association for Computational Linguistics pp 289292 California USA 
-JIN P WU Y  AND YU S 2007  SemEval-2007  Task  05  Multilingual  Chinese-English  Lexical 
-Sample In Proceedings of the 4th Intl Workshop on Semantic Evaluations SemEval-2007 
-pp 1923 Prague Czech Republic 
-JURGENS D 2011 Word Sense Induction by Community Detection In Proceedings of the 49th 
-Annual  Meeting  of  the  Association  for  Computational  Linguistics  Human  Language 
-Technologies ACL HLT 2011 pp 2428 Portland Oregon USA 
-KHAPRA  MM  SHAH  S  KEDIA  P  AND  BHATTACHARYYA  P  2009  Projecting  Parameters  for 
-Multilingual  Word  Sense  Disambiguation  In Proceedings of the Conference on Empirical 
-Methods in Natural Language Processing EMNLP-09 pp 459467 Singapore 
-KHAPRA  MM  KULKARNI  A  SOHONEY  S  AND  BHATTACHARYYA  P  2010  All  Words  Domain 
-Adapted WSD Finding a Middle Ground Between Supervision and Supervision In Proceedings 
-of the 48th Annual Meeting of the Association for Computational Linguistics pp 15321541 
-KILGARRIFF  A  1998  SENSEVAL  An  Exercise  in  Evaluating  Word  Sense  Disambiguation 
-Programs In Proceeding of the 1st Intl Conference on Language Resources and Evaluation 
-LREC 1998 pp 581588 Granada Spain 
-KLAPAFTIS IP AND MANANDHAR S 2007 UoY A Hypergraph Model for Word Sense Induction 
-and  Disambiguation  In Proceedings of the 4th Intl Workshop on Semantic Evaluations 
-SemEval-2007 pp 414417 Prague Czech Republic 
-KLAPAFTIS 
-Disambiguation Methods In Language Resources and Evaluation pp 127  Springer 
-IP  AND  MANANDHAR  S  2013  Evaluating  Word  Sense 
-Induction  and 
-KOELING  R  MCCARTHY  D  AND  CARROLL  J  2005  Domain-Specific  Sense  Distributions  and 
-Predominant  Sense  Acquisition  In  Proceedings  of  the  Human  Language  Technology 
-Conference and the Conference on Empirical Methods in NLP pp 419426 BC Canada 
-KORKONTZELOS I  AND MANANDHAR S 2010 UoY  Graphs  of  Unambiguous  Vertices  for  Word 
-Sense  Induction  and  Disambiguation In Proceedings of the 5th Intl Workshop on Semantic 
-Evaluation SemEval-2010 pp 355358 Uppsala Sweden 
-LANDAUER  TK  AND  DUMAIS ST  1997  A  Solution  to  Platos  Problem  The  Latent  Semantic 
-Analysis  Theory  of  Acquisition  Induction  and  Representation  of  Knowledge In Psychology 
-Review 104 pp 211240 
-LANDAUER T FOLTZ P AND LAHAM D 1998  An  Introduction  to  Latent  Semantic  Analysis In 
-Discourse Processes pp 25 284295 
-LIN  D  1998  Automatic  Retrieval  and  Clustering  of  Similar  Words  In Proceedings of the 
-17th Intl Conference on Computational Linguistics pp 768774 Quebec Canada 
-LIN D AND PANTEL P 2001 DIRTDiscovery of Inference Rules from Text In Proceedings of 
-the 7th ACM SIGKDD Intl Conference on Knowledge Discovery and Data Mining pp 323328 
-MANANDHAR  S  KLAPAFTIS  IP  DLIGACH  D  AND  PRADHAN  SS  2010  SemEval-2010  Task  14 
-Word  Sense  Induction    Disambiguation  In Proceedings of the 5th Intl Workshop on 
-Semantic Evaluation SemEval-2010 pp 6368 Uppsala Sweden 
-MANANDHAR  S  AND  YURET  D  2012  SemEval-2012  Semantic  Evaluation  Exercises  In 
-Proceedings of the SemEval-2012 Semantic Evaluation Exercises Montreal Canada 
-MCCARTHY  D  AND  NAVIGLI  R  2009  The  English  Lexical  Substitution  Task  In Language 
-Resources and Evaluation 432 pp 139159 Springer 
-MIHALCEA R AND EDMONDS P 2004  Senseval-3  The Third Intl  Workshop on the Evaluation 
-of  Systems  for  the  Semantic  Analysis  of  Text  In Proceedings of Senseval-3 The 3rd Intl 
-Workshop on the Evaluation of Systems for the Semantic Analysis of Text 
-MIHALCEA  R  AND  FARUQUE  E  2004  Senselearner  Minimally  Supervised  Word  Sense 
-Disambiguation for All Words in Open Text In Proceedings of ACLSIGLEX pp 155158 
-NAVIGLI R 2009 Word Sense Disambiguation A Survey In ACM Computing Surveys CSUR 
-412 pp 169 ACM 
-NAVIGLI  R  AND  CRISAFULLI  G  2010  Inducing  Word  Senses  to  Improve  Web  Search  Result 
-Clustering  In Proceedings of the Conference on Empirical Methods in Natural Language 
-Processing EMNLP-10 pp 116126 Boston USA 
-NAVIGLI  R  JURGENS  D  AND  VANNELLA  D  2013  SemEval-2013  Task  12  Multilingual  Word 
-Sense Disambiguation In Proceedings of the 7th Intl Workshop on Semantic Evaluation the 
-2nd Joint Conference on Lexical and Computational Semantics pp 116126 Atlanta GA USA 
-NAVIGLI  R  AND  LAPATA  M  2010  An  Experimental  Study  on  Graph  Connectivity  for 
-Unsupervised  Word  Sense  Disambiguation  In IEEE Transactions on Pattern Analysis and 
-Machine Intelligence 324 pp 678692 IEEE 
-NAVIGLI R LITKOWSKI KC AND HARGRAVES O 2007  SemEval-2007  Task  07  Coarse-Grained 
-English All-Words Task In Proceedings of 4th Intl Workshop on SemEval-2007 pp 3035 
-NAVIGLI R AND PONZETTO SP 2010  BabelNet  Building  a  Very  Large  Multilingual  Semantic 
-Network In Proceedings of the 48th Annual Meeting of the Association for Computational 
-Linguistics ACL 2010 pp 216225 Uppsala Sweden 
-NAVIGLI  R  AND  VANNELLA  D  2013  SemEval-2013  Task  11  Word  Sense  Induction   
-Disambiguation within an End-User Application In Proceedings of the 7th Intl Workshop on 
-Semantic Evaluations SemEval-2013 Atlanta GA USA 
-NIU Z JI D AND TAN C 2007  I2R  Three  Systems  for  Word  Sense  Discrimination  Chinese 
-Word  Sense  Disambiguation  and  English  Word  Sense  Disambiguation In Proceedings of the 
-4th Intl Workshop on Semantic Evaluations pp 177182 Prague Czech Republic 
-PANTEL P AND LIN D 2002  Discovering  Word  Senses  from  Text In Proceedings of the 8th 
-Intl Conference on Knowledge Discovery and Data Mining pp 613619 Canada 
-PINTO D ROSSO P AND JIMENEZ-SALAZAR H 2007  UPV-SI  Word  Sense  Induction  Using  Self-
-Term Expansion In Proceedings of 4th Intl Workshop on Semantic Evaluations pp 430433 
-PONZETTO  SP  AND  NAVIGLI R  2010  Knowledge-Rich  Word  Sense  Disambiguation  Rivaling 
-Supervised  System  In Proceedings of the 48th Annual Meeting of the Association for 
-Computational Linguistics ACL 2010 pp 15221531 Uppsala Sweden 
-RAND W M 1971 Objective Criteria for the Evaluation of Clustering Methods In Journal of 
-the American Statistical Association 66336 pp 846850 Taylor  Francis 
-ROSENBERG  A  AND  HIRSCHBERG  J  2007  V-Measure  A  Conditional  Entropy-Based  External 
-Cluster  Evaluation  Measure  In Proceedings of the Conference on Empirical Methods in 
-Natural Language Processing and Computational Natural Language Learning pp 410420 
-SABOU  M  BONTCHEVA  K  AND  SCHARL  A  2012  Crowdsourcing  Research  Opportunities 
-Lessons  from  Natural  Language  Processing In Proceedings of the 12th Intl Conference on 
-Knowledge Management and Knowledge Technologies pp 171178 
-SCHTZE H 1998 Automatic Word Sense Discrimination In Computational Linguistics 241 
-pp 97124 MIT Press 
-STEINBACH  M  KARYPIS  G  AND  KUMAR  V  2000  A  Comparison  of  Document  Clustering 
-Techniques In Proceedings of the 6th ACM SIGKDD Intl Conference on Knowledge Discovery 
-and Data Mining pp 525526 Boston USA 
-VAN  DE  CRUYS  T  AND  APIDIANAKI  M  2011  Latent  Semantic  Word  Sense  Induction  and 
-Disambiguation  In  Proceedings  of  the  49th  Annual  Meeting  of  the  Association  for 
-Computational Linguistics Human Language Technologies pp 1476 1485 Oregon USA 
-VAN DE CRUYS T 2010  PhD  Thesis  Mining  for  Meaning    the  Extraction  of  Lexico-Semantic 
-Knowledge from Text University of Groningen pp 1218 The Netherlands 
-VRONIS  J  2004  Hyperlex  Lexical  Cartography  for  Information  Retrieval  In Computer 
-Speech and Language 183 pp 223252 
-VON  AHN L 2006 Games  With  A  Purpose  In Computer 639  pp  9294  IEEE  Computer 
-Society Press 
-WAGNER  C  2006  Breaking  the  knowledge  acquisition  bottleneck  through  conversational 
-knowledge  management  In Information Resources Management Journal IRMJ 191  pp 
-7083 IGI Global 
-WANG A HOANG CDV AND KAN MY 2004 Perspectives  on  Crowdsourcing  Annotations  for 
-Natural Language Processing In Language Resources and Evaluation pp 123 Springer 
-WIDDOWS D  AND DOROW B 2002  A  Graph  Model  for  Unsupervised  Lexical  Acquisition In 
-Proceedings of the 19th Intl Conference on Computational Linguistics pp 17 
-YAROWSKY D 1995 Unsupervised Word Sense Disambiguation Rivaling Supervised Methods 
-In Proceedings of the 33rd Annual Meeting of the Association for Computational Linguistics 
-ACL 1995 pp 189196 Cambridge Massachusetts USA 
-ZHAO Y KARYPIS G AND FAYYAD U 2005  Hierarchical  Clustering  Algorithms  for  Document 
-Datasets In Data Mining and Knowledge Discovery 102 pp 141168 The Netherlands 
-ZHONG Z AND NG HT 2010  It  Makes  Sense  A  Wide-Coverage  Word  Sense  Disambiguation 
-System  for  Free  Text  In Proceedings of the 48th Annual Meeting of the Association for 
-Computational Linguistics ACL 2010 pp 7883 Uppsala Sweden 
-A State of the Art of Word Sense Induction A Way Towards Word 
-Sense Disambiguation for Under-Resourced Languages 
-Laboratoire dInformatique de Grenoble-Groupe dtude pour la Traduction AutomatiqueTraitement 
-Mohammad Nasiruddin 
-Automatis des Langues et de la Parole 
-Univ Grenoble Alpes 
-mohammadnasiruddinimagfr 
-ABSTRACT   
-Word Sense Disambiguation WSD the process of automatically identifying the meaning of a 
-polysemous word in a sentence is a fundamental task in Natural Language Processing NLP 
-Progress in this approach to WSD opens up many promising developments in the field of NLP 
-and its applications Indeed improvement over current performance levels could allow us to 
-take a first step towards natural language understanding Due to the lack of lexical resources it 
-is  sometimes  difficult  to  perform  WSD  for  under-resourced  languages  This  paper  is  an 
-investigation on how to initiate research in WSD for under-resourced languages by applying 
-Word Sense Induction WSI and suggests some interesting topics to focus on 
-RSUM   
-tat de lart de linduction de sens une voie vers la dsambigusation lexicale pour les langues 
-peu dotes 
-La dsambigusation lexicale le processus qui consiste  automatiquement identifier le ou les 
-sens possible dun mot polysmique dans un contexte donn est une tche fondamentale pour 
-le  Traitement  Automatique  des  Langues  TAL  Le  dveloppement  et  lamlioration  des 
-techniques  de  dsambigusation  lexicale  ouvrent  de  nombreuses  perspectives  prometteuses 
-pour le TAL En effet cela pourrait conduire  un changement paradigmatique en permettant 
-de  raliser  un  premier  pas  vers  la  comprhension  des  langues  naturelles  En  raison  du 
-manque  de  ressources  langagires  il  est  parfois  difficile  dappliquer  des  techniques  de 
-dsambigusation    des  langues  peu  dotes  Cest  pourquoi  nous  nous  intressons  ici   
-enquter sur comment avoir un dbut de recherche sur la dsambigusation lexicale pour les 
-langues peu dotes en particulier en exploitant des techniques dinduction des sens de mots 
-ainsi que quelques suggestions de pistes intressantes  explorer 
-KEYWORDS  Word  Sense  Disambiguation  Word  Sense  Induction  under-resourced  languages 
-lexical resources 
-MOTS-CLS  dsambigusation  lexicale  induction  de  sens  langues  peu  dotes  ressources 
-langagires 
-Introduction 
-Word  Sense  Disambiguation  WSD  is  a  core  and  open  research  problem  in  Computational 
-Linguistics and Natural Language Processing NLP which was recognized at the beginning of 
-the scientific interest in Machine Translation MT and Artificial Intelligence AI On a variety 
-of  word  types  and  ambiguities  research  has  progressed  steadily  to  the  point  where  WSD 
-systems achieve relatively high levels of accuracy 
-The goal of a WSD is to computationally assign the correct sense of a word ie meaning in 
-context phrase sentence paragraph text from a predefined sense inventory when the word 
-has multiple meanings It is a pervasive characteristic of natural language The problem is that 
-words often have more than one meaning sometimes fairly similar and sometimes completely 
-different For example the word bank has several senses and may refer to the edge of a river 
-a building or a financial institution The specific sense  intended is determined by the textual 
-context in which an instance of the ambiguous word appears In The boy leapt from the bank 
-into the cold water the edge of a river is intended whereas in The van pulled up outside the 
-bank and three masked men got out the building sense is meant while in The bank sent me 
-a letter implies the financial institution sense 
-Human readers have the capability to understand the meaning of a word from its context but 
-machines  need  to  process  textual  information  and  transform  it  into  data  structures  which 
-must  then  be  analyzed  in  order  to  determine  the  underlying  meaning  To  perform  WSD  a 
-sense inventory must be available which lists possible senses for the word of a text A sense 
-inventory is a lexical resource which contains list of senses of a given word like the traditional 
-dictionaries  knowledge resources Manually annotated corpora with either word senses or 
-information from knowledge sources is also an important resource for WSD 
-Initially  WSD  was  mainly  applied  and  developed  on  English  texts  because  of  the  broad 
-availability and  the prevalence of lexical resources compared  to other languages  Due to the 
-lack of lexical resources ie sense inventories dictionaries lexical databases wordnets etc 
-and  sense-tagged  corpora  it  is  difficult  to  start  working  on  WSD  for  under-resourced 
-languages  Bangla  Assamese  Oriya  Kannada  etc  To  account  for  under-resourced 
-languages one can easily adopt techniques aimed at the automatic discovery of word senses 
-from text a task called Word Sense Induction WSI 
-Languages with large amounts of data or funding or political interests can be interpreted as 
-well-resourced languages whereas a lot of languages in the world do not enjoy  this status 
-which  is  referred  to  in  this  article  as  under-resourced  languages  This  paper  presents  the 
-state of the art of WSD and WSI in an under-resourced language perspective In the following 
-sections the paper is organized as follows firstly Sections 2 and 3 illustrate the main topics of 
-interest  in  WSD  and  WSI  respectively  then  Section  4  briefly  describes  WSI  from  an  under-
-resourced  language  view  and  finally  Section  5  concludes  the  article  and  discusses  some 
-perspectives for future work 
-2  Word Sense Disambiguation 
-Depending on the degree of polysemy there can be many different senses for a word and WSD 
-algorithms aim at choosing the most appropriate sense combination among all possible senses 
-for all words in a text unit sentence paragraph etc It is essentially a task of classification 
-for  word  of  a  text  word  senses  are  the  possible  classes  the  context  provides  evidence 
-features  and  each  occurrence  of  a  word  is  assigned  to  one  or  more  of  its  possible  classes 
-based  on  the  evidence  There  are  many  methods  to  perform  WSD  In  this  section  various 
-types of approaches and algorithms for WSD will be briefly presented 
-The  reader  can  refer  to  Ide  and  Veronis  1998  for  works  before  1998  and  Agirre  and 
-Edmonds 2006 Navigli 2009 or McCarthy 2009 for a complete and current state of the 
-art of WSD 
-21  Approaches 
-WSD  approaches  can  be  categorized  into  supervised  WSD  and  unsupervised  WSD  and  a 
-further  distinction  can  be  made  between  knowledge-rich  and  knowledge-poor  approaches 
-Navigli  2009  Knowledge-rich  methods  involve  the  use  of  external  knowledge  sources 
-whereas knowledge-poor methods do not Based on machine learning techniques researchers 
-distinguish  between  supervised  methods  and  unsupervised  methods  There  are  three 
-mainstream  approaches  to  WSD  namely  Supervised  WSD  Minimally-supervised  WSD  and 
-Unsupervised  WSD  Figure  1  presents  various  WSD  methods  according  to  two  axis  the 
-quantity  of  annotated  corpora  required  vertically  and  the  amount  of  static  knowledge 
-horizontally 
-FIGURE 1  Word Sense Disambiguation systems  Data versus Knowledge Schwab 2013 
-personal notes 
-Supervised WSD 
-Supervised WSD uses supervised machine learning techniques These approaches use a set of 
-manually labeled training examples ie sets of examples encoded as vectors whose elements 
-represent features to train a classifier for each target word Support Vector Machines SVMs 
-and memory-based learning have been shown to be the most successful approaches Hoste et 
-al 2002 Decadt et al 2004 Mihalcea et al 2004 Grozea 2004 Chan et al 2007 Zhong and 
-Ng 2010 to date probably because they can cope with the high-dimensionality of the feature 
-space 
-Supervised algorithms are progressively losing ground to the other methods Moreover they 
-cannot easily be adapted to other languages without retraining requires annotated data from 
-that particular language Furthermore reusing models from one language for another leads 
-at best to a poor classification performance Khapra et al 2009 
- Minimally-supervised WSD 
-Minimally  supervised  methods  use  a  sense  inventory  a  few  sense-annotated  example 
-instances  and  raw  corpora  From  the  sense-annotated  examples  the  system  induces  the 
-senses or categories of senses for the non-annotated data and then it functions exactly as an 
-unsupervised  clustering  approach  The  most  prominent  Minimally  supervised  method 
-Yarowsky 1995 however to our knowledge has not been evaluated on SemEval WSD tasks 
-2121  Knowledge-based WSD 
-Knowledge-based WSD algorithms are similar to Minimally-supervised WSD approaches The 
-objective  of  Knowledge-based  methods  is  to  exploit  static  knowledge  resources  such  as 
-dictionaries  thesauri  glossaries  ontologies  collocation  etc  to  infer  the  senses  of  words  in 
-context  Degree  Navigli  and  Lapata  2010  Ponzetto  and  Navigli  2010  or  Personalized 
-PageRank  Agirre  and  Soroa  2009  are  among  the  latest  knowledge-based  systems  in  the 
-literature  that  exploits  WordNet  Fellbaum  1998  or  other  resources  like  BabelNet  Navigli 
-and Ponzetto 2010 to build a semantic graph and use the structural properties of the graph 
-In  order  to  choose  the  appropriate  senses  of  words  knowledge-based  systems  use  the 
-structural properties of the graph in context either locally to the input sentence or globally 
-Unsupervised WSD 
-Unsupervised  learning  is  the  greatest  challenge  for  WSD  researchers  Unsupervised  WSD 
-approaches  are  composed  of  Word  Sense  Induction  or  discrimination  techniques  aimed  at 
-discovering  senses  automatically  based  on  unlabeled  corpora  and  then  applying  them  for 
-WSD By opposition to Supervised WSD these approaches use machine learning techniques on 
-non-sense-tagged corpora with no a priori knowledge about the task at all see Section 4 
-22  Evaluation 
-The evaluation of previous WSD algorithms is expressed in terms of the number of correctly 
-disambiguated words as evaluated through a Gold Standard GS Since 1998 there have been 
-several follow-up evaluation campaigns  Senseval-1 Kilgarriff 1998 Senseval-2 Edmonds 
-and  Cotton  2001  Senseval-3  Mihalcea  and  Edmonds  2004  SemEval-2007  Navigli  et  al 
-2007 SemEval-2010 Agirre et al 2010 SemEval-2012 Manandhar and Yuret 2012 and 
-recently  SemEval-2013  Navigli  et  al  2013  with  various  disambiguation  and  semantic 
-analysis tasks which have been very successful and beneficial to the progress of the field 
-In  the  evaluation  task  a  reference  corpus  is  given  with  the  lemmatized  and  part  of  speech 
-PoS  tagged  instances  ie  words  which  will  have  to  be  disambiguated  The  results  are 
-matched with the GS through Precision P Recall R and F1 score which are the standard-
-measures  for  evaluating  WSD  algorithms  Navigli  2009  The  evaluation  tools  provided 
-calculate 
-- P the number of correct answers provided over the total number of answers provided 
-- R the number of correct answers provided over the total number of expected answers 
-- F1 measure the harmonic mean between the two 2PRPR 
-When all words are annotated by a WSD algorithm then PRF1 
-3  Word Sense Induction 
-Word  sense  induction  WSI  is  the  task  of  automatically  identifying  the  senses  of  words  in 
-texts  without  the  need  of  handcrafted  resources  or  manually  annotated  data  It  is  an 
-unsupervised WSD technique use machine learning methods on raw corpora without relying 
-on  any  external  resources  such  as  dictionaries  or  sense-tagged  data  During  the  learning 
-phase  algorithms  induce  words  senses  from  raw  text  by  clustering  word  occurrences 
-following  the  Distributional Hypothesis  Harris  1954  Curran  2004  This  hypothesis  was 
-popularized with the phrase a word is characterized by the company it keeps Firth 1957 
-Two  words  are  considered  semantically  close  if  they  co-occur  with  the  same  neighboring 
-words As a result shifting the focus away from how to select the most suitable senses from an 
-inventory  towards  how  to  automatically  discover  senses  from  a  text  By  applying  WSI  it  is 
-possible  to  mitigate  the  Knowledge Acquisition Bottleneck  Wagner  2008  problem  The 
-single  common  thread  to  WSI  methods  is  the  reliance  on  clustering  algorithms  used  on  the 
-words in the unannotated corpus Although the role of WSI in a disambiguation context is to 
-build  a  sense  inventory  that  can  be  used  subsequently  for  WSD  therefore  WSI  can  be 
-considered  as  part  of  WSD  Of  course  WSI  can  have  many  more  applications  than  building 
-sense inventories and thus WSD 
-31  Approaches 
-WSI  algorithms  extract  the  different  senses  of  word  following  two  approaches    locally  and 
-globally  Local  algorithms  discover  senses  of  a  word  per-word  basis  ie  by  clustering  its 
-instances  in  contexts  according  to  their  semantic  similarity  whereas  global  algorithms 
-discovers senses in a global manner ie by comparing and determining them from the senses 
-of other words in a full-blown word space model Apidianaki and Van de Cruys 2011 Based 
-on  the  type  of  clustering  algorithms  used  will  be  reviewed  various  WSI  proposed  in  the 
-literature in the following subsections 
-Clustering Approaches 
-Returning to the idea of Harris 1954 Curran 2004 that word meaning can be derived from 
-context Pantel and Lin 2002 discover word senses from text The underlying hypothesis of 
-this  approach  is  that  words  are  semantically  similar  if  they  appear  in  similar  documents 
-within  similar  context  windows  or  in  similar  syntactic  contexts  Van  de  Cruys  2010 Lins 
-algorithm  Lin  1998  is  a  prototypical  example  of  word  clustering  which  is  based  on 
-syntactic dependency statistics between words that occur in a corpus to produce sets for each 
-discovered sense of a target word Van de Cruys and Apidianaki 2011 By using a similarity 
-function the following clustering algorithms are applied  to a test set of word feature vectors 
-Pantel  and  Lin  2002 K-means Bisecting K-means  Steinbatch et al  2000 Average-link 
-Buckshot  and UNICON  Lin  and  Pantel  2001 Clustering By Committee CBC  Pantel  and 
-Lin 2002 also uses syntactic contexts intended for the task of sense induction but exploits a 
-similarity  matrix  to  encode  the  similarities  between  words  It  relies  on  the  notion  of 
-committees to output the different senses of the word of interest However These approaches 
-are hard to apply on a large scale for many domains and languages 
-Extended-clustering Approaches 
-Considering the observation that words tend to manifest one sense per collocation Yarowsky 
-1995  Bordag  2006  uses word triplets  instead  of  word  pairs  A  well-known  approach  to 
-extended-clustering is the Context-group Discrimination algorithm Schtze 1998 based on 
-large  matrix  computation  methods  Another  approach  presented  by  Pinto  et al  2007 
-attempts  to  improve  the  usability  of  small  narrow-domain  corpora  through  self-term 
-expansion Brody and Lapata 2009 shows that the task of word sense induction can also be 
-framed in a Bayesian context by considering contexts of ambiguous words to be samples from 
-a multinomial distribution  There are other extended-clustering approaches that include the 
-bi-gram  clustering  technique  proposed  by  Schtze  1998  the  clustering  technique  using 
-phrasal co-occurrences  presented  by  Dorow  and  Widdows  2003  the  technique  for  word 
-clustering using a context window presented by Ferret 2004 and the method applying the 
-Information Bottleneck  algorithm  for  sense  induction  proposed  by  Niu et al  2007  These 
-additional  clustering  techniques  can  be  broadly  categorized  as  either  improving  feature 
-selection  and  enriching  features  or  introducing  more  effective  and  efficient  clustering 
-algorithms 
-Graph-based Approaches 
-The  main  hypothesis  of  co-occurrence  graphs  is  assuming  that  the  semantic  of  a  word  is 
-represented by means of co-occurrence graph  whose vertices are co-occurrences and  edges 
-are co-occurrence relations These approaches are related to word clustering methods where 
-co-occurrences  between  words  can  be  obtained  on  the  basis  of grammatical  Widdows  and 
-Dorow  2002  or  collocational relations  Vronis  2004  Klapaftis  and  Manandhar  2007 
-propose  the  idea  of  the  Hypergraph  model  for  such  WSI  approaches  HyperLex  Vronis 
-2004  is  a  successful  graph  based  algorithm  based  on  the  identification  of  hubs  in  co-
-occurrence  graphs  that  have  to  cope  with  the  need  to  tune  a  large  number  of  parameters 
-Agirre  et al  2006b  To  deal  with  this  issue  several  graph-based  algorithms  have  been 
-proposed which are based on simple graph patterns namely Curvature Clustering Dorow et 
-al  2005  Squares Triangles and Diamonds SquaT  Navigli  2010  and  Balanced 
-Maximum Spanning Tree Clustering B-MST  Di  Marco  et al  2011  The  patterns  aim  at 
-identifying word meanings using the local structural properties of the co-occurrence graph A 
-randomized  algorithm  which  partitions  the  graph  vertices  by  iteratively  transferring  the 
-mainstream message ie word sense to neighboring vertices proposed by Biemann 2006 
-is  Chinese Whispers  By  applying  co-occurrence  graph  approaches  Agirre  et al  2006a 
-Agirre and Soroa 2007 Korkontzelos and Manandhar 2010 have been  able to achieve state 
-of the art performance in standard evaluation tasks Jurgens 2011 reinterpret the challenge 
-of  identifying  sense  specic  information  in  a  co-occurrence  graph  as  one  of  community 
-detection  where  a  community  is  dened  as  a  group  of  connected  nodes  that  are  more 
-interconnected  than  to  the  rest  of  the  graph  Fortunato  2010  Recently  Hope  and  Keller 
-2013 introduced a linear time graph-based soft clustering algorithm for WSI named MaxMax 
-which  obtains  comparable  results  with  those  of  systems  based  on  existing  state  of  the  art 
-methods 
-Basic Word Co-occurrence 
-Features 
-Classical Clustering Algorithms 
-Classical Clustering 
-Novel Algorithms for WSI 
-Clustering by Committee CBC 
-Information Bottleneck 
-Additional Features 
-Triplet Clustering 
-Self-term Expansion 
-Context Clustering 
-Translation Features 
-Hypergraph 
-Collocation Graph 
-Bayesian Model 
-TABLE 1  Overview of Techniques for Word Sense Induction Denkowski 2009 
- Latent Semantic Analysis LSA  Landauer  and  Dumais  1997  Landauer  et al  1998  is 
-currently  a  very  popular  approach  to  WSI  that  operates  on  word  spaces  Van  de  Cruys  and 
-Apidianaki 2011 LAS aims at finding and  extract  latent  dimensions of  meaning using NMF 
-Non-negative Matrix Factorization PCA Principal Component Analysis  or SVD Singular 
-Value Decomposition The extracted latent dimensions are then used to distinguish between 
-different senses of a target word that are in turn used to disambiguate each given instance of 
-that word 
-Translation-oriented Approaches 
-WSI  approaches  described  above  cover  only  monolingual  data  in  the  context  of  Machine 
-Translation  MT  recent  work  has  been  done  to  incorporate  bilingual  data  into  the  sense 
-induction task Translation-oriented WSI approaches involve augmenting the source language 
-context with target language equivalents Apidianaki 2008 describes this process by using a 
-bilingual  corpus  that  has  been  word  aligned  by  type  and  token  to  construct  two  bilingual 
-dictionaries where each word type is associated with its translation equivalent The lexicon is 
-filtered such a way that words and their translation equivalents have matching PoS tags and 
-words appear in the translation lexicons for both directions 
-32  Evaluation 
-The evaluation of  WSI approaches is one of the key challenges for researchers As the sense 
-clusters  derived  by  these  algorithms  may  not  match  the  actual  senses  dened  in  lexical 
-resources  like  dictionaries  lexical  databases  wordnets  etc  the  evaluation  of  these 
-algorithms  needs  to  be  carried  out  manually  by  asking  language  experts  to  corroborate  the 
-results However it is hard to evaluate the results of WSI as the resulting clustered senses can 
-vary from algorithm to algorithm or even for various parameter values for a single algorithm 
-as even determining the number of clusters a difficult matter From the very beginning of WSI 
-depending  on  different  approaches  researchers  have  developed  various  evaluation 
-methodologies that can be separated into three main categories 
-Supervised Evaluation 
-In this evaluation method the target word corpus is divided into  two parts  a testing and a 
-training  part  Firstly  the  training  part  is  used  to  map  the  automatically  induced  clusters  to 
-Gold Standard GS  senses  In  the  next  step  the  test  corpus  is  used  to  evaluate  WSI 
-approaches  in  a  WSD  Agirre  and  Soroa  2007  setting  Finally  the  usual Precision P  and 
-Recall R are used to determine the quality of the resulting WSD 
-Unsupervised Evaluation 
-In  this  evaluation  setting  the  induced  senses  are  evaluated  as  clusters  of  examples  and 
-compared to sets of examples that have been tagged with sense labels from a Gold Standard 
-The V-measure Rosenberg and Hirschberg 2007 is used to determine the quality of clusters 
-by  combining  metrics  such  as  the Paired F-Score  Manandhar  et al  2010  the  RandIndex 
-Rand 1971 Navigli 2010 and others They measure both the coverage and the homogeneity 
-of a clustering output as opposed to the traditional clustering measure of F-Score Zhao et al 
-2005 that is most commonly used to assess the performance of WSI systems 
-Evaluation as an Application 
-Recently Navigli and Crisafulli 2010 Di Marco and Navigli 2013 proposed to evaluate WSI 
-approaches  as  part  of  a  specific  application  where  WSI  techniques  have  been  shown  to 
-consistently surpass symbolic state of the art systems See section 43 The evaluation of WSI 
-and WSD systems was performed in the context of Web search result clustering 
-SemEval WSI Evaluation Tasks 
-This section briefly describes the different SemEval workshops from 2007 to 2013 with WSI 
-evaluation tasks that focus on the evaluation of semantic analysis systems 
-SemEval-2007 Task 2 
-The  goal  of  SemEval-2007  Task  2  Agirre  and  Soroa  2007  is  to  allow  for  the  comparison 
-across  sense-induction  and  discrimination  systems  and  also  to  compare  these  systems  to 
-other supervised and knowledge-based systems This task evaluates WSI systems on 33 nouns 
-and  65  verbs  lexical  sample  where  the  corpus  consists  of  texts  of  the Wall Street Journal 
-WSJ corpus and is hand-tagged with OntoNotes senses Hovy et al 2006 For each tagged-
-word the task consists of first identifying the senses of target words eg as clusters of target 
-word  instances  co-occurring  words  etc  and  secondly  tagging  the  instances  of  the  target 
-word  using  the  automatically  induced  clusters  This  double  evaluation  methodology  ie 
-supervised  evaluation  and  unsupervised  evaluation  has  been  attempted  by  Agirre  et al 
-2006a 
-SemEval-2010 Task 14 
-SemEval-2010  Task  14  is  a  continuation  of  the  WSI  SemEval-2007  Task  2  with  some 
-significant changes to the evaluation setting The main difference in this task compared to the 
-SemEval-2007  WSI  task  is  that  the  training  and  testing  data  are  treated  separately  which 
-allows for a more realistic evaluation of the clustering models Readers may refer to Klapaftis 
-and Manandhar 2013 for a detailed analysis of the SemEval-2010 WSI task evaluation result 
-and new evaluation settings 
-SemEval-2013 Task 11 
-For  the  evaluation  in  SemEval-2013  Task  11  WSI  and  WSD  systems  are  applied  to  web 
-search result clustering where the test data consists of 100 topics all nouns each with a list 
-of 64 top-ranking documents The topics were selected from the list of ambiguous Wikipedia 
-entries  ie  those  with  disambiguation  in  the  title  among  queries  of  lengths  ranging 
-between 1 and 4 words The 64 snippets associated with each topic were collected from the 
-results provided by the Google search engine Three annotators tagged each snippet with the 
-most appropriate meaning from Wikipedia with adjudication in the case of disagreement For 
-a detailed description of the SemEval-2013 Task 11 evaluations please refer to Di Marco and 
-Navigli 2013 Navigli and Vannella 2013 
-4  WSI for Under-Resourced Languages 
-Given the above-mentioned difficulties WSI is an attractive alternative to WSD especially for 
-under-resourced languages 
-The Figure 2 shows an overview of the state of freely available resources for a certain number 
-of  representative  languages  and  the  aim  of  the  diagram  is  to  give  the  reader  an  idea  of  the 
-current  situation  Making  a  highly  precise  diagram  would  be  prohibitively  complex  and 
-furthermore  the  position  of  the  various  languages  must  be  interpreted  relatively  to  each 
-other rather than in an absolute manner except for English that we  placed in the top right-
-hand corner as a reference 
-FIGURE 2  Computationally language richness  Data versus Knowledge Schwab 2013 
-personal notes 
-As  described  previously  two  kinds  of  resources  are  difficultexpensive  to  build  annotated 
-corpora and lexical databases static versus dynamic knowledge While lexical databases can 
-be  used  directly  in  many  applications  or  by  humans  sense-annotated  corpora  have  less 
-applications and are much  more expensive to build An automatic procedure can  extract the 
-senses that are objectively present in a particular corpus and allows for the sense inventory to 
-be  straightforwardly  adapted  to  a  new  domain  By  applying  WSI  it  is  practical  to 
-disambiguate  particular  word  instances  using  the  automatically  extracted  sense  inventory 
-Words and contexts are mapped to a limited number of topic dimensions depending on the 
-topic  of  the  words  and  contexts  in  a  latent  semantic  word  space  A  particular  sense  is 
-associated  with  a  particular  topic  and  different  senses  can  be  discriminated  through  their 
-association  with  particular  topic  dimensions  Van  de  Cruys  and  Apidianaki  2011  describe 
-the induction step and disambiguation step as being based on the same principle 
-Currently Wikipedia  contains  285  languages  anyone  can  generate  corpus  from  a Wikipedia 
-dump  or  blogs  forums  newspaper  articles  in  any  language  As  WSI  is  a  kind  of  clustering 
-problem the evaluation of the clusters is normally difficult however if the evaluation process 
-is  followed  it  becomes  rather  straightforward  Though  semantic  evaluation  campaigns  are 
-based on some dominant languages progress for under-resourced languages is still ongoing 
-In  this  regard  Crowdsourcing  Sabou  et  al  2012  especially Games With A Purpose von 
-Ahn 2006 are considered as an attractive alternative for collecting annotated data Wang et 
-al 2010 which can be subsequently used as a GS for evaluating the systems 
-5  Conclusion and Discussions 
-The  state  of  the  art  of  Word  Sense  Disambiguation  followed  by  Word  Sense  Induction 
-techniques  for  under-resourced  languages  are  provided  in  this  article  and  also  tries  to 
-provide  a  basic  idea  of  the  essentials  of  the  field  Here  the  authors  show  a  way  to  work  on 
-WSD  by  using  WSI  approaches  in  an  unsupervised  way  where  very  few  resources  like 
-corpora are available Basically the performance of WSD systems depends heavily on which 
-sense  inventory  is  chosen  here  WSI  overcomes  this  issue  by  allowing  unrestrained  sets  of 
-senses Besides its evaluation is particularly hard because there is no easy way of comparing 
-and ranking different representations of senses 
-Acknowledgements 
-The  work  presented  in  this  paper  was  conducted  in  the  context  of  the  VideoSense  project 
-funded  by  the  French  National  Research  Agency  ANR  under  its  CONTINT  2009  program 
-grant ANR-09-CORD-026 
-References 
-AGIRRE  E  LOPEZ  DE  LACALLE  O  AND  SOROA  A  2009  Knowledge-Based  WSD  on  Specific 
-Domains  Performing  Better  than  Generic  Supervised  WSD In Proceedings of the 21st Intl 
-Joint Conference on Artificial Intelligence IJCAI pp 1501 1506 California 
-AGIRRE  E  MARTINEZ  D  LOPEZ  DE  LACALLE  O  AND  SOROA  A  2006a  Two  Graph-Based 
-Algorithms for State of the Art WSD In Proceedings of the Conference on EMNLP pp 585-593 
-AGIRRE E MARTNEZ D LPEZ DE LACALLE O AND SOROA A  2006b  Evaluating  and  Optimizing 
-the  Parameters  of  an  Unsupervised  Graph-Based  WSD  Algorithm  In  Proceedings  of 
-TextGraphs the 2nd Workshop on Graph Based Methods for NLP pp 8996 New York USA 
-AGIRRE E AND SOROA A  2007  SemEval-2007  Task  2  Evaluating  Word  Sense  Induction  and 
-Discrimination Systems In Proceedings of the 4th Intl Workshop on SemEval-2007 pp 712 
-AGIRRE E AND SOROA A  2009  Personalizing  PageRank  for  Word  Sense  Disambiguation In 
-Proceedings of the 12th Conference of the EACL 2009 pp 3341 Athens Greece 
-AGIRRE  E  LOPEZ  DE  LACALLE  O  FELLBAUM  C  HSIEH  SK  TESCONI  M  MONACHINI  M VOSSEN  P 
-AND SEGERS R  2010  SemEval-2010  Task  17  All-Words  Word  Sense  Disambiguation  on  a 
-Specific Domain In Proceedings of the 5th Intl Workshop on Semantic Evaluation pp 7580 
-APIDIANAKI M 2008 Translation-Oriented Word Sense Induction Based on Parallel Corpora 
-In Proceedings of the 6th Intl Conference on Language Resources and Evaluation Morocco 
-APIDIANAKI M  AND VAN  DE  CRUYS T 2011  A  Quantitative  Evaluation  of  Global  Word  Sense 
-Induction  In Proceedings of the 12th Intl Conference on Intelligent Text Processing and 
-Computational Linguistics CICLing-2011 pp 253264 Tokyo Japan 
-BALDWIN T KIM S BOND F FUJITA S MARTINEZ D AND TANAKA T  2010  A  Reexamination  of 
-MRD-Based Word Sense Disambiguation In ACM Transactions on Asian Language Information 
-Processing TALIP 9 pp 41421 ACM 
-BIEMANN  C  2006  Chinese  Whispers    An  Efcient  Graph  Clustering  Algorithm  and  Its 
-Application to Natural Language Processing Problems In Proceedings of the TextGraphs the 
-First Workshop on Graph Based Methods for Natural Language Processing pp 7380 USA 
-BORDAG S 2006 Word Sense Induction Triplet-Based Clustering and Automatic Evaluation 
-In Proceedings of the 11th Conference of the EACL 2006 pp 137144 Trento Italy 
-BRODY S AND LAPATA M  2009  Bayesian  Word  Sense  Induction In Proceedings of the 12th 
-Conference of the EACL 2009 pp 103111 Athens Greece 
-CHAN  YS  NG  HT  AND  ZHONG  Z  2007  NUS-PT  Exploiting  Parallel  Texts  for  Word  Sense 
-Disambiguation in the English All-Words Tasks In Proceedings of the 4th Intl Workshop on 
-Semantic Evaluations SemEval-2007 pp 253256 Prague Czech Republic 
-CURRAN  J  R  2004  PhD  Thesis  From  distributional  to  semantic  similarity  University of 
-Edinburgh Edinburg UK 
-DECADT B HOSTE V DAELEMANS W AND VAN DEN BOSCH A  2004  GAMBL  Genetic  Algorithm 
-Optimization  of  Memory-Based  WSD  In Proceedings of the 3rd Intl Workshop on the 
-Evaluation of Systems for the Semantic Analysis of Text pp 108112 Barcelona Spain 
-DENKOWSKI M  2009  A  Survey  of  Techniques  for  Unsupervised  Word  Sense  Induction In 
-Language  Statistics II Literature Review 
-DI MARCO A AND NAVIGLI R  2011  Clustering  Web  Search  Results  With  Maximum  Spanning 
-Trees In Proceedings of the 12th Intl Conference of the Italian Association for AI pp201212 
-DI  MARCO  A  AND  NAVIGLI  R  2013  Clustering  and  Diversifying  Web  Search  Results  with 
-Graph-Based Word Sense Induction In Computational Linguistics 394 pp 201212 MIT 
-DOROW B AND WIDDOWS D 2003  Discovering  Corpus-Specific  Word  Senses In Proceedings 
-of the 10th Conference of the European Chapter of the Association for Computational 
-Linguistics EACL 2003 pp 7982 Budapest Hungary 
-DOROW B WIDDOWS D LING K ECKMANN J SERGI D AND MOSES E 2005 Using Curvature and 
-Markov  Clustering  in  Graphs  for  Lexical  Acquisition  and  Word  Sense  Discrimination  In 
-Proceedings of the MEANING-2005 Workshop 
-EDMONDS  P  AND  COTTON  S  2001  SENSEVAL-2  Overview  In Proceedings of the 2nd Intl 
-Workshop on Evaluating Word Sense Disambiguation Systems pp 1-5 France 
-FELLBAUM C ED 1998 WordNet An Electronic Database MIT Press Cambridge MA USA 
-FERRET  O  2004  Discovering  Word  Senses  from  a  Network  of  Lexical  Cooccurrences  In 
-Proceedings of the 20th Intl Conference on Computational Linguistics pp 13261332 
-FIRTH JR 1957 A synopsis of linguistic theory 1930-1955 In Studies in Linguistic Analysis 
-Oxford Philological Society pp  132  Reprinted  in  Palmer  FR  ed  1968  Selected 
-Papers of JR Firth 1952-1959 London Longman 
-FORTUNATO S 2010 Community Detection in Graphs In Physics Reports 486 pp 75174 
-GROZEA  C  2004  Finding  Optimal  Parameter  Settings  for  High  Performance  Word  Sense 
-Disambiguation In Proceedings of the 3rd Intl Workshop on the Senseval-3 pp 125128 
-HARRIS  Z  1954  Distributional  Structure  In Papers in Structural and Transformational 
-Linguistics pp 775794 
-HOPE D AND KELLER B 2013  MaxMax  A  Graph-Based  Soft  Clustering  Algorithm  Applied  to 
-Word  Sense  Induction In Proceedings of the Intl Conference on Intelligent Text Processing 
-and Computational Linguistics CICLing-2013 pp 368381 Samos Greece 
-HOSTE V HENDRICKX I DAELEMANS W  AND  VAN  DEN BOSCH A 2002  Parameter  Optimization 
-for Machine-Learning of Word Sense Disambiguation In Natural Language Engineering 804 
-pp 311325 Cambridge University Press 
-HOVY E MARCUS M PALMER M RAMSHAW L AND WEISCHEDEL R 2006  OntoNotes  The  90 
-Solution  In Proceedings of the Human Language Technology Conference of the North 
-American Chapter of the Association for Computational Linguistics pp 5760 USA 
-IDE N AND VRONIS J 1998 Introduction to the special issue on word sense disambiguation 
-the state of the art In Computational Linguistics 241 pp 0240 Cambridge MA USA 
-IDE  N  ERJAVEC  T  AND  TUFIS  D  2002  Sense  Discrimination  with  Parallel  Corpora  In 
-Proceedings of ACL-02 Workshop on Word Sense Disambiguation pp 6166 USA 
-JABBARI S HEPPLE M  AND GUTHRIE L 2010  Evaluation  Metrics  for  the  Lexical  Substitution 
-Task In Proceedings of the Human Language Technology Conference of the North American 
-Chapter of the Association for Computational Linguistics pp 289292 California USA 
-JIN P WU Y  AND YU S 2007  SemEval-2007  Task  05  Multilingual  Chinese-English  Lexical 
-Sample In Proceedings of the 4th Intl Workshop on Semantic Evaluations SemEval-2007 
-pp 1923 Prague Czech Republic 
-JURGENS D 2011 Word Sense Induction by Community Detection In Proceedings of the 49th 
-Annual  Meeting  of  the  Association  for  Computational  Linguistics  Human  Language 
-Technologies ACL HLT 2011 pp 2428 Portland Oregon USA 
-KHAPRA  MM  SHAH  S  KEDIA  P  AND  BHATTACHARYYA  P  2009  Projecting  Parameters  for 
-Multilingual  Word  Sense  Disambiguation  In Proceedings of the Conference on Empirical 
-Methods in Natural Language Processing EMNLP-09 pp 459467 Singapore 
-KHAPRA  MM  KULKARNI  A  SOHONEY  S  AND  BHATTACHARYYA  P  2010  All  Words  Domain 
-Adapted WSD Finding a Middle Ground Between Supervision and Supervision In Proceedings 
-of the 48th Annual Meeting of the Association for Computational Linguistics pp 15321541 
-KILGARRIFF  A  1998  SENSEVAL  An  Exercise  in  Evaluating  Word  Sense  Disambiguation 
-Programs In Proceeding of the 1st Intl Conference on Language Resources and Evaluation 
-LREC 1998 pp 581588 Granada Spain 
-KLAPAFTIS IP AND MANANDHAR S 2007 UoY A Hypergraph Model for Word Sense Induction 
-and  Disambiguation  In Proceedings of the 4th Intl Workshop on Semantic Evaluations 
-SemEval-2007 pp 414417 Prague Czech Republic 
-KLAPAFTIS 
-Disambiguation Methods In Language Resources and Evaluation pp 127  Springer 
-IP  AND  MANANDHAR  S  2013  Evaluating  Word  Sense 
-Induction  and 
-KOELING  R  MCCARTHY  D  AND  CARROLL  J  2005  Domain-Specific  Sense  Distributions  and 
-Predominant  Sense  Acquisition  In  Proceedings  of  the  Human  Language  Technology 
-Conference and the Conference on Empirical Methods in NLP pp 419426 BC Canada 
-KORKONTZELOS I  AND MANANDHAR S 2010 UoY  Graphs  of  Unambiguous  Vertices  for  Word 
-Sense  Induction  and  Disambiguation In Proceedings of the 5th Intl Workshop on Semantic 
-Evaluation SemEval-2010 pp 355358 Uppsala Sweden 
-LANDAUER  TK  AND  DUMAIS ST  1997  A  Solution  to  Platos  Problem  The  Latent  Semantic 
-Analysis  Theory  of  Acquisition  Induction  and  Representation  of  Knowledge In Psychology 
-Review 104 pp 211240 
-LANDAUER T FOLTZ P AND LAHAM D 1998  An  Introduction  to  Latent  Semantic  Analysis In 
-Discourse Processes pp 25 284295 
-LIN  D  1998  Automatic  Retrieval  and  Clustering  of  Similar  Words  In Proceedings of the 
-17th Intl Conference on Computational Linguistics pp 768774 Quebec Canada 
-LIN D AND PANTEL P 2001 DIRTDiscovery of Inference Rules from Text In Proceedings of 
-the 7th ACM SIGKDD Intl Conference on Knowledge Discovery and Data Mining pp 323328 
-MANANDHAR  S  KLAPAFTIS  IP  DLIGACH  D  AND  PRADHAN  SS  2010  SemEval-2010  Task  14 
-Word  Sense  Induction    Disambiguation  In Proceedings of the 5th Intl Workshop on 
-Semantic Evaluation SemEval-2010 pp 6368 Uppsala Sweden 
-MANANDHAR  S  AND  YURET  D  2012  SemEval-2012  Semantic  Evaluation  Exercises  In 
-Proceedings of the SemEval-2012 Semantic Evaluation Exercises Montreal Canada 
-MCCARTHY  D  AND  NAVIGLI  R  2009  The  English  Lexical  Substitution  Task  In Language 
-Resources and Evaluation 432 pp 139159 Springer 
-MIHALCEA R AND EDMONDS P 2004  Senseval-3  The Third Intl  Workshop on the Evaluation 
-of  Systems  for  the  Semantic  Analysis  of  Text  In Proceedings of Senseval-3 The 3rd Intl 
-Workshop on the Evaluation of Systems for the Semantic Analysis of Text 
-MIHALCEA  R  AND  FARUQUE  E  2004  Senselearner  Minimally  Supervised  Word  Sense 
-Disambiguation for All Words in Open Text In Proceedings of ACLSIGLEX pp 155158 
-NAVIGLI R 2009 Word Sense Disambiguation A Survey In ACM Computing Surveys CSUR 
-412 pp 169 ACM 
-NAVIGLI  R  AND  CRISAFULLI  G  2010  Inducing  Word  Senses  to  Improve  Web  Search  Result 
-Clustering  In Proceedings of the Conference on Empirical Methods in Natural Language 
-Processing EMNLP-10 pp 116126 Boston USA 
-NAVIGLI  R  JURGENS  D  AND  VANNELLA  D  2013  SemEval-2013  Task  12  Multilingual  Word 
-Sense Disambiguation In Proceedings of the 7th Intl Workshop on Semantic Evaluation the 
-2nd Joint Conference on Lexical and Computational Semantics pp 116126 Atlanta GA USA 
-NAVIGLI  R  AND  LAPATA  M  2010  An  Experimental  Study  on  Graph  Connectivity  for 
-Unsupervised  Word  Sense  Disambiguation  In IEEE Transactions on Pattern Analysis and 
-Machine Intelligence 324 pp 678692 IEEE 
-NAVIGLI R LITKOWSKI KC AND HARGRAVES O 2007  SemEval-2007  Task  07  Coarse-Grained 
-English All-Words Task In Proceedings of 4th Intl Workshop on SemEval-2007 pp 3035 
-NAVIGLI R AND PONZETTO SP 2010  BabelNet  Building  a  Very  Large  Multilingual  Semantic 
-Network In Proceedings of the 48th Annual Meeting of the Association for Computational 
-Linguistics ACL 2010 pp 216225 Uppsala Sweden 
-NAVIGLI  R  AND  VANNELLA  D  2013  SemEval-2013  Task  11  Word  Sense  Induction   
-Disambiguation within an End-User Application In Proceedings of the 7th Intl Workshop on 
-Semantic Evaluations SemEval-2013 Atlanta GA USA 
-NIU Z JI D AND TAN C 2007  I2R  Three  Systems  for  Word  Sense  Discrimination  Chinese 
-Word  Sense  Disambiguation  and  English  Word  Sense  Disambiguation In Proceedings of the 
-4th Intl Workshop on Semantic Evaluations pp 177182 Prague Czech Republic 
-PANTEL P AND LIN D 2002  Discovering  Word  Senses  from  Text In Proceedings of the 8th 
-Intl Conference on Knowledge Discovery and Data Mining pp 613619 Canada 
-PINTO D ROSSO P AND JIMENEZ-SALAZAR H 2007  UPV-SI  Word  Sense  Induction  Using  Self-
-Term Expansion In Proceedings of 4th Intl Workshop on Semantic Evaluations pp 430433 
-PONZETTO  SP  AND  NAVIGLI R  2010  Knowledge-Rich  Word  Sense  Disambiguation  Rivaling 
-Supervised  System  In Proceedings of the 48th Annual Meeting of the Association for 
-Computational Linguistics ACL 2010 pp 15221531 Uppsala Sweden 
-RAND W M 1971 Objective Criteria for the Evaluation of Clustering Methods In Journal of 
-the American Statistical Association 66336 pp 846850 Taylor  Francis 
-ROSENBERG  A  AND  HIRSCHBERG  J  2007  V-Measure  A  Conditional  Entropy-Based  External 
-Cluster  Evaluation  Measure  In Proceedings of the Conference on Empirical Methods in 
-Natural Language Processing and Computational Natural Language Learning pp 410420 
-SABOU  M  BONTCHEVA  K  AND  SCHARL  A  2012  Crowdsourcing  Research  Opportunities 
-Lessons  from  Natural  Language  Processing In Proceedings of the 12th Intl Conference on 
-Knowledge Management and Knowledge Technologies pp 171178 
-SCHTZE H 1998 Automatic Word Sense Discrimination In Computational Linguistics 241 
-pp 97124 MIT Press 
-STEINBACH  M  KARYPIS  G  AND  KUMAR  V  2000  A  Comparison  of  Document  Clustering 
-Techniques In Proceedings of the 6th ACM SIGKDD Intl Conference on Knowledge Discovery 
-and Data Mining pp 525526 Boston USA 
-VAN  DE  CRUYS  T  AND  APIDIANAKI  M  2011  Latent  Semantic  Word  Sense  Induction  and 
-Disambiguation  In  Proceedings  of  the  49th  Annual  Meeting  of  the  Association  for 
-Computational Linguistics Human Language Technologies pp 1476 1485 Oregon USA 
-VAN DE CRUYS T 2010  PhD  Thesis  Mining  for  Meaning    the  Extraction  of  Lexico-Semantic 
-Knowledge from Text University of Groningen pp 1218 The Netherlands 
-VRONIS  J  2004  Hyperlex  Lexical  Cartography  for  Information  Retrieval  In Computer 
-Speech and Language 183 pp 223252 
-VON  AHN L 2006 Games  With  A  Purpose  In Computer 639  pp  9294  IEEE  Computer 
-Society Press 
-WAGNER  C  2006  Breaking  the  knowledge  acquisition  bottleneck  through  conversational 
-knowledge  management  In Information Resources Management Journal IRMJ 191  pp 
-7083 IGI Global 
-WANG A HOANG CDV AND KAN MY 2004 Perspectives  on  Crowdsourcing  Annotations  for 
-Natural Language Processing In Language Resources and Evaluation pp 123 Springer 
-WIDDOWS D  AND DOROW B 2002  A  Graph  Model  for  Unsupervised  Lexical  Acquisition In 
-Proceedings of the 19th Intl Conference on Computational Linguistics pp 17 
-YAROWSKY D 1995 Unsupervised Word Sense Disambiguation Rivaling Supervised Methods 
-In Proceedings of the 33rd Annual Meeting of the Association for Computational Linguistics 
-ACL 1995 pp 189196 Cambridge Massachusetts USA 
-ZHAO Y KARYPIS G AND FAYYAD U 2005  Hierarchical  Clustering  Algorithms  for  Document 
-Datasets In Data Mining and Knowledge Discovery 102 pp 141168 The Netherlands 
-ZHONG Z AND NG HT 2010  It  Makes  Sense  A  Wide-Coverage  Word  Sense  Disambiguation 
-System  for  Free  Text  In Proceedings of the 48th Annual Meeting of the Association for 
-Computational Linguistics ACL 2010 pp 7883 Uppsala Sweden 
+Chemical sensing by cell-surface chemoreceptor arrays the roles of receptor
+cooperativity and adaptation
+Jin Yang  
+Chinese Academy of Sciences  Max Plank Society Partner Institute and Key Laboratory for Computational Biology
+Shanghai Institutes for Biological Sciences Shanghai 200031 China
+Most sensory cells use cross-membrane chemoreceptors to detect chemical signals in the environ-
+ment The biochemical properties and spatial organization of chemoreceptors play important roles
+in achieving and maintaining sensitivity and accuracy of chemical sensing Here we investigate the
+eects of receptor cooperativity and adaptation on the limits of gradient sensing We study a single
+cell with aggregated chemoreceptor arrays on the cell surface and derive general formula to the
+limits for gradient sensing from the uncertainty of instantaneous receptor activity In comparison
+to independent receptors we nd that cooperativity by non-adaptative receptors could signicantly
+lower the sensing limit in a chemical concentration range determined by the biochemical proper-
+ties of ligand-receptor binding and ligand-induced receptor activity Cooperativity by adaptative
+receptors are benecial to gradient sensing within a broad range of background concentrations Our
+results also show that isotropic receptor aggregate layout on the cell surface represents an optimal
+conguration to gradient sensing
+PACS numbers 8716dr 8717Jj 8718Tt
+INTRODUCTION
+Cellular sensory systems can detect temporal and spa-
+tial changes of environmental signals For example bac-
+teria sense chemical gradient by motion that translates
+spatial chemical concentration asymmetry into tempo-
+ral asymmetry Larger chemotactic eukaryotes are able
+to sense the spatial gradients of chemoattractants across
+the cell dimension A primary task for a sensory cell is
+to respond to small chemical concentration changes or
+shallow chemical gradients with sucient accuracy un-
+der stochastic noises Berg and Purcell in their classic
+study 1 showed that the fundamental physical limit of
+concentration sensing is set by the uncertainty of ligand
+diusion to a sensory cell regardless of biochemical details
+in a sensing mechanism employed by the cell This result
+was generalized by Bialek and Setayeshgar 2 using the
+uctuation-dissipation theorem and was also applicable
+to gradient sensing 3
+Ligand detection by membrane-bound chemoreceptors
+is the rst step for chemical sensing in a vast majority
+of sensory systems of living cells Uncertainty of ligand-
+receptor binding and stochastic dynamics of downstream
+cellular signaling may introduce additional noises Re-
+ducing such noise may help a system to operate near
+the fundamental Berg-Purcell limit However the exact
+sensing limit under proper ligand-receptor interaction re-
+mains elusive In particular the eect of receptor cooper-
+ativity is controversial 47 Receptor cooperativity can
+sensitize the receptor response to small signal changes
+but in the meanwhile it also amplies stochastic uc-
+tuations in signal Using the Monod-Wyman-Changeux
+MWC model Bialek and Setayeshgar 4 showed that
+ jinyang2004gmailcom
+receptor cooperativity helps to lower the threshold of
+concentration sensing to approach the Berg-Purcell limit
+set by ligand diusion Hu et al 5 by an Ising-type
+model showed that receptor cooperativity improves gra-
+dient sensing within a shortened dynamic range of back-
+ground concentrations Most recently Skoge et al 7
+studied chemoreceptor activity by a dynamic Ising model
+and showed that receptor cooperativity could slow down
+receptor activity and thus may not improve the signal-
+to-noise ratio due to reduced response time
+Another crucial mechanism found in many cellular sen-
+sory systems is adaptation which maintains the sen-
+sitivity of a system to varying levels of environmental
+signals
+It is known that adaptation tunes kinetics of
+chemoreceptors at the molecular level For the exam-
+ple of the better understood E coli the activity of re-
+ceptors are modulated by multisite receptor methylation
+and demethylation However the eect of receptor coop-
+erativity to chemical sensing limit under the context of
+receptor adaptation is yet to be examined
+Using a theoretical model here we study the role of
+receptor cooperativity on the accuracy of chemical sens-
+ing under the inuence of receptor adaptation We con-
+sider a sensory cell with a hierarchical organization of
+cell-surface chemoreceptors Receptor cooperativity is
+described by the classic MWC model 8 which was orig-
+inally developed to explain allosteric regulation of multi-
+subunit proteins and has been widely used to model
+chemoreceptor coupling in bacteria 912 We derive
+formula for the limit of gradient sensing based on the
+uncertainty of instantaneous receptor states at the equi-
+librium Our results show that cooperativity by non-
+adaptative receptors reduces instantaneous noise of re-
+ceptor states within a limited range of background con-
+centrations determined by the biochemical parameters
+of receptor dynamics and ligand-receptor binding
+contrast cooperativity by adaptative receptors improves
+the sensing accuracy across a wide dynamic range We
+also show that the layout of receptor aggregates on the
+cell surface signicantly aects the sensing limit with the
+isotropic layout being the optimal Although the sensing
+limit is sensitive to the cell orientation under anisotropic
+aggregate layouts the eect of receptor cooperativity is
+invariant
+II THEORY
+A A two-dimensional cell model
+We consider a model Fig 1 for a two-dimensional
+chemotactic cell subject to a chemoattractant gradient
+eld Gx p  where x is the spatial coordinate and
+p and  are the steepness and direction of the gradi-
+ent The steepness is dened in a polar coordinate sys-
+tem as p  r0
+dr  which is a normalized concentration
+change across a reference distance r0 along the direction
+of the gradient The cell has M receptor aggregates dis-
+tributed at distinct locations on the cell surface Coop-
+erative receptors form clusters of size n and each aggre-
+gate contains a number of such independent and non-
+interacting receptor clusters Assuming aggregate m has
+Nm receptor clusters we have the total number of re-
+m1 Nm This
+hierarchical organization of receptors on the cell mem-
+brane is general and can be parameterized to study a cell
+that has aggregated receptor arrays with n  1 or with-
+out cooperativity n  1 or has non-aggregated receptor
+monomers Nm  1 and n  1
+ceptor monomers in a cell as Ntot  nPM
+In the absence of ligand a receptor switches between
+rMM
+r11
+ligands
+cluster
+membrane
+receptor aggregate
+ocid127
+rmm
+gradient gx p
+r22
+FIG 1
+color online A 2-D chemotactic cell with M
+chemoreceptor aggregates patches labeled with polar coordi-
+nates rm m distributed on the cell surface enclosed curve
+under a gradient eld Gx p  indicated by the arrow Each
+receptor aggregate has Nm m  1  M  cooperative recep-
+tor clusters of identical size n
+active on and inactive o state with a free energy
+dierence E  Eo  Eon in units of kBT  where kB
+is the Boltzmann constant and T is the absolute tem-
+perature As in an MWC model coupled receptors in a
+cluster switch in an all-or-none fashion between the on
+and o states A ligand binds to a receptor of the on
+or o state with a dissociation constant Kon or Ko 
+respectively Ligand binding will shift the free energy dif-
+ference between the two receptor states and such change
+can be sensed by a cell to measure the ligand concen-
+tration At the equilibrium a receptor cluster m at the
+on or o state bound to r ligands has the free energy
+ r  0  n
+Koncid17r
+of nEon  lncid16 Lm
+respectively with a multiplicity ofcid0n
+Koffcid17r
+or nEo  lncid16 Lm
+rcid1 From Boltzmann
+distribution one can obtain the equilibrium probability
+for a receptor cluster in aggregate m to be active is given
+by 10 11
+Pm cid201 cid18eE 1  cm
+1  cmcid19ncid211
+ m  1  M 1
+where cm  LmKo is a normalized ligand concen-
+tration The ligand concentration Lm at the location of
+aggregate m is determined by the gradient eld Gx p 
+The non-dimensional coecient   KoKon
+At the equilibrium an instantaneous conguration of
+receptor cluster states measures the chemical concentra-
+tions around the cell Such conguration uctuates in
+time due to randomness of ligand-receptor binding and
+stochasticity in receptor state switching which underlies
+the uncertainty in gradient sensing Based on the above
+model below we shall derive the best achievable limit for
+the sensing uncertainty
+Under the chemical gradient eld Gx p  the log
+likelihood for observing a specic conguration of cell-
+surface receptor states is
+ln Lp   ln
+m 1  PmNmkm 
+where km is the number of active receptor clusters in ag-
+gregate m An ecient unbiased estimator to parameters
+associated with the gradient eld Gx p  has a variance
+limited by the optimal Cramer-Rao lower bound CRLB
+that can be determined from the likelihood function of
+Eq2 For convenience dene 1 2  p  We can
+calculate the Fisher information matrix 13
+Iij cid28  ln L
+ ln L
+j cid29 
+i j  1 2 
+where the expectation hi is taken with respect to the
+m 1 
+binomial distribution f km Pm Nm  cid0Nm
+kmcid1P km
+PmNmkm  We then have
+One can now obtain the Fisher information matrix
+Iij  M
+km  NmPm
+Pm1  Pm
+kl  NlPl
+Pl1  Pl
+j
+hkm  NmPmkl  NlPli
+Pm1  PmPl1  Pl
+cos2m  
+p sin 2m  
+p sin 2m  
+p2 sin2m  
+p and 2
+In all cases 2
+ can be numerically computed
+and it is possible to obtain their analytical solutions un-
+der special cell geometry and surface layout of receptor
+aggregates Here we specialize to a circular cell of ra-
+dius r and designate the origin as the cell center such
+that m    rr0 for all m For a shallow gradient
+across the cell length p  1 we approximate m  0
+for all receptor aggregates 0 is calculated by Eq 6
+evaluated at concentration c0 which can be considered
+as the average ligand concentration at the cell location
+assigned to the cell center For an equidistant layout
+of identically-sized receptor aggregates over the cell sur-
+face an isotropic distribution we obtain the CRLBs
+for uncertainties in sensing p and  14
+21  c021  c02
+Ntot2n1  2c2
+The factor n  nP01  P0 is related to receptor coop-
+erativity n where P0 is calculated by Eq 1 at c0 The
+above limits in Eq12 have a few properties i Both
+p and 2
+ are independent of the number of receptor ag-
+gregates M and are insensitive to the gradient direction
+ii Directional sensing improves 2
+ decreases as
+the steepness p increases Fortuitously 2
+ is the noise-
+to-signal ratio of steepness sensing
+iii The receptor
+system loses sensing capability when ligand binding does
+not dierentiate the two receptor states   1 iv 2
+is very sensitive to the cell size via the term Ntot where
+Ntot may vary with the cell size by a certain relationship
+and therefore 2
+p could scale more strongly than the in-
+verse of normalized cell radius 2 Properties iii and
+iv hold even though the layout of receptor aggregates
+on the cell surface is anisotropic
+Notice that the covariance hkm  NmPmkl  NlPli 
+0 when m 6 l due to independence of receptor aggregates
+For m  l the variance of km is cid10km  NmPm2cid11 
+NmPm1  Pm Therefore the Fisher information ma-
+trix is
+Iij 
+Nm Pmcm2
+Pm1  Pm
+where one can verify that
+ nPm1  Pm
+1  
+1  cm1  cm
+We dene the coecient
+Nm Pmcm2
+m 
+Pm1  Pm
+Nmn2Pm1  Pm1  2
+1  cm21  cm2
+which is a function of local chemical concentration cm
+size of the receptor aggregate Nm the strength of recep-
+tor coupling n and receptor anities to the ligand Kon
+and Ko  We rst notice that for the single receptor ag-
+gregate m sensing its local chemical concentration cm
+the Cramer-Rao lower bound of the sensing variance is
+given as
+1  cm21  cm2
+Nmn2Pm1  Pm1  2 
+The noise-to-signal ratio is determined by 2
+For chemical gradient detection by all cell-surface re-
+ceptor aggregates the sensing limit to steepness p or di-
+rection  is set by the CRLBs diagonal entries of the
+inverted Fisher information matrix
+p  I 111
+  I 122 
+B Extension to a three-dimensional cell model
+To obtain analytical results we assume that the cell
+resides in a linear gradient eld Across a typical cell
+size eg about 10 m for Dictyostelium and 1 m for E
+coli the linear gradient is a reasonable approximation
+cm at the polar coordinate rm m is
+cm  c01  mp cosm   
+where c0 is the background concentration at the origin
+and the coecient m  rmr0 is the distance from ag-
+gregate m to the origin normalized by the reference dis-
+tance r0 We have
+ c0m cosm  
+ c0mp sinm   
+The 2-dimensional model can be extended to a 3-
+dimensional cell to approach a more geometrically re-
+alistic scenario
+In the spherical coordinate system a
+point has its spatial coordinate    where  is the
+radial length  and  are the polar angle and the az-
+imuthal angle Assume a linear chemical gradient with
+a steepness p and a direction along the unit vector
+g  cos g sin g cos g sin g sin g For a receptor ag-
+gregate m at cell-surface location Am the vector along
+the direction from origin O at the cell center to Am
+OAm is am  rmcos m sin m cos m sin m sin m
+Concentration cm can be calculated as
+cm  c01 
+am  g  c01  mp cos m 
+Receptor activity P
+Background concentration c
+18 holds when P0  P P
+FIG 2 color online a Function 1  2P0 ln1P0  1
+Inequality Eq
+b Solid
+curves show E as a function of c0 at   01 E 
+ln 1c0
+  ln1P  1n lower two curves and E 
+ln 1c0
+  ln1P  1n upper two curves for two co-
+operativity levels n  2 cid3 and n  6  Upper and lower
+curves of same n enclose the regime that receptor cooperativ-
+ity up to n helps to reduce the variance 2
+p The benecial
+ranges of c0 for three dierent E values 20 10 and 0 are
+marked by dotted lines spanning boundaries specied by Eq
+20 The dashed line indicates the E adjusted by precise
+adaptation in which the adapted level of receptor activity is
+a constant Pa  12
+where m is the angle between am and g The dot prod-
+uct am  g  rm cos m projects am onto the gradient
+direction g with cos m  sin m sin g cosm  g 
+cos m cos g We have
+ c0m cos m
+ c0mpsin m cos g cosm  g
+ cos m sin g
+ c0mp sin m sin g sinm  g 
+The Fisher information matrix I can be constructed by
+Eq4 with the coecient m obtained by Eq6 Ana-
+lytical formula like Eq12 can be obtained under special
+cell geometry and receptor aggregate layout on the cell
+surface We will present our results for a 2D cell and
+expect that general conclusions are applicable to a 3D
+III RESULTS
+Here we investigate the role of receptor cooperativity
+on the gradient sensing limit described by Eq12 Under
+a xed number of receptors Ntot the eect of cooper-
+ativity can be detected as the direction of change in n
+with regard to the receptor cluster size n
+ P01P0cid201  n1  2P0cid18ln
+1  c0
+ Ecid19cid21 
+Benecial eect of receptor cooperativity to the sensing
+limit requires nn  0 which together with P0 
+1  eE 1c0
+n1 implies the constraint
+1  2P0 lncid18 1
+ 1cid19  1
+or equivalently
+P  P0  P 
+where P  0176 and P  1  P  0824 are the
+two solutions to 1  2P0 ln1P0  1  1 see Fig2a
+for illustration The feasible range of E  and the
+background concentration c0 is
+ln 1P  1
+ lncid18 1  c0
+1  c0cid19  E 
+ln 1P  1
+within which receptor cooperativity up to the magni-
+tude of n can improve the accuracy of chemical sensing
+Fig 2b shows that the benecial region of free energy
+dierence E is conned in a banded area from around
+0 at low ligand concentration to around ln1 at high
+ligand concentration The bandwidth of E is a con-
+stant 2
+n lnPP limited by the strength of receptor
+cooperativity n A stronger cooperativity results in a
+narrower band For each given E the benecial range
+of background concentration c0 is determined by Eq 20
+see Fig2b for illustration Results in Fig2b were
+obtained at   1 in which ligand binding favors the
+o state of the receptor The results at   1 not
+shown are clearly symmetric to those at   1 We
+note that the above derivation is under the assumption
+that the receptor system has a xed total number of re-
+ceptors Ntot The general conclusion also applies to a
+system that has xed numbers of receptor clusters Nm
+in receptor aggregates 15
+In the following we analyze the inuence of recep-
+tor cooperativity on the chemical sensing limit under the
+context of receptors with or without adaptation
+A Non-adaptative receptors
+Without receptor adaptation the equilibrium level of
+receptor activity changes with the ligand concentration
+c0 according to Eq 1 where free energy dierence E
+E1
+Background concentration c
+Background concentration c
+Background concentration c
+Free energy difference E
+case to our model by requiring eE  1 and   1
+By contrast receptor cooperativity improves sensing
+accuracy below the optimal c0 near E  0 Fig 3c
+Fig 3d shows that at low background concentration
+c0  01 the system achieves optimal sensing accuracy
+at free energy dierence E  0 of any cooperativity
+level and receptor cooperativity further decreases 2
+order of magnitude improvement at n  10 over indepen-
+dent receptors We can relate this result to E coli in
+which c0  01 corresponds to a background concentra-
+tion of 2 nM MeAsp a threshold level at Ko  20 nM
+and cooperativity predicted about n  10 as in Ref 11
+color online 2
+FIG 3
+p under varying background con-
+centrations Receptor aggregates have an equidistant lay-
+out on the cell surface
+a-d were plotted with dierent
+E values indicated in plots under dierent cluster size
+n  1 non-cooperative cid3 2 receptor dimer  6 
+corresponding to trimer-of-dimers in bacteria and 10 
+corresponding to an estimate by Ref 11 2
+p were calcu-
+lated by Eq 8 markers and by Eq 12 solid lines with
+Ntot  80 000 M  3 p  01   0   01 and   1 2
+behaves similarly and is not shown
+and binding anities Kon and Ko are unmodulated by
+the receptor activity Fig 3 shows that in all cases 2
+sumes a valley-shaped relationship with the background
+concentration c0 2
+p attains a minimum at a c0 that
+satises the condition d2
+pdc0  0 ie
+0  n1  1  2P0c0  2  0 
+At the regime E  0 where an unliganded receptor
+is biased to the o state increasing receptor cooper-
+ativity always reduces sensing accuracy Fig 3a when
+ligand binding as well favors the o state ie   1
+According to Fig 2b E  1 is out of the benecial
+band at any background concentration c0 Intuitively in
+this case receptor arrays have limited capacity most re-
+ceptors are already o even before the introduction of
+ligands to respond to ligand binding by further switch-
+ing o receptor activity
+At the regime E  0 receptor cooperativity reduces
+p within a concentration range around the optimal c0
+Fig 3b Such advantage is conned in a narrowed
+dynamic range around intermediate background concen-
+trations the stronger the cooperativity the shorter the
+range of improvement instead of being eective at lower
+concentrations a desirable region for chemotactic re-
+sponses The results shown in Fig 3b approximate
+those by the Ising-type model of Hu et al 5 in which a
+receptor maintains the on state in the absence of lig-
+and and is only switched o by ligand binding In fact
+the model by Hu et al 5 can be considered as a limiting
+B Adaptative receptors
+Near precise adaptation was found in bacteria such
+as E coli 16 A ligand concentration change triggers
+a transient response in receptor activity followed by a
+slow decay back to the steady state about the prestim-
+ulus level
+In other words receptor adaptation desen-
+sitizes the steady-state activity to ligand concentration
+allowing the cell to be responsive to environmental sig-
+nals within a wide dynamic range Here we show that
+adaptation also conditions the receptor system to allow
+cooperativity to improve signal-to-noise ratio in chemical
+sensing under a wide range of background concentrations
+We assume that the receptor system is adapted to its
+chemical environment before an onset of change in ligand
+concentration We also assume that the adaptation ma-
+chinery adjusts the free energy dierence E between the
+two states of the receptor and keeps binding anities Kon
+and Ko invariant For the example of E coli receptor
+activity-controlled receptor methylation and demethyla-
+tion act as a feedback mechanism that can adjust the free
+energy gap E For precise adaptation equilibrium re-
+ceptor activity is tuned to be a constant Pa independent
+of the background concentration By Eq 1 at aggre-
+gate m we have the adjusted free energy dierence
+E  ln
+1  cm
+lncid18 1
+ 1cid19 
+Concentration changes around cm induces transient re-
+ceptor activity Pm away from Pa which is described by
+Eq1 with the above adjusted E
+0 2
+The optimal sensing achieves at the half-activation
+level Pa  12 that maximizes n where 2
+p  81 
+c021  c02Ntotn21  2c2
+p attains a min-
+pmin  812  14Ntotn21  2 at
+imum of 2
+the background concentration c0  12 according to
+Eq 21 ie L0  KonKo 12 is the geometric mean
+of dissociation constants Fig2b shows dashed line
+the adjusted E to adapted receptor activity Pa  12
+as a function of ligand concentration The adaptation
+tunes E into the middle of the benecial region band
+and allows the receptor cooperativity to improve sensing
+of small concentration changes
+The adaptation mechanism may also likely maintain a
+constant steady-state activity by adjusting ligand bind-
+ing anities Kon and Ko  or adjusting all three ther-
+modynamics parameters altogether 17 How adaptation
+tunes these parameters altogether remains unclear even
+for the well-studied E coli chemoreceptors Nonethe-
+less as our model shows as long as a cell achieves
+an adaptation level precise or imprecise that satises
+P  Pa  P receptor cooperativity is advantageous
+for sensing small changes in chemical concentration or
+gradient It has been suggested a precise adaptation of
+Pa  13 in E coli 18 in the range specied by Eq 19
+supporting the idea that receptor adaptation and coop-
+erativity act in concert to improve chemical sensing
+C Eects of anisotropy in the layout of receptor
+aggregates
+The analytical formula in Eq 12 do not apply to the
+scenario where receptor aggregates anisotropically locate
+on the cell surface As we will show such an anisotropy
+may cause substantial dependence of 2
+ on the
+gradient direction  the number and locations of recep-
+tor aggregates We dene a metric Re to quantify the
+layout anisotropy
+p and 2
+Re  PM
+i1 i1  i  2M 
+4M  1M
+which is a normalized mean angular dispersion between
+two immediately adjacent aggregates from the average
+angular distance 2M  Without loss of generality the
+angles of receptor aggregates are labeled in an order such
+that i1  i for i  1  M  with the periodic bound-
+ary condition M1  1  2 see Fig1 Re ranges
+from 0 for the isotropic case to 1 when all receptor ag-
+gregates gather at a single location
+Each eective receptor aggregate acts as a local con-
+centration sensor and a pair of aggregates can detect the
+projection of the gradient onto the direction connecting
+the two aggregates Two independent projections are
+needed in minimum to reconstruct the gradient In our
+model the minimal number of eective cell-surface re-
+ceptor aggregates is M  2 because of the implicit as-
+sumption that one parameter of the linear gradient the
+background concentration c0 is known This assumption
+is justied by considering that the cell has a memory for
+a recent history of its chemical environment
+A sensing singularity occurs when the cell 1 has only
+one eective receptor aggregate because two aggregates
+locate too close to each other or 2 has two aggregates
+lying on the opposite side across the cell center such that
+only one independent projection of the chemical gradient
+can be detected For such a special layout the Fisher
+information matrix of Eq 11 becomes degenerate and
+the cell cannot resolve either gradient steepness p or the
+direction  For M  2 2
+p diverges at either end Re  0
+or 1 where the system has a single independent sensor
+Anisotropic factor R
+a 2
+FIG 4 color online Sensing limit under varying receptor
+aggregate layout and cell orientation by non-adaptor recep-
+p vs Re n  1 at M  2 dashed dot 3
+solid and 4 dashed Re was partitioned into 100 equis-
+paced bins within the interval 0 1 and 2
+p was the geomet-
+ric mean over 10000 instances in each bin Standard errors
+b 2
+around the means are shown at several Re values
+lower 4 curves and 2
+ upper 4 curves equidistance layout
+solid vs two anisotropic layouts without receptor coopera-
+tivity i Re  038 1  0156 2  108 and 3  199
+dashed and ii Re  049 1  0513 2  166 and
+3  168 dashed dot or with receptor coupling of size
+n  10 for layout ii dotted Cell rotation is simulated by
+relatively varying  from 0 to  2
+ were calculated
+by Eq 8 with parameter values Ntot  80 000 M  3
+p  01 c0  01   01   1 and E  0
+p and 2
+Fig 4a For M  3 or M  4 2
+p diverges at Re  1
+and a singularity of the sensing limit may also happen
+at Re  12 or 23 respectively Notice that as the
+number of receptor aggregates M increases the extent of
+singularity decreases because receptor aggregate layouts
+with the corresponding value of Re become less likely to
+be degenerate by chance
+In general one can verify that 2
+p may become sin-
+gular at Re  M  2M  1 and Re  1 because
+some receptor aggregates locate so close to each other
+that they eectively sense a same local ligand concentra-
+tion Suppose among all immediately neighboring aggre-
+gates along the cell circle there exist k angles that are
+equal to or greater than the average angle 2M ie
+the rest M  k angles are smaller than 2M  Let 
+be the sum of these k angles We rewrite the anisotropic
+factor of Eq 23 as
+  2kM
+2M  1M
+Both 2
+which changes from 0 to 1 as  ranges from 2kM to
+2 The aggregate layout can be classied into three
+cases when the value of k changes see Fig 5b for ex-
+ample layouts when M  3
+i When k  1 and
+  2 Re  1 the system has a single eective ag-
+gregate at one location Re  1 and therefore cannot
+resolve parameters p or  The system is non-degenerate
+as long as  6 2
+ii When k  2 and   2
+Re  M  2M  1 there exist two eective aggre-
+gates In the special case in which these two eective ag-
+gregates locate at two opposite sides on the circle across
+the cell center the Fisher information matrix degener-
+ates The system is non-degenerate as long as  6 2
+iii When k  3 no degeneration appears As an illus-
+tration for M  3 Fig5b shows that a singularity in
+p may happen at Re  05 corresponding to the last
+layout in Fig 5a However the majority of layouts
+with Re  05 are non-degenerate For instance all lay-
+outs with k  1 and   43 has Re  05 but none of
+them is degenerate
+p and 2
+ are sensitive to the cell orientation
+under anisotropic aggregate layout see Fig 4b for a
+non-adaptive case The eect of receptor cooperativity
+is preserved under anisotropic receptor aggregate layouts
+because n is geometrically independent under a shallow
+gradient By changing the cell orientation improvement
+in estimating one parameter of p or  is gained at the ex-
+pense of the other This result coincides with the study
+by Hu et al 19 who showed that an elliptic cell cannot
+simultaneously improve limits 2
+ by elongating
+the cell body As an optimal conguration the isotropic
+layout of receptor aggregates improves sensing both p and
+ in most cases and is insensitive to cell orientation as
+indicated by Eq 12 and as shown in Fig 4b This re-
+sult recapitulates the one derived by Berg and Purcell 1
+who showed that uniformly distributed receptor patches
+on the membrane maximize independent ligand inux to
+the cell and thus sensitizes the concentration measure-
+ment However as shown by Fig 4b proper cell orien-
+tation can improve estimation of one of the parameters
+p or  which might be a desirable task if sensing one
+parameter is more critical than the other For example
+accurate directional sensing may be more important than
+steepness sensing in chemotaxis so that a cell can iden-
+tify swimming direction more eciently For a cell with
+anisotropic layout of receptor aggregates routine reori-
+entation is required to improve sensing performance eg
+tumbling of E coli
+p and 2
+Regular 
+Degenerated
+0Re05
+Receptor 
+aggregate
+Anisotropic factor R   e  
+FIG 5 a Sample layouts of receptor aggregates M  3
+Note that Re  05 corresponds to any scenario of the cell
+with two eective aggregates on cell surface and only the one
+shown with two aggregates on the opposite sides across the
+cell center is degenerate Dashed lines inside the cell circle
+give a reference to an equiangular partition b Correspon-
+dence between possible k values and Re and their relationship
+with 2
+p shown as the geometric mean with sem
+needs in minimum three independent receptor aggregates
+as concentration sensors to reliably reconstruct the gra-
+dient To compute the CRLBs one must also calculate
+the derivative cmc0 and obtain a 3-by-3 Fisher infor-
+mation matrix The primary results about the sensing
+limits remain little changed It is straightforward to ver-
+ify that under isotropic receptor layout the variances of
+parameter estimates
+2  2p21  c021  c02
+Ntot2n1  2c2
+1  2p22p2 
+1  c021  c02
+Ntotn1  2
+The above results of minimal number and optimal lay-
+out of receptor aggregates were obtained under the as-
+sumption that the background ligand concentration c0 is
+known One can also consider c0 as an extra parame-
+ter to be estimated by the cell In this case merely by
+counting the number of parameters p  and c0 the cell
+Under a shallow gradient p  1 2
+p approaches the
+one derived in Eq 12 while the variance of the direc-
+tional sensing 2
+c0 is in a
+similarly form of Eq 7 for detecting local concentration
+cm by a single receptor aggregate
+ is unchanged The variance 2
+IV DISCUSSION AND CONCLUSION
+It is well-known that adaptation brings the receptor
+activity back to pre stimulus level allowing the system
+to remain sensitive to chemical changes in the future
+This mechanism enables the system to respond within
+a wide dynamic range of chemical concentration Here
+we examine the role of adaptation in terms of chemical
+sensing accuracy especially when presented with small
+signals or small changes in the signal where stochastic
+noise may become overwhelming Our study showed that
+receptor cooperativity improves sensing accuracy only
+within a limited background concentration range if the
+receptor aggregates do not undergo adaptation By con-
+trast receptor adaptation especially precise or near pre-
+cise adaptation maintains the receptor sensory system to
+operate within the parametric region where receptor co-
+operativity is benecial As to our knowledge the nding
+in this work for the rst time connects receptor adapta-
+tion and cooperativity to noise ltering in chemical sens-
+The sensing limit of Eq 12 was derived from the
+uncertainty of an instantaneous receptor sampling of a
+gradient eld The sensing accuracy can be improved by
+a cell integrating independent receptor state congura-
+tions over time 1 The time interval between two inde-
+pendent measurements is determined by the correlation
+time c that accounts for relaxation times of ligand dif-
+fusion ligand-receptor binding 5 and receptor dynam-
+ics Because the amount of time t available for averaging
+is limited by dynamics of the intracellular signaling cir-
+cuit the number of independent measurements is about
+20 Therefore the temporal averaging reduces the
+instantaneous limit 2
+pt when t  2c
+Ligand concentration is encoded as receptor occupancy
+by the ligand-receptor binding and is then transduced
+into receptor activity by the MWC model Stochastic
+dynamics of each of these signal transduction stages con-
+tributes additional noise and thus increases the corre-
+lation time c which consequently elevates the sensing
+uncertainty within the given time frame t
+pit  2c2
+p to h2
+Our study does not consider the temporal dynamics
+of ligand-receptor binding and receptor state switching
+Skoge et al 7 recently showed that receptor cooperativ-
+ity may signicantly slow down receptor state switching
+described by Glauber dynamics 21 originally developed
+for studying time dependence of the Ising model to an
+extent such that the system cannot eectively relay the
+information of ligand concentration changes in time c
+becomes comparable or greater than the averaging time
+t However there is still a lack of direct experimental
+evidence on how receptor coupling quantitatively mod-
+ulates receptor dynamics Our results reveal that the
+benet provided by receptor coupling to chemical sens-
+ing by instantaneous receptor activity congurations may
+compensate the potentially detrimental eect of receptor
+activity slowdown in particular by adapted receptor ar-
+Another possible source of noise at the ligand-receptor
+interaction level is due to ligand rebinding when a disso-
+ciated ligand diuses back again to bind onto the receptor
+aggregate before it escapes into the bulk medium The
+extent of ligand rebinding and its eects on the accuracy
+of ligand sensing depends on the size and density of a
+receptor aggregate 22 Theory 23 and simulation 24
+showed that ligand rebinding does not change the equi-
+librium occupancy of individual receptors and therefore
+does not aect the sensing limits obtained from instanta-
+neous measurement However signicant ligand rebind-
+ing does introduce extra uctuations by decreasing the
+eective rate constants for ligand association with and
+dissociation from the receptor which increases the corre-
+lation time c and thus reduces the number of indepen-
+dent measurements within a xed averaging time
+Chemoreceptor cooperativity in bacteria was predicted
+by Ising models and MWC models used for analyzing
+dose response data in E coli More recently receptor cou-
+pling is evident by the hexagonal organization of trimer-
+of-dimers of chemoreceptors resolved by electron cryoto-
+mography as a conserved architecture in a wide variety
+of bacteria 25 The spatial organization of eukaryotic
+chemoreceptors remains to be fully resolved even though
+higher-order receptor arrays in chemotactic eukaryotes
+have also been observed 26 suggesting possible recep-
+tor coupling Our model of the receptor organization on
+the cell surface is general and can be parameterized to
+study systems of coupling or non-coupling receptors with
+or without adaptation
+Berg and Purcell 1 showed that uniformly distributed
+receptor patches over the cell surface is optimal for re-
+ducing interactions between nearby receptors and there-
+fore maximizes ligand intake by the cell where ligands
+were considered spatially homogeneous in the environ-
+ment Here we consider the detection of spatial asym-
+metry of ligand concentrations around the cell due to the
+chemical gradient By examining the eect of geomet-
+ric layout of receptor aggregates on the cell surface we
+showed that anisotropic receptor aggregate distribution
+generates a trade-o between the sensing limit of gra-
+dient steepness p and that of the gradient direction 
+Fig4 The isotropic layout represents an optimal con-
+guration in which the sensing accuracy is insensitive to
+cell orientation
+In summary we study the eect of receptor coopera-
+tivity and adaptation on the chemical sensing limit by
+evaluating the Cramer-Rao lower bounds from the in-
+stantaneous global state of receptor activity Our results
+showed that receptor cooperativity with receptor adapta-
+tion increases gradient sensing accuracy by lowering the
+CRLB for small signal changes across a wide dynamic
+range of background concentration This result is also ap-
+plicable to concentration sensing at a single aggregate lo-
+cation Eq 7 It remains largely unknown whether or
+how a chemotactic cell achieves its sensing limit Recep-
+tor internalization 27 might improve chemical sensing
+by helping the cell membrane to function as an absorbing
+surface an ideal device that operates at the fundamen-
+tal Berg-Purcell limit Maximum likelihood estimation
+MLE from ligand-receptor binding time series 28 or
+instantaneous receptor states 5 19 was also suggested
+as a possible approach to the physical limit The answer
+to how a cell mechanistically integrates information in
+time and space remains speculative and requires further
+experimental and theoretical investigations
+V ACKNOWLEDGEMENT
+We thank Qiang Chang Byron Goldstein Libo Huang
+and Zhen Wang for many helpful discussions The work
+was supported by National Science Foundation of China
+through grant 30870477
+1 H C Berg and E M Purcell Biophys J 20 193 1977
+2 W Bialek and S Setayeshgar Proc Natl Acad Sci USA
+102 10040 2005
+3 R G Endres and N S Wingreen Proc Natl Acad Sci
+USA 105 15749 2008 Prog Biophys Mol Biol 100
+33 2009
+16 H C Berg and D A Brown Nature 239 500 1972
+17 B A Mello and Y Tu Biophys J 92 2329 2007
+18 D Clausznitzer O Oleksiuk L Lvdok V Sourjik and
+R Endres PLoS Comp Biol 6 e1000784 2010
+19 B Hu W Chen W J Rappel and H Levine Phys
+Rev E 83 021917 2011
+4 W Bialek and S Setayeshgar Phys Rev Lett 100
+20 K Wang W J Rappel R Kerr and H Levine Phys
+258101 2008
+5 B Hu W Chen W J Rappel and H Levine Phys
+Rev Lett 105 48104 2010
+6 G Aquino D Clausznitzer S Tollis and R G Endres
+Phys Rev E 83 021914 2011
+7 M Skoge Y Meir and N S Wingreen Phys Rev Lett
+105 178101 2011
+8 J Monod J Wyman and J P Changeux J Mol Biol
+12 88 1965 J P Changeux Annu Rev Biophys 41
+2012
+9 V Sourjik and H C Berg Nature 428 437 2004
+10 B A Mello and Y Tu Proc Natl Acad Sci USA 102
+17354 2005
+11 J E Keymer R G Endres M Skoge Y Meir and
+N S Wingreen Proc Natl Acad Sci USA 103 1786
+2006
+12 M L Skoge R G Endres and N S Wingreen Biophys
+J 90 4317 2006
+13 S M Kay Fundamentals of Statistical Signal Processing
+Vol I Estimation Theory Prentice Hall 1993
+14 For an equidistant layout of receptor aggregates M  3
+m1 sin2m    M2 and
+m1 cos2m    PM
+m1 sin 2m    0
+15 In this scenario the factor related cooperativity is n 
+n2P01P0 nn  0 implies that 12P0 ln1P0 
+1  2 or P  P0  P where P  0083 and
+P  0917
+Rev E 75 061905 2007
+21 R J Glauber J Math phys 4 294 1963
+22 The eective rate constants under ligand rebinding are
+given as kf  kf 1  Rkf k and kr  kr1 
+Rkf k where k  4Da is the diusion limited on
+rate to a receptor aggregate of size a Rkf k is the
+rebindingescape ratio that characterizes the degree of
+inuence by ligand rebinding
+23 D Shoup and A Szabo Biophys J 40 33 1982
+B Goldstein and M Dembo 68 1222 1995
+24 S S Andrews Phys Biol 2 111 2005
+25 A Briegel D Ortega E I Tocheva K Wuichet
+et al Proc Natl Acad Sci USA 106 17181 2009
+A Briegel M Beeby M Thanbichler G J Jensen
+et al Mol Microbiol 82 748 2011 A Briegel X Li
+A M Bilwes K T Hughes et al Proc Natl Acad Sci
+USA 109 3766 2012 J Liu B Hu D R Morado
+S Jani M D Manson and W Margolin 109 E1481
+2012
+26 G H Wadhams and J P Armitage Nat Rev Mol Cell
+Biol 5 1024 2004
+27 G Aquino and R G Endres Phys Rev E 81 21909
+2010
+28 R G Endres and N S Wingreen Phys Rev Lett 103
+158101 2009 T Mora and N S Wingreen 104 248101
+2010

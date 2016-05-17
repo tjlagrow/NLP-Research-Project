@@ -1,785 +1,1065 @@
-Stemmers for Tamil Language 
-Performance Analysis 
-MThangarasu 
-MPhil Scholar Full Time 
-Department of Computer Science and Application 
-KSRangasamy College of Arts and Science 
-Tiruchengode India 
-E-mailthangarasumathangmailcom 
-DrRManavalan 
-Department of Computer Science and Application 
-KSRangasamy College of Arts and Science 
-Tiruchengode India 
-E-mail manavalanrrediffmailcom 
-Abstract Stemming is the process of extracting root word from the given inflection word and also 
-plays significant role in numerous application of Natural Language Processing NLP Tamil Language 
-raises several challenges to NLP since it has rich morphological patterns than other languages The rule 
-based approach light-stemmer is proposed in this paper to find stem word for given inflection Tamil 
-word  The  performance  of  proposed  approach  is  compared  to  a  rule  based  suffix  removal  stemmer 
-based on correctly and incorrectly predicted The experimental result clearly show that the proposed 
-approach light stemmer for Tamil language perform better than suffix removal stemmer and also more 
-effective in Information Retrieval System IRS 
-Keywords- Tamil morphology Tamil stemmer Light stemmer Rule-based stemmer NLP Natural Language 
-Processing 
-INTRODUCTION 
-Tamil is a Dravidian language It is the regional language of Tamil Nadu of India It has number of 
-morphological variant for a word For example  a male who has read a male who is reading 
-now  a male who will read a male who will not read This creates more complexity in 
-information  retrieval  Stemmer  is  especially  used  in  Information  Retrieval  System  IRS  for  improving  their 
-performance at the mean time reduce the complexity for example when a user enter query word search  
-user most likely wants to retrieve documents containing the terms searching  and searched  etc as 
-well Thus using stemmer improves recall ie the number of documents retrieved in response to a query since 
-many terms are mapped to one The benefit of Stemmer is decreases the size of the index files in the IR system 
-Consequently many stemmers algorithm have been proposed and evaluated for various Indian languages such as 
-Hindi 1 Gujarati 2 and Punjabi 3 etc An overview of the proposed model projected in Figure 1 
-Figure1 Overview of Proposed Model for Tamil Stemmer Algorithms 
-The proposed light stemmer algorithm compared with rule based suffix removal algorithmThis paper 
-organized  as  follows  Section  II  describes  the  related  work  Section  III  discusses  about  the  Tamil  language 
-Section IV presents the proposed system light stemmer and also describes a rule based suffix removal stemmer 
-Section V and VI contains an experimental analysis and conclusion of the work respectively 
-RELATED WORK 
-Earlier Stemmer was primarily developed for English but later due to the corpus growth of languages 
-other than English there was an increased demand from the research community to develop stemmers for other 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 902languages too In case in Indian languages the earliest work reported by Ramanathan and Rao 1 2003 to 
-perform longest match stripping for building a Hindi stemmer Juhi Ameta et al developed a light stemmer for 
-Gujarati language 2 in 2011 for removing inflectional and derivational endings in order to reduce word forms 
-to common stem Slowly investigation starts for other language such as Bengali 4 Urdu 5 Malayalam 6 
-and Punjabi 3 are also carried out However in this section express research experience in developing Tamil 
-stemmers 
-The most common approaches used for developing stemmers are Brute force and Affix strip Among 
-all the existing approaches this research tries to implement a light stemmer for Tamil for inherent to develop a 
-stemmer algorithm in an easier and faster way 
-TAMIL LANGUAGE 
-Tamil is a Dravidian language spoken predominantly by Tamil people of Indian subcontinent Tamil 
-words typically have more morphological patterns than English words Tamil word contains constituent parts a 
-stem which can be thought of as responsible for the nuclear meaning of verb attached to which may be zero or 
-more derivational prefix and zero or one suffix which together to form a word Tamil is a morphologically rich 
-language resulting in its relatively high inflectional forms Normally most of the Tamil words have more than 
-one  morphologically  suffixes  The  number  of  suffix  is  ranging  from  3  to  13  The  description  with  example 
-nouns compound nouns and verbs are given in the following sequel 
-A Noun 
-Tamil  has  an  extensive  case  system  Root  nouns  can  assume  eight  different  morphological  shapes 
-depending  on  their  roles  in  a  sentence  Singular  and  plural  forms  are  also  distinguished  through  inflections 
-Suffixes are attached to stem word of the noun Table I shows example for different stem noun 
-Singular 
-Oblique stem 
-Nominative stem 
-Accusative stem 
-Dative stem 
-Sociative stem  
-Genitive stem 
-Instrumental stem 
-Locative stem 
-Ablative stem 
-Vocative stem 
-Plural 
-Oblique stem 
-Nominative stem 
-Accusative stem 
-Dative stem 
-Sociative stem 
-Genitive stem 
-Instrumental stem 
-Locative stem 
-Ablative stem 
-Vocative stem 
-TABLE I NOUN 
-PeNgirl
-PeN- 
-PeN 
-PeN-ai 
-PeN-ukku 
-PeN-odu 
-PeN-udaiya 
-PeNaal 
-PeN-idam 
-maramtree
-maram - 
-maram 
-maram -ai 
-maram -ukku 
-maram -odu 
-maram -udaiya 
-maram -aal 
-maram -marath 
-PeNidamirunthu 
-maram -ilirunthu 
-PeN-e 
-PeNgaL girls 
-PeNgaL- 
-PeNgaL 
-maram -e 
-marangal trees 
-marangal- 
-marangal 
-PeNgaL-ai 
-marangal-ai 
-PeNgaL-ukku 
-marangal-ukku 
-PeNgaL-odu 
-marangal-odu 
-PeNgaL-udaiya 
-marangal-udaiya 
-PeNgaL-aal 
-marangal-aal 
-PeNgaL-idam 
-marangal-il 
-PeNgaL- 
-idamirunthu 
-PeNgaL-e 
-marangal-ilirunthu 
-marangal-e 
- gaL is added to the singular form of nouns to make them plural  
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 903B Compound Nouns 
-         Nouns are also occurring in various compound forms as well It can be made up of several units where 
-each  unit  expresses  a  particular  grammatical  meaning  The  Tamil  noun  pAdikkoNdurunhthavanai 
-  which  translates  as  the  male  who  was  singing  gives  information  on  tense  number 
-gender  person  and  case  This  noun  is  actually  derived  from  the  full  non-infinite  verb  pAdikkoNdu 
- which means singing In English deriving nouns from verbs is seen too The full finite verb 
-sing  for  instance  could  be  changed  into  a  noun  by  adding  the  suffix  er  to  its  stem  so  that  it  becomes 
-singer But while Tamil is an agglutinating language English is not 
-C Verbs  
-Tamil verbs may be main or auxiliary They also exist in finite and non-finite forms just as in English 
-Tamil finite verbs however give much more grammatical information than English finite verbs do in that they 
-mark mood tense number person gender case etc In the Table II below can observe the different finite 
-morphological construction for the verb padi study 
-TABLE II VERBS 
-padi-  ththEn  
-ththAi 
-Padi- 
+Polar Chemoreceptor Clustering by Coupled Trimers of Dimers
+Robert G Endres
+Division of Molecular Biosciences and Centre for Integrated Systems Biology at Imperial College
+Imperial College London London SW7 2AZ United Kingdom
+Dated June 11 2009
+Receptors of bacterial chemotaxis form clusters at the cell poles where clusters act as antennas
+to amplify small changes in ligand concentration Interestingly chemoreceptors cluster at multiple
+length scales At the smallest scale receptors form dimers which assemble into stable timers of
+dimers At a large scale trimers form large polar clusters composed of thousands of receptors
+Although much is known about the signaling properties emerging from receptor clusters
+unknown how receptors localize at the cell poles and what the cluster-size determining factors
+are Here we present a model of polar receptor clustering based on coupled trimers of dimers
+where cluster size is determined as a minimum of the cluster-membrane free energy This energy
+has contributions from the cluster-membrane elastic energy penalizing large clusters due to their
+high intrinsic curvature and receptor-receptor coupling favoring large clusters We nd that the
+reduced cluster-membrane curvature mismatch at the curved cell poles leads to large and robust
+polar clusters in line with experimental observation while lateral clusters are eciently suppressed
+Key words
+elastic energy
+chemotaxis
+localization receptor cooperativity bacteria membrane curvature
+INTRODUCTION
+Chemoreceptor clustering is widely conserved among
+bacteria and archaea 1 allowing cells to detect chemi-
+cals in the environment with high sensitivity over a wide
+range of background concentrations In the bacteria Es-
+cherichia coli Salmonella enterica and Caulobacter cres-
+centus receptor clustering is well documented and occurs
+at multiple length scales At a small scale chemotaxis
+receptors form stable homodimers which then assemble
+into larger complexes with receptors of dierent chemi-
+cal specicities intermixed 2 Three homodimers con-
+nected at their signaling tip form a trimer of dimers
+named trimer from here on 2 3 4 believed to be the
+smallest stable signaling unit 5 6 At a larger scale
+thousands of receptors 7 form approximately 200-nm
+large polar clusters cf Fig 1a 3 12 13 14 15 16
+Despite the excellent characterization of much of the bac-
+terial chemotaxis network it is unknown how receptors
+localize at the cell poles and how they assemble into large
+polar clusters
+Polar localization appears to be an intrinsic property
+of chemoreceptors 17 18 It hardly depends on the pres-
+ence or absence of the receptor-bound kinase CheA and
+adapter protein CheW 19 and is unaected by removal
+of the periplasmic ligand-binding domain of the receptors
+19 It is also a passive process since newly synthesized
+receptors initially inserted at random positions in the
+membrane diuse and ultimately become trapped at the
+cell poles 20 21 Most importantly polar localization
+appears to depend on membrane curvature First in-
+hibition of actin-homologue MreB in growing cells leads
+to cell swelling and a diuse receptor distribution with
+remaining receptor localization in areas of increased cell
+curvature 22 Second receptor-membrane extracts self-
+assemble into round micelles after receptor overexpres-
+sion and cell lysis 23 Fig 1b From electron micro-
+graphs the intrinsic curvature of the trimer structure can
+be estimated 24 Third other two-component receptor
+dimers eg the receptor LuxQ of the quorum-sensing
+pathway dimerize without forming trimers of dimers and
+are evenly distributed over the cell surface 25 Taken to-
+gether these observations suggest that the distinct trimer
+structure with its increased intrinsic curvature is respon-
+sible for polar receptor localization
+While trimers may have a tendency to localize at
+the cell poles and areas of high membrane curvature
+tight clustering requires an attractive coupling among
+the trimers The conventional view is that CheA and
+CheW mediate interactions among receptors Alterna-
+tive models include swapping of the cytoplasmic recep-
+tor domains 26 and membrane-mediated coupling 27
+see Results and Discussion section The high sensitiv-
+ity and cooperativity obtained from in vivo FRET uo-
+rescence resonance energy transfer 28 29 and in vitro
+30 data demonstrate that the functional units of recep-
+tor signaling are indeed larger than trimers These ob-
+servations are supported by recent quantitative models
+29 31 32 33 34 35
+Based on these observations we propose a model for
+polar receptor localization and clustering due to the high
+intrinsic curvature of trimers and an attractive trimer-
+trimer coupling Specically we consider a membrane-
+embedded cluster composed of trimers For a sphero-
+cylindrical cell we assume that the average membrane
+curvature at the poles is twice as large as average cur-
+vature at the lateral surface area and that trimers have
+a high intrinsic curvature Fig 2a The intrinsic cur-
+vature of a trimer tends to deform the membrane Fig
+2c penalizing large clusters of trimers However at-
+tractive coupling between trimers favors cluster forma-
+leading to a competition between these two op-
+FIG 2 Schematic of membrane-inserted receptors
+Trimer orange shaded area of dimers red bars with geomet-
+ric parameters CT is the intrinsic curvature of a trimer b
+Cluster of three trimers at the cell pole Trimer-trimer cou-
+pling strength J0 is indicated by green arrows Also shown are
+the cell wall and the inner membrane gray with curvature
+Cmp The height prole hr describes the cluster-membrane
+deformation as measured relative to the preferred height due
+to cell wall and turgor pressure c Same cluster at a lateral
+position with membrane curvature Cml Red arrows indicate
+energetically unfavorable membrane deformations due to the
+cluster-membrane curvature mismatch
+and a pinning potential
+Eel  Zccid20 c
+Zmcid20 m
+hcr  h0r2cid21 d2r
+hmr  h0r2cid21 d2r 1
+2 Ccr  CT 2 
+2 Cmr  Cm2 
+FIG 1 Electron micrographs of chemoreceptor clusters a
+Extended clusters in membrane preparations 8 9 10 11
+Clusters of similar size are observed at the poles of living
+cells 12 13
+Self-assembled round micelle at receptor-dimer resolution 23
+Image printed with written permission from publisher All ex-
+periments are based on Tsr-receptor overexpression as well
+as membrane extraction negative staining and freezing for
+imaging
+Image is courtesy of Michael Manson
+posing energy contributions Using continuum elastic
+theory we derive an analytical expression for the to-
+tal cluster-membrane energy We nd that due to the
+reduced cluster-membrane curvature mismatch at the
+poles trimers favorably cluster at the poles and not at
+the lateral cell area Furthermore the cluster-size distri-
+bution is determined by the cluster-membrane energetics
+as well as the trimer density in the cell membrane Our
+predicted average cluster size is in line with experimental
+observation
+II MODEL
+Receptor geometry
+In our model receptor dimers are assumed to always
+be associated in trimers the smallest stable signaling
+unit 5 6
+In Fig 2a the receptor dimer length and
+width as well as the distance between neighboring
+dimers within a trimer are taken from partial crystal
+structures 4 and electron microscopy 23 Very similar
+parameters were used to model the physical response
+of trimers to osmolytes measured by homo-FRET 36
+Importantly the estimated value for the intrinsic curva-
+ture of a trimer corresponds closely to the inverse radius
+of self-assembled micelles Fig 1b 23 The value for
+the trimer cross section A table I is consistent with a
+three-dimensional model of the receptor cluster 37 38
+and estimates from cryo-electron microscopy 8 13 23
+Elastic cluster-membrane energy
+The elastic energy of a membrane-embedded cluster is
+determined by cluster and membrane bending energies
+The rst term proportional to the bending stiness c
+of the receptor cluster penalizes deviations between the
+total cluster curvature 2 Cc and the preferred cluster cur-
+vature which is equal to the intrinsic trimer curvature
+CT  The total cluster curvature 2 Cc  C1  C2 is dened
+by the two principal curvatures C1 and C2 39 The sec-
+ond term in Eq 1 proportional to the pinning modulus
+ 40 41 penalizes deviations of the cluster height hc
+from the preferred height h0 determined by the shape of
+the curved cell wall The third and forth terms in Eq 1
+mirror the rst and second respectively and describe the
+cluster-surrounding membrane with total curvature 2 Cm
+preferred curvature Cm and height hm Bending sti-
+nesses c and m arise from optimal packing of receptors
+and lipids respectively aiming to protect hydrophobic
+residues from polar water The pinning modulus arises
+due to the turgor pressure which pushes the membrane
+and cluster outward while the rigid cell wall pushes them
+inward The net eect is a penalty for deformations away
+from the preferred cell shape see Fig 2 40 41
+Let us dene the relative height perturbation hcm 
+hcmr  h0r as measured relative to the preferred
+height h0r in the direction of the normal pointing in
+the radial direction outward from surface h0r Fig
+2 bc This allows us to perform the following cal-
+culations in the so-called normal gauge where the to-
+tal curvatures for the cluster and membrane 2 Ccm
+are now given by Cm  C2
+m  2CGhcm  2hcm to
+lowest order following from the rst-order variation of
+the geometry 42 Here CG is the Gaussian curvature
+1 2hcm 
+We use two further approximations
+m  2CGhcm justied for small amplitude and large
+bending ripples Hence the contribution proportional
+to hcm is neglected 2 The curvilinear Laplacian is
+replaced by the at Laplacian 2  2x2  2y2
+valid for suciently small clusters Introducing 2 Ccm 
+Cm  2hcm and C  CT  Cm Eq 1 can thus be
+written as
+Eel Zccid20 c
+2hcr  C2 
+crcid21 d2r Zmcid20 m
+2hmr2 
+mrcid21 d2r
+Parameter C is the important curvature mismatch ie
+the dierence between the cluster and membrane curva-
+tures The elastic energy model in Eq 2 neglects sur-
+face tension as well as an Gaussian curvature eect due
+to the dierent cluster and membrane elastic properties
+see Appendix A for a justication In this paper the
+model is applied to both polar and lateral clusters using
+standard parameter values given in table I Very similar
+models were previously applied to describe mixtures of
+lipids with dierent curvatures 40 41 43 44 45 For a
+general review and alternative elastic energy models see
+46 47
+Considering a circular cluster of radius R the total
+height prole hr  hx y is composed of hcr for the
+cluster r  R and hmr for the membrane r  R
+and is determined by minimizing the total elastic cluster-
+membrane energy with respect to variation of hx y
+Following Ref
+48 minimizing an elastic energy of the
+generic form
+el Z b
+cid18x y h
+x2 
+y2cid19 dx dy 3
+leads to the following Euler-Lagrange equation
+x2 cid18
+xcid18
+hxcid19 
+2hx2cid19 
+y cid18
+y2 cid18
+hycid19
+2hy2cid19  05
+Replacing  by the expressions in Eq 2 leads to the
+forth-order linear dierential equation 49 50 51 for
+cluster membrane
+4hcmr 
+hcmr  0
+cated at the origin of the coordinate system we ap-
+ply cylindrical symmetry from now on To solve Eq
+6 for cluster and membrane one needs four boundary
+conditions for each equation We require hcr  0
+at the origin and that the membrane deformation van-
+ishes far away from the cluster ie
+limr hmr  0
+and limr hmrr  0 We further impose that
+the solutions for cluster and membrane match at the
+cluster-membrane interface ie hcR  hmR and
+hcrR  hmrR
+Eq 6 can be solved by applying the Kelvin dierential
+equation
+2hr  i2hr  0
+leading to cm  4q cm
+for the cluster membrane
+In Eq 7 the second-order derivative is now calculated
+using 2  2r2  1r r The solution to Eq 7 is
+given by 52
+ber0cmr  ibei0cmr  I0cmrei348
+ker0cmr  ikei0cmr  K0cmrei4 9
+where ber0 bei0 ker0 and kei0 are the zeroth-order
+Kelvin function and I0 and K0 are the zeroth-order mod-
+ied Bessel functions of the rst and second kind respec-
+tively
+To construct the solution for the cluster r  R only
+the modied Bessel function of the rst kind has zero
+slope at r  0 whereas to construct the solution for
+the membrane r  R only the modied Bessel function
+of the second kind has a vanishing real part at innity
+To obtain real solutions we need to add their complex
+conjugates
+which is independent of C in the small deformation
+approximation Since we consider a circular cluster lo-
+hcr  a  ibI0rei34a  ibI0rei3410
+hmr  c  idK0rei4c  idK0rei411
+where a b c and d are real parameters to be determined
+by matching the boundary conditions
+Solution coecients
+After matching boundary conditions the coecients of
+the solution in Eqs 10 and 11 are given by
+H0I0c2R  H1
+2I0c2R
+H1  2dK0m1R
+2K0m1R
+SK0m1R  H1m1K1m1R
+2m1K0m4K1m1R
+where S  2a  ibc2I1c2R
+is the slope
+at the cluster-membrane interface H0 is the clus-
+ter height at r  0 and H1
+is the height at
+at the cluster-membrane interface
+further used I0rr  I1r and
+K0rr  K1r Remaining unknown
+parameters such as H0 and H1 are determined by
+numerically minimizing the elastic energy
+Analytic expression for elastic energy
+The integrals in Eq 2 can be solved analytically using
+integration-by-parts twice 49 53 and exploiting Eq 6
+leading to
+Eel  cRS  2hcR  H1  3hcR  2C  S 
+cC2R2  mRS  2hmR  H1  3hmR
+The higher-order derivatives are calculated from the so-
+lution Eqs 10 and 11 using 52
+I0r 
+ I1r
+2I0r  cid18 2
+r2 
+ 2I0r
+rcid19 I0r
+3I0r 
+2I0r
+ cid18 3
+r3 
+ 3I1r
+r2 
+rcid19 I0r
+K0r  K1r
+2K0r  2K0r
+3K0r  3K1r
+In the limit of very large clusters the elastic energy
+Eq 16 reduces to
+el 
+cC2R2 
+cC2AN
+since the other contributions to the elastic energy
+grow more slowly with size cf Fig 5a The number
+of trimers in a cluster of radius R is given by N  R2A
+Attractive trimer-trimer coupling
+In our model trimers interact favorably when in close
+contact driving cluster formation The total coupling
+energy of a cluster of radius R is described by
+Ea  JN   N
+For a triangular lattice used in Fig 3 we consider the
+following two expressions for the average coupling energy
+per trimer Assuming a cluster made of concentric rings
+formed around a central trimer the coupling energy is
+given by 41
+JN   J0 3 r 12
+where J0 is the coupling energy between two neighboring
+trimers table I This expression is exact in the limit of
+large clusters Alternatively we t
+JN   3J0
+N  N05
+to exact interaction energies of small compact clusters
+and obtain parameter N05  472 According to Fig
+3 Eq 25 overestimates the interaction energy for small
+clusters whereas Eq 26 overestimates the interaction
+In the limit N   both
+energy for large clusters
+models produce E
+In the following we
+use Eq 26 since it helps stabilizing large clusters
+a  3J0N 
+The total energy is the sum of elastic energy and the
+attractive energy
+EN   EelN   EaN 
+where we explicitly included the dependence on the
+cluster size N 
+Distribution of cluster sizes
+For a sphero-cylindrical cell the preferred membrane cur-
+vature at the poles Cm  Cmp is twice as large as the
+preferred membrane curvature at the lateral area Cm 
+Cml  Cmp2 however smaller than the trimer curva-
+ture CT  This leads to a smaller cluster-membrane cur-
+vature mismatch at the poles Cp  CT  Cmp than at
+the lateral area Cl  CT Cml  CT Cmp2 Conse-
+quently the total energy Eq 27 of a cluster is also smaller
+at the poles than at the lateral area EpN   ElN  fa-
+voring polar clustering
+Based on the total energies statistical mechanics is
+used to calculate the cluster-size distribution at the
+poleslateral area pl 41 54
+TABLE I Summary of standard parameters These
+parameters are used throughout calculations unless specied
+otherwise
+Parameter
+ kBT nm4 025 40 Pinning modulus
+Value Meaning
+c kBT 
+m kBT 
+mp nm
+ml nm
+J0 kBT 
+A nm2
+Bending stiness of cluster
+120 
+25 40 Bending stiness of membrane
+400 39 Inverse of polar membrane curvature
+800 
+37 23
+200 37 Trimer cross section
+Inverse of lateral membrane curvature
+Inverse of trimer-of-dimer curvature
+Trimer-trimer coupling strength
+ these parameters are varied in Fig 5C to check for
+robustness  based on a sphero-cylindrical cell
+PplN   N eEplN N kB T 
+poles and lateral area is provided by
+where the exponential Boltzmann factor describes the
+probability to observe a cluster of N trimers at the
+poleslateral area for chemical potential  The chem-
+ical potential represents the energy required or released
+by inserting a trimer into the membrane and is adjusted
+to fulll an overall target trimer density on the cell sur-
+face occupancy fraction  via
+PpN   PlN   
+Using the cluster-size distributions the average cluster
+sizes at the poles and lateral area are given by
+hN ipl XN
+N PplN 
+Conditions for large polar clusters
+To nd the conditions which favor polar clustering we
+consider the total energy density   EplN  ie the to-
+tal energy of the membrane-embedded cluster per trimer
+Generally minimization with respect to N determines
+the energetically preferred cluster size We note the fol-
+lowing First the energy density is generally a mono-
+tonically decreasing function of N  which eventually sat-
+urates for large N cf Fig 5a This indicates that
+maximal cluster sizes are energetically favorable Sec-
+ond the elastic energy density is always smaller at the
+poles than at the lateral area demonstrating that polar
+clustering is energetically predominant
+Let us consider the total energy densities in the limit
+N   In this limit the total cluster-membrane energy
+density at the poleslateral area is given by
+
+pl  cid18 1
+cC2
+plA  3J0cid19 
+Consequently the energy-density dierence between the
   
-Padi- ththaan  
-Present  
-Future  
-Padi- kkiREn 
-Padi- ppEn 
-Future-Neg 
-Padi- 
-kkamaattEn  
-Padi- kkiRaai 
-Padi- ppaai 
-Padi- 
-kkiRaan 
-Padi- ppaan 
-Padi-ththaaL  
-Padi- kkiRaaL 
-Padi- papal 
-Padi- ththaar    Padi- kkiRaar 
-Padi- ppaar 
-Padi- ththathu  
-Padi- kkiRathu 
-Padi- kkum 
-Padi- kkamataai 
-Padi- 
-kkamaattaan 
-Padi- 
-kkamaattaaL 
-Padi- 
-kkamaatdaar 
-Padi- kkaathu 
-I singular 
-II singular 
-singular 
-III singular 
-female 
-singular 
-singular 
-I plural 
-II plural 
-III plural an 
-Padi- tthOm  
-Padi- 
-kkiROm 
-Padi- 
-pPOm 
-Padi- kkamaatTOm  
-  
-Padi-ththIrkaL 
- 
-Padi-ththaarkaL 
-  
-Padi- 
-kkiRIrkaL 
-Padi- 
-ppIRkaL 
-Padi- 
-kkiRaarkaL 
-Padi- 
-ppaarKaL 
-Padi-- 
-kkamaattaarkaL 
-Padi- 
-kkamaattaarkaL 
-III plural inan 
-Padi-ththana 
-Padi- 
-kkinRana 
-Padi- kkum 
-Padi- kkaathu 
-non-future negative padi-kkavillai all persons numbers and genders   
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 904Conjunctive 
-Infinitive  
-TABLE III NON-FINITE VERB 
-Padi-thu     
-Padi-kka  
-Neg verbal participle 
-Padi-kkaamal  
-Conditional 
-Padi-thaal 
-Neg conditional 
-Padi-kkaanittaal  
-Negrelative participle 
-Padi-kkaatha  
-Neg verbal noun 
-Deverbal nouns 
-Padi-kkaathathu 
-  
-Padi-thal padi-ppu  padi-kkai  
-IV STEMMERS FOR TAMIL LANGUAGE 
-Stemming  is  the  process  of  extracting  root  word  from  the  given  text  Without  performing  complete 
-morphological analysis it is also reduces the total number of distinct index entries Richness of morphology in 
-Tamil language is major issue for creating right stemmer To address of this issue light stemmer is proposed 
-and  performance  compared  to  rule  based  suffix  stripping  stemmer  The  detailed  description  of  two  stemmer 
-approaches  for  Tamil  language  such  as  rule  based  suffix  removal  stemmer  and  light  stemmer  are  discussed 
-following sequel  
-A Rule based suffix stripping stemmer algorithm 
-Rule based suffix stripping stemmer algorithm truncate suffix of Tamil inflectional word based on the 
-rules  That  convert  inflectional  Tamil  word  into  stemmed  Tamil  word  36Rule  based  suffix  stripping 
-stemmer Algorithm for Tamil Language is presented in Figure 2 
-Rule based suffix stripping stemmer Algorithm for Tamil Language 
-Input      List of Tamil words 
-Output  StemmedRoot words 
-Step1  Eliminate the entire complex plural  Eg      
-                              
-Step2  Eliminate the join word suffixes Eg     
-                             
-             A  Eliminate    
-                   
-             B  Eliminate  
-                             
-Step 3  According to the identified suffix the next possible suffix list is generated using rules
-Figure 2 A Rule Based Suffix Stripping Algorithm for Tamil Language 
-B Light Stemmer 
-The  rule  based  suffix  stripping  stemmer  algorithm  give  infinite  verb  for  some  Tamil  words  Light 
-stemmer  is  proposed  to  address  above  issue Light  stemmer  is  also kind  of rule based  stemmer  It  works by 
-truncating all possible suffixes form and produce finite verb Light stemming is used to find the representative 
-indexing  form  of  given  word  by  the  application  of  truncation  of  suffixes  10  The  core  objective  of  light 
-stemmer is to preserve the word meaning intact and so increases the retrieval performance of an IR system A 
-Light Stemmer Algorithm for Tamil Language is projected in Figure 3 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 905Light stemmer Algorithm for Tamil Language 
-Input      List of Tamil words 
-Output  StemmedRoot words 
-Step 1  Eliminate the entire complex plural   
-Step 2  After the plural word is converted into singular word during the iteration the word is also checked for  
-             adjective if it is found then its equivalent verb is substituted Example the term diya in  
-             Odiya will be changed to du and the word is changed to Oodu 
-Step 3  After the adjectives are converted to main word the tenses are eliminated such that Paadiya  
-             Paadukinra and Paadum will be changed to Paadu 
-Step 4  According to the identified suffix the next possible suffix list is generated 
-Step 5  The Light algorithms are used for plural to singular conversion and for adjective and tense words to 
-main verbs conversion 
-Figure 3  A Light Stemmer Algorithm for Tamil Language 
- EXPERIMENTAL ANALYSIS 
-The  goal  of  experimental  analysis  is  to  calculate  the  accuracy  of  the  proposed  stemmer  system  can 
-achieve  Parameters  that  can  be  used  for  evaluating  Tamil  stemmer  algorithm  in  this  proposed  model  is 
-stemmers comparison performance and correctness of the stems produced by it  The detailed description of 
-dataset used for experiment and analysis of experiment results and their discussions are under here 
-A Dataset 
-Two test dataset are considered for evaluating the proposed algorithm The test dataset I has 700 words 
-which  are  collected  from  Tamil  corpus  Central  Institute  of  Indian  Language  Test  dataset  2  contains  1600 
-words constructed from the internet The stem for these words have been defined manually The training dataset 
-consists of 3000 words taken from Tamil corpus Table IV summarizes the details of training and test datasets 
-TABLE IV DATA SET GENERATION 
-Data set 
-Total Number of Words 
-Training Dataset 
-Test Dataset I 
-Test Dataset II 
-Total Number of Unique 
-Minimum Length of the 
-Maximum Length of the 
-B The Experiment Results and Discussion 
-The experiment analyzed over two datasets in order to evaluate the performance of proposed algorithm 
-The accuracy is a parameter it is used to evaluate the efficiency of the proposed Tamil stemmer algorithm over 
-a rule based suffix stripping stemmer The accuracy is defined in this proposed stemmer based on number of 
-words stemmed correctly The Table V shows the computational results of a rule based suffix stripping and light 
-stemmer based on suffix rule generation Table VI average result is generated from the Table V  From the Table 
-VI  the  maximum  accuracy  of  rule  based  suffix  stripping  stemmer  is  8432  where  as  8673  maximum 
-accuracy produced by light stemmer for the test dataset I light stemmer achieves accuracy 241 more than the 
-rule based suffix stripping stemmer The accuracy of rule based suffix stripping stemmer in test dataset II is 
-784  and  light  stemmer  accuracy  is  7983  In  the  dataset  II  143  more  accuracy  achieved  by  the  light 
-stemmer it is more than the rule based suffix stripping stemmer accuracy 
-Accuracy is calculated from the equation 1 It is based on the Number of Words Stemmed correctly 
-given by the Tamil Stemmer algorithms and number of unique words in the given datasets 
-Accuracy  Number of Correctly Stemmed words  Number of Unique words100          1 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 906Dataset 
-Dataset I 
-Dataset II 
-Number of Words 
-Data Set 
-Data Set I 
-Data Set II 
-Average 
-TABLE V TEST DATA 
-Number of Unique 
-Number of Correctly 
-Stemmed Word 
-Accuracy 
-Rule Based 
-suffix Stripping 
-algorithm 
-Stemmer 
-algorithm 
-TABLE VI AVERAGE RESULTS 
-Accuracy 
-A Rule Based Suffix Stripping Stemmer 
-A light Stemmer 
-8432 
-8136 
-8673 
-7983 
-8328 
-               The experiment is conducted over the dataset result of different accuracy ie A1A2 achieved by 
-both  rule  based  suffix  stripping  and  light  stemmer  algorithm  with  required  statistical  parameters  and  their 
-average result is shown in Table V The performance analysis chart is presented among various parameters in 
-Figure 4 The computational results clearly explain that the light stemmer algorithm is performing better than 
-the rule based suffix stripping algorithm 
-SuffixStrippingAlgorithm
-LightStemmerAlgorithm
-A1 A2 A3 A4 A5 A6 A7 A8 A9 A10A11
-Figure 4 Performance Analyses for Tamil Stemmer Algorithms 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 907VI 
-CONCLUSION 
-Morphologically Tamil is a complex language since it has a number of variants in for a single word 
-Tamil  language  is  rich  in  both  inflectional  and  derivational  morphologies  In  this  paper  a  light  stemmer  for 
-Tamil text is proposed to handle inflectional morphology word This stemmer removes suffixes from a word to 
-get stem word From the computational result it is prove   light stemmer approach is more suitable stemmer for 
-Tamil language compare to a rule based suffix stripping stemmer  
-REFERENCES 
-1  ARamanathan and DRao A Lightweight Stemmer for Hindi   in proceedings of the 10th  Conference of the European Chapter of 
-the  Association  for  Computational  LinguisticsEACL  on  Computational  linguistics  for  South  Asian  Language  Budapest  April 
-workshop 2003    
-Juhi  Ameta  Nisheeth  Joshi  and  Iti  Mathur  2011 A  Lightweight  Stemmer  for  Gujarati  46th  Annual  National  Convention  of 
-Computer Society of India Organized by Computer Society of India Gujarat Chapter Sponsored by Computer Society of India and 
-Department of Science and Technology Govt of Gujarat and IEEE Gujarat Section   
-3  Punjabi Language Stemmer for nouns and proper names by Vishal Gupta Gurpreet Singh Lehal Proceedings of the 2nd Workshop 
-on  South  and  Southeast  Asian  Natural  Language  Processing  WSSANLP  IJCNLP  2011    pages  3539Chiang  Mai  Thailand 
-November 8 2011 
-4  Khan  2007  A  light  weight  stemmer  for  Bengali  and  its  Use  in  spelling  Checker  Proc  1st  Intl  Conf  on  Digital  Comm  and 
-Computer Applications DCCA07 Irbid Jordan March 19-23 
-5  A Light Weight Stemmer for Urdu Language A Scarce Resourced Language Sajjad Ahmad Khan1 Waqas Anwar1 Usama Ijaz 
-Bajwa1 Xuan Wang Proceedings of the 3rd Workshop on South and Southeast Asian Natural Language Processing SANLP pages 
-6978COLING 2012 Mumbai December 2012 
-6  Mudassar  M  Majgaonker  et  al  Discovering  suffixes  A  Case  Study  for  Marathi  Language  IJCSE  International  Journal  on 
-Computer Science and Engineering Vol 02 No 08 2010 2716-2720  
-7  Malayalam Stemmer - Computational Linguistic Research Group nlpau-kbcorgMalayalamStemmerFinalpdf  
-8  Madhavi  Ganapathiraju  and  Levin  Lori  TelMore  Morphological  Generator  for  Telugu  Nouns  and  verbs  In  the  proceedings  of 
-Second International Conference on Universal Digital Library Alexandria Egypt November 17-19 2006 
-9  D Freitag Morphology induction from term clusters In Proceedings of the ninth conference on computational natural language 
-learning CoNLL pp 128135 2005 
-10  Imed Al-Sughaiyer Ibrahim Al-Kharashi 2004 Arabic morphological analysis techniques a comprehensive survey Journal of the 
-American Society for Information Science and Technology 553189  213 
-11  MF Porter 1980 An algorithm for suffix stripping Program 143130137 
-12  Rajendran S Arulmozi S Ramesh Kumar Viswanathan S 2001 Computational morphology of verbal complex Paper read in 
-Conference at Dravidan University Kuppam December 26-29 2001 
-AUTHORS PROFILE 
-MThangarasu received Master of Computer Application degree from Bharathiar University He purses MPhil 
-under  supervision  of  DrRManavalan  His  area  of  interest  is  data  mining  and  Natural  Processing  Language 
-NLP 
-Dr  R  Manavalan  is  working  as  Assistant  professor  and  Head  in  Department  of  computer  science  and 
-Applications He obtained PhD in Computer Science from Periyar University and published numerous research 
-papers in international journals and also presented papers in various national and international conferences His 
-area of interest is soft computing image processing and analysis Theory of computation 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 908Stemmers for Tamil Language 
-Performance Analysis 
-MThangarasu 
-MPhil Scholar Full Time 
-Department of Computer Science and Application 
-KSRangasamy College of Arts and Science 
-Tiruchengode India 
-E-mailthangarasumathangmailcom 
-DrRManavalan 
-Department of Computer Science and Application 
-KSRangasamy College of Arts and Science 
-Tiruchengode India 
-E-mail manavalanrrediffmailcom 
-Abstract Stemming is the process of extracting root word from the given inflection word and also 
-plays significant role in numerous application of Natural Language Processing NLP Tamil Language 
-raises several challenges to NLP since it has rich morphological patterns than other languages The rule 
-based approach light-stemmer is proposed in this paper to find stem word for given inflection Tamil 
-word  The  performance  of  proposed  approach  is  compared  to  a  rule  based  suffix  removal  stemmer 
-based on correctly and incorrectly predicted The experimental result clearly show that the proposed 
-approach light stemmer for Tamil language perform better than suffix removal stemmer and also more 
-effective in Information Retrieval System IRS 
-Keywords- Tamil morphology Tamil stemmer Light stemmer Rule-based stemmer NLP Natural Language 
-Processing 
-INTRODUCTION 
-Tamil is a Dravidian language It is the regional language of Tamil Nadu of India It has number of 
-morphological variant for a word For example  a male who has read a male who is reading 
-now  a male who will read a male who will not read This creates more complexity in 
-information  retrieval  Stemmer  is  especially  used  in  Information  Retrieval  System  IRS  for  improving  their 
-performance at the mean time reduce the complexity for example when a user enter query word search  
-user most likely wants to retrieve documents containing the terms searching  and searched  etc as 
-well Thus using stemmer improves recall ie the number of documents retrieved in response to a query since 
-many terms are mapped to one The benefit of Stemmer is decreases the size of the index files in the IR system 
-Consequently many stemmers algorithm have been proposed and evaluated for various Indian languages such as 
-Hindi 1 Gujarati 2 and Punjabi 3 etc An overview of the proposed model projected in Figure 1 
-Figure1 Overview of Proposed Model for Tamil Stemmer Algorithms 
-The proposed light stemmer algorithm compared with rule based suffix removal algorithmThis paper 
-organized  as  follows  Section  II  describes  the  related  work  Section  III  discusses  about  the  Tamil  language 
-Section IV presents the proposed system light stemmer and also describes a rule based suffix removal stemmer 
-Section V and VI contains an experimental analysis and conclusion of the work respectively 
-RELATED WORK 
-Earlier Stemmer was primarily developed for English but later due to the corpus growth of languages 
-other than English there was an increased demand from the research community to develop stemmers for other 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 902languages too In case in Indian languages the earliest work reported by Ramanathan and Rao 1 2003 to 
-perform longest match stripping for building a Hindi stemmer Juhi Ameta et al developed a light stemmer for 
-Gujarati language 2 in 2011 for removing inflectional and derivational endings in order to reduce word forms 
-to common stem Slowly investigation starts for other language such as Bengali 4 Urdu 5 Malayalam 6 
-and Punjabi 3 are also carried out However in this section express research experience in developing Tamil 
-stemmers 
-The most common approaches used for developing stemmers are Brute force and Affix strip Among 
-all the existing approaches this research tries to implement a light stemmer for Tamil for inherent to develop a 
-stemmer algorithm in an easier and faster way 
-TAMIL LANGUAGE 
-Tamil is a Dravidian language spoken predominantly by Tamil people of Indian subcontinent Tamil 
-words typically have more morphological patterns than English words Tamil word contains constituent parts a 
-stem which can be thought of as responsible for the nuclear meaning of verb attached to which may be zero or 
-more derivational prefix and zero or one suffix which together to form a word Tamil is a morphologically rich 
-language resulting in its relatively high inflectional forms Normally most of the Tamil words have more than 
-one  morphologically  suffixes  The  number  of  suffix  is  ranging  from  3  to  13  The  description  with  example 
-nouns compound nouns and verbs are given in the following sequel 
-A Noun 
-Tamil  has  an  extensive  case  system  Root  nouns  can  assume  eight  different  morphological  shapes 
-depending  on  their  roles  in  a  sentence  Singular  and  plural  forms  are  also  distinguished  through  inflections 
-Suffixes are attached to stem word of the noun Table I shows example for different stem noun 
-Singular 
-Oblique stem 
-Nominative stem 
-Accusative stem 
-Dative stem 
-Sociative stem  
-Genitive stem 
-Instrumental stem 
-Locative stem 
-Ablative stem 
-Vocative stem 
-Plural 
-Oblique stem 
-Nominative stem 
-Accusative stem 
-Dative stem 
-Sociative stem 
-Genitive stem 
-Instrumental stem 
-Locative stem 
-Ablative stem 
-Vocative stem 
-TABLE I NOUN 
-PeNgirl
-PeN- 
-PeN 
-PeN-ai 
-PeN-ukku 
-PeN-odu 
-PeN-udaiya 
-PeNaal 
-PeN-idam 
-maramtree
-maram - 
-maram 
-maram -ai 
-maram -ukku 
-maram -odu 
-maram -udaiya 
-maram -aal 
-maram -marath 
-PeNidamirunthu 
-maram -ilirunthu 
-PeN-e 
-PeNgaL girls 
-PeNgaL- 
-PeNgaL 
-maram -e 
-marangal trees 
-marangal- 
-marangal 
-PeNgaL-ai 
-marangal-ai 
-PeNgaL-ukku 
-marangal-ukku 
-PeNgaL-odu 
-marangal-odu 
-PeNgaL-udaiya 
-marangal-udaiya 
-PeNgaL-aal 
-marangal-aal 
-PeNgaL-idam 
-marangal-il 
-PeNgaL- 
-idamirunthu 
-PeNgaL-e 
-marangal-ilirunthu 
-marangal-e 
- gaL is added to the singular form of nouns to make them plural  
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 903B Compound Nouns 
-         Nouns are also occurring in various compound forms as well It can be made up of several units where 
-each  unit  expresses  a  particular  grammatical  meaning  The  Tamil  noun  pAdikkoNdurunhthavanai 
-  which  translates  as  the  male  who  was  singing  gives  information  on  tense  number 
-gender  person  and  case  This  noun  is  actually  derived  from  the  full  non-infinite  verb  pAdikkoNdu 
- which means singing In English deriving nouns from verbs is seen too The full finite verb 
-sing  for  instance  could  be  changed  into  a  noun  by  adding  the  suffix  er  to  its  stem  so  that  it  becomes 
-singer But while Tamil is an agglutinating language English is not 
-C Verbs  
-Tamil verbs may be main or auxiliary They also exist in finite and non-finite forms just as in English 
-Tamil finite verbs however give much more grammatical information than English finite verbs do in that they 
-mark mood tense number person gender case etc In the Table II below can observe the different finite 
-morphological construction for the verb padi study 
-TABLE II VERBS 
-padi-  ththEn  
-ththAi 
-Padi- 
-  
-Padi- ththaan  
-Present  
-Future  
-Padi- kkiREn 
-Padi- ppEn 
-Future-Neg 
-Padi- 
-kkamaattEn  
-Padi- kkiRaai 
-Padi- ppaai 
-Padi- 
-kkiRaan 
-Padi- ppaan 
-Padi-ththaaL  
-Padi- kkiRaaL 
-Padi- papal 
-Padi- ththaar    Padi- kkiRaar 
-Padi- ppaar 
-Padi- ththathu  
-Padi- kkiRathu 
-Padi- kkum 
-Padi- kkamataai 
-Padi- 
-kkamaattaan 
-Padi- 
-kkamaattaaL 
-Padi- 
-kkamaatdaar 
-Padi- kkaathu 
-I singular 
-II singular 
-singular 
-III singular 
-female 
-singular 
-singular 
-I plural 
-II plural 
-III plural an 
-Padi- tthOm  
-Padi- 
-kkiROm 
-Padi- 
-pPOm 
-Padi- kkamaatTOm  
-  
-Padi-ththIrkaL 
- 
-Padi-ththaarkaL 
-  
-Padi- 
-kkiRIrkaL 
-Padi- 
-ppIRkaL 
-Padi- 
-kkiRaarkaL 
-Padi- 
-ppaarKaL 
-Padi-- 
-kkamaattaarkaL 
-Padi- 
-kkamaattaarkaL 
-III plural inan 
-Padi-ththana 
-Padi- 
-kkinRana 
-Padi- kkum 
-Padi- kkaathu 
-non-future negative padi-kkavillai all persons numbers and genders   
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 904Conjunctive 
-Infinitive  
-TABLE III NON-FINITE VERB 
-Padi-thu     
-Padi-kka  
-Neg verbal participle 
-Padi-kkaamal  
-Conditional 
-Padi-thaal 
-Neg conditional 
-Padi-kkaanittaal  
-Negrelative participle 
-Padi-kkaatha  
-Neg verbal noun 
-Deverbal nouns 
-Padi-kkaathathu 
-  
-Padi-thal padi-ppu  padi-kkai  
-IV STEMMERS FOR TAMIL LANGUAGE 
-Stemming  is  the  process  of  extracting  root  word  from  the  given  text  Without  performing  complete 
-morphological analysis it is also reduces the total number of distinct index entries Richness of morphology in 
-Tamil language is major issue for creating right stemmer To address of this issue light stemmer is proposed 
-and  performance  compared  to  rule  based  suffix  stripping  stemmer  The  detailed  description  of  two  stemmer 
-approaches  for  Tamil  language  such  as  rule  based  suffix  removal  stemmer  and  light  stemmer  are  discussed 
-following sequel  
-A Rule based suffix stripping stemmer algorithm 
-Rule based suffix stripping stemmer algorithm truncate suffix of Tamil inflectional word based on the 
-rules  That  convert  inflectional  Tamil  word  into  stemmed  Tamil  word  36Rule  based  suffix  stripping 
-stemmer Algorithm for Tamil Language is presented in Figure 2 
-Rule based suffix stripping stemmer Algorithm for Tamil Language 
-Input      List of Tamil words 
-Output  StemmedRoot words 
-Step1  Eliminate the entire complex plural  Eg      
-                              
-Step2  Eliminate the join word suffixes Eg     
-                             
-             A  Eliminate    
-                   
-             B  Eliminate  
-                             
-Step 3  According to the identified suffix the next possible suffix list is generated using rules
-Figure 2 A Rule Based Suffix Stripping Algorithm for Tamil Language 
-B Light Stemmer 
-The  rule  based  suffix  stripping  stemmer  algorithm  give  infinite  verb  for  some  Tamil  words  Light 
-stemmer  is  proposed  to  address  above  issue Light  stemmer  is  also kind  of rule based  stemmer  It  works by 
-truncating all possible suffixes form and produce finite verb Light stemming is used to find the representative 
-indexing  form  of  given  word  by  the  application  of  truncation  of  suffixes  10  The  core  objective  of  light 
-stemmer is to preserve the word meaning intact and so increases the retrieval performance of an IR system A 
-Light Stemmer Algorithm for Tamil Language is projected in Figure 3 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 905Light stemmer Algorithm for Tamil Language 
-Input      List of Tamil words 
-Output  StemmedRoot words 
-Step 1  Eliminate the entire complex plural   
-Step 2  After the plural word is converted into singular word during the iteration the word is also checked for  
-             adjective if it is found then its equivalent verb is substituted Example the term diya in  
-             Odiya will be changed to du and the word is changed to Oodu 
-Step 3  After the adjectives are converted to main word the tenses are eliminated such that Paadiya  
-             Paadukinra and Paadum will be changed to Paadu 
-Step 4  According to the identified suffix the next possible suffix list is generated 
-Step 5  The Light algorithms are used for plural to singular conversion and for adjective and tense words to 
-main verbs conversion 
-Figure 3  A Light Stemmer Algorithm for Tamil Language 
- EXPERIMENTAL ANALYSIS 
-The  goal  of  experimental  analysis  is  to  calculate  the  accuracy  of  the  proposed  stemmer  system  can 
-achieve  Parameters  that  can  be  used  for  evaluating  Tamil  stemmer  algorithm  in  this  proposed  model  is 
-stemmers comparison performance and correctness of the stems produced by it  The detailed description of 
-dataset used for experiment and analysis of experiment results and their discussions are under here 
-A Dataset 
-Two test dataset are considered for evaluating the proposed algorithm The test dataset I has 700 words 
-which  are  collected  from  Tamil  corpus  Central  Institute  of  Indian  Language  Test  dataset  2  contains  1600 
-words constructed from the internet The stem for these words have been defined manually The training dataset 
-consists of 3000 words taken from Tamil corpus Table IV summarizes the details of training and test datasets 
-TABLE IV DATA SET GENERATION 
-Data set 
-Total Number of Words 
-Training Dataset 
-Test Dataset I 
-Test Dataset II 
-Total Number of Unique 
-Minimum Length of the 
-Maximum Length of the 
-B The Experiment Results and Discussion 
-The experiment analyzed over two datasets in order to evaluate the performance of proposed algorithm 
-The accuracy is a parameter it is used to evaluate the efficiency of the proposed Tamil stemmer algorithm over 
-a rule based suffix stripping stemmer The accuracy is defined in this proposed stemmer based on number of 
-words stemmed correctly The Table V shows the computational results of a rule based suffix stripping and light 
-stemmer based on suffix rule generation Table VI average result is generated from the Table V  From the Table 
-VI  the  maximum  accuracy  of  rule  based  suffix  stripping  stemmer  is  8432  where  as  8673  maximum 
-accuracy produced by light stemmer for the test dataset I light stemmer achieves accuracy 241 more than the 
-rule based suffix stripping stemmer The accuracy of rule based suffix stripping stemmer in test dataset II is 
-784  and  light  stemmer  accuracy  is  7983  In  the  dataset  II  143  more  accuracy  achieved  by  the  light 
-stemmer it is more than the rule based suffix stripping stemmer accuracy 
-Accuracy is calculated from the equation 1 It is based on the Number of Words Stemmed correctly 
-given by the Tamil Stemmer algorithms and number of unique words in the given datasets 
-Accuracy  Number of Correctly Stemmed words  Number of Unique words100          1 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 906Dataset 
-Dataset I 
-Dataset II 
-Number of Words 
-Data Set 
-Data Set I 
-Data Set II 
-Average 
-TABLE V TEST DATA 
-Number of Unique 
-Number of Correctly 
-Stemmed Word 
-Accuracy 
-Rule Based 
-suffix Stripping 
-algorithm 
-Stemmer 
-algorithm 
-TABLE VI AVERAGE RESULTS 
-Accuracy 
-A Rule Based Suffix Stripping Stemmer 
-A light Stemmer 
-8432 
-8136 
-8673 
-7983 
-8328 
-               The experiment is conducted over the dataset result of different accuracy ie A1A2 achieved by 
-both  rule  based  suffix  stripping  and  light  stemmer  algorithm  with  required  statistical  parameters  and  their 
-average result is shown in Table V The performance analysis chart is presented among various parameters in 
-Figure 4 The computational results clearly explain that the light stemmer algorithm is performing better than 
-the rule based suffix stripping algorithm 
-SuffixStrippingAlgorithm
-LightStemmerAlgorithm
-A1 A2 A3 A4 A5 A6 A7 A8 A9 A10A11
-Figure 4 Performance Analyses for Tamil Stemmer Algorithms 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 907VI 
-CONCLUSION 
-Morphologically Tamil is a complex language since it has a number of variants in for a single word 
-Tamil  language  is  rich  in  both  inflectional  and  derivational  morphologies  In  this  paper  a  light  stemmer  for 
-Tamil text is proposed to handle inflectional morphology word This stemmer removes suffixes from a word to 
-get stem word From the computational result it is prove   light stemmer approach is more suitable stemmer for 
-Tamil language compare to a rule based suffix stripping stemmer  
-REFERENCES 
-1  ARamanathan and DRao A Lightweight Stemmer for Hindi   in proceedings of the 10th  Conference of the European Chapter of 
-the  Association  for  Computational  LinguisticsEACL  on  Computational  linguistics  for  South  Asian  Language  Budapest  April 
-workshop 2003    
-Juhi  Ameta  Nisheeth  Joshi  and  Iti  Mathur  2011 A  Lightweight  Stemmer  for  Gujarati  46th  Annual  National  Convention  of 
-Computer Society of India Organized by Computer Society of India Gujarat Chapter Sponsored by Computer Society of India and 
-Department of Science and Technology Govt of Gujarat and IEEE Gujarat Section   
-3  Punjabi Language Stemmer for nouns and proper names by Vishal Gupta Gurpreet Singh Lehal Proceedings of the 2nd Workshop 
-on  South  and  Southeast  Asian  Natural  Language  Processing  WSSANLP  IJCNLP  2011    pages  3539Chiang  Mai  Thailand 
-November 8 2011 
-4  Khan  2007  A  light  weight  stemmer  for  Bengali  and  its  Use  in  spelling  Checker  Proc  1st  Intl  Conf  on  Digital  Comm  and 
-Computer Applications DCCA07 Irbid Jordan March 19-23 
-5  A Light Weight Stemmer for Urdu Language A Scarce Resourced Language Sajjad Ahmad Khan1 Waqas Anwar1 Usama Ijaz 
-Bajwa1 Xuan Wang Proceedings of the 3rd Workshop on South and Southeast Asian Natural Language Processing SANLP pages 
-6978COLING 2012 Mumbai December 2012 
-6  Mudassar  M  Majgaonker  et  al  Discovering  suffixes  A  Case  Study  for  Marathi  Language  IJCSE  International  Journal  on 
-Computer Science and Engineering Vol 02 No 08 2010 2716-2720  
-7  Malayalam Stemmer - Computational Linguistic Research Group nlpau-kbcorgMalayalamStemmerFinalpdf  
-8  Madhavi  Ganapathiraju  and  Levin  Lori  TelMore  Morphological  Generator  for  Telugu  Nouns  and  verbs  In  the  proceedings  of 
-Second International Conference on Universal Digital Library Alexandria Egypt November 17-19 2006 
-9  D Freitag Morphology induction from term clusters In Proceedings of the ninth conference on computational natural language 
-learning CoNLL pp 128135 2005 
-10  Imed Al-Sughaiyer Ibrahim Al-Kharashi 2004 Arabic morphological analysis techniques a comprehensive survey Journal of the 
-American Society for Information Science and Technology 553189  213 
-11  MF Porter 1980 An algorithm for suffix stripping Program 143130137 
-12  Rajendran S Arulmozi S Ramesh Kumar Viswanathan S 2001 Computational morphology of verbal complex Paper read in 
-Conference at Dravidan University Kuppam December 26-29 2001 
-AUTHORS PROFILE 
-MThangarasu received Master of Computer Application degree from Bharathiar University He purses MPhil 
-under  supervision  of  DrRManavalan  His  area  of  interest  is  data  mining  and  Natural  Processing  Language 
-NLP 
-Dr  R  Manavalan  is  working  as  Assistant  professor  and  Head  in  Department  of  computer  science  and 
-Applications He obtained PhD in Computer Science from Periyar University and published numerous research 
-papers in international journals and also presented papers in various national and international conferences His 
-area of interest is soft computing image processing and analysis Theory of computation 
-MThangarasu et al International Journal of Computer Science  Engineering Technology IJCSETISSN  2229-3345Vol 4 No 07 Jul 2013 908
+l  
+CT  34 CmpCmp
+Increasing CT beyond
+where we used Cml  Cmp2
+34 Cmp favors polar over lateral clusters Specically
+for N   1kBT  a cluster of N trimers is signicantly
+more favorable at the poles than at the lateral area at
+temperature T 
+III RESULTS AND DISCUSSION
+Based on experimental observations outlined in the In-
+troduction section we propose a model for polar recep-
+tor localization and clustering Fig 2 The ingredients
+and model assumptions are as follows 1 An individ-
+ual trimer of dimers trimer believed to be the smallest
+stable signaling unit 5 6 has a high intrinsic curva-
+ture CT Fig 2a The cell membrane has a higher
+curvature at the cell poles Cmp than at the lateral area
+Cml For a sphero-cylindrical cell we have specically
+Cml  Cmp2 Since CT  Cmp  Cml individual
+trimers favor the cell poles energetically although this
+eect is very small by itself fraction of thermal energy
+kBT  2 Trimers are coupled with strength J0 when in
+close proximity Fig 2bc driving cluster formation at
+the poles and lateral area Fig 3 3 Due to the cluster-
+membrane curvature mismatch growing clusters deform
+the membrane and are energetically penalized However
+since the cluster-membrane curvature mismatch at the
+poles Cp  CT  Cmp is smaller than the correspond-
+ing mismatch at the lateral area Cl  CT  Cmp2
+this energy penalty is reduced at the poles Fig 2b As
+outlined in the Model section the model is implemented
+by considering a membrane-embedded cluster of radius
+R The height prole of the cluster and the membrane
+minimizes the elastic energy which is determined by the
+cluster and membrane preferred curvatures respective
+Cluster size  N
+FIG 3 Average interaction energy JN  per trimer in units
+of coupling strength J0 as a function of cluster size number
+of trimers N  Trimers are shown by orange disks trimer-
+trimer coupling of strength J0 is shown by green bars Clus-
+ters are assumed to have a triangular lattice structure Sym-
+bols small compact clusters of minimal circumference Solid
+line and dashed lines Ring model and Fit-to-symbols
+model respectively see Model section Horizontal dotted
+line average interaction energy for innitely large cluster
+Inset Possible mechanisms of trimer-trimer coupling includ-
+ing coupling mediated by receptor-bound CheA-CheW and
+membrane deformations based on large hydrophobic trans-
+membrane domains TMs
+CT and Cmpl and their bending stinesses respective
+c and m Furthermore a pinning modulus  40 41
+pushes the membrane and the cluster against the rigid
+cell wall Fig 2 bc This penalizes large deformations of
+the cluster and the membrane The main ndings are as
+follows 1 Considered separately poles and lateral area
+favor maximal cluster sizes energetically 2 Actual clus-
+ter size is determined by timer density entropy where
+increasing trimer density pushes distribution of cluster
+sizes to larger values 3 Polar-only clustering is a result
+of the reduced curvature mismatch at the poles energet-
+ically stabilizing polar clusters and suppressing lateral
+ones Our results are in line with the experimental ob-
+servation of large polar clusters which were found to be
+robust 17 18 19 and only slightly aected by attractant
+binding 55 56 expression level variation 15 19 57
+and receptor methylation 11 58 59 60
+Fig 4 shows typical cluster-membrane height proles
+for two dierent cluster radii R10 and 100 nms The
+height prole minimizes the cluster-membrane elastic en-
+ergy given in Eq 2 The prole of the small cluster
+bulges out into the periplasmic space in a convex man-
+ner while the large cluster of physiological size is at-
+tened The latter eect appears consistent with images
+from cryo-electron microscopy 12 13
+In our model
+large deformations are suppressed by the pinning poten-
+tial left inset in Fig 4b Signicant reduction of the
+pinning modulus  leads to strongly curved clusters right
+FIG 4 Cluster-membrane height proles a Prole hr
+as a function of distance r from center for a small cluster of
+radius R  10 nm Inset Prole for large cluster of radius
+R  100 nm b Three-dimensional prole for small cluster
+Left inset Same for large cluster For parameters c m and
+ see table I Right inset large cluster for very small pinning
+modulus   105kBT nm4
+inset in Fig 4b Note that the maximal deformation of
+the large curved cluster can easily exceed the width of
+the periplasmic space 20 nm 61 emphasizing the im-
+portance of the pinning modulus
+How large are clusters and how do their sizes dier
+between cell poles and lateral positions Consider a
+membrane-embedded cluster of radius R or number of
+trimers N  R2A where A is the trimer cross section
+The total trimer energy E is equal to the sum of the un-
+favorable elastic energy Eel and the favorable attractive
+energy Ea Dividing by the number of trimers N results
+in the corresponding energy densities  el and a Gen-
+erally the minimum of the total energy density  as a
+function of cluster size N provides the preferred cluster
+size Fig 5a shows that key requirements for stable po-
+lar clusters are fullled 1 The energy density reaches
+its lowest value in the limit N   energetically favor-
+ing maximal clusters 2 Although the energy-density
+dierence  between the poles and lateral cell area can
+be smaller than the thermal energy kBT  a cluster of N
+trimers is stabilized at the poles and suppressed at the
+lateral area when N  is larger than kBT see Model
+section
+Due to the nite trimer density cluster sizes are al-
+ways nite To obtain the predicted distribution of clus-
+ter sizes we consider the combined system of cell poles
+and lateral area The distribution of cluster sizes can
+be calculated using Boltzmann statistics of equilibrium
+statistical mechanics see Model section A chemical
+potential is further adjusted to obtain a certain target
+trimer density Fig 5b shows the size distributions of
+polar and lateral clusters for three dierent trimer den-
+sities Even at low trimer densities very few residual
+trimers stabilized by entropy remain unclustered at the
+poles and lateral area The average radii of polar clusters
+shown in Fig 5c correspond well with the observed clus-
+ter diameters of about 200 nm whereas lateral clusters
+are signicantly suppressed
+As shown in Fig 5c our model predicts the aver-
+age cluster size as function of trimer density This pre-
+diction can experimentally be tested through imaging
+The uorescence intensity of a cluster eg measured
+using receptor-GFP fusion proteins 20 is proportional
+to the number of receptors in the cluster Alternatively
+imaging by cryo-electron microscopy can provide spatial
+cluster dimensions 12 13 The dependence on trimer
+density can be studied by expressing receptors from an
+inducible plasmid An recent experiment using the fusion
+protein CheY-YFP as a uorescent marker indeed indi-
+cated a strong correlation between receptor expression
+level and polar uorescence intensity 62 Furthermore
+the predicted link between membrane curvature and clus-
+tering can be tested by quantifying receptor-uorescence
+intensities for cell-shape phenotypes eg when inhibit-
+ing actin-homologue MreB 20 responsible for rod shape
+in bacteria Alternatively cocci cells or round membrane
+vesicles can be used allowing the study of receptor clus-
+tering in presence of only a single membrane curvature
+In Fig 6 we show the predicted average cluster size as
+a function of coccus radius and receptor density expres-
+sion level
+Increasing the coccus radius decreases the
+coccus curvature and leads to a larger cluster-membrane
+curvature mismatch which reduces cluster size In con-
+trast increasing the receptor density shifts cluster size
+distribution toward larger clusters
+In recent experiments the physical response of dimers
+were measured by homo-FRET using receptor-YFP fu-
+sions 36 63 These data indicate that the dimer-
+dimer distance in a trimer distance between receptor
+C-termini shrinks by 10 upon osmolyte stimulation
+Osmolytes act as repellents and are presumably sensed
+through receptor-membrane coupling To see if polar
+clustering is robust against such perturbations Fig 5c
+shows that a 10 increase of the dimer-dimer distance
+C 1
+T  362 nm lower green error bars destabilizes
+clusters very little wheres a 10 decrease of the dimer-
+dimer distance C 1
+T  388 nm upper green error bars
+Cluster size  N
+density      polar     lateral
+0025
+Cluster size  N
+ Trimer density  
+FIG 5 Quantifying polar receptor clustering a Cluster-
+membrane energy density ie energy per trimer as function
+of cluster size N  Total energy density  black is sum of re-
+pulsive elastic energy density el blue and attractive cluster
+energy density a red Solid lines correspond to cell poles
+dashed lines to lateral positions Thin solid and dashed blue
+lines indicate asymptotic limit of the elastic energy density
+for N   at the poles and lateral positions respectively
+Polar clusters are stabilized by energy density  b Distri-
+bution of cluster sizes for three values of the trimer density
+occupancy fraction   04 01 and 0025 at the poles solid
+lines and lateral positions dashed lines c Average clus-
+ter radius hRi at the poles black solid line and lateral area
+black dashed line as a function of trimer density  based
+on standard parameters including trimer-trimer coupling J0
+trimer curvature CT  and cluster bending stiness c from
+table I Error bars indicate robustness to parameter changes
+Upper error bars for poles and lateral area 11 J0 red 098
+CT dimer-dimer distance reduced by 1 nm green 092 c
+ Coccus radius nm
+FIG 6 Predicted receptor clustering in cocci cells Average
+cluster radius hRi as a function of coccus radius Solid lines of
+varying thickness correspond to the three densities from Fig
+stabilizes clusters even further To illustrate the robust-
+ness of polar clustering with respect to other model pa-
+rameters we also varied cluster bending stiness c and
+trimer-trimer coupling strength J0 Fig 5c shows that
+these parameter variations only lead to modest changes
+in cluster stability blue and red error bars respectively
+While our model provides a robust mechanism for the
+formation of large polar clusters there are limitations of
+the model 1 A recent study showed that in addition to
+large polar clusters there are also small lateral clusters
+at future division sites such as 12 as well as 14 and
+34 cell length 14 However these lateral clusters ap-
+pear immobile presumably due to anchoring and hence
+may form through a dierent mechanism In Rhodobac-
+ter sphaeroides immobile lateral clusters of chemotaxis
+receptor homologues were even found in the cytoplasm
+64 Our model does suggest cluster formation at the
+new poles once cell division occurs and the membrane
+pinches o Newly synthesized receptors inserted by
+the Sec-machinery throughout the cell surface 20 65
+would begin to cluster at the new cell poles However
+if equilibration is too slow to grow new polar clusters
+from scratch after cell division lateral clusters may be
+useful by serving as nucleation sites 2 Structural work
+on receptors and receptor-bound proteins in Thermotoga
+maritima suggests that at least for this bacterium re-
+ceptor dimers may assemble into linear oligomers and
+not trimer-based clusters 66 A bioinformatics study
+on chemotaxis receptors across many species also ad-
+dresses this issue but does not favor one model over the
+other 67 On the other hand cryo-electron microscopy
+of Caulobacter crescentus strongly supports trimer-based
+clusters 13 3 Our model does not include interactions
+between multiple clusters Such interactions may largely
+be unimportant since uorescence images generally in-
+dicate only one rarely more clusters per cell pole 14
+4 It can further not be ruled out that receptors do not
+localize to the poles themselves but that certain polar
+lipids eg cardiolipin 68 provide favorable sites for
+receptor localization and clustering 5 Although some
+elastic properties are included in our model others are
+not eg membrane thickness deformation due to large
+hydrophobic transmembrane domains 49 Thickness de-
+formation leads to a line tension ie an elastic energy
+proportional to the cluster circumference 2R aecting
+both polar as well as lateral clusters equally While this
+eect does not change the stability of polar clusters the
+line tension may provide a mechanism for trimer-trimer
+coupling 69 see next paragraph and have inuence on
+the cluster size distribution
+What are the possible mechanisms responsible for
+trimer-trimer coupling 1 Coupling mediated by CheA
+and CheW Fig 3 inset Presence of CheA and CheW
+increases polar clustering only modestly 15 16 59
+However overexpression of CheA decreases whereas
+overexpression of CheW increases the receptor cooper-
+ativity measured by FRET 29
+2 Coupling medi-
+ated by elastic membrane deformations Receptor ac-
+tivity has been shown to depend on receptor-membrane
+interactions 36 63 70 which we speculate may pro-
+vide a mechanism for trimer-trimer coupling 69 71 In
+support of this mechanism receptor transmembrane re-
+gions are unusually large 24 to 30 residues compared
+to the membrane thickness 30A or about 20 residues
+72 Such large regions possibly lead to signicant mem-
+brane deformations to protect the hydrophobic receptor
+residues from water Fig 3 inset If transmembrane re-
+gions change with activity eg within the receptor piston
+model 70 73 74 75 trimer-trimer coupling may even
+depend on the receptor activity state as proposed for
+the approximate two-state osmolarity-sensing MscL pore
+27 3 Coupling mediated by swapping of cytoplasmic
+domains of neighboring dimers 26
+Many other sensory receptors cluster as well including
+B-cell 76 T-cell 77 Fc 78 synaptic 79 and ryan-
+odine 80 receptors This indicates that receptor cluster-
+ing is an important regulatory mechanism of the cell eg
+to adjust signaling properties recruit auxiliary proteins
+or kinetically proof-read unexpected stimuli Unlike bac-
+teria eukaryotic receptor clustering appears much more
+dynamic including receptor diusion and internalization
+and the underlying physical mechanism remain little un-
+derstood Our work adds additional support to the idea
+that the elastic properties of receptors and membrane
+may be a general design principle to regulate receptor
+localization and clustering 47 81
+APPENDIX A SURFACE TENSION AND
+GAUSSIAN CURVATURE
+The elastic energy in Eq 2 neglects surface tension
+and Gaussian curvature terms Here we show that these
+two elastic energy contributions are indeed very small
+Surface tension
+In the small deformation approximation Monge repre-
+sentation for cluster and membrane the contribution
+from the surface tension to the elastic energy Eq 2 is
+given by
+hc2d2r 
+hm2d2r
+where cm is the surface tension of the cluster mem-
+brane and   x y Surface tension arises
+in part from the attractive receptor-receptor and lipid-
+lipid interactions Minimization of the total elastic en-
+ergy Eq 2 plus Eq A1 leads to the Euler-Lagrange
+equation
+4hcmr 
+2hcmr 
+hcmr  0
+for the cluster membrane Using integration-by-parts
+twice 49 53 and Eq A2 the elastic energy contribution
+due to the surface tensions of the cluster and membrane
+is given by
+el  c  mRH1S
+where R is the cluster radius H1 is the cluster-membrane
+height at the interface r  R and S is the slope of the
+cluster-membrane at the interface This energy describes
+a line tension  2R and vanishes for c  m since
+cluster and membrane contributions point in opposite ra-
+dial directions
+We apply perturbation theory to estimate the sig-
+nicance of the surface-tension contribution For this
+purpose we use our previously calculated height prole
+Eqs 10 and 11 obtained without the surface tension
+term Using m  c4  1 kBT nm2 49 and a
+physiological cluster radius R  100 nm we nd that
+the estimated energy contribution from the surface
+tensions is much smaller than the elastic energy Eq 2
+ie E
+elEel  0004 justifying the neglect of this term
+Gaussian curvature
+The contribution to the elastic energy from the Gaussian
+curvature can be neglected for homogeneous membranes
+that do not change their topology Gauss-Bonnet theo-
+rem However this contribution is technically non-zero
+for our cluster-membrane system In the small deforma-
+tion approximation this contribution is given by 39
+el  KGcZc 2hc
+KGmZm 2hm
+y2 cid18 2hc
+y2 cid18 2hm
+xycid192 d2r
+xycid192 d2r A4
+where KGcm is the Gaussian curvature modulus for the
+cluster membrane
+In 49 Eq 129 shows that the
+Gaussian energy contribution has two parts One topo-
+logical part which is just a constant since our membrane
+contains a single receptor cluster The second part is a
+contour integral along the cluster boundary Based on
+Eq 131 of 49 we obtain
+el  KGc  KGmS2
+For our height prole Eq
+10 and 11 as well as
+KGcm  cm2 39 49 this energy contribution is
+signicantly smaller than the elastic energy in Eq 2 ie
+el Eel  00006 justifying the neglect of this term
+As expected this energy contribution vanishes when
+the elastic properties of cluster and membrane become
+identical for KGc  KGm
+ACKNOWLEDGMENTS
+We thank Kerwyn Huang Michael Manson Ranjan
+Mukhopadhyay Samuel Safran Victor Sourjik Sriram
+Subramaniam and Ned Wingreen for helpful discussions
+and two anonymous referees for valuable suggestions
+We further acknowledge funding from the BBSRC grant
+BBG0001311 and from the Centre for Integrated Sys-
+tems Biology at Imperial College CISBIC
+1 Gestwicki JE AC Lamanna RM Harshey LL Mc-
+Carter LL Kiessling and J Adler 2000 Evolutionary
+conservation of methyl-accepting chemotaxis protein lo-
+cation in Bacteria and Archaea J Bacteriol 1826499-
+2 Studdert CA and JS Parkinson 2004 Crosslinking
+snapshots of bacterial chemoreceptor squads Proc Natl
+Acad Sci USA 1012117-2122
+3 Ames P CA Studdert RH Reiser and JS Parkin-
+son 2002 Collaborative signaling by mixed chemorecep-
+tor teams in Escherichia coli Proc Natl Acad Sci USA
+997060-7065
+4 Kim KK H Yokota and SH Kim 1999 Four-helical-
+bundle structure of the cytoplasmic domain of a serine
+chemotaxis receptor Nature 400787-792
+5 Studdert CA and JS Parkinson 2005 Insights into
+the organization and dynamics of bacterial chemorecep-
+tor clusters through in vivo crosslinking studies Proc
+Natl Acad Sci USA 10215623-15628
+6 Boldog T S Grimme M Li SG Sligar and GL
+Hazelbauer 2006 Nanodiscs separate chemoreceptor
+oligomeric states and reveal their signaling properties
+Proc Natl Acad Sci USA 10311509-11514
+7 Li M and GL Hazelbauer 2004 Cellular stoichiometry
+of the components of the chemotaxis signaling complex
+J Bacteriol 1863687-3694
+8 McAndrew RS EA Ellis MD Manson and A
+Holzenburg 2004 TEM analysis of chemoreceptor ar-
+rays in native membranes of E coli Microsc Microanal
+10416-417
+9 McAndrew RS EA Ellis RZ Lai MD Manson
+and A Holzenburg 2005 Identication of Tsr and Tar
+chemoreceptor arrays in E coli inner membranes Mi-
+crosc Microanal 111190-1191
+10 Lai RZ JM Manson AF Bormans RR Draheim
+NT Nguyen and MD Manson 2005 Cooperative
+signaling among bacterial chemoreceptors Biochemistry
+4414298-14307
+11 McAndrew RS EA Ellis RZ Lai MD Manson and
+A Holzenburg 2006 Eects of Chemoreceptor modica-
+tion on the structures of Tsr arrays Microsc Microanal
+12378-379
+12 Zhang P CM Khursigara LM Hartnell and S
+Subramaniam 2007 Direct visualization of Escherichia
+coli chemotaxis receptor arrays using cryo-electron mi-
+croscopy Proc Natl Acad Sci USA 1043777-3781
+13 Briegel A HJ Ding Z Li J Werner Z Gitai DP
+Dias RB Jensen and G Jensen 2008 Location and
+architecture of the Caulobacter crescentus chemoreceptor
+array Mol Microbiol 6930-41
+14 Thiem S D Kentner V Sourjik 2007 Positioning of
+chemosensory clusters in E coli and its relation to cell
+division EMBO J 261615-1623
+15 Maddock JR and L Shapiro L 1993 Polar location of
+the chemoreceptor complex in the Escherichia coli cell
+Science 2591717-172
+16 Sourjik V and HC Berg 2000 Localization of com-
+ponents of the chemotaxis machinery of Escherichia coli
+using uorescent protein fusions Mol Microbiol 37740-
+17 Kentner D and V Sourjik 2006 Spatial organization of
+the bacterial chemotaxis system Curr Opin Microbiol
+9619-624
+18 Schulmeister S M Ruttorf S Thiem D Kentner D
+Lebiedz and V Sourjik 2008 Protein exchange dynam-
+ics at chemoreceptor clusters in Escherichia coli Proc
+Natl Acad Sci USA 1056403-6408
+19 Kentner D S Thiem M Hildenbeutel and V Sourjik
+2006 Determinants of chemoreceptor cluster formation
+in Escherichia coli Mol Microbiol 61407-417
+20 Shiomi D M Yoshimoto M Homma and I Kawagishi
+2006 Helical distribution of the bacterial chemoreceptor
+via colocalization with the Sec protein translocation ma-
+chinery Mol Microbiol 60894-906
+21 Yu J J Xiao X Ren K Lao and XS Xie 2006
+Probing gene expression in live cells one protein molecule
+at a time Science 3111600-1603
+22 Shih Y-L I Kawagishi and L Rotheld 2005 The
+MreB and Min cytoskeletal-like systems play indepen-
+dent roles in prokaryotic polar dierentiation Mol Mi-
+crobiol 58917-928
+23 Weis RM T Hirai A Chalah M Kessel PJ Peters
+and S Subramaniam 2003 Electron microscopic analysis
+of membrane assemblies formed by the bacterial chemo-
+taxis receptor Tsr J Bacteriol 1853636-3643
+24 Lefman J P Zhang T Hirai RM Weis J Juliani
+D Bliss M Kessel E Bos PJ Peters and S Subra-
+maniam 2004 Three-dimensional electron microscopic
+imaging of membrane invaginations in Escherichia coli
+overproducing the chemotaxis receptor Tsr J Bacteriol
+1865052-5061
+25 Neiditch MB MJ Federle AJ Pompeani RC Kelly
+DL Swem PD Jerey BL Bassler and FM Hugh-
+son 2006 Ligand-induced asymmetry in histidine sensor
+kinase complex regulates quorum sensing Cell 1261095-
+26 Wolanin PM
+and JB Stock 2004 Bacterial
+chemosensing cooperative molecular logic Curr Biol
+14R486-R487
+27 Ursell T KC Huang E Peterson and R Phillips
+2007 Cooperative gating and spatial organization of
+membrane proteins through elastic interactions PLoS
+Comput Biol 3e81
+28 Sourjik V and HC Berg 2002 Receptor sensitivity in
+bacterial chemotaxis Proc Natl Acad Sci USA 99123-
+29 Sourjik V and HC Berg 2004 Functional interac-
+tions between receptors in bacterial chemotaxis Nature
+428437-441
+30 Li G and RM Weis 2000 Covalent modication
+regulates ligand binding to receptor complexes in the
+chemosensory system of Escherichia coli Cell 100357-
+31 Bray D MD Levin and CJ Morton-Firth 1998 Re-
+ceptor clustering as a cellular mechanism to control sen-
+sitivity Nature 39385-88
+32 Mello BA and Y Tu 2005 An allosteric model for
+heterogeneous receptor complexes understanding bacte-
+rial chemotaxis responses to multiple stimuli Proc Natl
+Acad Sci USA 10217354-17359
+33 Keymer JE RG Endres M Skoge Y Meir and NS
+Wingreen 2006 Chemosensing in Escherichia coli two
+regimes of two-state receptors Proc Natl Acad Sci
+USA 1031786-1791
+34 Endres RG and NS Wingreen 2006 Precise adapta-
+tion in bacterial chemotaxis through assistance neigh-
+borhoods Proc Natl Acad Sci USA 10313040-13044
+35 Skoge ML RG Endres and NS Wingreen 2006
+Receptor-receptor coupling in bacterial chemotaxis evi-
+dence for strongly coupled clusters Biophys J 904317-
+36 Vaknin A HC Berg 2006 Osmotic stress mechanically
+perturbs chemoreceptors in Escherichia coli Proc Natl
+Acad Sci USA 103592-596
+37 Shimizu TS Le Novre N Levin MD Beavil AJ
+Sutton BJ and D Bray 2000 Molecular model of a
+lattice of signalling proteins involved in bacterial chemo-
+taxis Nat Cell Biol 2792-796
+38 Kim SH W Wang and KK Kim 2002 Dynamic and
+clustering model of bacterial chemotaxis receptors struc-
+tural basis for signaling and high sensitivity Proc Natl
+Acad Sci USA 9911611-11615
+39 Boal D 2002 Mechanics of the cell Cambridge Univer-
+sity Press Cambridge
+40 Huang KC R Mukhopadhyay and NS Wingreen
+2006 A curvature-mediated mechanism for localization
+of lipids to bacterial poles PLoS Comput Biol 2e151
+41 Mukhopadhyay R KC Huang and NS Wingreen
+through
+2008 Lipid localization in bacterial cells
+curvature-mediated microphase separation Biophys J
+951034-1049
+42 Capovilla R J Guven and JA Santiago 2003 De-
+formations of the geometry of lipid vesicles J Phys A
+Math Gen 36 6281-6295
+43 Lipowsky R 1992 Budding of membranes induced by
+intermembrane domains J Phys II France 21825-1840
+44 Seifert U 1993 Curvature-induced lateral phase seg-
+regation in two-component vesicles Phys Rev Lett
+701335-1338
+45 Komura S and N Shimokawa 2006 Tension-induced
+morphological transition in mixed lipid bilayers Lang-
+muir 226771-6774
+46 Kozlov MM and D Andelman 1996 Theory and
+phenomenology of mixed amphiphilic aggregates Curr
+Opin Colloid Interfaces Sci 1362-366
+47 Brown FLH 2008 Elastic modeling of biomembranes
+and lipid bilayers Annu Rev Phys Chem 59685-712
+48 Nielsen C M Goulian and OS Andersen 1998 Ener-
+getics of inclusion-induced bilayer deformations Biophys
+J 741966-1983
+49 Wiggins P and R Phillips 2005 Membrane-protein
+interactions in mechanosensitive channels Biophys J
+88880-902
+50 Huang HW 1986 Deformation free energy of bilayer
+membrane and its eect on Gramicidin channel lifetime
+Biophys J 501061-1070
+51 Dan N and SA Safran 1998 Eects of lipid char-
+acteristics on the structure of transmembrane proteins
+Biophys J 751410-1414
+52 Abramowitz M and I Stegun 1968 Handbook of
+Mathematical Functions Dover Publications New York
+53 Landau LD and EM Lifshitz 1986 Theory of Elas-
+ticity Butterworth-Heinemann Oxford UK 3rd Ed p
+54 Endres RG JJ Falke and NS Wingreen 2007
+from signaling to as-
+Chemotaxis receptor complexes
+sembly PLoS Compl Biol 3e150
+55 Lamanna AC GW Ordal and LL Kiessling 2005
+Large increases in attractant concentration disrupt the
+polar localization of bacterial chemoreceptors Mol Mi-
+crobiol 57774-785
+56 Homma M D Shiomi M Homma and I Kawagishi
+2004 Attractant binding alters arrangement of chemore-
+ceptor dimers within its cluster at a cell pole Proc Natl
+Acad Sci USA 1013462-3467
+57 Skidmore JM DD Ellefson BP McNamara MM
+Couto AJ Wolfe and JR Maddock 2000 Polar clus-
+tering of the chemoreceptor complex in Escherichia coli
+occurs in the absence of complete CheA function J Bac-
+teriol 182967-973
+58 Shiomi D S Banno M Homma and I Kawagishi
+2005 Stabilization of polar localization of a chemorecep-
+tor via its covalent modications and its communication
+with a dierent chemoreceptor J Bacteriol 1877647-
+59 Liberman L HC Berg and V Sourjik 2004 Eect of
+chemoreceptor modication on assembly and activity of
+the receptor-kinase complex in Escherichia coli J Bac-
+teriol 1866643-6646
+60 Lybarger SR and JR Maddock 1999 Clustering
+of the chemoreceptor complex in Escherichia coli
+independent of the methyltransferase CheR and the
+methylesterase CheB J Bacteriol 1815527-5529
+61 Matias VR A Al-Amoudi J Dubochet and TJ Bev-
+eridge 2003 Cryo-transmission electron microscopy of
+frozen-hydrated sections of Escherichia coli and Pseu-
+domonas aeruginosa J Bacteriol 1856112-6118
+62 Thiem S and V Sourjik 2008 Stochastic assembly of
+chemoreceptor clusters in Escherichia coli Mol Micro-
+biol 681228-1236
+63 Vaknin A and HC Berg 2007 Physical responses of
+bacterial chemoreceptors J Mol Biol 3661416-1423
+64 Thompson SR GH Wadhams and JP Armitage
+2006 The positioning of cytoplasmic protein clusters in
+bacteria Proc Natl Acad Sci USA 1038209-8214
+65 Gebert JF B Overho MD Manson and W Boos
+1988 The Tsr chemosensory transducer of Escherichia
+coli assembles into the cytoplasmic membrane via a SecA-
+dependent process J Biol Chem 26316652-16660
+66 Park SY PP Borbat G Gonzalez-Bonet J Bhatna-
+gar JH Freed AM Bilwes and BR Crane 2006 Re-
+construction of the chemotaxis receptorkinase assembly
+Nat Struct Mol Biol 13400-407
+67 Alexander RP and IB Zhulin 2007 Evolutionary ge-
+nomics reveals conserved structural determinants of sig-
+naling and adaptation in microbial chemoreceptors Proc
+Natl Acad Sci USA 1042885-2890
+68 Mileykovskaya E and W Dowhan 2000 Visualization
+of phospholipid domains in Escherichia coli by using the
+cardiolipin-specic uorescent dye 10-N-nonyl acridine
+orange J Bacteriol 1821172-1175
+69 Dan N P Pincus SA Safran 1993 Membrane-
+induced interactions among inclusions Langmuir 92768-
+70 Draheim RR AF Bormans RZ Lai and MD
+Manson 2005 Tuning a bacterial chemoreceptor with
+protein-membrane interactions Biochemistry 4514655-
+71 Aranda-Espinoza H A Berman N Dan P Pincus and
+S Safran 1996 Interaction between inclusions embedded
+in membranes Biophys J 71648-656
+72 Boldog T and GL Hazelbauer 2004 Accessibility of
+introduced cysteines in chemoreceptor transmembrane
+helices reveals boundaries interior to bracketing charged
+residues Protein Sci 131466-1475
+73 Ottemann KM W Xiao YK Shin and DE
+Koshland Jr 1999 A piston model for transmembrane
+signaling of the aspartate receptor Science 2851751-
+74 Peach ML GL Hazelbauer and TP Lybrand
+2002 Modeling the transmembrane domain of bacterial
+chemoreceptors Protein Sci 11912-923
+75 Miller AS and JJ Falke 2004 Side chains at the
+membrane-water interface modulate the signaling state of
+a transmembrane receptor Biochemistry 431763-1770
+76 Schamel WW and M Reth 2000 Monomeric and
+oligomeric complexes of the B cell antigen receptor Im-
+munity 135-14
+77 Germain RN and I Stefanova 1999 The dynamics
+of T cell receptor signaling complex orchestration and
+the key roles of tempo and cooperation Annu Rev Im-
+munol 17467-522
+78 Chacko GW AM Duchemin KM Coggeshall JM
+Osborne JT Brandt and CL Anderson 1994 Cluster-
+ing of the platelet Fc receptor induces noncovalent as-
+sociation with the tyrosine kinase p72syk J Biol Chem
+26932435-32440
+79 Grith LC 2004 Receptor clustering nothing suc-
+ceeds like success Curr Biol 14R413-R415
+80 Yin CC LM Blayney and FA Lai 2005 Physi-
+cal coupling between ryanodine receptor-calcium release
+channels J Mol Biol 349538-546
+81 Groves JT 2007 Bending mechanics and molecular or-
+ganization in biological membranes Annu Rev Phys
+Chem 58697-717

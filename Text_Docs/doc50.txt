@@ -1,582 +1,866 @@
-A Short Introduction to NILE
-Sheng Yu1 and Tianxi Cai2
-1Partners HealthCare Personalized Medicine Brigham and Womens Hospital
- Harvard Medical School Boston MA
-2Department of Biostatistics Harvard School of Public Health Boston MA
-Abstract
-In this paper we briey introduce the Narrative Information Linear Extraction NILE
-system a natural language processing library for clinical narratives NILE is an experiment of
-our ideas on ecient and eective medical language processing We introduce the overall design
-of NILE and its major components and show the performance of it in real projects
-Introduction
-The electronic medical record EMR is a rich source of clinical information that can substantially
-support biomedical research and healthcare improvement 1 2 In addition to the structured data
-such as billing codes EMR consists of free text clinical narrative recorded by physicians The
-unstructured nature of the narrative data necessitates the need for natural language processing
-NLP technology to unlock the information they contain for further analysis Clinical narratives
-also possess unique linguistic features both in syntax and semantics making generic NLP programs
-and modules not directly applicable to the interpretation of EMR For instance a question mark
-while normally seen as the end of a sentence is usually placed before a disease name in clinical
-narratives meaning to diagnose a plus sign when used after a lab test means positive or
-above normal Medical language processing MLP is a subeld of NLP that addresses to these
-distinct features in clinical text
-The work ow in most MLP systems has at least two stages named entity recognition and semantic
-analysis Named entity recognition NER also known as entity identication or entity extraction
-Corresponding author Email syu7partnersorg
-is the process of locating atom elements in text and classifying them into predened categories
-such as disease symptom quantity time etc Multitudes of approaches exist ranging from a
-simple and straightforward string matching to a subsystem that matches phrases of interest such
-as noun phrases against a dictionary after doing part-of-speech POS tagging and shallow parsing
-to identify certain types of phrases
-The semantic analysis step uses the result of the NER step to interpret the meaning of the clin-
-ical text Common analyses about a mention of a named entity disease symptom medication
-operation etc include whether it is positive negative conditional or whether it is a speculation
-a general discussion past medical history or family history Common analyses about the state
-of a diseaseproblem include determining its location severity and chronicity There are plenty
-of other specialized analyses Examples are determining the smoking state of a patient 3 value
-extraction from semi-structured EMR 4 5 extraction of drug and food allergies 6 and medication
-information 7 Again there are many ways to achieve the goal In addition to using grammar and
-statistical models it is also popular to use simple rules eg any mention within a certain range
-after no is negative and pattern matching both of which have been proved eective in practice
-The Narrative Information Linear Extraction NILE System is our experiment of several ideas on
-MLP One of the ideas is that a straightforward string matching for longest left-most phrases similar
-to the behavior of DFA regex engines should work great for NER in English clinical narratives
-Another idea is that semantic analysis can be performed eectively and eciently in most cases by
-scanning and interpreting the sentence linearly with nite-state machines which is similar to how
-humans read If these ideas work then one may prefer such programming paradigm for MLP for
-its coding simplicity and execution speed
-2 How NILE Works
-The general work ow of NILE is similar to many other MLP systems It has three stages pre-
-processing named entity recognition and semantic analysis Figure 1 shows some of the major
-components of NILE with illustration on the processing ow
-21 Preprocessing
-The preprocessing stage includes sentence boundary detection and tokenization Section recognition
-is currently not a component of NILE and should to be done outside the library
-Figure 1 NILE Flow Chart
-22 Named Entity Recognition
-NILE uses a generalized prex tree as its dictionary data structure with tokens mostly words
-at intermediate nodes and full phrase information at leaf nodes The matching algorithm reads
-a sentence as a series of tokens and matches the longest phrase by the number of tokens from
-the left For instance when NILE sees patient had a heart attack in 2006    it identies heart
-attack rather than heart and goes on to nd the next phrase starting from in The algorithm
-is capable of handling prex and sux sharing so it can interpret no mediastinal hilar or axillary
-lymphadenopathy as no mediastinal lymphadenopathy hilar lymphadenopathy or axillary lym-
-phadenopathy and right upper middle and lower lobes as right upper lobe right middle lobe
-and right lower lobe
-Conventionally with general text like web pages such string matching would have high recall and
-low precision due to the ambiguity of word sense  However when limited to the context of medicine
-the ambiguity has substantially reduced making such string matching approach attractive since
-its speed is among the fastest that one could have We use hash maps for token look ups in the
-prex tree so the dictionary size hardly aect the look up speed and the processing time is majorly
-proportional to the length of the input text
-One the other hand the commonly adopted NLP approaches using POS tagging  shallow parsing
-or deep parsing could have problems Clinical narratives contain plenty of grammar errors and
-physicians frequently use all kinds of shorthands eg dx for diagnose or diagnosis tx for
-SubPhrasesPhraseDictionarySemanticObjectleads tocontainsbuilt ondiscoversAnalyzerprocessesAnalysisPipelineformsprocessesTextPreprocessorDataPostprocessordata flowNILENegation speculation conjunction famhxmodification ignore nested location etctreat or treated hx for history etc and acronyms which are not in regular dictionaries
-making POS tagging and the following parsing dicult and resulting in low recall Since such
-approaches do not have a clear advantage over string matching and are expensive in terms of
-computational cost and training cost we would just go string matching for the speed
-The identied words and phrases are encapsulated in what the program calls semantic objects
-A semantic object contains the text of the identied phrase the concept code of the phrase which
-is shared among inections and synonyms eg pulmonary embolism pulmonary emboli and
-PE all have the same code its semantic role and its location in the sentence It also contains
-elds to be lled by later semantic analyses such as references to other semantic objects that
-modify it and attributes such as certainty presentabsentunclear and experiencer selffamily
-The semantic role tells the role or function of the phrase in the sentence Categories of roles include
-grammatical words meaning cues and medical terms Grammatical words are words that have
-little lexical meaning but serve to help express meanings of the other words in the sentence Some
-of the semantic roles in this category are pronouns conjunctions prepositions link verbs and
-auxiliary verbs Comma  is also a role in this category as it has important functions in grammar
-Meaning cues are words and phrases that tell us how to interpret the sentence meaning Roles
-of this category include conrmation cues negation cues speculation cues ignore cues to ignore
-patterns such as assess for PE in case of PE and PE study that do not indicate presence
-of absence of pulmonary embolism and etc The medical terms are concepts that are related to
-diagnosis or treatment such as fact modier and anatomical location where fact can be disorder
-nding procedure test substance like drugs etc Although locations are a type of modiers
-NILE distinguishes them from the others in order to use dedicated location analyzers
-NILE has a built-in basic dictionary of grammatical words and meaning cues that are common to
-all applications The medical terms need to be populated by the application and it is generally
-recommended to load all the terms that may appear in the notes of the target eld which benets
-the following semantic analysis All terms in the dictionary are easily customizable NILE allows
-term sense ambiguity ie a term can have multiple concept codes However in the current im-
-plementation a term can only have one semantic role Eventually the output of NER is a list of
-semantic objects where the order of semantic objects is the same as the left-to-right order of the
-identied terms in the sentence
-23 Semantic Analysis
-Humans read sentences from left to right linearly to understand the meaning We want to mimic
-this process with nite-state machines Finite-state machines are a type of simple programs In
-theory they are not powerful enough to understand all languages 10 but we imagine they are good
-Combination
-found used alone
-not  found
-have  found
-haven t  found
-have  been  found
-havent  been  found
-is  found
-isnt  found
-Semantic Role
-conrmation cue
-backward negation cue
-conrmation cue
-negation cue
-backward conrmation cue
-backward negation cue
-backward conrmation cue
-backward negation cue
-Table 1 Combined Eects of Semantic Roles
-enough to extract the information interesting to MLP such as presence and modication relations
-from clinical text
-NILE does semantic analysis by sending the NER result of a sentence to a pipeline of analyzers
-Each analyzer is a nite-state machine and focuses on a single task The state typically includes
-what the machine has just read and an interpretation mode such as Negation OnO The analyzer
-reads the semantic objects one by one and switches the state accordingly generally by the semantic
-role of the term the distance from the previous term and occasionally the actual text Recall that
-the identied terms include grammatical words which are hints to how to interpret the text Also
-recall that clinical texts contain plenty of grammar errors thus we avoid using strict grammar The
-result is that we use a mixture of grammar and pattern analysis
-In this section we introduce some analyzers of NILE to show that this proposed methodology is
-very capable at capturing information in MLP tasks
-231 Presence
-Analysis of presence is for determining whether a condition is present a drug is prescribedused
-and assigns Yes No or Maybe to the presence attribute of each fact semantic object It combines
-negation and certainty analyses but diers slightly in that it reports the presence at the time when
-writing the document For example the tumor was removed means that the tumor is not present
-though it existed The analyzer uses meaning cues and grammatical words to determine the meaning
-and its scope It also looks at combinations of meaning cues and grammatical words and can merge
-phrases and modify semantic roles accordingly For example originally in the dictionary found is
-a past participle for conrmation not is a negation cue is and been are positive link verbs
-is not and isnt are negative link verbs have is an positive auxiliary verb and have not
-and havent are negative auxiliary verbs Table 1 shows the eects when these phrases appear
-together
-Example Sentence
-No lling defects are seen to suggest
-pulmonary embolism
-No lling defects are seen suggesting
-pulmonary embolism
-No lling defects are seen and it suggests
-pulmonary embolism
-No lling defects are seen to suggest
-pulmonary embolism
-No lling defects are seen to suggest
-pulmonary embolism
-NILE Return
-filling defects NO
-pulmonary embolism NO
-filling defects NO
-pulmonary embolism YES
-filling defects NO
-pulmonary embolism YES
-filling defects NO
-pulmonary embolism NO
-filling defects NO
-pulmonary embolism YES
-Table 2 NILE Negation Analysis
-The presence analyzer can correctly understand the meaning of the sentences most of the times
-including subtle dierences as shown in Table 2 though the example sentences may not make sense
-clinically It also understands whether negation applies to a fact or a certain aspect of the fact
-For instance in no change in the pleural eusion the negation only applies to change but not
-to pleural eusion where change is a recognizable term with a semantic role that represents a
-fact attribute
-Overall the presence analyzer covers most of the ways that physicians express negation and specu-
-lation There are certain patterns the current implementation does not cover For instance it does
-not do cross-sentence inference such as in The study is of good diagnostic quality for pulmonary
-embolus and the vein thrombosis There is no evidence of either it cannot apply the negation from
-the second sentence to pulmonary embolus and vein thrombosis in the rst sentence Also it
-would be better to rene the result by adding a time property as illustrated by the above tumor
-example
-232 Location
-Location analysis is another sophisticated component of NILE Descriptions of anatomical locations
-usually involve compounded nested modications which can be expressed in very diverse ways The
-simplest patterns of nested modications are location A location B eg left upper lobe arteries
-and location A ofinwithin location B eg arteries of the left upper lobe NILE treats the
-former as location B location A and the latter as location A location B where the inside
-of the parentheses modies the outside These patterns can be chained For instance location A
-location B location C is interpreted as location C location B location A However it becomes
-dicult when conjunction comes in Take a look at the following sentence which is an excerpt from
-a CT pulmonary angiography CTPA report that we have processed
-There are segmental and subsegmental lling defects in the right upper lobe superior segment of
-the right lower lobe and subsegmental lling defect in the in the anterolateral segment of the left
-lower lobe pulmonary arteries sic
-Apparently this sentence has problems It is better to use and to replace the rst comma because
-the and after the second comma does not connect to a third location modier of the lling defects
-of the rst line instead it is another lling defect And in the in the is obviously a typo Despite
-of these this sentence is a good example that includes multiple entities each entity having multiple
-location modiers some of which being nested and some being not The location analyzer reads the
-semantic objects in sequence looks at their semantic roles and uses an empirical rule to determine
-the modication relations Also as mentioned before NILE is designed to tolerate certain level of
-grammar problems in clinical text For the above sentence NILE returned
-filling defects YES right upper lobe superior segment right lower lobe
-segmental subsegmental
-filling defect YES segment pulmonary arteries left lower lobe subsegmental
-which is the same as the intended meaning except that anterolateral segment was not in our
-dictionary for that project
-This location analyzer is written for general purpose There are also times when domain knowledge
-is needed For instance consider the following sentences
-1 There are lling defects in the right upper lobe and superior segment of the right lower lobe
-2 There are lling defects in the anterior basal segment and superior segment of the right lower
-These two sentences have identical structures but the rst one means
-filling defects YES right upper lobe superior segment right lower lobe
-while the second means
-filling defects YES anterior basal segment right lower lobe superior segment
-right lower lobe
-We know that they should be such because we know that i the superior segment is comparable
-to the anterior basal segment and both are in the right lower lobe and ii the superior segment
-is not of the same level as the right upper lobe If one wishes to write a dedicated analyzer for a
-domain such free-form knowledge would be hard to t into statistical learning models but would
-be easily coded if using the proposed analysis methodology
-233 Other Analyses
-NILE uses a generic analyzer to handle all other modications and the results are not nested
-Another important analyzer determines if some part of the sentence should be ignored by looking
-for ignore cues such as exam evaluate and di diagnosis The default scope to ignore is the
-whole sentence but certain semantic objects such as conrmation and negation cues can modify
-that Another analyzer checks if the sentence contains words like mother uncle etc there is a
-semantic role for relatives If it does every fact in the sentence will be labeled as family history
-New analyzers are actively being added to the library as new need arises
-In the end after all the analyses are done NILE returns only the semantic objects that are facts
-which may contain other semantic objects like locations and modiers in their attributes
-3 Preliminary Results
-NILE has been used in several research occasions In a study to detect pulmonary embolism from
-CTPA reports 11 a statistical algorithm using information extracted by NILE achieved AUC 
-0998 cross-validated in classifying PE presentabsent and AUC  0986 in detecting subsegmental
-PE Other similar studies that used NILE includes classifying whether patients have rheumatoid
-arthritis and congestive heart failure
-The processing speed of NILE is fast enough for real time analysis It took 3098 ms 2361 ms inside
-NILE to analyze 10330 CTPA reports an 18 megabyte text le on a local drive
-In another
-project NILE processed 21 million clinical notes from a remote SQL Server database in 21 hours
-or 36 ms per note this is the overall time that includes database querying data transfer over the
-network and decryption additional text cleaning and writing to the local hard drive which made
-up the majority of the processing time The former job was done on Windows 7 64-Bit machine
-using a single thread of an Intel Core i7-2600 CPU  340GHz The latter job was done on a
-CentOS 65 64-Bit virtual machine using a single core of Intel Xeon X5450  300GHz Both used
-Java HotSpot 64-Bit Server VM
-The accuracy and speed demonstrate the eectiveness and eciency of the library In addition the
-subsegmental PE detection task could not be done without the nesting modication structure of
-the locations which is a unique feature of NILE and an illustration of the merit of the methodology
-it uses for semantic analysis In conclusion we consider this experiment of MLP ideas a success
-and will further develop NILE following this paradigm
-References
-1 Isaac S Kohane Using electronic health records to drive discovery in disease genomics Nature
-Reviews Genetics 126417428 2011
-2 Stphane M Meystre Guergana K Savova Karin C Kipper-Schuler and John F Hurdle Ex-
-tracting information from textual documents in the electronic health record a review of recent
-research IMIA Year Book of Medical Informatics 3512844 2008
-3 zlem Uzuner Ira Goldstein Yuan Luo and Isaac Kohane Identifying patient smoking status
-from medical discharge records Journal of the American Medical Informatics Association
-1511424 2008
-4 Alexander Turchin Identication of clinical characteristics of large patient cohorts through
-analysis of free text physician notes Masters thesis Massachusetts Institute of Technology
-5 Krister J Kristianson Henrik Ljunggren and Lars L Gustafsson Data extraction from a semi-
-structured electronic medical record system for outpatients a model to facilitate the access
-and use of data for quality control and research Health Informatics Journal 154305319
-6 Richard H Epstein Paul St Jacques Michael Stockin Brian Rothman Jesse M Ehrenfeld
-and Joshua C Denny Automated identication of drug and food allergies entered using non-
-standard terminology Journal of the American Medical Informatics Association 205962968
-7 Hua Xu Shane P Stenner Son Doan Kevin B Johnson Lemuel R Waitman and Joshua C
-Denny Medex a medication information extraction system for clinical narratives Journal of
-the American Medical Informatics Association 1711924 2010
-8 Wendy W Chapman Will Bridewell Paul Hanbury Gregory F Cooper and Bruce G Buchanan
-A simple algorithm for identifying negated ndings and diseases in discharge summaries Jour-
-nal of Biomedical Informatics 345301310 2001
-9 Carol Friedman Philip O Alderson John HM Austin James J Cimino and Stephen B John-
-son A general natural-language text processor for clinical radiology Journal of the American
-Medical Informatics Association 12161174 1994
-10 Noam Chomsky and George A Miller Finite state languages Information and Control 1291
-112 1958
-11 Sheng Yu Kanako K Kumamaru Elizabeth George Ruth M Dunne Arash Bedayat Matey
-Neykov Andetta R Hunsaker Karin E Dill Tianxi Cai and Frank J Rybicki Classi-
-cation of ct pulmonary angiography reports by presence chronicity and location of pul-
-monary embolism with natural language processing Journal of Biomedical Informatics page
-httpdxdoiorg101016jjbi201408001 2014
-A Short Introduction to NILE
-Sheng Yu1 and Tianxi Cai2
-1Partners HealthCare Personalized Medicine Brigham and Womens Hospital
- Harvard Medical School Boston MA
-2Department of Biostatistics Harvard School of Public Health Boston MA
-Abstract
-In this paper we briey introduce the Narrative Information Linear Extraction NILE
-system a natural language processing library for clinical narratives NILE is an experiment of
-our ideas on ecient and eective medical language processing We introduce the overall design
-of NILE and its major components and show the performance of it in real projects
-Introduction
-The electronic medical record EMR is a rich source of clinical information that can substantially
-support biomedical research and healthcare improvement 1 2 In addition to the structured data
-such as billing codes EMR consists of free text clinical narrative recorded by physicians The
-unstructured nature of the narrative data necessitates the need for natural language processing
-NLP technology to unlock the information they contain for further analysis Clinical narratives
-also possess unique linguistic features both in syntax and semantics making generic NLP programs
-and modules not directly applicable to the interpretation of EMR For instance a question mark
-while normally seen as the end of a sentence is usually placed before a disease name in clinical
-narratives meaning to diagnose a plus sign when used after a lab test means positive or
-above normal Medical language processing MLP is a subeld of NLP that addresses to these
-distinct features in clinical text
-The work ow in most MLP systems has at least two stages named entity recognition and semantic
-analysis Named entity recognition NER also known as entity identication or entity extraction
-Corresponding author Email syu7partnersorg
-is the process of locating atom elements in text and classifying them into predened categories
-such as disease symptom quantity time etc Multitudes of approaches exist ranging from a
-simple and straightforward string matching to a subsystem that matches phrases of interest such
-as noun phrases against a dictionary after doing part-of-speech POS tagging and shallow parsing
-to identify certain types of phrases
-The semantic analysis step uses the result of the NER step to interpret the meaning of the clin-
-ical text Common analyses about a mention of a named entity disease symptom medication
-operation etc include whether it is positive negative conditional or whether it is a speculation
-a general discussion past medical history or family history Common analyses about the state
-of a diseaseproblem include determining its location severity and chronicity There are plenty
-of other specialized analyses Examples are determining the smoking state of a patient 3 value
-extraction from semi-structured EMR 4 5 extraction of drug and food allergies 6 and medication
-information 7 Again there are many ways to achieve the goal In addition to using grammar and
-statistical models it is also popular to use simple rules eg any mention within a certain range
-after no is negative and pattern matching both of which have been proved eective in practice
-The Narrative Information Linear Extraction NILE System is our experiment of several ideas on
-MLP One of the ideas is that a straightforward string matching for longest left-most phrases similar
-to the behavior of DFA regex engines should work great for NER in English clinical narratives
-Another idea is that semantic analysis can be performed eectively and eciently in most cases by
-scanning and interpreting the sentence linearly with nite-state machines which is similar to how
-humans read If these ideas work then one may prefer such programming paradigm for MLP for
-its coding simplicity and execution speed
-2 How NILE Works
-The general work ow of NILE is similar to many other MLP systems It has three stages pre-
-processing named entity recognition and semantic analysis Figure 1 shows some of the major
-components of NILE with illustration on the processing ow
-21 Preprocessing
-The preprocessing stage includes sentence boundary detection and tokenization Section recognition
-is currently not a component of NILE and should to be done outside the library
-Figure 1 NILE Flow Chart
-22 Named Entity Recognition
-NILE uses a generalized prex tree as its dictionary data structure with tokens mostly words
-at intermediate nodes and full phrase information at leaf nodes The matching algorithm reads
-a sentence as a series of tokens and matches the longest phrase by the number of tokens from
-the left For instance when NILE sees patient had a heart attack in 2006    it identies heart
-attack rather than heart and goes on to nd the next phrase starting from in The algorithm
-is capable of handling prex and sux sharing so it can interpret no mediastinal hilar or axillary
-lymphadenopathy as no mediastinal lymphadenopathy hilar lymphadenopathy or axillary lym-
-phadenopathy and right upper middle and lower lobes as right upper lobe right middle lobe
-and right lower lobe
-Conventionally with general text like web pages such string matching would have high recall and
-low precision due to the ambiguity of word sense  However when limited to the context of medicine
-the ambiguity has substantially reduced making such string matching approach attractive since
-its speed is among the fastest that one could have We use hash maps for token look ups in the
-prex tree so the dictionary size hardly aect the look up speed and the processing time is majorly
-proportional to the length of the input text
-One the other hand the commonly adopted NLP approaches using POS tagging  shallow parsing
-or deep parsing could have problems Clinical narratives contain plenty of grammar errors and
-physicians frequently use all kinds of shorthands eg dx for diagnose or diagnosis tx for
-SubPhrasesPhraseDictionarySemanticObjectleads tocontainsbuilt ondiscoversAnalyzerprocessesAnalysisPipelineformsprocessesTextPreprocessorDataPostprocessordata flowNILENegation speculation conjunction famhxmodification ignore nested location etctreat or treated hx for history etc and acronyms which are not in regular dictionaries
-making POS tagging and the following parsing dicult and resulting in low recall Since such
-approaches do not have a clear advantage over string matching and are expensive in terms of
-computational cost and training cost we would just go string matching for the speed
-The identied words and phrases are encapsulated in what the program calls semantic objects
-A semantic object contains the text of the identied phrase the concept code of the phrase which
-is shared among inections and synonyms eg pulmonary embolism pulmonary emboli and
-PE all have the same code its semantic role and its location in the sentence It also contains
-elds to be lled by later semantic analyses such as references to other semantic objects that
-modify it and attributes such as certainty presentabsentunclear and experiencer selffamily
-The semantic role tells the role or function of the phrase in the sentence Categories of roles include
-grammatical words meaning cues and medical terms Grammatical words are words that have
-little lexical meaning but serve to help express meanings of the other words in the sentence Some
-of the semantic roles in this category are pronouns conjunctions prepositions link verbs and
-auxiliary verbs Comma  is also a role in this category as it has important functions in grammar
-Meaning cues are words and phrases that tell us how to interpret the sentence meaning Roles
-of this category include conrmation cues negation cues speculation cues ignore cues to ignore
-patterns such as assess for PE in case of PE and PE study that do not indicate presence
-of absence of pulmonary embolism and etc The medical terms are concepts that are related to
-diagnosis or treatment such as fact modier and anatomical location where fact can be disorder
-nding procedure test substance like drugs etc Although locations are a type of modiers
-NILE distinguishes them from the others in order to use dedicated location analyzers
-NILE has a built-in basic dictionary of grammatical words and meaning cues that are common to
-all applications The medical terms need to be populated by the application and it is generally
-recommended to load all the terms that may appear in the notes of the target eld which benets
-the following semantic analysis All terms in the dictionary are easily customizable NILE allows
-term sense ambiguity ie a term can have multiple concept codes However in the current im-
-plementation a term can only have one semantic role Eventually the output of NER is a list of
-semantic objects where the order of semantic objects is the same as the left-to-right order of the
-identied terms in the sentence
-23 Semantic Analysis
-Humans read sentences from left to right linearly to understand the meaning We want to mimic
-this process with nite-state machines Finite-state machines are a type of simple programs In
-theory they are not powerful enough to understand all languages 10 but we imagine they are good
-Combination
-found used alone
-not  found
-have  found
-haven t  found
-have  been  found
-havent  been  found
-is  found
-isnt  found
-Semantic Role
-conrmation cue
-backward negation cue
-conrmation cue
-negation cue
-backward conrmation cue
-backward negation cue
-backward conrmation cue
-backward negation cue
-Table 1 Combined Eects of Semantic Roles
-enough to extract the information interesting to MLP such as presence and modication relations
-from clinical text
-NILE does semantic analysis by sending the NER result of a sentence to a pipeline of analyzers
-Each analyzer is a nite-state machine and focuses on a single task The state typically includes
-what the machine has just read and an interpretation mode such as Negation OnO The analyzer
-reads the semantic objects one by one and switches the state accordingly generally by the semantic
-role of the term the distance from the previous term and occasionally the actual text Recall that
-the identied terms include grammatical words which are hints to how to interpret the text Also
-recall that clinical texts contain plenty of grammar errors thus we avoid using strict grammar The
-result is that we use a mixture of grammar and pattern analysis
-In this section we introduce some analyzers of NILE to show that this proposed methodology is
-very capable at capturing information in MLP tasks
-231 Presence
-Analysis of presence is for determining whether a condition is present a drug is prescribedused
-and assigns Yes No or Maybe to the presence attribute of each fact semantic object It combines
-negation and certainty analyses but diers slightly in that it reports the presence at the time when
-writing the document For example the tumor was removed means that the tumor is not present
-though it existed The analyzer uses meaning cues and grammatical words to determine the meaning
-and its scope It also looks at combinations of meaning cues and grammatical words and can merge
-phrases and modify semantic roles accordingly For example originally in the dictionary found is
-a past participle for conrmation not is a negation cue is and been are positive link verbs
-is not and isnt are negative link verbs have is an positive auxiliary verb and have not
-and havent are negative auxiliary verbs Table 1 shows the eects when these phrases appear
-together
-Example Sentence
-No lling defects are seen to suggest
-pulmonary embolism
-No lling defects are seen suggesting
-pulmonary embolism
-No lling defects are seen and it suggests
-pulmonary embolism
-No lling defects are seen to suggest
-pulmonary embolism
-No lling defects are seen to suggest
-pulmonary embolism
-NILE Return
-filling defects NO
-pulmonary embolism NO
-filling defects NO
-pulmonary embolism YES
-filling defects NO
-pulmonary embolism YES
-filling defects NO
-pulmonary embolism NO
-filling defects NO
-pulmonary embolism YES
-Table 2 NILE Negation Analysis
-The presence analyzer can correctly understand the meaning of the sentences most of the times
-including subtle dierences as shown in Table 2 though the example sentences may not make sense
-clinically It also understands whether negation applies to a fact or a certain aspect of the fact
-For instance in no change in the pleural eusion the negation only applies to change but not
-to pleural eusion where change is a recognizable term with a semantic role that represents a
-fact attribute
-Overall the presence analyzer covers most of the ways that physicians express negation and specu-
-lation There are certain patterns the current implementation does not cover For instance it does
-not do cross-sentence inference such as in The study is of good diagnostic quality for pulmonary
-embolus and the vein thrombosis There is no evidence of either it cannot apply the negation from
-the second sentence to pulmonary embolus and vein thrombosis in the rst sentence Also it
-would be better to rene the result by adding a time property as illustrated by the above tumor
-example
-232 Location
-Location analysis is another sophisticated component of NILE Descriptions of anatomical locations
-usually involve compounded nested modications which can be expressed in very diverse ways The
-simplest patterns of nested modications are location A location B eg left upper lobe arteries
-and location A ofinwithin location B eg arteries of the left upper lobe NILE treats the
-former as location B location A and the latter as location A location B where the inside
-of the parentheses modies the outside These patterns can be chained For instance location A
-location B location C is interpreted as location C location B location A However it becomes
-dicult when conjunction comes in Take a look at the following sentence which is an excerpt from
-a CT pulmonary angiography CTPA report that we have processed
-There are segmental and subsegmental lling defects in the right upper lobe superior segment of
-the right lower lobe and subsegmental lling defect in the in the anterolateral segment of the left
-lower lobe pulmonary arteries sic
-Apparently this sentence has problems It is better to use and to replace the rst comma because
-the and after the second comma does not connect to a third location modier of the lling defects
-of the rst line instead it is another lling defect And in the in the is obviously a typo Despite
-of these this sentence is a good example that includes multiple entities each entity having multiple
-location modiers some of which being nested and some being not The location analyzer reads the
-semantic objects in sequence looks at their semantic roles and uses an empirical rule to determine
-the modication relations Also as mentioned before NILE is designed to tolerate certain level of
-grammar problems in clinical text For the above sentence NILE returned
-filling defects YES right upper lobe superior segment right lower lobe
-segmental subsegmental
-filling defect YES segment pulmonary arteries left lower lobe subsegmental
-which is the same as the intended meaning except that anterolateral segment was not in our
-dictionary for that project
-This location analyzer is written for general purpose There are also times when domain knowledge
-is needed For instance consider the following sentences
-1 There are lling defects in the right upper lobe and superior segment of the right lower lobe
-2 There are lling defects in the anterior basal segment and superior segment of the right lower
-These two sentences have identical structures but the rst one means
-filling defects YES right upper lobe superior segment right lower lobe
-while the second means
-filling defects YES anterior basal segment right lower lobe superior segment
-right lower lobe
-We know that they should be such because we know that i the superior segment is comparable
-to the anterior basal segment and both are in the right lower lobe and ii the superior segment
-is not of the same level as the right upper lobe If one wishes to write a dedicated analyzer for a
-domain such free-form knowledge would be hard to t into statistical learning models but would
-be easily coded if using the proposed analysis methodology
-233 Other Analyses
-NILE uses a generic analyzer to handle all other modications and the results are not nested
-Another important analyzer determines if some part of the sentence should be ignored by looking
-for ignore cues such as exam evaluate and di diagnosis The default scope to ignore is the
-whole sentence but certain semantic objects such as conrmation and negation cues can modify
-that Another analyzer checks if the sentence contains words like mother uncle etc there is a
-semantic role for relatives If it does every fact in the sentence will be labeled as family history
-New analyzers are actively being added to the library as new need arises
-In the end after all the analyses are done NILE returns only the semantic objects that are facts
-which may contain other semantic objects like locations and modiers in their attributes
-3 Preliminary Results
-NILE has been used in several research occasions In a study to detect pulmonary embolism from
-CTPA reports 11 a statistical algorithm using information extracted by NILE achieved AUC 
-0998 cross-validated in classifying PE presentabsent and AUC  0986 in detecting subsegmental
-PE Other similar studies that used NILE includes classifying whether patients have rheumatoid
-arthritis and congestive heart failure
-The processing speed of NILE is fast enough for real time analysis It took 3098 ms 2361 ms inside
-NILE to analyze 10330 CTPA reports an 18 megabyte text le on a local drive
-In another
-project NILE processed 21 million clinical notes from a remote SQL Server database in 21 hours
-or 36 ms per note this is the overall time that includes database querying data transfer over the
-network and decryption additional text cleaning and writing to the local hard drive which made
-up the majority of the processing time The former job was done on Windows 7 64-Bit machine
-using a single thread of an Intel Core i7-2600 CPU  340GHz The latter job was done on a
-CentOS 65 64-Bit virtual machine using a single core of Intel Xeon X5450  300GHz Both used
-Java HotSpot 64-Bit Server VM
-The accuracy and speed demonstrate the eectiveness and eciency of the library In addition the
-subsegmental PE detection task could not be done without the nesting modication structure of
-the locations which is a unique feature of NILE and an illustration of the merit of the methodology
-it uses for semantic analysis In conclusion we consider this experiment of MLP ideas a success
-and will further develop NILE following this paradigm
-References
-1 Isaac S Kohane Using electronic health records to drive discovery in disease genomics Nature
-Reviews Genetics 126417428 2011
-2 Stphane M Meystre Guergana K Savova Karin C Kipper-Schuler and John F Hurdle Ex-
-tracting information from textual documents in the electronic health record a review of recent
-research IMIA Year Book of Medical Informatics 3512844 2008
-3 zlem Uzuner Ira Goldstein Yuan Luo and Isaac Kohane Identifying patient smoking status
-from medical discharge records Journal of the American Medical Informatics Association
-1511424 2008
-4 Alexander Turchin Identication of clinical characteristics of large patient cohorts through
-analysis of free text physician notes Masters thesis Massachusetts Institute of Technology
-5 Krister J Kristianson Henrik Ljunggren and Lars L Gustafsson Data extraction from a semi-
-structured electronic medical record system for outpatients a model to facilitate the access
-and use of data for quality control and research Health Informatics Journal 154305319
-6 Richard H Epstein Paul St Jacques Michael Stockin Brian Rothman Jesse M Ehrenfeld
-and Joshua C Denny Automated identication of drug and food allergies entered using non-
-standard terminology Journal of the American Medical Informatics Association 205962968
-7 Hua Xu Shane P Stenner Son Doan Kevin B Johnson Lemuel R Waitman and Joshua C
-Denny Medex a medication information extraction system for clinical narratives Journal of
-the American Medical Informatics Association 1711924 2010
-8 Wendy W Chapman Will Bridewell Paul Hanbury Gregory F Cooper and Bruce G Buchanan
-A simple algorithm for identifying negated ndings and diseases in discharge summaries Jour-
-nal of Biomedical Informatics 345301310 2001
-9 Carol Friedman Philip O Alderson John HM Austin James J Cimino and Stephen B John-
-son A general natural-language text processor for clinical radiology Journal of the American
-Medical Informatics Association 12161174 1994
-10 Noam Chomsky and George A Miller Finite state languages Information and Control 1291
-112 1958
-11 Sheng Yu Kanako K Kumamaru Elizabeth George Ruth M Dunne Arash Bedayat Matey
-Neykov Andetta R Hunsaker Karin E Dill Tianxi Cai and Frank J Rybicki Classi-
-cation of ct pulmonary angiography reports by presence chronicity and location of pul-
-monary embolism with natural language processing Journal of Biomedical Informatics page
-httpdxdoiorg101016jjbi201408001 2014
+Increased accuracy of ligand sensing by receptor internalization
+Division of Molecular Biosciences  Centre for Integrated Systems Biology at Imperial College
+Gerardo Aquino and Robert G Endres
+Imperial College London SW7 2AZ London UK
+Dated January 21 2010
+Many types of cells can sense external ligand concentrations with cell-surface receptors at ex-
+tremely high accuracy Interestingly ligand-bound receptors are often internalized a process also
+known as receptor-mediated endocytosis While internalization is involved in a vast number of
+important functions for the life of a cell it was recently also suggested to increase the accuracy
+of sensing ligand as the overcounting of the same ligand molecules is reduced Here we show by
+extending simple ligand-receptor models to out-of-equilibrium thermodynamics that internalization
+increases the accuracy with which cells can measure ligand concentrations in the external environ-
+ment Comparison with experimental rates of real receptors demonstrates that our model has indeed
+biological signicance
+PACS numbers
+INTRODUCTION
+Biological cells can sense and respond to various chem-
+icals in their environment However the precision with
+which a cell can measure the concentration of a specic
+ligand is negatively aected by many sources of noise 1
+5 Most noticeable is external noise from the random
+arrival of ligand molecules at the cell-surface receptors
+by diusion Nonetheless several examples exist in which
+measurements are performed with surprisingly high ac-
+curacy In bacterial chemotaxis for instance fast moving
+bacteria such as Escherichia coli can respond to changes
+in concentration as low as 32 nM 6 This value is re-
+markable since cells have only about one second between
+tumbles to evaluate the ligand concentration 7 Fur-
+thermore this concentration value corresponds to only
+about three ligand molecules in the volume of the cell
+assumed to be one femtoliter suggesting single molecule
+detection High accuracy is observed also in spatial sens-
+ing by single cell eukaryotic organisms Best character-
+ized are the slime mold Dictyostelium discoideum which
+is able to sense a concentration dierence of 15 across
+the cell diameter 8 as well as Saccharomyces cerevisiae
+budding yeast able to orient growth in a gradient of -
+pheromone mating factor down to estimated 1 receptor
+occupancy dierence across the cell 9 Spatial sensing
+is also eciently performed by lymphocytes neutrophils
+and other cells of the immune system 10 as well as by
+growing synaptic and tumor cells
+Previously the fundamental physical limits to the ac-
+curacy of sensing as set by ligand diusion have been cal-
+culated 1115 Recent work based on simplifying mod-
+els indicates that if a cell eectively acts as an absorber
+of ligand the accuracy is signicantly increased 16
+Such an increase in accuracy can be explained with the
+fact that absorption prevents ligand molecules from un-
+binding the receptors Hence the same ligand molecule
+can only be counted once by a receptor avoiding a source
+of measurement uncertainty However whether cells with
+realistic receptors can act as absorbers and increase the
+FIG 1 Single receptor immobile at position x0 binds and
+unbinds ligand with rates kc and k respectively
+accuracy of sensing is unknown
+Motivated by these observations
+in this paper we
+analyze the role of receptor-mediated endocytosis ie
+the internalization of either bound or unbound recep-
+tors from the cell membrane into the cell interior often
+observed in eukaryotic cells 17 18
+Internalization of
+ligand-bound receptors eectively leads to the absorption
+of ligand molecules and is therefore expected to draw the
+cell nearer to the physical limit of the perfect absorber
+16 Using simple models for the ligand-receptor dy-
+namics we nd that the eect of receptor-mediated en-
+docytosis indeed increases the accuracy of sensing ligand
+concentration if internalization of ligand competes with
+ligand unbinding Comparison of our results to the avail-
+able literature of experimental rate constants shows that
+receptors often work in this limit indicating biological
+relevance of our results
+The paper is organized as follows In Section II we
+review the results regarding the accuracy of sensing for
+a single immobile receptor without internalization
+Section III we study the role of internalization using a
+model of ligand-receptor dynamics with internalization
+While ligand-receptor binding and unbinding is described
+by equilibrium thermodynamics as previously developed
+in Refs
+12 20 internalization clearly introduces non-
+equilibrium thermodynamics into the problem We con-
+sider the limit of fast diusion ie when the coupling to
+diusion of ligand can be neglected as well as the general
+case both near and far from equilibrium This general
+case deals with the reduction of rebinding of previously
+bound ligand molecules by receptor internalization and
+hence represents the main result of the work In Section
+IV we analyze the results obtained in Section III and
+connect to receptors from the biological literature We
+conclude with nal comments and discussion An Ap-
+pendix is devoted to an alternative approach leading to
+the same results derived in the main text
+II REVIEW OF THE SINGLE RECEPTOR
+In this section we review previous results for a single
+immobile receptor without internalization Details of the
+method will be provided in Section III As depicted in
+Fig 1 such a receptor can bind and release ligand with
+rates kc and k respectively The kinetics for the oc-
+cupancy nt of the receptor are therefore given by
+nt
+ kc 1  nt  knt
+where the concentration of ligand cx t  c is assumed
+uniform and constant The steady-state solution for the
+receptor occupancy is given by
+c  KD
+with KD  kk the ligand dissociation constant The
+rates of binding and unbinding are related to the nega-
+tive free energy of binding through detailed balance
+with T the temperature in energy units In the limit of
+very fast ligand diusion ie when a ligand molecule is
+immediately removed from the receptor after unbinding
+the dynamics of the receptor is eectively decoupled from
+the diusion of ligand molecules and hence diusion does
+not need to be included explicitly
+Following Bialek and Setayeshgar 12 the accuracy of
+sensing is obtained by applying the Fluctuation Dissipa-
+tion Theorem FDT 19 which relates the spectrum of
+the uctuations in occupancy to the linear response to
+a perturbation in the receptor binding energy Further-
+more at equilibrium the uctuations in occupancy can be
+directly related to the uncertainty in ligand concentration
+using Eq 2 For a measurement performed on a time
+scale  much larger than the correlation time of the bind-
+ing and unbinding events the uctuations of the occu-
+pancy hn2i are obtained from the zero-frequency spec-
+trum divided by   Using hn2i one then obtains the
+uncertainty in measuring ligand concentration c 12 20
+hc2i
+kc1  n 
+2D3cs
+FIG 2 Receptor with internalization In addition to ligand
+binding and unbinding described in Fig 1 the receptor is
+internalized at rate ki if occupied and at rate k0
+i  if unoc-
+cupied The internalized ligand is degraded An unoccupied
+receptor is delivered to membrane with rate kr
+where the right-hand side is obtained for diusion-limited
+binding 20 ie when kc1n  4cD3s with D3 the
+diusion constant and s the dimension of the spherical
+receptor Eq 4 shows that the accuracy of sensing is
+limited by the random binding and unbinding of ligand
+In the case where diusion of ligand is slow ligand
+binding to the receptor is aected by diusion 12 The
+kinetics of the receptor occupancy and ligand concentra-
+tion are described by
+nt
+cx t
+ kcx0 t1  nt  knt
+ D32cx t  x  x0
+nt
+where x0 indicates the position of the receptor and x
+x0 is a Dirac delta function centered at the receptor
+location The last term in the second equation describes
+a sink or source of ligand at x0 corresponding to ligand-
+receptor binding or unbinding respectively Analogous
+to fast diusion Eq
+5 has steady-state solutions c
+independent of D3 and n given by Eq 2
+Following a similar procedure as in the previous case
+the accuracy of sensing is given by 12 20
+hc2i
+kc1  n
+2sD3c
+sD3c
+where the rst term on the right-hand side of Eq 6a
+is the same as in Eq 4 while the second term is the
+increase in uncertainty due to diusion This term ac-
+counts for the additional measurement uncertainty from
+rebinding of previously bound ligand to the receptor For
+diusion-limited binding one obtains Eq 6b 20
+Comparison of Eqs 4 and 6 shows that removal
+of previously bound ligand by fast diusion increases the
+accuracy of sensing since the same ligand molecule is
+never measured more than once
+FIG 3 Single receptor with internalization Similar to Fig
+2 except that the delivery of receptor to the membrane is
+adjusted so that Eq 8 is fullled This corresponds to an
+instantaneous replacement round arrow of the internalized
+receptor by a new receptor via the endocytosis machinery
+occupancy is given by
+c  k
+c  KM
+where KM  k is a Michael-Menten-type constant
+and subscript i is used to indicate the steady-state value
+for the occupancy of the receptor in presence of internal-
+ization cf Eq 2
+While Eq 9 could be solved immediately by analogy
+1 we adopt here for the fast diusion case
+the method of the eective temperature which allows us
+to solve the general case in section III B Similar to the
+equilibrium case at the non-equilibrium steady state the
+rates can formally be related to the binding free energy
+k1  ki
+1  kik
+ eFTe
+III EFFECT OF RECEPTOR
+INTERNALIZATION
+where we introduced the eective temperature
+Here we consider the case of receptor internalization
+As depicted in Fig 2 receptors at x  x0 can bind and
+unbind ligand with given rates Furthermore a bound
+receptorStren can be internalized at rate ki while an
+unbound receptor can be internalized at rate k0
+i  Hence
+the kinetics of the fractions of occupied receptors nt
+and unoccupied receptors mt are given by
+nt
+mt
+ kc mt  k  kint
+ kc mt  k0
+i mt  knt  kr
+Imposing a single receptor at x  x0 at any time via
+ln k ck
+1  ln1kik
+temperature maps
+eective
+the non-
+equilibrium steady state to an eective equilibrium
+allowing the generalization of the FDT to out-of-
+equilibrium phenomena 2124 with applications in mod-
+eling biological processes 25 Conceptually an eective
+temperature larger than the environment temperature
+Te  T  corresponds to a decrease in the receptor oc-
+cupancy approximately reecting internalization in the
+non-equilibrium steady state
+In order to calculate the spectrum of the uctuations in
+receptor occupancy we follow Refs 12 20 and consider
+small uctuations around the stationary solution
+nt  mt  1
+nt  ni  nt
+Eq 7b becomes redundant As shown in Fig 3 this
+condition implies that an internalized receptor is imme-
+diately replaced by a new unoccupied receptor with rate
+krt  k0
+i mt  kint Furthermore rate k of incom-
+ing ligand compensates for internalized ligand
+In order to apply the generalized FDT gFDT we intro-
+duce uctuations in the conjugate variable of the receptor
+occupancy ie the free energy F  via uctuations of the
+binding and unbinding rates
+
+A Limit of fast diusion
+where we approximate Te as a parameter
+Linearization of Eq 9 leads to
+We rst consider the case of fast diusion ie when
+ligand unbound from the receptor is immediately re-
+moved In this case the kinetics for the occupancy nt
+of the single receptor is described by
+nt
+ kc  nt  kc1  ni
+F t
+nt
+ kc1  nt  k  kint
+ kc1  nt  nt
+where we used Eq
+13 to replace the uctuations in
+the rate constants with uctuations in the free energy as
+well as steady state solution Eq 10
+Fourier Transforming Eq 14 yields the susceptibility
+where   kki is the combined rate of unbinding and
+internalizationThe steady-state solution for the receptor
+ 
+n
+ F 
+kc1  ni
+kc    i
+describing the linear response of the receptor occupancy
+to a perturbation in the free energy We now use the
+gFDT to calculate the spectrum Sn  hn2i of
+the uctuations in nt
+Sn 
+Im  
+2kc1  ni
+kc  2  2 
+ 2hn2i
+1  C 2 
+where the correlation time C  kc  1 and the
+total variance
+hn2i  Z 
+kc1  ni
+kc  
+Sn 
+ ni1  ni
+have been introduced Using Eq 10 we calculate the
+uncertainty in ligand concentration from uctuations in
+occupancy
+c  KM 2
+1  ni2 n 
+ni1  ni
+From Eq 18 the normalized variance can be obtained
+hc2i
+ni1  ni
+corresponding to an instantaneous measurement
+In the more realistic case in which a measurement is
+performed during an averaging time   C  the error
+in the occupancy is linked to the low frequency spectrum
+hn2i 
+i 1  ni
+kc
+Using Eqs 18 and 20 the accuracy of sensing is given
+hc2i
+kc1  ni 
+2D3cs
+21 is identical to the result in Eq
+4 without
+internalization except that ni  n due to internalization
+In fact the removal of unbound ligand by fast diusion at
+equilibrium is equivalent to removal of bound ligand by
+internalization at the non-equilibrium steady state This
+equivalence can be readily seen from Eq 9 which is
+indistinguishable from simple unbinding with rate  
+k  ki Hence the eective temperature applied here is
+in fact exact
+B Solution near equilibrium
+When considering ligand diusion the above proce-
+dure still applies with the exception that the concen-
+tration of ligand is allowed to vary due to binding and
+unbinding The kinetics of the receptor occupancy and
+ligand concentration is described by
+nt
+cx t
+ kcx0 t1  nt  nt
+ D32cx t  x  x0cid20 nt
+ kx  x
+ kintcid21
+where   k  ki is used as before Furthermore a
+source of ligand with rate k is considered at location
+x so as to compensate the loss of ligand molecules due
+to internalization
+We note that the steady-state solution for the con-
+centration is not spatially uniform but is depleted near
+the receptor due to internalization This leads to the
+anomaly that we mathematically evaluate the rate of
+binding using the ligand concentration at x0 in Eq 22a
+while physically the diusive ux and hence binding of
+ligand is determined by the ligand concentration c far
+away from the receptor see section III C This is reme-
+died by linearizing the ligand concentration around c in
+the following Furthermore Eq
+8 is again assumed
+valid and therefore an additional equation describing the
+unoccupied receptor fraction mt with rates k0
+i and kr
+is redundant
+Linearizing Eqs 22a and 22b leads to
+nt
+cx t
+ k1  nicx0 t  kc  nt
+ ktc1  ni  ni
+ D32cx t  x  x0cid20 nt
+kintcid21 
+By applying the quasi-equilibrium picture with the eec-
+tive temperature Te introduced in the previous subsec-
+tion we use Eq
+13 to introduce uctuations in the
+free energy and obtain
+nt
+cx t
+ k1  nicx0 t  kc  nt  ni
+ D32cx t  x  x0cid20 nt
+ kintcid21 
+Fourier Transforming Eqs 24a and 24b we obtain
+Using Eq 18 the normalized variance of the concen-
+cq   eiqx0
+i  ki
+D3q2  i
+n
+which can be inverse-Fourier Transformed in x0
+cx0   i  kinZ
+D3q2  i
+Inserting Eq 26 in the Fourier-Transformed Eq 24a
+we obtain
+ 
+n
+F 
+ni
+kc    ki  i1  i
+where 1 is given by
+1  Z
+0
+k1  ni
+k1  ni
+D3q2  i
+k1  ni
+q2k1  ni
+D3q2  i
+Here   s is a cut-o due to the nite size s of the re-
+ceptor introduced to regularize the integral in Eq 28
+As before we apply the gFDT to derive the spectrum of
+the uctuations n
+Sn 
+Im
+ki1  kc  2  21  12 
+2kc1  ni1  1
+27 for the susceptibility
+where we used Eq
+realistic case in which the measurement is time averaged
+over duration  much larger then the correlation time of
+the uctuations the relevant part of the spectrum is the
+zero frequency limit
+Sn  0 
+2kc1  ni1  10
+kc    ki102
+1  10C
+ 2hn2i
+1  ki10C 2
+ 2hn2i 1  10 C 
+where   12kiC  1 and higher order terms in 10
+are neglected for suciently fast diusion As before
+hn2i  ni1  ni and C  kc  1
+tration is given by
+hc2i
+ hn2i
+ni1  ni2 
+ni1  ni2
+where  is the averaging time Using Eq 30 for the
+power spectrum we nally obtain for the accuracy of
+sensing with ligand internalization and diusion
+hc2i
+kc1  ni
+1  2
+2D3cs
+D3cs
+The following conclusions can be drawn by compari-
+son with the result Eq 6 without internalization i
+Receptor internalization mainly reduces the second term
+in Eq6 demonstrating for the rst time that inter-
+nalization increases the accuracy of sensing by reducing
+the uncertainty from rebinding of previously bound lig-
+and The rst term is only reduced by replacing n by
+ni with ni  n ii In the limit ki  0   1 and
+the equilibrium result Eq 6 without internalization is
+recovered iii As Eq 32 becomes unphysical in the
+limit of ki   ie does not approach Eq 21 without
+rebinding our result can only be regarded an approxima-
+tion valid near equilibrium
+C Comparison with perfect absorber
+The perfect absorber is here dened as a receptor
+which internalizes a ligand immediately once it is bound
+Following Ref 16 the accuracy of sensing can be calcu-
+lated from the Poisson statistics of the number of binding
+events N in time 
+hc2i
+ hN 2i
+4D3sc
+obtained from the diusive ux of ligand to an absorb-
+ing sphere of radius s Comparison with Eq 21 for
+diusion-limited binding without rebinding shows that
+the perfect absorber is yet more accurate by a factor 2
+This is due to the fact that the uctuations in occupancy
+in Eq 21 stem from the random binding and unbind-
+inginternalization events while the uncertainty in Eq
+33 solely stems from the random binding events see
+also factor 2 in Eq A2 as well as Ref 26 for further
+explanation
+IMPLICATIONS FOR BIOLOGY
+In the previous section we showed that internalization
+increases the accuracy of sensing by reducing the mea-
+surement uncertainty from rebinding of previously bound
+ligand In this section we review some receptors of known
+rate constants We specically would like to determine
+if the rate of internalization ki is fast enough ie com-
+parable to the unbinding rate k in order to eectively
+increase the accuracy of sensing
+In Table I we summarize experimental values for rate
+constants including internalization of various receptors
+Most G-protein coupled receptors GPCR undergo in-
+ternalization 18 The Ste2 receptor in haploid yeast cells
+of -mating type is involved in  pheromone sensing and
+signal transduction leading to cell polarization shmoo
+formation and mating The folate receptor FR in Dic-
+tyostelium likely a GPCR 27 28 is used to sense and
+hunt bacteria The folate-binding protein in mammalian
+cells is a diagnostic marker for various cancers and its
+internalization is exploited for drug delivery into cancer-
+ous human cell 29 However the cAR1 receptor in Dic-
+tyostelium used for sensing of cAMP under starvation is
+not internalized 30 The epidermal growth factor recep-
+tor EGFR a tyrosine kinase is another important ex-
+ample of a receptor which is internalized 31 This recep-
+tor is involved in cell growth proliferation and dieren-
+tiation 3133 Another class of internalized receptors is
+involved in uptake Transferrin receptor TfR is used for
+iron uptake from extracellular space and plays therefore
+an important role in blood cells 31 Transferrin binds
+to TfR is internalized and releases its iron load through
+ion pump-induced pH reduction The ligand-bound TfR
+is then recycled back to cell surface Another example is
+the low density lipoprotein receptor LDLR 31 When
+bound to LDL-cholesterol via adaptin LDLR is inter-
+nalized via clathrin-coated vesicles 31 Furthermore
+the vitellogenin receptor VtgR is involved in oogenesis
+egg-formation 31 Once internalized vitellogenin is
+turned into yolk proteins Ligand-free receptors are re-
+cycled back to cell surface Table I shows that in most
+cases ki is of the same order or larger than k except
+for FR where internalization is much slower than the
+unbinding of the ligand from the receptor
+Receptor Function
+k min1 KD nM  ki min1
+i min1
+chemotaxis
+feeding
+0096 34
+006 35
+00108 37
+EGFR 31 development 024
+uptake
+TfR 31
+LDLR 31 cholesterol
+VtgR31
+vitellogenin 007
+200 34 96104 29 
+221 35
+60 37
+024 36
+0156 38
+0024 36
+00156 38
+TABLE I Summary of experimental data for relevant receptor rates discussed in the main text  However other values have
+been reported as well 41 This rate is measured for folate-binding protein in cancerous mice cells not in Dictyostelium
+Figure 4 visualizes the contribution of internalization
+to the accuracy of sensing for the receptors from Table
+I The faster the internalization the larger the increase
+of the accuracy of sensing However internalization can
+only reduce the second term in Eq 6a from rebind-
+ing of previously bound ligand not the rst term from
+random binding and unbinding To illustrate the rela-
+tive contribution of the two terms we plot the square
+root of their ratio in Fig 4 lled bars This shows
+that in most cases in which internalization occurs the
+noise ratio of the two terms is signicant ranging from
+few hundredths to order of unity Hence internalization
+can lead to a substantial increase in the accuracy of sens-
+ing However measured rate constants are substantially
+uncertain see below and diusion coecients of small
+ligand molecules range from 01m2s in the synaptic
+cleft between neurons 39 to 1  10m2s in blood 40
+to 300m2s in water 16
+In order to avoid this un-
+certainty in parameters we also plot the upper limit of
+the noise ratio for diusion-limited binding equal to 2
+dashed line in Fig 4 Removal of the second noise
+term in this limit by internalization would increase the
+accuracy in Eq 6b by a factor 3 In Fig 4 we also
+show the strength of internalization dened by the ratio
+of internalization and unbinding rates open bars
+How reliable are the measured values for the rate con-
+stants Rate constants are generally obtained through
+radioactive labeling of ligand with the isotope choice
+targeted to each specic case the isotope 125I giving
+the most accurate measurements 42 In order to mea-
+E G F R
+L D L R
+FIG 4 Analysis of receptor rate data from Table I Filled
+bars Noise ratio dened as the square root of the second re-
+binding term and the rst random binding and unbinding
+in Eq 6a Open bars Strength of internalization dened
+by ratio kikThe dashed line indicates the noise ratio 2
+for diusion-limited binding kc1  n  4cD3s  Nu-
+merical values of the plot are provided in Appendix B
+sure the unbinding and the binding rates ie k and
+k  kKD the receptors on the membrane must be
+separated by ltration or centrifugation from the soluble
+ligand If the ligand-unbinding process is slow compared
+to separation then the measurement of the amount of
+bound ligand through the radioactive label can be easily
+carried out in the case of fast unbinding measurements
+are less accurate For the internalization rate the ratio
+between the intensity at the surface and inside the cell is
+measured and from the slope of the time variation of this
+ratio ki is determined 43 This method though does
+not take into account recycling diacytosis of the recep-
+tor which is a recurrent feature of the internalization
+process also included in our model These shortcom-
+ings as well as the variability associated with dierent
+cell preparations lead to a large error in the rate deter-
+mination  20 42 and variability between dierent
+measurements 20-90 Other measurement methods
+employed in experiments include protease sensitivity as-
+says 44 and destination assays 45
+Many examples in fact suggest a direct relation be-
+tween ligand internalization and the accuracy of sens-
+ing measured by the sensitivity of cell polarization or
+cell movement in shallow chemical gradients These in-
+clude sensing of -factor by budding yeast 37 38 fo-
+late by Dictyostelium 27 and PDGF by broblasts 46
+Other examples relate to embryonic development In ze-
+brash primordial germ cells migrate toward chemokine
+SDF-1a that binds and activates the receptor CXCR4b
+It was recently shown that ligand-induced CXCR4b in-
+ternalization is required for precise arrival of germ cells
+at their target destination 47 During Drosophila oo-
+genesis border cells perform directional migration 32
+EGFR together with two other receptor tyrosine kinases
+is the main guidance receptor Recent work in this sys-
+tem provided compelling evidence that guided cell move-
+ment also requires spatial control of signaling events by
+endocytic dynamics 48 49
+V DISCUSSION AND CONCLUSIONS
+In this paper we analyzed the role of receptor internal-
+ization in the accuracy of sensing ligand concentration
+By extending equilibrium single receptor models to non-
+equilibrium thermodynamics introduced by internaliza-
+tion we derived expressions for the uncertainty in sens-
+ing ligand concentration As expected internalization
+of ligand-bound receptors makes the cell act similarly to
+an absorber and increases the accuracy of sensing We
+then analyzed relevant experimental data summarized
+in Table I and concluded that in most cases the con-
+tribution of receptor internalization to the increase in
+accuracy of sensing is non-negligible However a per-
+fect absorber is yet more accurate as its uncertainty only
+stems from random binding events not from additional
+random unbinding and internalization events Whether
+cells have developed mechanisms to approach the limit
+of the perfect absorber eg by internalization is not
+clear yet However since the accuracy of concentration
+sensing can always be improved by increasing the av-
+eraging time one might expect that receptor internal-
+ization becomes increasingly important when time is of
+the essence
+In addition to chemotaxis embryonic de-
+velopment may be a biological system for which receptor
+internalization is important Specically the Fgf8 mor-
+phogen which regulates tissue dierentiation and mor-
+phogenesis in zebrash forms exponential concentration
+gradients by diusion and degradation the latter being
+achieved precisely by receptor internalization 50 How-
+ever based on our results internalization may also be
+used for the accurate readout of the gradient in the short
+amount of time dictated by cell division
+Cells generally have many receptors to estimate ex-
+ternal concentrations of chemicals leading to a spatial
+averaging and consequently further increase in the accu-
+racy of sensing However even the employment of many
+receptors cannot increase the accuracy of sensing beyond
+the physical limit of the perfect absorber26 In fact a
+cell only needs a relatively small number of receptors to
+achieve an accuracy comparable to the physical limit 7
+On the downside if a cell uses many receptors it needs
+to integrate this information in signaling pathways
+this process is fundamentally limited by noise as well
+then this noise provides an upper limit on the overall
+estimation performance
+Although we analyzed the role of receptor internaliza-
+tion in increasing the accuracy of sensing it is important
+to stress that internalization fullls several other known
+purposes in cells 51 Among them are i redistribution
+of receptors to dierent locations on the cell membrane
+ii uptake of nutrients and chemicals iii signaling by
+ligand in cell interior and iv turning o persistent sig-
+nal as part of adaptation All these aspects would need
+to be considered to fully characterize the working of a
+receptor
+In order to derive the accuracy of sensing with internal-
+ization we made a number of simplifying assumptions
+In our model we neglected other possible sources of uc-
+tuations such as uctuations in receptor density in order
+to relate our results to the single immobile receptor Fur-
+thermore we introduced the eective temperature Te to
+generalize the FDT to non-equilibrium thermodynamics
+While Te is well dened for well separated time scales
+a potential time or frequency dependence of Te 2224
+was neglected here However our non-equilibrium result
+with internalization is consistent with the equilibrium re-
+sult in the fast diusion limit Removal of ligand by fast
+diusion at equilibrium is equivalent to removal of bound
+ligand by internalization at the non-equilibrium steady
+state providing condence in our method
+Internalization is not the only mechanism by which a
+cell can act as an absorber and increase its accuracy of
+sensing Other potential mechanisms include enzymatic
+degradation of ligand at the cell surface eg degra-
+dation of cAMP by mPDE in Dictyostelium and of -
+mating pheromone by Bar1 in budding yeast 52 53
+Furthermore at excitatory neural synapses fast diusion
+of AMPA receptors on the post-synaptic membrane sur-
+face has an important role in the sensing of neurotrans-
+mitter glutamate 54 Ligand-bound desensitized re-
+ceptors diuse away and are replaced by fresh receptors
+leading to fast recovery and readiness for the next action
+potential and release of neurotransmitter By the same
+mechanism the accuracy of sensing may be increased
+since ligand-bound receptors diuse away and release lig-
+and far away from region of signaling thus preventing an
+overcounting of same ligand molecules 55
+Acknowledgments
+We thank Robert Insall Luca Leuzzi Yigal Meir and
+Ned Wingreen for helpful discussions and two anony-
+mous referees for their helpful comments We acknowl-
+edge nancial support from Biotechnological and Biolog-
+ical Sciences Research Council grant BBG0001311 and
+the Centre for Integrated Systems Biology at Imperial
+College
+Appendix A Langevin approach
+As an alternative derivation here we provide the solu-
+tion for the accuracy of sensing for internalization using a
+Langevin approach We rst consider fast diusion We
+start from Eq 9 but add a noise term nt
+where we assume
+h n2i  kc1  ni  ni  2kc1  ni
+due to Poisson statistics 56 57 Linearizing and Fourier
+Transforming Eq A1 assuming the rates k and 
+constant leads to
+n 
+n
+kc    i
+Hence the power spectrum of the uctuations in receptor
+occupancy is given by
+Sn  hn2i 
+h n2i
+kc  2  2
+2kc1  ni
+kc  2  2 
+where in the last step the property EqA2 was used
+Eq A4 is indeed equivalent to result Eq 16 in the
+main text
+For the general solution we start from the Fourier-
+Transformed Eq 24 and Eq 26 ie
+kcin  k1 nicx0  n A5
+cx0  
+i  ki
+k1  ni
+1n  c
+respectively where n and c are additive noise
+terms and 1 is given by Eq
+Inserting Eq
+A6 in Eq A5 and solving for n leads to
+n 
+n  k1  ni c
+kc    ki1  i1  1
+from which the following expression for hn2i ensues
+hn2i 
+kc    ki12  21  12 
+In the limit   0 using Eq A2 as in the previous
+case we obtain
+1  ni2h c2i  h n2i
+hn2i 0
+1  ni2h c2i  2kc1  ni
+kc    ki102
+Following 58 we set
+h c2i  S3D
+k1  ni
+in Eq A9 and obtain for the power spectrum
+  0 
+D3s 
+hn2i 
+2hn2i1  10C
+1  ki10C 2
+nt
+ kc1  nt  nt  nt
+Eq A11 is identical to result Eq 30 obtained with
+the gFDT in main text
+Appendix B Numerical values
+In this section we provide the numerical values used
+for plotting Fig
+4 Noise ratio and internalization
+strengths are respectively given by 01001 FR 0084
+Ste2 0470625 EGFR 00866 TfR 0084875
+LDLR 0011154 VtgR Specically to calculate the
+noise ratio the rst and the second term in Eq
+are given by in units of   2500276 FR 4000251
+Ste2 1000224 EGFR 2667186 TfR 60003872
+LDLR 34280426 VtgR We have used s  1nm
+n  12 i
+setting c  KD from Table I and
+D3  1 m2s 
+1 A Raj and A van Oudenaarden Cell 135 216 2008
+2 R C Yu et al Nature 456 755 2008
+3 M S Samoilov G Price and A P Arkin Sci STKE
+2006 re17 2006
+4 T Gregor et al Cell 130 153 2007
+5 V Shahrezaei and PS Swain Curr Opin Biotech 19
+369 2008
+33 P Duchek and P Rorth Science 291 131 2001
+34 S G Nandini-Kishore and W A Frazier Proc Natl
+Acad Sci USA 78 7299 1981
+35 S K Raths F Naider and J M Becker J Biol Chem
+263 17333 1988
+36 T Yi H Kitano and M I Simono Proc Natl Acad
+Sci USA 100 10765 2003
+6 H Mao PS Cremer and M D Manson Proc Natl
+37 D D Jennes A C Burkholder and L H Hartwell Mol
+Acad Sci USA 100 5449 2003
+and Cell Biol 6 318 1986
+7 H C Berg Random Walks in Biology Princeton Uni-
+38 L Hicke B Zanolari and H Riezman J of Cell Biology
+versity Press 1993
+141 349 1998
+8 R A Arkowitz Trends Cell Biol 9 20 1999
+9 J E Segall Proc Natl Acad Sci USA 90 8332 1993
+10 S H Zigmond J Cell Biol 75 606 1977
+11 H C Berg and E T Purcell Biophys J 20 193 1977
+12 W Bialek and S Setayeshgar Proc Natl Acad Sci USA
+102 10040 2005
+13 W Rappel and H Levine Proc Natl Acad Sci USA
+105 19720 2008
+14 W Rappel and H Levine Phys Rev Lett 100 228101
+2006
+39 T A Nielsen D A Di Gregorio and R A Silver Neuron
+42 757 2004
+40 U Olgac V Kurtcuoglu and D Poulikakos Am J
+Physil Heart Circ Physiol 294 H909 2008 R C
+Roberts D G Makey and U S Seal J of Biol Chem
+241 4907 1966 R G Thorne S Hrabetova and C
+Nicholson J Neurophys 92 3471 2004
+41 J E Segall et al J Cell Sci 91 479 1998
+42 A Levitzki Receptors a quantitative approach Ben-
+jaminCummings Pub Co 1984
+15 K Wang W Rappel R Kerr and H Levine Phys Rev
+43 L Opresko and H S Wiley J Biol Chem 262 4109
+E 75 061905 2007
+1987
+16 R G Endres and N S Wingreen Proc Natl Acad Sci
+44 K A Schandel and DD Jenness Mol Cell Biol 14
+USA 105 15749 2008
+7245 1994
+17 S Mukherjee R N Ghosh and FR Maxeld Phys
+45 K J Blumer and J Thonnes Proc Natl Acad Sci USA
+Rev 77 759 1997
+87 4363 1990
+18 S S F Ferguson Pharmacol Rev 53 1 2001
+19 R Kubo Rep Prog Phys 29 255 1966
+20 R G Endres and NS Wingreen Progr Biophys Mol
+46 K Kawada et al Mol and Cell Biol 29 4508 2009
+47 S Minina M Reichman-Fried and E Raz Curr Biol
+17 1164 2007
+Biol 100 33 2009
+48 G Jekely H Sung C M Luque and P Rorth Dev Cell
+21 L F Cugliandolo J Kurchan and L Peliti Phys Rev
+9 197 2005
+E 55 3898 1997
+22 Th M Nieuwenhuizen Phys Rev Lett 80 5580 1998
+23 A Crisanti and F Ritort J Phys A 36 R181 2003
+24 L Leuzzi J of Non-Cryst Solids 355 686 2009
+25 T Lu J Hasty and P G Wolynes Biophys J 91 84
+49 C Le Roy and J L Wrana Dev Cell 9 167 2005
+50 SR Yu et al Nature 461 533 2009
+51 I Mellman Ann Rev Cell Dev Biol 12 575 1996
+52 J B Hicks and I Herskowitz Nature 260 246 1976
+53 N Barkai MD Rose and NS Wingreen Nature 396
+2006
+422 1998
+26 RG Endres and NS Wingreen Phys Rev Lett 103
+54 D Choquet and A Triller Nature Rev Neurosc 4 251
+158101 2009
+2003
+27 J L Rifkin Cell Motil Cytoskeleton 48 121 2001
+28 F Kesbeke et al J Cell Sci 96 669 1990
+29 C M Paulos et al Mol Pharm 66 1406 2004
+30 M J Catarina D Hereld and PN Devreteos J Biol
+55 G Aquino and R G Endres in preparation
+56 P Detwiler et al Biophys J 79 2801 2000
+57 M Tatthai and A van Ondenaarden Biophys J 82
+2943 2002
+Chem 270 4418 1995
+58 G Tkacdik and W Bialek Phys Rev E 79 051901
+31 H Shankaran H Resat and H S Wiley PLoS Comp
+2009
+Biol 3 e101 2007
+32 A Bianco et al Nature 448 362 2007

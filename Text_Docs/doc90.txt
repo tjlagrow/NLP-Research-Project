@@ -1,834 +1,1010 @@
-Software Infrastructure for Natural Language Processing
-Hamish Cunningham
-Kevin Humphreys
-Robert Gaizauskas
-Yorick Wilks
-Dept Computer Science
-Dept Computer Science
-Dept Computer Science
-Dept Computer Science
-University of Sheeld
-University of Sheeld
-University of Sheeld
-University of Sheeld
-211 Portobello St
-211 Portobello St
-211 Portobello St
-211 Portobello St
-Sheeld S10 4DP
-Sheeld S10 4DP
-Sheeld S10 4DP
-Sheeld S10 4DP
-hamishdcsshefacuk
-kwhdcsshefacuk
-robertgdcsshefacuk
-yorickdcsshefacuk
-Abstract
-We classify and review current approaches
-to software infrastructure for research de-
-velopment and delivery of NLP systems
-The task is motivated by a discussion of
-current trends in the eld of NLP and Lan-
-guage Engineering We describe a sys-
-tem called GATE a General Architecture
-for Text Engineering that provides a soft-
-ware infrastructure on top of which het-
-erogeneous NLP processing modules may
-be evaluated and rened individually or
-may be combined into larger application
-systems GATE aims to support both re-
-searchers and developers working on com-
-ponent technologies eg parsing tagging
-morphological analysis and those work-
-ing on developing end-user applications
-text sum-
-marisation document generation machine
-translation and second language learning
-GATE promotes reuse of component tech-
-nology permits specialisation and collab-
-oration in large-scale projects and allows
-for the comparison and evaluation of al-
-ternative technologies The rst release of
-GATE is now available
-information extraction
-1 Introduction
-This paper reviews the currently available design
-strategies for software infrastructure for NLP and
-presents an implementation of a system called
-GATE  a General Architecture for Text Engineer-
-ing By software infrastructure we mean what has
-been variously referred to in the literature as soft-
-ware architecture software support tools language
-engineering platforms development environments
-Our gloss on these terms is common models for the
-representation storage and exchange of data in and
-between processing modules in NLP systems along
-with graphical interface tools for the management of
-data and processing and the visualisation of data
-NLP systems produce information about texts1 and
-existing systems that aim to provide software infras-
-tructure for NLP can be classied as belonging to
-one of three types according to the way in which
-they treat this information
-additive or markup-based
-information produced is added to the text in
-the form of markup eg in SGML Thompson
-and McKelvie 1996
-referential or annotation-based information
-is stored separately with references back to the
-original text eg in the TIPSTER architecture
-Grishman 1996
-abstraction-based the original text is preserved
-in processing only as parts of an integrated data
-structure that represents information about
-the text in a uniform theoretically-motivated
-model eg attribute-value structures in the
-ALEP system Simkins 1994
-A fourth category might be added to cater for those
-systems that provide communication and control
-infrastructure without addressing the text-specic
-needs of NLP eg Verbmobils ICE architecture
-Amtrup 1995
-We begin by reviewing examples of the three ap-
-proaches we sketched above and a system that falls
-into the fourth category Next we discuss current
-trends in the eld and motivate a set of requirements
-that have formed the design brief for GATE which
-is then described The initial distribution of the
-system includes a MUC-6 Message Understanding
-Conference 6 Grishman and Sundheim 1996 style
-information extraction IE system and an overview
-1These texts may sometimes be the results of auto-
-matic speech recognition  see section 26
-of these modules is given GATE is now available
-for research purposes  see
-httpwwwdcsshefacukresearchgroups
-nlpgate for details of how to obtain the system
-It is written in C and TclTk and currently runs
-on UNIX SunOS Solaris Irix Linux and AIX are
-known to work a Windows NT version is in prepa-
-ration
-2 Managing Information about Text
-21 Abstraction Approaches
-The abstraction-based approach to managing in-
-formation about texts is primarily motivated by
-theories of the nature of the information to be
-represented One such position is that declara-
-tive constraint-based representations using feature-
-structure matrices manipulated under unication
-are an appropriate vehicle by which many techni-
-cal problems in language description and computer
-manipulation of language can be solved Shieber
-1992 Information in these models may be charac-
-terised as abstract in our present context as there
-is no requirement to tie data elements back to the
-original text  these models represent abstractions
-from the text
-One recent example of an infrastructure project
-based on abstraction is ALEP  the Advanced Lan-
-guage Engineering Platform Simkins 1994 ALEP
-aims to provide the NLP research and engineering
-community in Europe with an open versatile and
-general-purpose development environment ALEP
-while in principle open is primarily an advanced sys-
-tem for developing and manipulating feature struc-
-ture knowledge-bases under unication Also pro-
-vided are several parsing algorithms algorithms for
-transfer synthesis and generation Schutz 1994
-As such
-it is a system for developing particular
-types of data resource eg grammars lexicons and
-for doing a particular set of tasks in LE in a particu-
-lar way ALEP does not aim for complete gener-
-icity or it would need also to supply algorithms
-for Baum-Welch estimation fast regular expression
-matching etc Supplying a generic system to do
-every LE task is clearly impossible and prone to
-instant obsolescence in a rapidly changing eld
-In our view ALEP despite claiming to use a
-theory-neutral formalism an HPSG-like formalism
-is still too committed to a particular approach to lin-
-guistic analysis and representation It is clearly of
-high utility to those in the LE community to whom
-these theories and formalisms are relevant but it
-excludes or at least does not actively support all
-those who are not including an increasing number
-of researchers committed to statistical corpus-based
-approaches GATE as will be seen below is more
-like a shell a backplane into which the whole spec-
-trum of LE modules and databases can be plugged
-Components used within GATE will typically exist
-already  our emphasis is reuse not reimplementa-
-tion Our project is to provide a exible and ecient
-way to combine LE components to make LE systems
-whether experimental or for delivered applications
- not to provide the one true system or even the
-one true development environment Indeed ALEP-
-based systems might well provide components oper-
-ating within GATE Seen this way the ALEP enter-
-prise is orthogonal to ours  there is no signicant
-overlap or conict
-In our view the level at which we can assume com-
-monality of information or of representation of in-
-formation between LE modules is very low if we are
-to build an environment which is broad enough to
-support the full range of LE tools and accept that we
-cannot impose standards on a research community
-in ux What does seem to be a highest common de-
-nominator is this modules that process text or pro-
-cess the output of other modules that process text
-produce further information about the text or por-
-tions of it For example part-of-speech tags phrase
-structure trees logical forms discourse models can
-all be seen in this light It would seem therefore
-that we are on safe common ground if we start only
-by committing to provide a mechanism which man-
-ages arbitrary information about text
-There are two methods by which this may be done
-First one may embed the information in the text at
-the relevant points  the additive approach Second
-one may associate the information with the text by
-building a separate database which stores this in-
-formation and relates it to the text using pointers
-into the text  the referential approach The next
-two subsections discuss systems that have adopted
-these two approaches respectively then we compare
-the two and indicate why we have chosen a hybrid
-approached based mainly on the second Finally we
-look at a system that falls outside our three cate-
-gories
-22 Additive Approaches
-Additive architectures for managing information
-about text add markup to the original text at each
-successive phase of processing This model has been
-adopted by a number of projects including parts of
-the MULTEXT EC project The MULTEXT work2
-has led to the development of an architecture based
-project adopted a dierent architectural solution  see
-httpwwwlpluniv-aixfrprojectsmultext
-partners
-on SGML at the University of Edinburgh called LT-
-NSL Thompson and McKelvie 1996
-The architecture is based on a commitment to
-TEI-style the Text Encoding Initiative Sperberg-
-McQueen and Burnard 1994 SGML encoding of
-information about text The TEI denes standard
-tag sets for a range of purposes including many rel-
-evant to LE systems Tools in a LT-NSL system
-communicate via interfaces specied as SGML doc-
-ument type denitions DTDs  essentially tag set
-descriptions using character streams on pipes  an
-arrangement modelled after UNIX-style shell pro-
-gramming To obviate the need to deal with some
-dicult types of SGML eg minimised markup
-texts are converted to a normal form before pro-
-cessing A tool selects what information it requires
-from its input SGML stream and adds information
-as new SGML markup An advantage here is a
-degree of data-structure independence so long as
-the necessary information is present in its input a
-tool can ignore changes to other markup that in-
-habits the same stream  unknown SGML is simply
-passed through unchanged so for example a se-
-mantic interpretation module might examine phrase
-structure markup but ignore POS tags A disad-
-vantage is that although graph-structured data may
-be expressed in SGML doing so is complex either
-via concurrent markup the specication of multi-
-ple legal markup trees in the DTD or by rather
-ugly nesting tricks to cope with overlapping  so-
-called milestone tags Graph-structured informa-
-tion might be present in the output of a parser for
-example representing competing analyses of areas
-of text
-23 Referential Approaches
-The ARPA-sponsored TIPSTER programme in the
-US now entering its third phase has also produced
-a data-driven architecture for NLP systems Grish-
-man 1996 Whereas in LT-NSL all information
-about a text is encoded in SGML which is added by
-the modules in TIPSTER a text remains unchanged
-while information is stored in a separate database
- the referential approach
-Information is stored
-in the database in the form of annotations Anno-
-tations associate arbitrary information attributes
-with portions of documents identied by sets of
-startend byte osets or spans Attributes may be
-the result of linguistic analysis eg POS tags or tex-
-tual unit type In this way the information built up
-about a text by NLP modules is kept separate from
-the texts themselves In place of an SGML DTD
-an annotation type declaration denes the informa-
-tion present in annotation sets Figure 1 shows an
-example from Grishman 1996
-Sarah savored the soup
-05101520
-Id Type
-Annotations
-Attributes
-sentence
-Start End
-posVBD
-name typeperson
-Figure 1 TIPSTER annotations example
-The denition of annotations in TIPSTER forms
-part of an object-oriented model that deals with
-inter-textual
-information as well as single texts
-Documents are grouped into collections each with
-a database storing annotations and document at-
-tributes such as identiers headlines etc The model
-also describes elements of information extraction
-IE and information retrieval IR systems relating
-to their use with classes representing queries and
-information needs
-The TIPSTER architecture is designed to be
-portable to a range of operating environments so
-it does not dene implementation technologies Par-
-ticular implementations make their own decisions re-
-garding issues such as parallelism user interface or
-delivery platform Various implementations of TIP-
-STER systems are available including one in GATE
-24 Comparison of LT-NSL and TIPSTER
-Both architectures are appropriate for NLP but
-there are a number of signicant dierences We
-discuss ve here then note the possibility of compli-
-mentary inter-operation of the two
-1 TIPSTER can support documents on read-only
-media eg Internet material or CD-ROMs
-which may be used for bulk storage by organisa-
-tions with large archiving needs without copy-
-ing each document
-2 From the point of view of eciency the original
-LT-NSL model of interposing SGML between
-all modules implies a generation and parsing
-overhead in each module Later versions have
-replaced this model with a pre-parsed represen-
-tation of SGML to reduce this overhead This
-representation will presumably be stored in in-
-termediate les which implies an overhead from
-the IO involved in continually reading and
-writing all the data associated with a document
-to le There would seem no reason why these
-les should not be replaced by a database im-
-plementation however with potential perfor-
-mance benets from the ability to do IO on
-subsets of information about documents and
-from the high level of optimisation present in
-modern database technology
-3 A related issue is storage overhead TIPSTER
-is minimal in this respect as there is no inher-
-ent need to duplicate the source text and all its
-markup during the nromalisation process
-4 At rst thought texts may appear to be one-
-dimensional consisting of a sequence of charac-
-ters This view breaks down when structures
-like tables appear  these are inherently two-
-dimensional and their representation and ma-
-nipulation is much easier in a referential model
-like TIPSTER than in an additive model like
-SGML because a markup-based representation
-is based on the one-dimensional view In TIP-
-STER the column of a table can be repre-
-sented as a single object with multiple refer-
-ences to parts of the text an annotation with
-multiple spans Marking columns in SGML re-
-quires a tag for each row of the column Related
-points are that TIPSTER avoids the dicul-
-ties referred to earlier of representing graph-
-structured information in SGML LT NSL is
-inecient where processing algorithms require
-non-sequential access to data McKelvie Brew
-and Thompson 1997
-5 TIPSTER can easily support multi-level access
-control via a databases protection mechanisms
- this is again not straightforward in SGML
-6 Distributed control is easy to implement in a
-database-centred system like TIPSTER  the
-DB can act as a blackboard and implemen-
-tations can take advantage of well-understood
-access control locking technology How to
-do distributed control in LT-NSL is not obvi-
-ous We plan to provide this type of control in
-GATE via collaboration with the Corelli project
-at CRL New Mexico  see Zajac 1997 for
-more details
-25 Combining Addition and Reference
-We believe the above comparison demonstrates that
-there are signicant advantages to the TIPSTER
-model and it is this model that we have chosen for
-We also believe that SGML and the TEI must re-
-main central to any serious text processing strategy
-The points above do not contradict this view but
-indicate that SGML should not form the central rep-
-resentation format of every text processing system
-Input from SGML text and TEI conformant output
-are becoming increasingly necessary for LE appli-
-cations as more and more publishers adopts these
-standards This does not mean however that at-
-le SGML is an appropriate format for an architec-
-ture for LE systems This observation is born out
-by the facts that TIPSTER started with an SGML
-architecture but rejected it in favour of the current
-database model and that LT-NSL has gone partly
-towards this style by passing pre-parsed SGML be-
-tween components
-Interestingly a TIPSTER referential system could
-function as a module in an LT-NSL additive system
-or vice-versa A TIPSTER storage system could
-write data in SGML for processing by LT-NSL tools
-and convert the SGML results back into native for-
-mat Work is underway to integrate the LT-NSL
-API with GATE and provide SGML IO for TIP-
-STER and we acknowledge valuable assistance from
-colleagues at Edinburgh in this task
-26 ICE
-Intarc Communication Environment
-Amtrup 1995 is an environment for the develop-
-ment of distributed AI systems As part of the Verb-
-mobil real-time speech-to-speech translation project
-ICE has addressed two key problems for this type
-of system viz distributed processing and incremen-
-tal interpretation Gorz et al 1996 distribution
-to contribute to processing speed in what is a very
-compute-intensive application area incremental in-
-terpretation both for speed reasons and to facili-
-tate feedback of results from downstream modules
-to upstream ones eg to inform the selection of
-word interpretations from phone lattices using part-
-of-speech information
-ICE provides a distribution and communication
-layer based on PVM Parallel Virtual Machine
-The infrastructure that ICE delivers doesnt t into
-our tripartite classication because the communica-
-tion channels do not use data structures specic to
-NLP needs and because data storage and text col-
-lection management is left to the individual modules
-ICE might well form a useful backbone for an NLP
-infrastructure and could operate in any of the three
-paradigms
-3 NLP Trends and GATE
-For a variety of reasons NLP has recently spawned
-a related engineering discipline called language engi-
-neering LE whose orientation is towards the appli-
-cation of NLP techniques to solving large-scale real-
-world language processing problems in a robust and
-predictable way These problems include informa-
-tion extraction text summarisation document gen-
-eration machine translation second language learn-
-ing amongst others In many cases the technologies
-being developed are assistive rather than fully auto-
-matic aiming to enhance or supplement a humans
-expertise rather than attempting to replace it
-The reasons for the growth of language engineer-
-ing include
- computer hardware advances which have in-
-creased processor speeds and memory capacity
-while reducing prices
- increasing availability of large-scale language-
-related on-line resources such as dictionaries
-thesauri and designer corpora  corpora se-
-lected for representativeness and perhaps anno-
-tated with descriptive information
- the demand for applications in a world where
-electronic text has grown exponentially in vol-
-ume and availability and where electronic com-
-munications and mobility have increased the
-importance of multi-lingual communication
- maturing NLP technology which is now able for
-some tasks to achieve high levels of accuracy
-repeatedly on real data
-Aside from the host of fundamental theoretical
-problems that remain to be answered in NLP lan-
-guage engineering faces a variety of problems of its
-own Two features of the current situation are of
-prime importance they constrain how the eld can
-develop and must be acknowledged and addressed
-First there is no theory of language which is uni-
-versally accepted and no computational model of
-even a part of the process of language understanding
-which stands uncontested Second building intelli-
-gent application systems systems which model or
-reproduce enough human language processing capa-
-bility to be useful is a large-scale engineering ef-
-fort which given political and economic realities
-must rely on the eorts of many small groups of re-
-searchers spatially and temporally distributed with
-no collaborative master plan
-The rst point means that any attempt to push
-researchers into a theoretical or representational
-straight-jacket is premature unhealthy and doomed
-to failure The second means that no research team
-alone is likely to have the resources to build from
-scratch an entire state-of-the-art LE application sys-
-tem Note the tension here the rst point identi-
-es a centrifugal tendency pushing researchers into
-ever greater theoretical diversity the second a cen-
-tripetal tendency forcing them together
-Given this state of aairs what is the best prac-
-tical support that can be given to advance the eld
-Clearly the pressure to build on the eorts of others
-demands that LE tools or component technologies 
-parsers taggers morphological analysers discourse
-planning modules etc  be readily available for ex-
-perimentation and reuse But the pressure towards
-theoretical diversity means that there is no point at-
-tempting to gain agreement in the short term on
-what set of component technologies should be de-
-veloped or on the informational content or syntax
-of representations that these components should re-
-quire or produce
-Our response to these considerations has been
-to design and implement a software environment
-called GATE  a General Architecture for Text Engi-
-neering Cunningham Gaizauskas and Wilks 1995
-Cunningham Wilks and Gaizauskas 1996  which
-attempts to meet the following objectives
-1 support information interchange between LE
-modules at the highest common level possi-
-ble without prescribing theoretical approach
-though it allows modules which share theoret-
-ical presuppositions to pass data in a mutually
-accepted common form
-2 support the integration of modules written in
-any source language available either in source
-or binary form and be available on any common
-platform
-3 support the evaluation and renement of LE
-component modules and of systems built from
-them via a uniform easy-to-use graphical in-
-terface which in addition oers facilities for vi-
-sualising data and managing corpora
-The remainder of this paper describes the design of
-GATE In section 4 we detail the design of GATE
-Section 5 illustrates how GATE can be used by de-
-scribing how we have taken a pre-existing informa-
-tion extraction system and embedded it in GATE
-Section 6 makes some concluding remarks
-4 GATE Design
-Corresponding to the three key objectives identied
-at the end of section 3 GATE comprises three prin-
-cipal elements GDM the GATE Document Man-
-ager based on the TIPSTER document manager
-CREOLE a Collection of REusable Objects for Lan-
-guage Engineering a set of LE modules integrated
-with the system and GGI the GATE Graphical In-
-terface a development tool for LE RD providing
-integrated access to the services of the other compo-
-nents and adding visualisation and debugging tools
-Working with GATE the researcher will from the
-outset reuse existing components and the common
-APIs of GDM and CREOLE mean only one inte-
-gration mechanism must be learnt As CREOLE
-expands more and more modules will be available
-from external sources including users of other TIP-
-STER systems
-41 GDM
-The GDM provides a central repository or server
-that stores all information an LE system generates
-about the texts it processes All communication be-
-tween the components of an LE system goes through
-GDM which insulates these components from direct
-contact with each other and provides them with a
-uniform API for manipulating the data they pro-
-duce and consume
-The basic concepts of the data model underlying
-the GDM have been explained in the discussion of
-the Tipster model in section 23 above The TIP-
-STER architecture has been fully specied Grish-
-man 1996 and its specication should be consulted
-for further details in particular for denitions of the
-API The GDM is fully conformant with the core
-document management subset of this specication
-42 CREOLE
-All the real work of analysing texts in a GATE-based
-LE system is done by CREOLE modules or objects
-we use the terms module and object rather loosely
-to mean interfaces to resources which may be pre-
-dominantly algorithmic or predominantly data or a
-mixture of both Typically a CREOLE object will
-be a wrapper around a pre-existing LE module or
-database  a tagger or parser a lexicon or ngram
-index for example Alternatively objects may be
-developed from scratch for the architecture  in ei-
-ther case the object provides a standardised API to
-the underlying resources which allows access via GGI
-and IO via GDM The CREOLE APIs may also be
-used for programming new objects
-When the user initiates a particular CREOLE ob-
-ject via GGI or when a programmer does the same
-via the GATE API when building an LE applica-
-tion the object is run obtaining the information it
-needs document source annotations from other ob-
-jects via calls to the GDM API Its results are then
-stored in the GDM database and become available
-for examination via GGI or to be the input to other
-CREOLE objects
-GDM imposes constraints on the IO format of
-CREOLE objects namely that all information must
-be associated with byte osets and conform to the
-annotations model of the TIPSTER architecture
-The principal overhead in integrating a module with
-GATE is making the components use byte osets if
-they do not already do so
-43 GGI
-The GGI is a graphical tool that encapsulates the
-GDM and CREOLE resources in a fashion suitable
-for interactive building and testing of LE compo-
-nents and systems The GGI has functions for creat-
-ing viewing and editing the collections of documents
-which are managed by the GDM and that form the
-corpora which LE modules and systems in GATE
-use as input data The GGI also has facilities to
-display the results of module or system execution 
-new or changed annotations associated with the doc-
-ument These annotations can be viewed either in
-raw form using a generic annotation viewer or in an
-annotation-specic way if special annotation view-
-ers are available For example named entity annota-
-tions which identify and classify proper names eg
-organization names person names location names
-are shown by colour-coded highlighting of relevant
-words phrase structure annotations are shown by
-graphical presentation of parse trees Note that the
-viewers are general for particular types of annota-
-tion so for example the same procedure is used for
-any POS tag set Named-Entity markup etc see
-section 44 below Thus CREOLE developers reuse
-GATE data visualisation code with negligible over-
-44 Plug and Play
-The process of integrating existing modules into
-GATE CREOLEising has been automated to a
-large degree and can be driven from the interface
-The developer is required to produce some C or
-Tcl code that uses the GDM TIPSTER API to get
-information from the database and write back re-
-sults When the module pre-dates integration this
-is called a wrapper as it encapsulates the module in
-a standard form that GATE expects When mod-
-ules are developed specically for GATE they can
-embed TIPSTER calls throughout their code and
-dispense with the wrapper intermediary The under-
-lying module can be an external executable written
-in any language the current CREOLE set includes
-Prolog Lisp and Perl programs for example
-There are three ways to provide the CREOLE
-wrapper functions Packages written in C or in
-languages which obey C linkage conventions can
-be compiled into GATE directly as a Tcl pack-
-age This is tight coupling and is maximally ecient
-but necessitates recompilation of GATE when mod-
-ules change On platforms which support shared
-libraries C-based wrappers can be loaded at run-
-time  dynamic coupling This is also ecient with
-a small penalty at load time and allows devel-
-opers to change CREOLE objects and run them
-within GATE without recompiling the GATE sys-
-tem Wrappers written in Tcl can also be loaded at
-run-time  loose coupling There is a performance
-penalty in comparison with using the C APIs but
-for simple cases this is the easiest integration route
-In each case the implementation of CREOLE ser-
-vices is completely transparent to GATE
-wrappers
-encapsulate
-informa-
-tion about the preconditions for a module to run
-data that must be present in the GDM database
-and post-conditions data that will result This in-
-formation is needed by GGI and is provided by the
-developer in a conguration le which also details
-what sort of viewer to use for the modules results
-and any parameters that need passing to the module
-These parameters can be changed from the interface
-at run-time eg to tell a parser to use a dierent
-lexicon Aside from the information needed for GGI
-to provide access to a module GATE compatibility
-equals TIPSTER compatibility  ie there will be
-very little overhead in making any TIPSTER mod-
-ule run in GATE
-Given an integrated module all other interface
-functions happen automatically For example the
-module will appear in a graph of all modules avail-
-able with permissible links to other modules auto-
-matically displayed having been derived from the
-module pre- and post-conditions
-At any point the developer can create a new graph
-from a subset of available CREOLE modules to per-
-form a task of specic interest
-5 VIE An Application In GATE
-To illustrate the process of converting pre-existing
-LE systems into GATE-compatible CREOLE sets
-we use as an example the creation of VIE Vanilla
-Information Extraction system from LaSIE Large-
-Scale Information Extraction system Gaizauskas
-et al 1995 Sheelds entry in the MUC-6 sys-
-tem evaluations LaSIE module interfaces were not
-standardised when originally produced and its CRE-
-OLEization gives a good indication of the ease of in-
-tegrating other LE tools into GATE The resulting
-system VIE is distributed with GATE
-51 LaSIE
-LaSIE was designed as a research system for inves-
-tigating approaches to information extraction and
-to be entered into the MUC-6 conference Grish-
-man and Sundheim 1996 As such it was a stan-
-dalone system that was aimed at specic tasks and
-while based on a modular design none of its mod-
-ules were specically designed with reuse in mind
-nor was there any attempt to standardise data for-
-mats passed between modules Modules were writ-
-ten in a variety of programming languages includ-
-ing C C Flex Perl and Prolog In this regard
-LaSIE was probably typical of existing LE systems
-and modules The high-level tasks which LaSIE
-performed include the four MUC-6 tasks carried
-out on Wall Street Journal articles  named entity
-recognition coreference resolution and two template
-lling tasks The system was a pipelined architec-
-ture which processes a text sentence-at-a-time and
-consists of three principal processing stages lexical
-preprocessing parsing plus semantic interpretation
-and discourse interpretation
-52 The CREOLEisation of LaSIE
-As described in section 42 CREOLEisation of ex-
-isting LE modules involves providing them with a
-wrapper so that the modules communicate via the
-GDM by accessing TIPSTER-compliant document
-annotations and updating them with new informa-
-tion The major work in converting LaSIE to VIE
-involved dening useful module boundaries unpick-
-ing the connections between them and then writing
-wrappers to convert module output into annotations
-relating to text spans and to convert GDM input
-from annotations relating to text spans back into
-the modules native input format
-The complete VIE system comprises ten modules
-each of which is a CREOLE object integrated into
-GATE The CREOLEisation took approximately
-two person months The resulting system has all the
-functionality of the original LaSIE system However
-the interface makes it much easier to use And of
-course it is now possible to swap in modules such as
-a dierent parser with signicantly less eort than
-would have been the case before For more details
-of this process see Cunningham et al 1996
-VIE and its components are being deployed for
-a number of purposes including IE in French Ger-
-man and Spanish Experience so far indicates that
-GATE is a productive environment for distributed
-collaborative reuse-based software development
-6 Concluding Remarks
-Of course GATE does not solve all the problems
-involved in plugging diverse LE modules together
-There are three barriers to such integration
- managing storage and exchange of information
-about texts
- incompatibility of representation of information
-about texts
-httpwwwdcsshefacukresearchgroups
-nlpgate
- incompatibility of type of information used and
-produced by dierent modules
-GATE provides a solution to the rst two of these
-based on the work of the TIPSTER architecture
-group Because GATE places no constraints on the
-linguistic formalisms or information content used
-by CREOLE modules the latter problem must
-be solved by dedicated translation functions  eg
-tagset-to-tagset mapping  and in some cases by
-extra processing  eg adding a semantic processor
-to complement a bracketing parser
-The recent completion of this work means a full
-assessment of the strengths and weaknesses of GATE
-is not yet possible The implementation of VIE in
-GATE however provides an existence proof that
-the original conception is workable We believe that
-the environment provided by GATE will now allow
-us to make signicant strides in assessing alterna-
-tive LE technologies and in rapidly assembling LE
-prototype systems Thus to return to the themes of
-section 3 GATE will not commit us to a particular
-linguistic theory or formalism but it will enable us
-and anyone who wishes to make use of it to build
-in a pragmatic way on the diverse eorts of others
-7 Acknowledgements
-This work was supported by the UK Engineering and
-Physical Sciences Research Council grant number
-GRK25267 and the EC DG XIII Language Engi-
-neering programme grant number LE1-2238
-References
-Amtrup1995 Amtrup JW 1995 ICE  INTARC
-Communication Environment User Guide and
-Reference Manual Version 14 Technical report
-University of Hamburg
-Cunningham Gaizauskas and Wilks1995
-Cunningham H RG Gaizauskas and Y Wilks
-1995 A General Architecture for Text En-
-gineering GATE  a new approach to Lan-
-guage Engineering RD
-Technical Report
-CS  95  21 Department of Computer Sci-
-ence University of Sheeld Also available as
-httpxxxlanlgovpscmp-lg9601009
-Cunningham et al1996
-Cunningham Wilks and Gaizauskas1996
-Cunningham H Y Wilks and R Gaizauskas
-1996 GATE  a General Architecture for Text
-Engineering
-In Proceedings of the 16th Con-
-ference on Computational Linguistics COLING-
-96 Copenhagen August
-Gaizauskas et al1995 Gaizauskas R T Wakao
-K Humphreys H Cunningham and Y Wilks
-1995 Description of the LaSIE system as used for
-MUC-6 In Proceedings of the Sixth Message Un-
-derstanding Conference MUC-6 Morgan Kauf-
-Gorz et al1996 Gorz G M Kessler J Spilker
-and H Weber 1996 Research on Architectures
-for Integrated SpeechLanguage Systems in Verb-
-In Proceedings of COLING-96 Copen-
-Grishman1996 Grishman R
-STER Architecture Design Document Version
-22 Technical report DARPA Available at
-httpwwwtipsterorg
-Grishman and Sundheim1996 Grishman R and
-B Sundheim 1996 Message understanding con-
-ference - 6 A brief history In Proceedings of the
-16th International Conference on Computational
-Linguistics Copenhagen June
-McKelvie Brew and Thompson1997
-McKelvie D C Brew and H Thompson 1997
-Using SGML as a Basis for Data-Intensive NLP
-In Proceedings of the fth Conference on Applied
-Natural Language Processing ANLP-97
-Schutz1994 Schutz J 1994 Developing Lingware
-in ALEP ALEP User Group News CEC Luxem-
-burg 11 October
-Shieber1992 Shieber S
-1992 Constraint-Based
-Grammar Formalisms MIT Press
-Simkins1994 Simkins N K 1994 An Open Archi-
-tecture for Language Engineering In First Lan-
-guage Engineering Convention Paris
-Sperberg-McQueen and Burnard1994
-Sperberg-McQueen CM and L Burnard 1994
-Guidelines for Electronic Text Encoding and In-
-terchange TEI P3 ACH ACL ALLC
-Cunningham H K Humphreys R Gaizauskas
-and M Stower
-CREOLE Devel-
-opers Manual Department of Computer Sci-
-ence University of Sheeld
-Available at
-Thompson and McKelvie1996 Thompson HS and
-D McKelvie 1996 A Software Architecture for
-Simple Ecient SGML Applications In Proceed-
-ings of SGML Europe 96 Munich
-Zajac1997 Zajac R 1997 An Open Distributed
-Architecture for Reuse and Integration of Het-
-erogenous NLP Components
-In Proceedings of
-the 5th conference on Applied Natural Language
-Processing ANLP-97
+Physical limit to concentration sensing amid spurious ligands
+Thierry Mora1
+1Laboratoire de physique statistique Ecole normale superieure
+CNRS and UPMC 24 rue Lhomond 75005 Paris France
+Dated July 23 2015
+To adapt their behaviour in changing environments cells sense concentrations by binding external
+ligands to their receptors However incorrect ligands may bind nonspecically to receptors and
+when their concentration is large this binding activity may interfere with the sensing of the ligand
+of interest Here I derive analytically the physical limit to the accuracy of concentration sensing
+amid a large number of interfering ligands A scaling transition is found when the mean bound
+time of correct ligands is twice that of incorrect ligands I discuss how the physical bound can be
+approached by a cascade of receptor states generalizing kinetic proof-reading schemes
+Because of their small sizes biological systems typ-
+ically operate with only a few copies of the molecules
+they sense and communicate with
+In their pioneering
+work Berg and Purcell derived the fundamental bound
+that the noise arising from these small numbers sets on
+the accuracy of concentration sensing 1 Experimental
+progress in the characterization of single-cell variability
+2 and sensing precision 3 has fueled a renewed inter-
+est in small-number noise and its implications for infor-
+mation processing 46 General or rened bounds on
+sensing accuracy have been recently derived for single
+receptors 79 and extended to spatial 1014 or tem-
+poral 15 gradient sensing while the metabolic cost and
+trade-os of sensing accuracy have been explored 16
+25 Much of this past work has assumed perfect speci-
+city between the biological receptors and their cognate
+ligands In realistic biological contexts large numbers of
+spurious ligands may bind receptors nonspecically in-
+terfering with the ligand of interest 26 This is the case
+in the problem of antigen recognition by T-cell receptors
+where cells must react to a small number of specic for-
+eign peptides among a large number of nonspecic self-
+peptides 27 Biochemical network architectures based
+on kinetic proofreading 28 29 have been shown to pro-
+vide a solution to the discrimination problem and have
+been studied in depth theoretically 26 3032 How-
+ever no fundamental bound has been derived against
+which to compare the performance of these solutions
+save for Ref 33 where concepts of statistical decision
+theory were used to derive the minimal decision time to
+detect cognate ligands
+In this paper I derive the fun-
+damental limit on concentration sensing accuracy and
+ligand detection error in the presence of a large number
+of spurious ligands The maximum likelihood estimate
+achieving the bound can be implemented biologically by
+simple networks based on push-pull reactions
+Consider a mixture of two ligands only one of which
+the biological system wishes to sense The ligand of inter-
+est hereafter referred to as the correct ligand is present
+in concentration c while the interfering or spurious lig-
+and called the incorrect ligand is present in concentra-
+tion ccid48 The biological unit can sense ligands through
+N identical receptors which can be bound by either
+FIG 1 Reading concentrations o trajectories of re-
+ceptor occupancies Cognate correct and spurious incor-
+rect ligands may bind N receptors typically presented on the
+cell surface with rate kc and kccid48 The incorrect ligands are
+in excess ccid48  c but lead to shorter binding events rcid48  r
+The information the cell can theoretically use is contained in
+the time traces of occupancy of all receptors green curves
+The maximum likelihood estimate fully exploits these traces
+to optimally infer the input concentrations c and ccid48
+ligand with a common rate k  4Da where D is the
+molecule diusivity and a the eective receptor size Re-
+ceptors can distinguish between the two molecules thanks
+to their higher anity to the correct ligand Physically
+this means that the unbinding rate r of the correct ligand
+is smaller than that of the incorrect ligand rcid48  r
+The occupancy of each receptor
+kcr1  kccid48rcid481
+1  kcr1  kccid48rcid481 
+depends on both concentrations and cannot be used
+alone to determine c The interchangeability of the ratios
+cr and ccid48rcid48 in this expression emphasizes the ambiguity
+between many incorrect ligands and a few correct ones
+To discern these two eects one must use the full tempo-
+ral record of occupancy of each receptor The probability
+distribution for the binding and unbinding events at all
+receptors during a time interval T reads
+P  ekctotTu
+kcrerti  kccid48rcid48er
+cid48
+ncid89
+cid16
+cid17
+kckcrcorrectligandincorrectligandtiboundunbound12    Nxcccrrwith ctot  c  ccid48 is the total concentration of ligands Tu
+is the total unbound time accrued over all receptors and
+t1     tn the durations of the n binding events occurring
+at all N receptors during T  The log-likelihod L  ln P
+can be rewritten as a sum of three independent contribu-
+tions L  L0  L1  L2 where L0 depends on neither c
+or ccid48 and where L1 and L2 pertain to the unbound and
+bound intervals respectively
+L1ctot  n ln ctot  kctotTu
+L2x 
+1  x  xe1r
+cid48
+cid16
+ncid88
+cid17
+where x  cctot is the fraction of correct ligands and
+  rrcid48  1 is the binding constant ratio As can be
+seen in the respective dependencies of L1 and L2 upon
+ctot and x unbound intervals are informative of the total
+concentration while the bound intervals are informative
+of the fractions of ligands
+The maximum likelihood estimate for the total con-
+centration is obtained by the condition L1ctot  0
+which gives ctot  kTun The error made by this esti-
+mate is given in the large time limit by the Cramer-Rao
+bound which sets the best possible performance of any
+estimator 34
+cid18 2L1
+cid191
+cid104c2
+totcid105  
+4Da1  pN T
+with ctot  ctot  ctot This result is that obtained in
+8 for a single ligand where the maximum-likelihood er-
+ror was shown to be half as small as the classical Berg
+and Purcell bound 1 based on the average receptor oc-
+cupancy The reason for this dierence is that the maxi-
+mum likelihood estimate is not aected by the noise due
+to the stochastic nature of receptor unbinding as evident
+in Eq 3 In the case of a mixture the receptor occu-
+pancy Eq 1 depends on x as well as ctot and does not
+even suce to determine the total concentration
+The fraction x of correct ligands can be estimated by
+maximum likelihood as well by solving
+ti  1
+e1r
+cid48
+ncid88
+cid12cid12cid12cid12x
+1  x  xe1rcid48ti
+The error can be estimated from the Cramer-Rao bound
+App A1
+cid104x2cid105  
+cid191  f x 
+cid18 2L2
+cid90 
+du eu e1u  12
+1  x  xe1u 
+with f x 1 
+The total error in the concentration of the correct lig-
+and c  xctot is then the sum of the independent
+cid104c2cid105 
+errors in ctot and x from Eqs 5 and 7
+totx2  f x n
+FIG 2 Physical bound on concentration sensing error
+The fundamental bound on the relative error in the fraction
+of correct ligands x  cctot scales with the inverse of the
+number of binding events n Here the rescaled error f x  
+ncid104x2cid105 Eq 7 is represented as a function of the binding
+constant ratio  for various values of x There are two distinct
+scaling regimes Eq 8 For   12 the rescaled error
+depends weakly on x while for   12 it scales as x with
+  1 1  as illustrated in the inset for three example
+values of 
+cid26 g
+It is interesting to consider the limit where the correct
+ligands are rare x cid28 1 as in the case of immune recogni-
+tion Two scaling regimes illustrated in Fig 2 are found
+depending on the value of the ratio  between the two
+binding constants
+f x  
+hx   1  
+with g  2  11  2 and h  1 
+1 sin1   and 0    1 Since
+ 1
+x2 cid28 f x  the error in c reduces to
+  12
+1   12
+cid104c2cid105  g
+cid104c2cid105  h
+4Da1  pN T
+cc1
+4Da1  pN T
+  12
+  12
+In the hard discrimination regime   12 incorrect
+ligands dominate the error which is governed by ctot
+as in Eq 5 The prefactor g diverges at   1
+as expected when the two ligands have the same bind-
+ing constant and are thus indistinguishable By con-
+trast in the easy discrimination regime   12 the
+error is governed by a weighted geometric mean be-
+tween c and ctot
+In the limit of very small  corre-
+sponding to clearly distinguishable ligands the error is
+cid104c2cid105  c4Da1 pN T precisely the error when no
+interfering ligand is present 8 For x  0 the maximum-
+likelihood estimate may infer a small x  x  0 How-
+ever the second derivative of the likelihood diverges at
+Bindingconstantratiorr0020406081Errorhx2in10-1010-810-610-410-2100102104x109x101x0Fractionxofcorrectligands10-1010-510010-810-610-410-21000402501x  0 for   12
+indicating that the Cramer-Rao
+bound 7 fails to give a correct estimate of this error
+which instead scales anomalously with the number of
+tot4Da1  pN T 1
+events x  n1 hence c  c
+App A2
+In many situations it is more useful for the system
+to determine the presence of the correct ligand rather
+than its precise concentration as in the recognition of
+foreign pathogens by immune receptors This decision
+can be made optimally in the Bayesian sense by com-
+paring the likelihoods of the two competing hypotheses
+presence versus absence of the correct ligand at fraction
+x The presence of the correct ligand is detected when
+lnP tixP ti0  L2x   where  is an ad-
+justable parameter controlling the balance between the
+false-positive and false-negative error rates F P and F N 
+These errors decay exponentially fast with large numbers
+n of binding events and can be estimated in that limit
+using a saddle-point approximation App B1
+eF P
+F P  exp n  
+2ncid48cid48  F N  
+1  
+cid104cid82 
+du eu1  x  xe1ucid105
+where   ln
+where  satises the saddle-point condition   ncid48
+The receiver operating characteristics ROC giving the
+dependency between F P and F N can thus be estimated
+parametrically by varying  This saddle-point approxi-
+mation is well veried by numerical simulations Fig 3
+As in the case of concentration sensing error a scaling
+transition is found in the limit of scarce correct ligands
+x cid28 1 When   12 one obtains
+cid112
+cid112
+F P  e 1
+cid112
+ F N  e 1
+2 2nx2g
+2 12nx2g
+22nx2g
+21  2nx2g
+while when   12 both error rates decay as 
+nx12 expCnx with   1  1 1   
+2 and C a function of  and  App B2 The
+time T necessary to make a reliable decision scales as
+4Da1  pN 1ctotc2 for   12 and as 4Da1 
+pN 1c1
+tot c for   12 Equivalent scaling laws
+were obtained in 33 for minimal on-the-y detection
+Can biological systems approach the physical bound on
+concentration sensing given by Eq 7 To gain insight
+into this question one can expand Eq 6 at rst order
+in x to get an approximation to the maximum likelihood
+estimate when   12 for   12 this expansion gives
+quantities with diverging means and cannot be used
+x  2  1
+1  2
+ncid88
+cid16
+cid17
+cid48
+e1r
+ti  1
+This estimator which is subject to the same asymptotic
+error as in Eq 8 suggests a simple strategy where each
+receptor signals positively with a rate that depends on
+FIG 3 Error in the detection of the correct ligand
+Numerical and analytical estimate of the rate of false positive
+FP versus false negative FN errors in the detection of a
+small fraction x of correct ligands for n  105 and a  
+03 and x  0003 and b   07 and x  0045 The
+black curve is the result of a numerical experiment repeated
+5  105 times in presence of the correct ligand and 5  105
+without and where a likelihood ratio test L2x   was used
+with a varying threshold  The red curve is the analytical
+prediction from Eq 10 The green to blue curves show the
+performance of optimized networks schematized in Fig 4 for
+various numbers of receptor states m
+tcid105
+cid104
+cid90 ti
+how long it has been bound 1rcid48e1r
+t and neg-
+atively ie with an opposite eect on the readout see
+below through a xed burst  1t upon binding so
+that the net eect of each binding event i on the readout
+molecule concentration is
+cid48
+1  rcid48e1r
+cid48
+   1  e1r
+cid48
+ti  1
+ie exactly the argument of the sum in Eq 12
+This idea can be implemented biologically by a cas-
+cade of receptor conformational states triggered by bind-
+ing and proceeding irreversibly from states 1 to m each
+transition to the next state occurring with rate s Fig 4
+The ligand is free to detach from the receptor at any
+time bringing the receptor back to the unbound state 0
+The receptors signal through the production or activa-
+tion of two molecules B and D with opposite eects on a
+push-pull network governing the state of a molecule X
+which provides the nal readout for x through its modi-
+ed state X If one requires that the equilibration of B
+and D are fast and that X and X are always in excess
+in the Michaelis-Mentens reactions then
+Ncid88
+bj  dj X0  const
+where j is the state of the jth receptor and b0 
+d0  0 For the purpose of this discussion the inter-
+nal molecules B D and X are assumed to be unaected
+by biochemical noise restricting the source of noise to
+the input alone In this design X increases indenitely
+to mimick the sum in Eq 12 over all events at all re-
+ceptors A more a realistic but equivalent scheme would
+falsenegativeFN10-5100falsepositiveFP10-510003x0003alikelihoodanalytic10-510010-510007x0045bm2m5m10m204
+FIG 5 Network performance Error made by optimized
+networks with a nite number of receptor states m green to
+blue curves compared to the theoretical bound red curve
+for a x  102 and b x  104
+ously proposed in the case of a single ligand 15 19 The
+network structure proposed in this study Fig 4 is rem-
+iniscent of kinetic proofreading schemes and their gen-
+eralizations which provide a well-known solution to the
+ligand discrimination problem 26 28 29 32 35 An im-
+portant dierence is that here signaling occurs during all
+steps albeit at various ne-tuned rates and with poten-
+tially negative contributions the role of which is to buer
+the eect of wrong ligands Consistent with this predic-
+tion it was shown that a negative interaction through
+a diusible molecule between kinetic-proofreading recep-
+tors could mitigate the eects of large numbers of incor-
+rect ligands in a discrimination task 26
+The present results are relevant beyond the particu-
+lar case of sensing by receptors and apply to any kind of
+biochemical signaling in presence of competing ligands or
+cross-talk This is the case for example in the context
+of gene regulation where competing transcription fac-
+tors may bind regulatory sites unspecically a problem
+particularly acute in metazoans 36
+The scaling transition occurring at the binding con-
+stant ratio   12 suggests that dierent strategies
+should be employed depending on how hard the discrim-
+ination task is
+In particular the approximate but bi-
+ologically implementable estimator of Eq 12 curiously
+breaks down in the easy discrimation regime   12 In
+that regime the optimal bound is harder to achieve be-
+cause it is dominated by rare long binding events that are
+hard to encode by biochemical solutions The example of
+immune recognition falls precisely into that regime with
+a binding constant ratio  between agonist and nonago-
+nist ligands ranging from one fth to one third 27 More
+elaborate network designs probably with feedback may
+be needed to achieve the theoretical bound Eq 7 in
+that case Finally this study has assumed throughout
+that the unbinding rates r and rcid48 are priorly known to
+the system Complex mixtures of ligands with unknown
+binding constants would make for interesting generaliza-
+I thank A Walczak for her helpful comments on the
+manuscript While this article was under review a paper
+treating a similar topic was submitted to the arXiv 37
+FIG 4 Network for sensing the concentration of cor-
+rect ligands Upon binding each receptor enters a cascade
+of m states along which it proceeds with rate s The lig-
+and can detach at any moment with rate r or rcid48 depending
+on its identity correct or incorrect bringing the receptor
+back to the unbound state 0 While in conformational state
+  1     m the receptor activates two enzymes B and D
+with rates b and d each catalyzing two oppposite Michaelis-
+Mentens reactions of a pull-push network B and D are as-
+sumed to equilibrate fast and to be always limiting in the
+reactions they catalyze so that dXdt  b  d
+involve a running sum over an eective time T  obtained
+by relaxing X to X with rate  T 1 15
+When the number of states m is large and the tran-
+sitions between them are rapid X can track Eq 12
+with arbitrary precision when   12 In that case the
+receptor state  provides an approximation to the time
+since binding   st Then for example receptors sig-
+naling positively with rate b  1  rcid48e1r
+s 
+1  rcid48e1r
+t and negatively with rate d  1 
+s0e0  1  t with 0 an adjustable pa-
+rameter would exactly realize Eq 13 and thus the es-
+timator of Eq 12 in the limit m cid29 sr cid29 0 cid29 1
+cid48
+cid48
+Although such optimal performance is only reached for
+large m and   12 this network design may still per-
+form well in more general situations One can optimize
+the expected error produced by this network over the
+net signaling rates b  d with the constraint that
+the mean eect of binding incorrect ligands on X be
+zero so that X  c on average App C Fig 5
+shows how the performance of such optimized networks
+approaches the theoretical bound as the number of states
+m increases The convergence is signicantly worse for
+  12 at small x In that regime the estimator of 12
+is not valid suggesting that this network design may not
+achieve the optimal bound even with an innite number
+of states The output of these networks can also be used
+to detect ligands Their performance in doing so is com-
+pared to the optimal discrimination errors of Eq 10 in
+Fig 3
+The principle of maximum likelihood not only yields
+the fundamental bound on the accuracy of discerning
+cognate ligands from spurious ones but also suggests bio-
+chemical solutions to approach this optimal bound Such
+maximum-likelihood inspired designs have been previ-
+rkc    012mm102ssb1b2bmd1d2dmDBXXBXDXrrrrrkckckckckcBindingconstantratio0051Errorhx2in10-2100102104x102atheoreticallimitm2m5m10m200051hx2in10-410-2100102104x104bAppendix A Cramer-Rao bound
+1 The Cramer-Rao bound is tight a physicists
+In general the Cramer-Rao bound is a lower bound on
+the error made by any unbiased estimator but it is not
+always certain whether this bound can be achieved Here
+the maximum likelihood estimate is shown to approach
+the Cramer-Rao bound in the limit of large samples
+Assume that the likelihood of the data factorizes over
+independent datapoints
+L  ln P 
+ncid88
+cid96x ti
+where x is the model parameter to be estimated and
+t1     tn the series of datapoints In the specic case of
+receptors binding to two types of ligands x is the fraction
+of correct ligands ti the duration of binding event i and
+cid96x ti  ln rcid48  rcid48ti  ln
+1  x  xe1r
+cid16
+cid17
+cid48
+The derivative of cid96 with respect to x is denoted by
+cid96cid48x ti  cid96x tix The maximum likelihood esti-
+mate x satises
+cid96cid48x ti  0
+ncid88
+This estimator is unbiased if x denotes the true param-
+eter with which the data was generated then x should
+give back x on average Equivalently
+cid28 Lx
+cid29
+ncid88
+cid104cid96cid48x ticid105x  n
+cid90 
+dt ecid96xt
+cid90 
+cid12cid12cid12cid12x
+dt ecid96xtcid96cid48x ti
+the last integral is just 1 because of normalization
+where cid104cid105x denote averages over data generated with the
+In other words the maximum of L
+true parameter x
+is reached at x on average The probability that this
+maximum x be larger than a certain value x  x is
+cid18 Lx
+cid19
+cid28
+cid18 L
+cid19cid29
+Px  x  P
+The Heaviside function  can be replaced by its Fourier
+representation
+cid90 
+cid90 i
+i
+x 
+eix 
+allowing for factorization over datapoints
+cid90 i
+cid90 i
+i
+i
+ncid89
+cid90 
+cid20
+cid90 
+dtiecid96xticid96
+cid48
+dtecid96xtcid96
+cid48
+cid21
+Px  x 
+P x   dPx  x
+cid20cid90 
+cid90 
+cid90 i
+cid20
+n  1 ln
+i
+cid48
+dtcid96cid48cid48x tecid96xtcid96
+cid48
+dtecid96xtcid96
+cid21
+cid21
+This integral can be evaluated by a saddle-point ap-
+proximation in the large n limit
+cid115
+cid90
+dGenF   G
+nF cid48cid48 enF 
+G 
+cid48
+dtcid96cid48cid48x tecid96xtcid96
+dtecid96xtcid96cid48xt
+F   ln
+cid48
+dtecid96xtcid96
+cid82 
+cid82 
+cid90 
+The saddle  is given by the condition that the deriva-
+tive of the argument of the exponential with respect to
+ be zero cid90 
+cid48
+dtcid96cid48x tecid96xtcid96
+xt  0
+At x  x this condition is satised for   0 In the
+limit of large samples x  x is small and so should the
+corresponding  One can expand at small x x  0 and
+andcid90 
+cid96cid48x t  cid96cid48x t  x  xcid96cid48cid48x t
+dtcid2x  xcid96cid48cid48x t  cid96cid48x t2cid3 ecid96xt  0 A14
+yielding   x  x and
+cid104 n
+cid105
+x  x2H
+dtcid96cid48cid48x tecid96xt 
+cid90 
+dtcid96cid48x t2ecid96xt
+P x 
+H  
+cid90 
+dtrcid48er
+cid48
+cid48
+t  12
+e1r
+1  xe1rcid48t  1
+f x 1  x
+1  
+y 
+ O1
+A symmetric argument gives the same result for x  x
+The resulting distribution of x is Gaussian with mean
+x and variance
+cid28 2Lx
+cid29
+cid42cid18 Lx
+cid192cid43
+cid104x2cid105 
+In the specic case of Eq A2
+cid90 
+Performing the change of variable u  rcid48t yields the result
+of the main text
+cid104x2cid105  f x 
+cid90 
+with f x 1 
+du eu e1u  12
+1  x  xe1u 
+2 Small x limit
+cid90 
+For   12 and small x the integral in Eq A19 can
+be approximated by
+f x 1 
+du eue1u  12 
+1  2
+2  1
+For   12 the function eue1u  12 is not
+integrable and the denominator of Eq A19 is neces-
+sary to ensure integrability at large t however small x is
+Thus the values of u governing the behavior of the inte-
+gral satisfy xe1u  O1 This observation suggests
+the change of variable y  xe1u
+f x 1  x
+1  
+dy y 2
+y  x2
+1  y  x
+with   1  1   Expanding y  x2 gives
+three terms scaling as xy1 x1y11 and
+cid90 
+x2y 2
+1 at small y respectively The last two give
+diverging integrals as x  0 for all  yielding terms of
+order 1 Only when   12 does the rst term give a
+diverging integral and thus a term of order 1 in x in
+that case the sum of all three terms gives back the re-
+sult of Eq A20 If   12 however the rst term is
+integrable and thus dominates the expression for x cid28 1
+yielding
+cid90 
+where O1 denotes a term of order 1 at small x The
+integral can be calculated
+cid90 
+y 
+to nally obtain
+f x 1  x
+1  
+cid16
+cid16
+cid17 
+cid17 
+In the intermediate case   12 the three terms in
+the integral of Eq A21 are of order y1 xy2 and
+x2y3 Again the last two terms diverge in the integral
+and give contributions of order 1 The rst term also
+diverges but its contribution reads
+1  
+ lnx 
+ lnx2
+so that
+f x 1 
+ lnx2  O1
+When x  0 and   12 f x    as the large
+deviation function of x becomes nonanalytic The ex-
+pansion of cid96cid48 in Eq A13 is no longer integrable when
+done around x  0 and needs revisiting The integral in
+Eq A7 reads
+cid90 
+dueu exp
+cid21
+1  xe1u  1
+cid20 e1u  1
+cid90 
+1  
+cid90 
+cid26
+cid26
+dueu
+cid20 xy  x
+1  y  x
+cid20 e1u  1
+1  xe1u  1
+cid21
+ 1  xy  x
+cid27
+y 2
+where the same change of variable u  rcid48t has been done Doing a further change of variable to y  xe1u yields
+cid21
+cid27
+ 1  e1u  1
+The term is the brackets is of order y  x2 as was the
+case in Eq A19 Hence terms in y2 are integrable and
+dominate the expression which becomes at leading order
+in x 
+The integral representation of the Heaviside function
+Eq A6 can be used again to obtain
+With   x the saddle-point condition becomes
+dte1cid96xtcid960t
+cid27
+cid105
+cid90 
+cid26
+cid20 xy
+cid21
+y 2
+1  
+ 1  xy
+cid48   0
+    
+1  
+cid90 
+y 2
+1y  1  y
+cid104nx
+and the cumulative probability distribution is
+Px  x 
+cid113
+1  
+1 cid48cid48 
+where cid48   and cid48cid48  22 Fluctuation of
+x are thus of order n1 cid28 1
+When   12 the term of order y x2 in the brack-
+ets of Eq A28 dominates and diverges so that this
+expression reduces at leading order to
+ 
+cid32 2
+ lnx2
+cid33
+The saddle point condition gives   1 and one obtains
+Px  x 
+cid20
+ nx2 lnx2
+cid21
+cid112
+nx2 lnx2 exp
+cid16
+which implies uctuations of order x  n ln n12
+Appendix B Probability of discrimination error
+1 General case
+F P 
+F N 
+discrimination
+competing
+hypothesespresence versus absence of
+the correct
+ligand in fraction xcan be performed by a likelihood
+ratio test
+between
+P t1     tnx
+P t1     tnx  0
+cid96x ti  cid960 t  
+where  is an adjustable parameter The false-positive
+and false-negative error rates are dened as the proba-
+bilities of detecting the presence of a ligand that is in fact
+absent and of missing it where it is there
+dtiecid960ti
+cid96x ti  cid960 t  
+ncid88
+cid32 ncid88
+cid32 ncid88
+cid90 ncid89
+cid90 ncid89
+dtiecid96xti
+cid960 ti  cid96x t  
+cid21n
+cid21n
+cid21n
+cid90 i
+cid90 i
+i
+i
+cid20cid90
+cid20cid90
+e
+dte1cid960tcid96xt
+cid17
+cid90
+Substituting   1  in the second equation gives an
+expression for F N that looks very similar to F P 
+cid20cid90
+e1
+dte1cid960tcid96xt
+2i1  
+In summary
+  ln
+i
+cid90 i
+cid90 i
+cid90
+cid90
+i
+en
+2i1  
+en1
+dte1cid960tcid96xt
+du eucid104
+1  xe1u  1
+cid105
+These two expressions can be evaluated in the large n
+limit using a saddle-point approximation with the same
+saddle-point condition   ncid48 for both yielding
+cid112
+2ncid48cid48 exp n   
+cid112
+1  
+2ncid48cid48 exp n  1   
+2 Small x limit
+Again two regimes emerge in the x cid28 1 limit depend-
+ing on whether  is smaller or greater than 12 When
+  12  can be expand at small x
+This implies
+cid33
+cid33
+   1
+1  2
+2  1
+1  x2
+cid112
+F P  e 1
+cid112
+F N  e 1
+2 2nx2g
+22nx2g
+2 12nx2g
+21  2nx2g
+g 
+2  1
+1  2 
+When   12 one can do the same change of variable
+as before y  xe1u to obtain at leading order
+that state is distributed according to s  resrt In
+summary t is distributed as follows
+cid34
+cid18 s
+cid191cid35
+t
+cid105
+cid104
+cid104
+cid113
+cid90 
+1cid21  y  1  ycid3 
+dy y 2
+ 
+1  
+The integrand is of order y1 at small y and there-
+fore is integrable The error rates are then given by
+F P  exp
+F N  exp
+1   cid48
+1   1  cid48
+1cid48cid48
+cid113
+1cid48cid48
+1  
+cid105
+ 
+1  
+cid90 
+1cid21  y  1  ycid3 
+dy y 2
+The intermediate case   12 is treated similarly as
+before by noting that the integral dening  is dom-
+inated by the diverging term of order y1 This gives
+   x2
+ lnx21  
+and therefore
+cid112
+F P  e 1
+cid112
+F N  e 1
+4 2nx2 lnx2
+2nx2 lnx2 
+4 12nx2 lnx2
+1  2nx2 lnx2 
+As a result the number of binding events n necessary
+to a make reliable decision scales as x2 for   12
+x2 lnx1 for   12 and x for   12 with
+  1  1 Replacing n  4Dactot1  pN T gives
+the scaling for the minimal detection time
+4Da1  pN
+  12
+ctotc2 lncctot1   12
+c1
+tot c
+  12
+Appendix C Optimization of the signaling rates in
+the receptor cascade
+Each receptor goes through a cascade of states  
+1     m upon binding At any moment the receptor can
+become unbound with rate r or rcid48 In the following some
+expressions will be given in terms of the unbinding rate
+of the correct ligand r but the same expressions hold for
+the incorrect ligand after substitution by rcid48
+The probability of reaching state  is ss  r1
+Assuming it has reached state  the time t spent in
+ ctotc2
+mcid88
+mcid88
+Prt 
+s1
+s  r2 esrt 
+where x is Diracs delta function Its rst and second
+moments are
+cid104tcid105r 
+cid105r 
+s1
+s  r 
+s1
+cid104t2
+s1
+cid20
+cid21
+s  r1
+s  r1
+The output of the network is given by
+Ncid88
+bj  dj
+where j is the state of the jth receptor and b0d0  0
+so that the net eect of one binding event is
+X  X0
+b  dt
+On average binding a wrong ligand will cause a change
+cid104Xcid105rcid48  X0
+b  d
+s1
+s  rcid48 
+When optimizing over the net rates b  d this quan-
+tity is set to zero to ensure that only the correct ligand
+changes X on average This way X is proportional to
+c in the limit of long times
+cid104XT cid105  4Da1  pN T ccid104Xcid105r
+Although the mean of XT  is not aected by incorrect
+binding events its variance is and reads
+cid104XT 2cid105  cid104XT cid1052  4Da1  pN T ctot
+cid2xcid104X2cid105r  1  xcid104X2cid105rcid48  x2cid104Xcid1052
+cid3 
+cid104X2cid105r  cid104Xcid1052
+r  X 2
+mcid88
+b  d2cid104t2
+cid105r
+and the same for rcid48
+For a given m the signal-to-noise ratio
+cid104XT cid1052
+is maximized over the rates b  d The procedure gives
+the optimized networks discussed in the main text
+cid104XT 2cid105  cid104XT cid1052
+1 Berg HC Purcell EM 1977 Physics of chemoreception
+1111748617491
+Biophys J 20193219
+2 Elowitz MB Levine AJ Siggia ED Swain PS 2002
+Science
+Stochastic gene expression in a single cell
+29711831186
+3 Gregor T Tank DW Wieschaus EF Bialek W 2007
+Probing the Limits to Positional Information Cell
+130153164
+4 Tkacik G Walczak AM 2011 Information transmission
+in genetic regulatory networks a review J Phys Con-
+dens Matter 23153102
+5 Bowsher CG Swain PS 2014 Environmental sensing
+information transfer and cellular decision-making Curr
+Opin Biotechnol 28149155
+6 Tkacik G Bialek W 2014 Information processing in
+living systems arXiv p 14128752
+7 Bialek W Setayeshgar S 2005 Physical limits to bio-
+chemical signaling Proc Natl Acad Sci U S A
+1021004010045
+8 Endres RG Wingreen NS 2009 Maximum likelihood
+and the single receptor Phys Rev Lett 103158101
+9 Kaizu K et al 2014 The Berg-Purcell limit revisited
+Biophys J 10697685
+10 Endres RG Wingreen NS 2008 Accuracy of direct
+gradient sensing by single cells Proc Natl Acad Sci
+1051574915754
+11 Rappel WJ Levine H 2008 Receptor noise limitations
+on chemotactic sensing Proc Natl Acad Sci U S A
+1051927019275
+12 Rappel WJ Levine H 2008 Receptor noise and direc-
+tional sensing in eukaryotic chemotaxis Phys Rev Lett
+100228101
+13 Endres RG Wingreen NS 2009 Accuracy of direct gra-
+dient sensing by cell-surface receptors Prog Biophys
+Mol Biol 1003339
+14 Hu B Chen W Rappel WJ Levine H 2010 Physical
+limits on cellular sensing of spatial gradients Phys Rev
+Lett 10514
+15 Mora T Wingreen NS 2010 Limits of sensing temporal
+concentration changes by single cells Phys Rev Lett
+104111
+16 Mehta P Schwab DJ 2012 Energetic costs of cellular
+computation Proc Natl Acad Sci 1091797817982
+17 Lan G Sartori P Neumann S Sourjik V Tu Y 2012
+The energyspeedaccuracy trade-o in sensoryadaptation
+Nat Phys 8422428
+18 Becker NB Mugler A ten Wolde PR 2013 Predic-
+tion and Dissipation in Biochemical Sensing arXiv p
+13125625
+19 Lang AH Fisher CK Mora T Mehta P 2014 Ther-
+modynamics of statistical inference by cells Phys Rev
+Lett 113148103
+20 Govern CC ten Wolde PR 2014 Optimal resource allo-
+cation in cellular sensing systems Proc Natl Acad Sci
+21 Govern CC ten Wolde PR 2014 Energy Dissipation
+and Noise Correlations in Biochemical Sensing Phys
+Rev Lett 11315
+22 Barato AC Hartich D Seifert U 2014 Eciency of
+cellular information processing New J Phys 16103024
+23 Mancini F Marsili M Walczak A 2015 Trade-os in de-
+layed information transmission in biochemical networks
+arXiv p 150403637
+24 Barato AC Seifert U 2015 Thermodynamic Uncer-
+tainty Relation for Biomolecular Processes Phys Rev
+Lett 114158101
+25 Hartich D Barato AC Seifert U 2015 Nonequilibrium
+sensing and its analogy to kinetic proofreading arXiv p
+150202594
+26 Lalanne JB Francois P 2015 Chemodetection in uc-
+tuating environments Receptor coupling buering and
+antagonism Proc Natl Acad Sci U S A 1121898
+27 Feinerman O Germain RN Altan-Bonnet G 2008
+Quantitative challenges in understanding ligand discrim-
+ination by  T cells Mol Immunol 45619631
+28 Hopeld JJ 1974 Kinetic proofreading a new mech-
+anism for reducing errors in biosynthetic processes re-
+quiring high specicity Proc Natl Acad Sci U S A
+7141354139
+29 Ninio J 1975 Kinetic amplication of enzyme discrim-
+ination Biochimie 57587595
+30 McKeithan TW 1995 Kinetic proofreading in T-cell
+receptor signal transduction Proc Natl Acad Sci U
+S A 9250425046
+31 Francois P Voisinne G Siggia ED Altan-Bonnet G Ver-
+gassola M 2013 Phenotypic model for early T-cell acti-
+vation displaying sensitivity specicity and antagonism
+Proc Natl Acad Sci U S A 110E88897
+32 Lalanne JB Francois P 2013 Principles of adaptive
+sorting revealed by in silico evolution Phys Rev Lett
+110218102
+33 Siggia ED Vergassola M 2013 Decisions on the y in
+cellular sensory systems Proc Natl Acad Sci U S A
+110E370412
+34 Kay SM 2001 Fundamentals Of Statistical Signal Pro-
+cessing Estimation Theory Prentice Hall PTR Upper
+Saddle River NJ
+35 Murugan A Huse DA Leibler S 2012 Speed dissipa-
+tion and error in kinetic proofreading Proc Natl Acad
+Sci 1091203412039
+36 Cepeda-Humerez SA Rieckh G Tkacik G 2015
+Stochastic proofreading mechanism alleviates crosstalk
+in transcriptional regulation ArXiv e-prints
+37 Singh V Nemenman I 2015 Accurate sensing of multi-
+ple ligands with a single receptor ArXiv e-prints

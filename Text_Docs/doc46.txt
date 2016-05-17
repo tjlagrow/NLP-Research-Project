@@ -1,1354 +1,1410 @@
-Unknown Words Analysis in POS tagging of 
-Sinhala Language 
-AJPMP Jayaweera1 NGJ Dias2 
- Virtusa Pvt Ltd 
-No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka 
-1mjayaweeragmailcom 
-Department of Statistics  Computer Science University of Kelaniya 
- Kelaniya Sri Lanka 
-2ngjdiasklnaclk 
-Abstract Part of Speech POS is a very vital topic in Natural 
-Language  Processing  NLP  task  in  any  language  which 
-involves  analysing  the  construction  of  the  language  behaviours 
-and the  dynamics of  the language the  knowledge  that could  be 
-utilized  in  computational  linguistics  analysis  and  automation 
-applications  In  this  context  dealing  with  unknown  words 
-words do not appear in the lexicon referred as unknown words 
-is  also  an  important  task  since  growing  NLP  systems  are  used 
-in  more  and  more  new  applications  One  aid  of  predicting 
-lexical  categories  of  unknown  words  is  the  use  of  syntactical 
-knowledge of the language   The  distinction  between open class 
-words and closed class words together with  syntactical features 
-of the language used in this research to predict lexical categories 
-of  unknown  words  in  the  tagging  process  An  experiment  is 
-performed  to  investigate  the  ability  of  the  approach  to  parse 
-unknown  words  using  syntactical  knowledge  without  human 
-intervention This experiment shows that the performance of the 
-tagging process is enhanced when word class distinction is used 
-together  with  syntactic  rules  to  parse  sentences  containing 
-unknown words in Sinhala language 
-Keywords Natural Language Processing Part of Speech 
-tagging Morphology Unknown words Sinhala Language  
-I  INTRODUCTION 
-Part  of  speech  tagging  is  one  of  the  pivotal  steps  in  the 
-knowledge  acquiring  process  in  natural  language  processing 
-task  The  fundamental  processing  step  in  tagging  consists  of 
-assigning  POS  tags  to  every  token  in  the  text  with  a 
-corresponding  POS  tag  like  noun  verb  preposition  etc 
-based  both  on  its  definition  as  well  as  its  context 
-Appearance of an unknown is the one of the problems that is 
-facing  in  natural  language  parsing  systems  ie  the  words 
-that  appear  in  sentences  but  are  not  contained  within  the 
-lexicon  New  words  are  continually  coined  to  the  language 
-and  people  will  often  use  words  is  parsing  that  the  system 
-may  not expect This problem get  worse  when NLP systems 
-are used for more and more on-line computer applications  
-This  paper  will  discuss  how  well  a  distinction  of  Sinhala 
-word classes syntactic rules can be used in parsing sentences 
-containing  unknown  words  in  natural  language  processing 
-tasks  The  distinction  between  closed  class  and  open  class 
-words  should  help  to  refine  the  possibilities  for  unknown 
-words  then  syntactic  knowledge  can  be  used  to  aid  in  the 
-analysis of unknown words sentence structure which can be 
-a  strong  evidence  for  the  possible  part  of  speech  of  an 
-unknown word We expect that these two knowledge sources 
-will  greatly  improve  tagging  ability  to  process  and  handle 
-with words that are not in the system corpus 
-this  paper  we  presents 
-importance  of  handling 
-unknown  word  in  part  of  speech  tagging  process  and  an 
-approach  is suggested Section II of  this paper gives an  idea 
-of  the  background  of  the  problem  and  details  of  previous 
-research    Section  III  describes  distinction  of  open  class  and 
-closed class words in Sinhala language and section IV gives 
-details  of  morphological  and  syntactical  analysis  of  the 
-current  text  corpus  Section  V  discusses  about  the  approach 
-that  we  have  proposed  for  guessing  parts  of  speech  for 
-unknown words  Section VI and VII discuss the Evaluation 
-testing  and  the  results  and  section  VIII  concludes  the  paper 
-and describes the future work 
-II  BACKGROUND OF THE PROBLEM  OF UNKNOWN WORDS 
-Appearance  of  unknown  words  is  one  of  the  frequently 
-occurring problems facing in part of speech tagging process 
-ie the words that appear in sentences but are not contained 
-within  the  training  corpus  New  words  are  continually 
-entering  the  language  Acronyms  and  proper  names  are 
-created very often and new nouns and verbs are adding to the 
-language  in  a  surprising  rate  So  it  is  impossible  to  train  the 
-tagger for every possible word in the language So unknown 
-words are non-negligible in POS tagging Therefore in order 
-to build a complete tagger tagger must be incurred with some 
-knowledge of suggesting the tag for an unknown word  
-There  are  two  approaches  to handle  unknown  words  The 
-first  approach  is  to  attempt  to  construct  a  complete  lexicon 
-then deal with unknown words in a simple way For example 
-rejecting  the  input  The  second  approach  is  to  attempt  to 
-analyse the word at the time of encounter with using a set of 
-human defined rules This would allow the tagger to process 
-sentences containing unknown words  
-Before  examining  the  problem  in  detail  it  is  useful  to 
-consider  work 
-that  has  already  been  done  by  other 
-researchers  There  have  been  several  attempts  to  study  the 
-problem  of  learning  unknown  words  These  attempts  have 
-followed  several  different  methodologies  and  have  focused 
-on various aspects of the unknown words 
-Previous  techniques  reported  for  other  languages  such  as 
-English have mostly utilize the guessing rules to analyse the 
-word  features  by  looking  at  leading  and  trailing  characters 
-Most  of  them  employ  the  analysis  of  trailing  characters  and 
-other  features  such  as  capitalization  and  hyphenation  Some 
-of  them  use  more  morphologically  oriented  word  features 
-such  as  suffixes  prefixes  and  character  lengths  The 
-guessing  rules  are  usually  use  knowledge  of  morphology  of 
-the language  
-The  simple  possible  way  that  suggested  2  is  to  consider 
-each  unknown  word  that  is  ambiguous  among  all  possible 
-tags  with equal probability and then  using contextual POS-
-trigram from the corpus to suggest the proper tag  
-There  are  more  complex  methods  which  have  been  tried 
-out  by  other  researchers  for  dealing  with  unknown  words 
-using morphological and syntactical features of the language 
-Eric  Brill  3  make  use  of  morphology  to  handle  unknown 
-words  during  part  of  speech  tagging  process  Brills  tagger 
-begins  by  tagging  unknown  words  as  proper  noun  if 
-capitalized  as  common  noun  if  not  Then  the  tagger  learns 
-various transformational rules in the training process from the 
-tagged corpus Then it applies these rules to unknown words 
-to tag with the appropriate parts of speech category Scott M 
-Thede  and  Mary  Harper  5  in  their  paper  presented  an 
-approach  using  morphology  and  syntactic  parsing  rules  in 
-post-mortem  method  for  determining  the  probable  lexical 
-classes of words Tetsuji Taku Kudoh and Yuji 6 proposed 
-a  POS  tagging  approach  for  unknown  English  words  using 
-Support  Vector  Machines  SVM  SVM  classifiers  are 
-created  for  each  POS  tag  using  all  words  in  the  training  set 
-then  POS  tags  to  unknown  words  predict  using  those 
-classifiers 
-But  an  agglutinative  language  presents  more  serious 
-problems  with  unknown  words  unlike  English  Gary 
-Jeongwon Jong-Hyeok 4 have proposed a syllable-pattern-
-based  generalized  unknown-morpheme  estimation  method 
-using  a  morpheme  pattern  dictionary  in  their  statistical  and 
-rule-based hybrid POS tagging system for Korean language 
-Since Sinhala is also a complex morphologically rich and 
-agglutinative  language  information  about  morphology  or 
-how word is spelled is very difficult to use in unknown word 
-prediction algorithms  
-III OPEN CLASS VS CLOSED CLASS WORDS 
-Traditionally 
-the  definition  of  POS 
-is  based  on 
-morphological  and  syntactic  functions  Similar  to  most  of 
-other languages POS in Sinhala language also can be divided 
-into  two  broad  categories  closed  class  type  and  open  class 
-type  Closed  classes  are  those  that  have  relatively  fixed 
-membership  Closed  class  words  are  generally  function 
-words  which  tend  to  be  very  short  occur  frequently  and 
-play an important role in grammar  By contrast open class is 
-the  type  that  lager  number  of  words  are  belong  in  any 
-language and new words are continually coined or borrowed 
-from  other  languages  The  words  that  are  usually  containing 
-main  content  of  a  sentence  are  belonged  to  open  word  class 
-category 
-In Sinhala all  Nouns and Verbs can be categorized under 
-open  word  class  But  Nipatha  and  Upasarga  behave 
-differently in Sinhala grammar Words belong to Nipatha and 
-Upasarga  are  not  changed  according  to  time  and  gender 
-Upasarga  always  join  with  nouns  and  provide  additional 
-improved meaning to the noun therefore Upasarga are not 
-categorized  under  any  of  word  class  but  Nipatha  can  be 
-categorized as closed class words based on their existence 
-In-addition  to  that  Sinhala  Pronouns  can  be  classified  as 
-open  class  words  based  on  their  morphological  properties 
-but  Pronouns  also  can  be  classified  as  closed  class  words 
-based on their existence of fixed membership in the language  
-IV ANALYSIS OF MORPHOLOGICAL AND SYNTACTICAL 
-NLP based language analysis mainly aid by morphological 
-and  syntactical  features  analysis  of  a  language  and  the 
-availability  of  lexical  resources  is  essential  in  this  tasks  So 
-having  a  corpus  for  a  language  is  an  important  lexical 
-resource  in  the  field  of  NLP  In  order  to  make  the  corpora 
-more useful for doing linguistic research they are required to 
-annotate  with  respective  knowledge  sources  to  make  it 
-suitable to process with linguistics applications One example 
-of  annotating  a  corpus  is  part  of  speech  tagging  in  which 
-information  about  each  words  part  of  speech  verb  noun 
-adjective etc is added to the corpus in the form of tags 
-the  Corpus  developed  by 
-The corpus that we use in this research is the beta version 
-the  UCSC  under  PAN 
-Localization project in 2005 7 which contains around 2754 
-sentences and 90551 words tagged with corresponding part of 
-speech tag that comprise of data drawn from different kinds 
-of  Sinhala  newspaper  articles  under  different  classifications 
-mainly form Art Sports Science Indigenous knowledge and 
-Religion  
-We  performed  a  detailed  analysis  of  the  corpus  to 
-understand what rules govern the language and what patterns 
-occur  Empirical  results  of  the  analysis  is  described  in  this 
-paper  in  detail  A  substantial  effort  was  made  at  the  corpus 
-preparation  phase  to  correct  issues  encountered  in  the 
-formatting of the text in the corpus   
- In order to further analysis of the corpus word frequency 
-distribution and the tag frequency distribution  were obtained 
-from  the  corpus  by  running  a  simple  tokenizing  program 
-Tags  with 
-tokens 
-numbers  foreign  words  etc  were  removed  from  the  list 
-after manual inspection 
-typographical  errors  and 
-irrelevant 
-A  Most Frequent Words in Sinhala Text Corpus 
-This analysis was performed to observe the words and Part 
-of  Speech  categories  that  are  more  frequent  in  Sinhala  text 
-corpus  In  order  to  observe  most  frequent  words  a  distinct 
-word  list  with  frequencies  were  obtained  from  the  corpus 
-along  with  possible  part  of  speech  tags  For  simplicity  only 
-top  20  words  were  considered  in  the  analysis  Table  I 
-contains the list of words with frequencies and possible part 
-of speech categories 
-It  is  observed  that  most  frequent  words  in  Sinhala 
-language  are  function  words  which  belong  to  closed  class 
-category 11 out of 20 words belong to Nipatha which all are 
-function words 6 frequent verbs are also within the list It is 
-also  observed  that  tagging  ambiguity  exists  among  high 
-frequent  words  though  they  are  function  words  There  are 
-two words among top 20 words  and  that are not 
-properly classified into respective parts of speech categories  
-B  Zipfs Law Analysis 
-Zipfs  Law  states  that  the  frequency  of  occurrence  of  an 
-instance  of  a  class  is  roughly  inversely  proportional  to  the 
-rank  of  that  class  in  the  frequency  list  for  example 
-occurrences of  words in a document So the goal of this test 
-was  to  observe  parts  of  speech  distribution  within  Sinhala 
-language displays the Zipfs Law behavior 
-Suppose  that a  word occurs f times and that in the list of 
-word  frequencies  it  has  a  certain  rank  r  if  Zipfs  Law  holds 
-we have for all words f  arb where a and b are constants 
-and b is close to  minus 1 -1 Taking the logarithm of each 
-side of the equation we get 
-FEATURES  
-THE TOP 20 MOST FREQUENT WORDS IN SINHALA LANGUAGE REFER 
-THE TAG FREQUENCY WITH RANKING 
-TABLE I 
-TABLE II 
-APPENDIXES 1 FOR DESCRIPTION OF EACH TAG 
-Frequ 
-Possible POS tags 
-Main POS 
-Categorys 
- 
-POST 1024 VNF 
-57 VNN VP RP 
-Nipatha - 
-Postposition 
- 
-632  VP 621 JVB 1 
- 
-POST 376 CC 
- 
- 
- 
- 
-530  CC 526POST 3 
-436  VP 430 VNF 6 
-VFM 409VP 
-19VNF 
-401  CC 401 
- 
-DET 365POST  
-VNF 340 VP 
-6NNN VNN 
-348  PRP 347POST 1 
-Pronoun 
-VP 304 VNF 24 
-VFM NNN 
-VFM 194VP 
-111 VNF 
-RPNNN 
-VNF 302 VP 2 
-VFM VNN 
- 259 times VNF 
-13NNN 11 VP 
-VNF 244 VP 37 
-VNF 271 VP 3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Nipatha - Verb 
-Participle 
-Nipatha - 
-Postposition 
-Nipatha - 
-Conjunctions 
-Nipatha - Verb 
-Participle 
-Verb Finite Main 
-Nipatha - 
-Conjunctions 
-Nipatha - Determiner 
-Verb Non Finite 
-Nipatha - Verb 
-Participle 
-Verb Finite Main 
-Verb Participle 
-Verb Non Finite 
-Not properly 
-classified 
-Verb Non Finite 
-Verb Non Finite 
-Nipatha - 
-Postposition 
-Nipatha - 
-Postposition 
-Frequency f  Rank r 
-Fig I Plot of logr versus logf 
-C  Maximum Likelihood Estimate of the Tag Distribution 
-The  objective  of  this  test  is  to  observe  the  Likelihood 
-distribution of parts of speech tags in Sinhala text corpus and 
-understand  which  tags  are  most  likely  to  appear  Table  III 
-contains  tag  distribution  obtained  from  the  corpus  Tag 
-frequency and number of distinct words  with respect to each 
-tag were counted from the corpus The Likelihood Estimates 
-were calculated for each tag based on number of occurrences 
-of the tag appeared in the corpus against total number of tags 
-in the corpus  
-Maximum  Likelihood  Estimation  MLE  was  calculated 
-using  
- 
-274  POST 264 
-224  POST 222 
- 191 times POST 
-Not properly 
-classified 
-DET  207 PRP 5 
-Nipatha - Determiner 
-log  f   log  a   b  log   r  
-Table II contains tag frequency occurred in the corpus and 
-ordered in descending order rank one was assigned to the top 
-most  one  The  Fig  I  shows  the  plot  of  logr  vs  logf 
-calculated for the data presented in the Table II From Fig I 
-we  can  observe  that  the  tag  frequencies  are  roughly  form  a 
-line from the upper-left corner to the lower-right corner of the 
-graph  with  slope  close  to  -1  This  indicates  that  the  parts  of 
-speech distribution of Sinhala language is also displays Zipfs 
-Law behavior  
-TABLE III 
-TAG FREQUENCY IN THE CORPUS 
-Number of 
-Frequency of 
-distinct words 
-the Tag 
-Fig II Likelihood estimation of Tag distribution 
-where ct is the count of a particular tag and cw is the total 
-number of words in the corpus  
-According to Fig II NNN Common Noun Neuter seems 
-to  be  the  most  frequent  tag  in  the  corpus  and  it  seems  to 
-appear  about  three  times  more  frequently  than  VP  Verb 
-Participle It is also noticed that more than 50 of words are 
-noun  in  the  corpus  around  10  belongs  to  verbsverbal 
-parses  So  in  general  we  can  say  around  60  of  words  in 
-Sinhala language are belong to open class type while around 
-40 of words belongs to the closed class type 
-D  Words distribution by Tag 
-The objective of this test is to analyze what type of words 
-are exist mostly in Sinhala language  Fig III is plotted based 
-on  data  presented  in  Table  III  which  shows  the  distribution 
-of  number  of  distinct  words  by  POS  category  in  the  corpus  
-It is observed that most of the words in Sinhala language are 
-nouns which is 13047 words are nouns out of total of 18957 
-distinct words in the corpus that is almost around 68 of the 
-total number of words in the corpus   
-Fig III Plot of word distribution by Tag  
-V  GUESSING PART OF SPEECH FOR UNKNOWN WORDS 
-Tagging data with unknown words is also an essential task 
-in the tagger When the system reach  an unknown  word the 
-initial  version  of  the  tagger  doesnt  cater  unknown  words 
-thus  tagger  fails  to  propose  a  tag  since  the  system  is  not 
-trained for that word and the tagging algorithm doesnt have 
-enough intelligence to propose tags for untrained words  
-language 
-in  which 
-Since  Sinhala  is  a  complex  morphologically  rich  and 
-agglutinative 
-information  about 
-morphology  or  how  word  spelled  is  very  difficult  to  use  in 
-unknown  word  prediction  algorithms  unlike  English    So  in 
-our  research  the  important  source  of  information  that  we 
-have  used  the  distribution  of  words  and  parts  of  speech  So 
-improvements  of  the  algorithm  focused  on  words  belong  to 
-sub  categories  of  open  class  words  such  as  noun  verbs  and 
-pronouns  Due  to  fixed  number  of  membership  in  closed 
-class word category we can assume that the words belong to 
-closed  class  category  are  well  defined  in  Sinhala  grammar 
-and  that  is  fixed  Hence  improvement  could  be  done  by 
-incurring  knowledge  of  distinction  between  closed  class  and 
-open class words Syntactic knowledge can be used to aid in 
-the  analysis  of  unknown  words  sentence  structure  Then 
-suggest  corresponding  part  of  speech  and  calculate  the 
-trigram  using  Hidden  Markov  Model  HMM  for  unknown 
-words 
-Considering the fact that the tag likelihood distribution and 
-the  word  frequency  distribution  of  the  language  it  is  clear 
-that NNN is the most frequent part of speech in the language 
-The  NNN  tag  likelihood  is  the  highest  likelihood  and  it  is  3 
-times  greater  than  VP    By  considering  word  frequency 
-distribution by tags in Fig III provide evidence that the most 
-of  the  words  in  the  language  are  NNNs  which  is  5  times 
-more  than  NNPI  Based  on  above  two  factors  the  simplest 
-way  that  could  handle  unknown  words  we  can  assume  and 
-guess  NNN  as  part  of  speech  tag  for  each  new  word 
-encountered in the tagging process 
-  More  advanced  approach  of  guessing  parts  of  speech  is 
-the consideration of the distinction between closed class and 
-open  class  words  This  distinction  can  simplified  the 
-unknown  prediction  algorithm  by  distinguishing 
-syntactical  categories  into  separate  groups  that  can  greatly 
-simplify the task of processing unknown words in a sentence  
-Closed class parts of  speech  are those that  have relatively 
-fixed membership in the language and that may not normally 
-be assigned to new words Closed class words are words with 
-a  closed  class  part  of  speech  For  example  words  belong  to 
-Nipatha in Sinhala language are the member of closed class 
-which  has  fixed  membership  in  the  language  it  is  very  rare 
-that  a  new  Conjunctions  CC  Determiners  DET  or 
-Postpositions  POST  are  added  to  the  language  In  addition 
-to that words belong to Pronoun PRP are also considered as 
-fixed in its existence in the language and new Pronouns are 
-very  rarely  created  So  Pronouns  are  also  considered  as 
-closed  class  parts  of  speech  in  this  research  Table  IV 
-contains  a  list  of  parts  of  speech  tags  that  are  considered  as 
-closed class categories in this research and will be avoided in 
-guessing for unknown words 
-Based  on  morphological  and  syntactical  features  of 
-Sinhala  language  open  class  words  are  comprised  of  words 
-with  the  following  parts  of  speech  nouns  verbs  Noun  in 
-Kriya  Mula  and  Adjective  in  Kriya  Mula  Adjectives 
-adverbs  and  Verb  Participle  are  also  considered  under  this 
-classification in this research Table V contains the complete 
-list of parts of speech tags considered as open class category 
-since those words are syntactically used to modify nouns and 
-verbs  
-TABLE IV 
-LIST OF CLOSED CLASS PARTS OF SPEECH CATEGORIES 
-Part of Speech 
-Pronoun Common 
-Determiner 
-Particle 
-Postpositions 
-Conjunctions 
-this  research  we  assume 
-that  each  new  word 
-encountered in the part of speech tagging process of Sinhala 
-language  belong  to  open  word  class  category  hence  the 
-unknown  word  algorithm  is  to  pretend  that  each  unknown 
-word is ambiguous among all open class part of speech tags 
-with  equal  probability  Then  the  tagger  computes  the  tag 
-sequence  probability  and  maximum  likelihood  probabilities 
-rely  on  text  corpus  and  suggest  the  proper  tag    Further 
-foreign  words  and  numerals  were  handled  separately  since 
-they do not form any syntactical relationship  with other part 
-of speech categories in the language 
-VI EVALUATION 
-The  evaluation  of  the  system  was  mainly  driven  by 
-training  the  system  using  the  Sinhala  text  corpus  that 
-comprised of 2754 sentences and 90551 words in which data 
-drown from Sinhala newspaper articles from various genres  
-For  the  test  data  set  data  were  carefully  selected  aiming 
-for testing three different versions of the tagger The first set 
-was collected from the training corpus aiming to test Version 
-1  of  the  tagger  that  comprised  of  621  words  only  known  to 
-the  system  and  36  sentences  The  second  test  set  was  also 
-collected aiming to test Version 2 and 3 of the tagger which 
-data  were  drown  from  Sinhala  text  corpus  outside  from  the 
-trained  data  set  The  second  test  set  comprised  of  51 
-sentences  1024  words  Out  of  1024  words  171  words  were 
-unknown  to  the  system  To  evaluate  the  performance  of  the 
-tagger two gold standard test sets were created  
-TABLE V 
-LIST OF OPEN CLASS PARTS OF SPEECH TAGS 
-Part of Speech 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Verb Finite Main 
-Verb Non Finite 
-Verbal Non Finite Noun 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Adjective 
-Adverb 
-Verb Participle  
-The tagger evaluated by comparing the tagged output with 
-the Gold standard test set  The accuracy was calculated using 
-number  of  correct  tags  proposed  by  the  system  and  total 
-number of words in the sentences by the following formula 
-RESULT AND DISCUSSION 
-The  performance  of  the  tagger  was  measured  using  three 
-different  versions  of  progressively  upgraded 
-tagging 
-mechanisms Version 1 is the simplest form of the tagger that 
-performs  well  only  with  known  words  that  rejects  all 
-unknown words as tagging failures Version 2 is a somewhat 
-upgraded version that treats all unknown words as nouns and 
-suggest  NNN  to  each  new  word  encountered  in  the  tagging 
-process  Version  3  is  the  full  version  of  the  tagger  that  uses 
-statistical  technique  to  guess  the  best  tag  for  unknown  word 
-by considering the context of surrounding words  
-  Table VI shows our systems performance for these three 
-different versions of tagging mechanisms and the experiment 
-verifies  the  effectiveness  of  our  unknown  word  guessing 
-techniques    As  shown  by  the  performance  of  each  tagging 
-approach  Version  2  shows  a  drop  in  the  accuracy  with 
-compared to other two  versions That indicates the approach 
-followed  in  Version  2  in  guessing  parts  of  speech  for 
-unknown words is not a reliable method for Sinhala language 
-Version 3 shows 9150 of accuracy that shows considering 
-the distinction between closed and open class in guessing part 
-of  speech  for  unknown  words  is  proved  to  be  useful  and  an 
-effective way for Sinhala language  
-Fig  IV  presents  the  confusion  matrix  which  summarized 
-the  performance  of  Version  3  of  the  tagger      where  row 
-labels indicate the correct tags and column labels indicate the 
-tags  predicted  by  the  system  In  this  confusion  matrix  all 
-correct  predictions  are  located  in  the  diagonal  of  the  table 
-Most of the deviations are shown in predicting tags for words 
-belong to Common Noun Neuter category  
-TABLE VI 
-PERFORMANCE OF THE TAGGER 
-Approach 
-Tagging Approach 
-Performance of 
-the Tagger 
-Version 1 
-Only with known words 
-9130 
-All unknown words 
-considered as Common Noun 
-Neuter NNN 
-Consider distinction between 
-closed class and open class in 
-guessing unknown words  
-8973 
-9150 
-Version 2 
-Version 3 
-However  the  overall  accuracy  of  the  tagger  have  shown 
-that the distinction between closed class and open class word 
-category is a power full tool in handling unknown  words for 
-Sinhala  language  But  the  tagging  accuracy  is  still  close  to 
-92 and that shows more work need to be carried out to fine 
-tune  the  accuracy  of  the  tagger  So  improvement  can  be 
-suggested  to  the  tagger  in  handling  unknown  words  Mainly 
-morphological  recognition  can  also  be  helpful  in  predicting 
-possible  parts  of  speech  for  many  unknown  words  So  the 
-overall performance of the tagger can be improved by using a 
-hybrid  approach  with  incurring  above  knowledge  to  the 
-system by set of hand written rules Further to make sure this 
-approach  more  accurate  the  output  generated  by  the  system 
-need  to  be  manually  verified  and  retraining  the  tagger  to 
-make  sure  if  the  word  encountered  again  later  that  word 
-would get properly tagged 
-and  syntactic  knowledge  are  reliable  sources  of  information 
-for  handling  unknown  words  in  part  of  speech  tagging  of 
-Sinhala language  
-Though  this  research  proposed  a  reliable  approach  to 
-handle  unknown  words 
-further 
-enhancements  are  required  to  improve  and  optimize  the 
-algorithm  Hence  several  directions  are  suggested  here  for 
-future work 
-in  POS 
-tagging 
-  Language  specific  morphological  features  can  be 
-helpful in predicting possible parts of speech for most 
-of the verbs 
-Incorporation of named entity recognition techniques   
-information  about  identifying  named  entity  could  be 
-possible clue in predicting parts of speech for most of 
-the nouns 
-Instead  of  using  only  HMM  following  a  hybrid 
-approach with incurring above key knowledge to the 
-system by a set of hand written rules 
-Increasing  the  size  of  the  corpus  and  accuracy  of 
-tagged data 
-ACKNOWLEDGMENT 
-We express our immense gratitude and many thanks to Dr 
-Harsha  Kumara  for  his  invaluable  support  in  providing  an 
-initiative to this work Many thanks to Ms Kumudu Gamage 
-at  the  Department  of  Linguistics  University  of  Kelaniya  for 
-her kind support  
-REFERENCES 
-1  AJPMP Jayaweera NGJ Dias Hidden Markov Model Based Part 
-of  Speech  Tagger  for  Sinhala  Language  Ineternational  Journal  on 
-Natural Language Computing June 2014 Volume 3 Numer 3 pp 09-
-2  Daniel  Jurafsky  and  James  H  Martin  Speech  and  Language 
-Processing 
-Processing 
-Computational Linguistics and Speech Recognition Person Education 
-Inc Singapore Pte Ltd 5th Edition 2005 
-to  Natural  Language 
-Introduction 
-3  Eric  Brill  A  Report  of  Recent  Progress  in  Transformation-Based 
-Error-Driven Learning Spoken Language Systems Group Laboratory 
-for  Computer  Science  Massachusetts 
-Institute  of  Technology 
-Cambridge Massachusetts 
-4  Gary  Geunbae  Lee  Jeongwon  Cha  Jong-Hyeok  Lee  Syllable-
-Pattern-Based  Unknown-Morpheme  Segmentation  and  Estimation  for 
-Hybrid  Part-of-Speech  Tagging  of  Korean  Pohang  University  of 
-Science and Technology 
-5  Scott  M  Thede  and  Mary  Harper  Analysis  of  Unknown  Lexical 
-Items using Morphological  and  Syntactic  Information  with  the  TIMIT 
-Corpus Purdue University  
-6  Tetsuji Nakagawa Taku Kudoh and Yuji Matsumoto Unknown Word 
-Guessing  and  Part-of-Speech  Tagging  Using  Support  Vector 
-Machines  Graduate  School  of  Information  Science  Nara  Institute  of 
-Science and Technology Takayama Ikoma Nara Japan 
-7  UCSCLTRL  Sinhala  Corpus  Beta  Version  April  2005  downloaded 
-from httpwwwucsccmbaclkltrlpagedownloads 
-Fig IV Confusion matrix of the test results 
-CONCLUSION AND FUTURE WORK 
-8  UCSC Tagset downloaded from  
- httpucsccmbaclkwikiindexphpFileUCSCTagsetpdf 
-In this paper  we have  described two types of  methods for 
-dealing  with  unknown  words  in  POS  tagging  Sinhala 
-language The application of the methods in Hidden Markov 
-Model based part of speech tagging approach which we have 
-previously  developed  1  was  evaluated  and  results  were 
-presented  The  implementation  was  tested  against  90551 
-words 2754 sentences of Sinhala text corpus and that showed 
-915 accuracy in the tagging process with predicting tags to 
-unknown words So that the performance of the tagger prove 
-that  distinction  between  closed  class  and  open  class  words 
-POSTNVBVPJJRBRPVNFDETVNNPRPNNFJVBNNPAVFMNNNNNMNNPICCPOST8000001000000007010NVB06100000000000010000VP0097100000000035000JJ0026600000000007010RB000080000000000000RP2000043200000000000VNF0000035700000004000DET0000000210000002010VNN0000000030000001100PRP0000000002400000100NNF000000000020000000JVB0000000000015002010NNPA000000000000900010VFM0020000000000301000NNN51220020000020377050NNM0000000000000022700NNPI0000000000000091580CC0000000000000000018Apendixes 1  
-Sinhala Tag Set Reference 8 
-Description 
-Common Noun Root 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Pronoun Masculine 
-Pronoun Feminine 
-Pronoun Neuter 
-10  PRPC  
-11  QFNUM   Number Quantifier 
-12  DET  
-Pronoun Common 
-Determiner 
-14  RB  
-15  RP  
-16  VFM  
-17  VNF  
-18  VP 
-19  VNN  
-20  POST  
-21  CC  
-22  NVB  
-24  UH  
-25  FRW  
-26  SYM  
-Adjective 
-Adverb 
-Particle 
-Verb Finite Main 
-Verb Non Finite 
-Verb Ptharticiple  
-Verbal Non Finite Noun 
-Postpositions 
-Conjunctions 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Interjection 
-Foreign Word 
-Not Classified 
-Unknown Words Analysis in POS tagging of 
-Sinhala Language 
-AJPMP Jayaweera1 NGJ Dias2 
- Virtusa Pvt Ltd 
-No 752 Dr Danister De Silva Mawatha Colombo 09 Sri Lanka 
-1mjayaweeragmailcom 
-Department of Statistics  Computer Science University of Kelaniya 
- Kelaniya Sri Lanka 
-2ngjdiasklnaclk 
-Abstract Part of Speech POS is a very vital topic in Natural 
-Language  Processing  NLP  task  in  any  language  which 
-involves  analysing  the  construction  of  the  language  behaviours 
-and the  dynamics of  the language the  knowledge  that could  be 
-utilized  in  computational  linguistics  analysis  and  automation 
-applications  In  this  context  dealing  with  unknown  words 
-words do not appear in the lexicon referred as unknown words 
-is  also  an  important  task  since  growing  NLP  systems  are  used 
-in  more  and  more  new  applications  One  aid  of  predicting 
-lexical  categories  of  unknown  words  is  the  use  of  syntactical 
-knowledge of the language   The  distinction  between open class 
-words and closed class words together with  syntactical features 
-of the language used in this research to predict lexical categories 
-of  unknown  words  in  the  tagging  process  An  experiment  is 
-performed  to  investigate  the  ability  of  the  approach  to  parse 
-unknown  words  using  syntactical  knowledge  without  human 
-intervention This experiment shows that the performance of the 
-tagging process is enhanced when word class distinction is used 
-together  with  syntactic  rules  to  parse  sentences  containing 
-unknown words in Sinhala language 
-Keywords Natural Language Processing Part of Speech 
-tagging Morphology Unknown words Sinhala Language  
-I  INTRODUCTION 
-Part  of  speech  tagging  is  one  of  the  pivotal  steps  in  the 
-knowledge  acquiring  process  in  natural  language  processing 
-task  The  fundamental  processing  step  in  tagging  consists  of 
-assigning  POS  tags  to  every  token  in  the  text  with  a 
-corresponding  POS  tag  like  noun  verb  preposition  etc 
-based  both  on  its  definition  as  well  as  its  context 
-Appearance of an unknown is the one of the problems that is 
-facing  in  natural  language  parsing  systems  ie  the  words 
-that  appear  in  sentences  but  are  not  contained  within  the 
-lexicon  New  words  are  continually  coined  to  the  language 
-and  people  will  often  use  words  is  parsing  that  the  system 
-may  not expect This problem get  worse  when NLP systems 
-are used for more and more on-line computer applications  
-This  paper  will  discuss  how  well  a  distinction  of  Sinhala 
-word classes syntactic rules can be used in parsing sentences 
-containing  unknown  words  in  natural  language  processing 
-tasks  The  distinction  between  closed  class  and  open  class 
-words  should  help  to  refine  the  possibilities  for  unknown 
-words  then  syntactic  knowledge  can  be  used  to  aid  in  the 
-analysis of unknown words sentence structure which can be 
-a  strong  evidence  for  the  possible  part  of  speech  of  an 
-unknown word We expect that these two knowledge sources 
-will  greatly  improve  tagging  ability  to  process  and  handle 
-with words that are not in the system corpus 
-this  paper  we  presents 
-importance  of  handling 
-unknown  word  in  part  of  speech  tagging  process  and  an 
-approach  is suggested Section II of  this paper gives an  idea 
-of  the  background  of  the  problem  and  details  of  previous 
-research    Section  III  describes  distinction  of  open  class  and 
-closed class words in Sinhala language and section IV gives 
-details  of  morphological  and  syntactical  analysis  of  the 
-current  text  corpus  Section  V  discusses  about  the  approach 
-that  we  have  proposed  for  guessing  parts  of  speech  for 
-unknown words  Section VI and VII discuss the Evaluation 
-testing  and  the  results  and  section  VIII  concludes  the  paper 
-and describes the future work 
-II  BACKGROUND OF THE PROBLEM  OF UNKNOWN WORDS 
-Appearance  of  unknown  words  is  one  of  the  frequently 
-occurring problems facing in part of speech tagging process 
-ie the words that appear in sentences but are not contained 
-within  the  training  corpus  New  words  are  continually 
-entering  the  language  Acronyms  and  proper  names  are 
-created very often and new nouns and verbs are adding to the 
-language  in  a  surprising  rate  So  it  is  impossible  to  train  the 
-tagger for every possible word in the language So unknown 
-words are non-negligible in POS tagging Therefore in order 
-to build a complete tagger tagger must be incurred with some 
-knowledge of suggesting the tag for an unknown word  
-There  are  two  approaches  to handle  unknown  words  The 
-first  approach  is  to  attempt  to  construct  a  complete  lexicon 
-then deal with unknown words in a simple way For example 
-rejecting  the  input  The  second  approach  is  to  attempt  to 
-analyse the word at the time of encounter with using a set of 
-human defined rules This would allow the tagger to process 
-sentences containing unknown words  
-Before  examining  the  problem  in  detail  it  is  useful  to 
-consider  work 
-that  has  already  been  done  by  other 
-researchers  There  have  been  several  attempts  to  study  the 
-problem  of  learning  unknown  words  These  attempts  have 
-followed  several  different  methodologies  and  have  focused 
-on various aspects of the unknown words 
-Previous  techniques  reported  for  other  languages  such  as 
-English have mostly utilize the guessing rules to analyse the 
-word  features  by  looking  at  leading  and  trailing  characters 
-Most  of  them  employ  the  analysis  of  trailing  characters  and 
-other  features  such  as  capitalization  and  hyphenation  Some 
-of  them  use  more  morphologically  oriented  word  features 
-such  as  suffixes  prefixes  and  character  lengths  The 
-guessing  rules  are  usually  use  knowledge  of  morphology  of 
-the language  
-The  simple  possible  way  that  suggested  2  is  to  consider 
-each  unknown  word  that  is  ambiguous  among  all  possible 
-tags  with equal probability and then  using contextual POS-
-trigram from the corpus to suggest the proper tag  
-There  are  more  complex  methods  which  have  been  tried 
-out  by  other  researchers  for  dealing  with  unknown  words 
-using morphological and syntactical features of the language 
-Eric  Brill  3  make  use  of  morphology  to  handle  unknown 
-words  during  part  of  speech  tagging  process  Brills  tagger 
-begins  by  tagging  unknown  words  as  proper  noun  if 
-capitalized  as  common  noun  if  not  Then  the  tagger  learns 
-various transformational rules in the training process from the 
-tagged corpus Then it applies these rules to unknown words 
-to tag with the appropriate parts of speech category Scott M 
-Thede  and  Mary  Harper  5  in  their  paper  presented  an 
-approach  using  morphology  and  syntactic  parsing  rules  in 
-post-mortem  method  for  determining  the  probable  lexical 
-classes of words Tetsuji Taku Kudoh and Yuji 6 proposed 
-a  POS  tagging  approach  for  unknown  English  words  using 
-Support  Vector  Machines  SVM  SVM  classifiers  are 
-created  for  each  POS  tag  using  all  words  in  the  training  set 
-then  POS  tags  to  unknown  words  predict  using  those 
-classifiers 
-But  an  agglutinative  language  presents  more  serious 
-problems  with  unknown  words  unlike  English  Gary 
-Jeongwon Jong-Hyeok 4 have proposed a syllable-pattern-
-based  generalized  unknown-morpheme  estimation  method 
-using  a  morpheme  pattern  dictionary  in  their  statistical  and 
-rule-based hybrid POS tagging system for Korean language 
-Since Sinhala is also a complex morphologically rich and 
-agglutinative  language  information  about  morphology  or 
-how word is spelled is very difficult to use in unknown word 
-prediction algorithms  
-III OPEN CLASS VS CLOSED CLASS WORDS 
-Traditionally 
-the  definition  of  POS 
-is  based  on 
-morphological  and  syntactic  functions  Similar  to  most  of 
-other languages POS in Sinhala language also can be divided 
-into  two  broad  categories  closed  class  type  and  open  class 
-type  Closed  classes  are  those  that  have  relatively  fixed 
-membership  Closed  class  words  are  generally  function 
-words  which  tend  to  be  very  short  occur  frequently  and 
-play an important role in grammar  By contrast open class is 
-the  type  that  lager  number  of  words  are  belong  in  any 
-language and new words are continually coined or borrowed 
-from  other  languages  The  words  that  are  usually  containing 
-main  content  of  a  sentence  are  belonged  to  open  word  class 
-category 
-In Sinhala all  Nouns and Verbs can be categorized under 
-open  word  class  But  Nipatha  and  Upasarga  behave 
-differently in Sinhala grammar Words belong to Nipatha and 
-Upasarga  are  not  changed  according  to  time  and  gender 
-Upasarga  always  join  with  nouns  and  provide  additional 
-improved meaning to the noun therefore Upasarga are not 
-categorized  under  any  of  word  class  but  Nipatha  can  be 
-categorized as closed class words based on their existence 
-In-addition  to  that  Sinhala  Pronouns  can  be  classified  as 
-open  class  words  based  on  their  morphological  properties 
-but  Pronouns  also  can  be  classified  as  closed  class  words 
-based on their existence of fixed membership in the language  
-IV ANALYSIS OF MORPHOLOGICAL AND SYNTACTICAL 
-NLP based language analysis mainly aid by morphological 
-and  syntactical  features  analysis  of  a  language  and  the 
-availability  of  lexical  resources  is  essential  in  this  tasks  So 
-having  a  corpus  for  a  language  is  an  important  lexical 
-resource  in  the  field  of  NLP  In  order  to  make  the  corpora 
-more useful for doing linguistic research they are required to 
-annotate  with  respective  knowledge  sources  to  make  it 
-suitable to process with linguistics applications One example 
-of  annotating  a  corpus  is  part  of  speech  tagging  in  which 
-information  about  each  words  part  of  speech  verb  noun 
-adjective etc is added to the corpus in the form of tags 
-the  Corpus  developed  by 
-The corpus that we use in this research is the beta version 
-the  UCSC  under  PAN 
-Localization project in 2005 7 which contains around 2754 
-sentences and 90551 words tagged with corresponding part of 
-speech tag that comprise of data drawn from different kinds 
-of  Sinhala  newspaper  articles  under  different  classifications 
-mainly form Art Sports Science Indigenous knowledge and 
-Religion  
-We  performed  a  detailed  analysis  of  the  corpus  to 
-understand what rules govern the language and what patterns 
-occur  Empirical  results  of  the  analysis  is  described  in  this 
-paper  in  detail  A  substantial  effort  was  made  at  the  corpus 
-preparation  phase  to  correct  issues  encountered  in  the 
-formatting of the text in the corpus   
- In order to further analysis of the corpus word frequency 
-distribution and the tag frequency distribution  were obtained 
-from  the  corpus  by  running  a  simple  tokenizing  program 
-Tags  with 
-tokens 
-numbers  foreign  words  etc  were  removed  from  the  list 
-after manual inspection 
-typographical  errors  and 
-irrelevant 
-A  Most Frequent Words in Sinhala Text Corpus 
-This analysis was performed to observe the words and Part 
-of  Speech  categories  that  are  more  frequent  in  Sinhala  text 
-corpus  In  order  to  observe  most  frequent  words  a  distinct 
-word  list  with  frequencies  were  obtained  from  the  corpus 
-along  with  possible  part  of  speech  tags  For  simplicity  only 
-top  20  words  were  considered  in  the  analysis  Table  I 
-contains the list of words with frequencies and possible part 
-of speech categories 
-It  is  observed  that  most  frequent  words  in  Sinhala 
-language  are  function  words  which  belong  to  closed  class 
-category 11 out of 20 words belong to Nipatha which all are 
-function words 6 frequent verbs are also within the list It is 
-also  observed  that  tagging  ambiguity  exists  among  high 
-frequent  words  though  they  are  function  words  There  are 
-two words among top 20 words  and  that are not 
-properly classified into respective parts of speech categories  
-B  Zipfs Law Analysis 
-Zipfs  Law  states  that  the  frequency  of  occurrence  of  an 
-instance  of  a  class  is  roughly  inversely  proportional  to  the 
-rank  of  that  class  in  the  frequency  list  for  example 
-occurrences of  words in a document So the goal of this test 
-was  to  observe  parts  of  speech  distribution  within  Sinhala 
-language displays the Zipfs Law behavior 
-Suppose  that a  word occurs f times and that in the list of 
-word  frequencies  it  has  a  certain  rank  r  if  Zipfs  Law  holds 
-we have for all words f  arb where a and b are constants 
-and b is close to  minus 1 -1 Taking the logarithm of each 
-side of the equation we get 
-FEATURES  
-THE TOP 20 MOST FREQUENT WORDS IN SINHALA LANGUAGE REFER 
-THE TAG FREQUENCY WITH RANKING 
-TABLE I 
-TABLE II 
-APPENDIXES 1 FOR DESCRIPTION OF EACH TAG 
-Frequ 
-Possible POS tags 
-Main POS 
-Categorys 
- 
-POST 1024 VNF 
-57 VNN VP RP 
-Nipatha - 
-Postposition 
- 
-632  VP 621 JVB 1 
- 
-POST 376 CC 
- 
- 
- 
- 
-530  CC 526POST 3 
-436  VP 430 VNF 6 
-VFM 409VP 
-19VNF 
-401  CC 401 
- 
-DET 365POST  
-VNF 340 VP 
-6NNN VNN 
-348  PRP 347POST 1 
-Pronoun 
-VP 304 VNF 24 
-VFM NNN 
-VFM 194VP 
-111 VNF 
-RPNNN 
-VNF 302 VP 2 
-VFM VNN 
- 259 times VNF 
-13NNN 11 VP 
-VNF 244 VP 37 
-VNF 271 VP 3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Nipatha - Verb 
-Participle 
-Nipatha - 
-Postposition 
-Nipatha - 
-Conjunctions 
-Nipatha - Verb 
-Participle 
-Verb Finite Main 
-Nipatha - 
-Conjunctions 
-Nipatha - Determiner 
-Verb Non Finite 
-Nipatha - Verb 
-Participle 
-Verb Finite Main 
-Verb Participle 
-Verb Non Finite 
-Not properly 
-classified 
-Verb Non Finite 
-Verb Non Finite 
-Nipatha - 
-Postposition 
-Nipatha - 
-Postposition 
-Frequency f  Rank r 
-Fig I Plot of logr versus logf 
-C  Maximum Likelihood Estimate of the Tag Distribution 
-The  objective  of  this  test  is  to  observe  the  Likelihood 
-distribution of parts of speech tags in Sinhala text corpus and 
-understand  which  tags  are  most  likely  to  appear  Table  III 
-contains  tag  distribution  obtained  from  the  corpus  Tag 
-frequency and number of distinct words  with respect to each 
-tag were counted from the corpus The Likelihood Estimates 
-were calculated for each tag based on number of occurrences 
-of the tag appeared in the corpus against total number of tags 
-in the corpus  
-Maximum  Likelihood  Estimation  MLE  was  calculated 
-using  
- 
-274  POST 264 
-224  POST 222 
- 191 times POST 
-Not properly 
-classified 
-DET  207 PRP 5 
-Nipatha - Determiner 
-log  f   log  a   b  log   r  
-Table II contains tag frequency occurred in the corpus and 
-ordered in descending order rank one was assigned to the top 
-most  one  The  Fig  I  shows  the  plot  of  logr  vs  logf 
-calculated for the data presented in the Table II From Fig I 
-we  can  observe  that  the  tag  frequencies  are  roughly  form  a 
-line from the upper-left corner to the lower-right corner of the 
-graph  with  slope  close  to  -1  This  indicates  that  the  parts  of 
-speech distribution of Sinhala language is also displays Zipfs 
-Law behavior  
-TABLE III 
-TAG FREQUENCY IN THE CORPUS 
-Number of 
-Frequency of 
-distinct words 
-the Tag 
-Fig II Likelihood estimation of Tag distribution 
-where ct is the count of a particular tag and cw is the total 
-number of words in the corpus  
-According to Fig II NNN Common Noun Neuter seems 
-to  be  the  most  frequent  tag  in  the  corpus  and  it  seems  to 
-appear  about  three  times  more  frequently  than  VP  Verb 
-Participle It is also noticed that more than 50 of words are 
-noun  in  the  corpus  around  10  belongs  to  verbsverbal 
-parses  So  in  general  we  can  say  around  60  of  words  in 
-Sinhala language are belong to open class type while around 
-40 of words belongs to the closed class type 
-D  Words distribution by Tag 
-The objective of this test is to analyze what type of words 
-are exist mostly in Sinhala language  Fig III is plotted based 
-on  data  presented  in  Table  III  which  shows  the  distribution 
-of  number  of  distinct  words  by  POS  category  in  the  corpus  
-It is observed that most of the words in Sinhala language are 
-nouns which is 13047 words are nouns out of total of 18957 
-distinct words in the corpus that is almost around 68 of the 
-total number of words in the corpus   
-Fig III Plot of word distribution by Tag  
-V  GUESSING PART OF SPEECH FOR UNKNOWN WORDS 
-Tagging data with unknown words is also an essential task 
-in the tagger When the system reach  an unknown  word the 
-initial  version  of  the  tagger  doesnt  cater  unknown  words 
-thus  tagger  fails  to  propose  a  tag  since  the  system  is  not 
-trained for that word and the tagging algorithm doesnt have 
-enough intelligence to propose tags for untrained words  
-language 
-in  which 
-Since  Sinhala  is  a  complex  morphologically  rich  and 
-agglutinative 
-information  about 
-morphology  or  how  word  spelled  is  very  difficult  to  use  in 
-unknown  word  prediction  algorithms  unlike  English    So  in 
-our  research  the  important  source  of  information  that  we 
-have  used  the  distribution  of  words  and  parts  of  speech  So 
-improvements  of  the  algorithm  focused  on  words  belong  to 
-sub  categories  of  open  class  words  such  as  noun  verbs  and 
-pronouns  Due  to  fixed  number  of  membership  in  closed 
-class word category we can assume that the words belong to 
-closed  class  category  are  well  defined  in  Sinhala  grammar 
-and  that  is  fixed  Hence  improvement  could  be  done  by 
-incurring  knowledge  of  distinction  between  closed  class  and 
-open class words Syntactic knowledge can be used to aid in 
-the  analysis  of  unknown  words  sentence  structure  Then 
-suggest  corresponding  part  of  speech  and  calculate  the 
-trigram  using  Hidden  Markov  Model  HMM  for  unknown 
-words 
-Considering the fact that the tag likelihood distribution and 
-the  word  frequency  distribution  of  the  language  it  is  clear 
-that NNN is the most frequent part of speech in the language 
-The  NNN  tag  likelihood  is  the  highest  likelihood  and  it  is  3 
-times  greater  than  VP    By  considering  word  frequency 
-distribution by tags in Fig III provide evidence that the most 
-of  the  words  in  the  language  are  NNNs  which  is  5  times 
-more  than  NNPI  Based  on  above  two  factors  the  simplest 
-way  that  could  handle  unknown  words  we  can  assume  and 
-guess  NNN  as  part  of  speech  tag  for  each  new  word 
-encountered in the tagging process 
-  More  advanced  approach  of  guessing  parts  of  speech  is 
-the consideration of the distinction between closed class and 
-open  class  words  This  distinction  can  simplified  the 
-unknown  prediction  algorithm  by  distinguishing 
-syntactical  categories  into  separate  groups  that  can  greatly 
-simplify the task of processing unknown words in a sentence  
-Closed class parts of  speech  are those that  have relatively 
-fixed membership in the language and that may not normally 
-be assigned to new words Closed class words are words with 
-a  closed  class  part  of  speech  For  example  words  belong  to 
-Nipatha in Sinhala language are the member of closed class 
-which  has  fixed  membership  in  the  language  it  is  very  rare 
-that  a  new  Conjunctions  CC  Determiners  DET  or 
-Postpositions  POST  are  added  to  the  language  In  addition 
-to that words belong to Pronoun PRP are also considered as 
-fixed in its existence in the language and new Pronouns are 
-very  rarely  created  So  Pronouns  are  also  considered  as 
-closed  class  parts  of  speech  in  this  research  Table  IV 
-contains  a  list  of  parts  of  speech  tags  that  are  considered  as 
-closed class categories in this research and will be avoided in 
-guessing for unknown words 
-Based  on  morphological  and  syntactical  features  of 
-Sinhala  language  open  class  words  are  comprised  of  words 
-with  the  following  parts  of  speech  nouns  verbs  Noun  in 
-Kriya  Mula  and  Adjective  in  Kriya  Mula  Adjectives 
-adverbs  and  Verb  Participle  are  also  considered  under  this 
-classification in this research Table V contains the complete 
-list of parts of speech tags considered as open class category 
-since those words are syntactically used to modify nouns and 
-verbs  
-TABLE IV 
-LIST OF CLOSED CLASS PARTS OF SPEECH CATEGORIES 
-Part of Speech 
-Pronoun Common 
-Determiner 
-Particle 
-Postpositions 
-Conjunctions 
-this  research  we  assume 
-that  each  new  word 
-encountered in the part of speech tagging process of Sinhala 
-language  belong  to  open  word  class  category  hence  the 
-unknown  word  algorithm  is  to  pretend  that  each  unknown 
-word is ambiguous among all open class part of speech tags 
-with  equal  probability  Then  the  tagger  computes  the  tag 
-sequence  probability  and  maximum  likelihood  probabilities 
-rely  on  text  corpus  and  suggest  the  proper  tag    Further 
-foreign  words  and  numerals  were  handled  separately  since 
-they do not form any syntactical relationship  with other part 
-of speech categories in the language 
-VI EVALUATION 
-The  evaluation  of  the  system  was  mainly  driven  by 
-training  the  system  using  the  Sinhala  text  corpus  that 
-comprised of 2754 sentences and 90551 words in which data 
-drown from Sinhala newspaper articles from various genres  
-For  the  test  data  set  data  were  carefully  selected  aiming 
-for testing three different versions of the tagger The first set 
-was collected from the training corpus aiming to test Version 
-1  of  the  tagger  that  comprised  of  621  words  only  known  to 
-the  system  and  36  sentences  The  second  test  set  was  also 
-collected aiming to test Version 2 and 3 of the tagger which 
-data  were  drown  from  Sinhala  text  corpus  outside  from  the 
-trained  data  set  The  second  test  set  comprised  of  51 
-sentences  1024  words  Out  of  1024  words  171  words  were 
-unknown  to  the  system  To  evaluate  the  performance  of  the 
-tagger two gold standard test sets were created  
-TABLE V 
-LIST OF OPEN CLASS PARTS OF SPEECH TAGS 
-Part of Speech 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Verb Finite Main 
-Verb Non Finite 
-Verbal Non Finite Noun 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Adjective 
-Adverb 
-Verb Participle  
-The tagger evaluated by comparing the tagged output with 
-the Gold standard test set  The accuracy was calculated using 
-number  of  correct  tags  proposed  by  the  system  and  total 
-number of words in the sentences by the following formula 
-RESULT AND DISCUSSION 
-The  performance  of  the  tagger  was  measured  using  three 
-different  versions  of  progressively  upgraded 
-tagging 
-mechanisms Version 1 is the simplest form of the tagger that 
-performs  well  only  with  known  words  that  rejects  all 
-unknown words as tagging failures Version 2 is a somewhat 
-upgraded version that treats all unknown words as nouns and 
-suggest  NNN  to  each  new  word  encountered  in  the  tagging 
-process  Version  3  is  the  full  version  of  the  tagger  that  uses 
-statistical  technique  to  guess  the  best  tag  for  unknown  word 
-by considering the context of surrounding words  
-  Table VI shows our systems performance for these three 
-different versions of tagging mechanisms and the experiment 
-verifies  the  effectiveness  of  our  unknown  word  guessing 
-techniques    As  shown  by  the  performance  of  each  tagging 
-approach  Version  2  shows  a  drop  in  the  accuracy  with 
-compared to other two  versions That indicates the approach 
-followed  in  Version  2  in  guessing  parts  of  speech  for 
-unknown words is not a reliable method for Sinhala language 
-Version 3 shows 9150 of accuracy that shows considering 
-the distinction between closed and open class in guessing part 
-of  speech  for  unknown  words  is  proved  to  be  useful  and  an 
-effective way for Sinhala language  
-Fig  IV  presents  the  confusion  matrix  which  summarized 
-the  performance  of  Version  3  of  the  tagger      where  row 
-labels indicate the correct tags and column labels indicate the 
-tags  predicted  by  the  system  In  this  confusion  matrix  all 
-correct  predictions  are  located  in  the  diagonal  of  the  table 
-Most of the deviations are shown in predicting tags for words 
-belong to Common Noun Neuter category  
-TABLE VI 
-PERFORMANCE OF THE TAGGER 
-Approach 
-Tagging Approach 
-Performance of 
-the Tagger 
-Version 1 
-Only with known words 
-9130 
-All unknown words 
-considered as Common Noun 
-Neuter NNN 
-Consider distinction between 
-closed class and open class in 
-guessing unknown words  
-8973 
-9150 
-Version 2 
-Version 3 
-However  the  overall  accuracy  of  the  tagger  have  shown 
-that the distinction between closed class and open class word 
-category is a power full tool in handling unknown  words for 
-Sinhala  language  But  the  tagging  accuracy  is  still  close  to 
-92 and that shows more work need to be carried out to fine 
-tune  the  accuracy  of  the  tagger  So  improvement  can  be 
-suggested  to  the  tagger  in  handling  unknown  words  Mainly 
-morphological  recognition  can  also  be  helpful  in  predicting 
-possible  parts  of  speech  for  many  unknown  words  So  the 
-overall performance of the tagger can be improved by using a 
-hybrid  approach  with  incurring  above  knowledge  to  the 
-system by set of hand written rules Further to make sure this 
-approach  more  accurate  the  output  generated  by  the  system 
-need  to  be  manually  verified  and  retraining  the  tagger  to 
-make  sure  if  the  word  encountered  again  later  that  word 
-would get properly tagged 
-and  syntactic  knowledge  are  reliable  sources  of  information 
-for  handling  unknown  words  in  part  of  speech  tagging  of 
-Sinhala language  
-Though  this  research  proposed  a  reliable  approach  to 
-handle  unknown  words 
-further 
-enhancements  are  required  to  improve  and  optimize  the 
-algorithm  Hence  several  directions  are  suggested  here  for 
-future work 
-in  POS 
-tagging 
-  Language  specific  morphological  features  can  be 
-helpful in predicting possible parts of speech for most 
-of the verbs 
-Incorporation of named entity recognition techniques   
-information  about  identifying  named  entity  could  be 
-possible clue in predicting parts of speech for most of 
-the nouns 
-Instead  of  using  only  HMM  following  a  hybrid 
-approach with incurring above key knowledge to the 
-system by a set of hand written rules 
-Increasing  the  size  of  the  corpus  and  accuracy  of 
-tagged data 
-ACKNOWLEDGMENT 
-We express our immense gratitude and many thanks to Dr 
-Harsha  Kumara  for  his  invaluable  support  in  providing  an 
-initiative to this work Many thanks to Ms Kumudu Gamage 
-at  the  Department  of  Linguistics  University  of  Kelaniya  for 
-her kind support  
-REFERENCES 
-1  AJPMP Jayaweera NGJ Dias Hidden Markov Model Based Part 
-of  Speech  Tagger  for  Sinhala  Language  Ineternational  Journal  on 
-Natural Language Computing June 2014 Volume 3 Numer 3 pp 09-
-2  Daniel  Jurafsky  and  James  H  Martin  Speech  and  Language 
-Processing 
-Processing 
-Computational Linguistics and Speech Recognition Person Education 
-Inc Singapore Pte Ltd 5th Edition 2005 
-to  Natural  Language 
-Introduction 
-3  Eric  Brill  A  Report  of  Recent  Progress  in  Transformation-Based 
-Error-Driven Learning Spoken Language Systems Group Laboratory 
-for  Computer  Science  Massachusetts 
-Institute  of  Technology 
-Cambridge Massachusetts 
-4  Gary  Geunbae  Lee  Jeongwon  Cha  Jong-Hyeok  Lee  Syllable-
-Pattern-Based  Unknown-Morpheme  Segmentation  and  Estimation  for 
-Hybrid  Part-of-Speech  Tagging  of  Korean  Pohang  University  of 
-Science and Technology 
-5  Scott  M  Thede  and  Mary  Harper  Analysis  of  Unknown  Lexical 
-Items using Morphological  and  Syntactic  Information  with  the  TIMIT 
-Corpus Purdue University  
-6  Tetsuji Nakagawa Taku Kudoh and Yuji Matsumoto Unknown Word 
-Guessing  and  Part-of-Speech  Tagging  Using  Support  Vector 
-Machines  Graduate  School  of  Information  Science  Nara  Institute  of 
-Science and Technology Takayama Ikoma Nara Japan 
-7  UCSCLTRL  Sinhala  Corpus  Beta  Version  April  2005  downloaded 
-from httpwwwucsccmbaclkltrlpagedownloads 
-Fig IV Confusion matrix of the test results 
-CONCLUSION AND FUTURE WORK 
-8  UCSC Tagset downloaded from  
- httpucsccmbaclkwikiindexphpFileUCSCTagsetpdf 
-In this paper  we have  described two types of  methods for 
-dealing  with  unknown  words  in  POS  tagging  Sinhala 
-language The application of the methods in Hidden Markov 
-Model based part of speech tagging approach which we have 
-previously  developed  1  was  evaluated  and  results  were 
-presented  The  implementation  was  tested  against  90551 
-words 2754 sentences of Sinhala text corpus and that showed 
-915 accuracy in the tagging process with predicting tags to 
-unknown words So that the performance of the tagger prove 
-that  distinction  between  closed  class  and  open  class  words 
-POSTNVBVPJJRBRPVNFDETVNNPRPNNFJVBNNPAVFMNNNNNMNNPICCPOST8000001000000007010NVB06100000000000010000VP0097100000000035000JJ0026600000000007010RB000080000000000000RP2000043200000000000VNF0000035700000004000DET0000000210000002010VNN0000000030000001100PRP0000000002400000100NNF000000000020000000JVB0000000000015002010NNPA000000000000900010VFM0020000000000301000NNN51220020000020377050NNM0000000000000022700NNPI0000000000000091580CC0000000000000000018Apendixes 1  
-Sinhala Tag Set Reference 8 
-Description 
-Common Noun Root 
-Common Noun Masculine 
-Common Noun Feminine 
-Common Noun Neuter 
-Proper Noun Animate 
-Proper Noun Inanimate 
-Pronoun Masculine 
-Pronoun Feminine 
-Pronoun Neuter 
-10  PRPC  
-11  QFNUM   Number Quantifier 
-12  DET  
-Pronoun Common 
-Determiner 
-14  RB  
-15  RP  
-16  VFM  
-17  VNF  
-18  VP 
-19  VNN  
-20  POST  
-21  CC  
-22  NVB  
-24  UH  
-25  FRW  
-26  SYM  
-Adjective 
-Adverb 
-Particle 
-Verb Finite Main 
-Verb Non Finite 
-Verb Ptharticiple  
-Verbal Non Finite Noun 
-Postpositions 
-Conjunctions 
-Noun in Kriya Mula 
-Adjective in Kriya Mula 
-Interjection 
-Foreign Word 
-Not Classified 
+Genome-wide modelling of transcription kinetics
+reveals patterns of RNA production delays
+Antti Honkela1 Jaakko Peltonen23 Hande Topa2 Iryna
+Charapitsa4 Filomena Matarese5 Korbinian Grote6 Hendrik G
+Stunnenberg5 George Reid4 Neil D Lawrence7 and Magnus
+Rattray8
+1Helsinki Institute for Information Technology HIIT Department of Computer
+2Helsinki Institute for Information Technology HIIT Department of Computer
+Science University of Helsinki Finland
+Science Aalto University Espoo Finland
+3School of Information Sciences University of Tampere Finland
+4Institute for Molecular Biology Mainz Germany
+5Nijmegen Centre for Molecular Life Sciences Radboud University Nijmegen NL
+6Genomatix Software GmbH Muenchen Germany
+7Department of Computer Science University of Sheeld UK
+8Faculty of Life Sciences University of Manchester UK
+July 17 2015
+Abstract
+Genes with similar transcriptional activation kinetics can display very
+dierent temporal mRNA proles due to dierences in transcription time
+degradation rate and RNA processing kinetics Recent studies have shown
+that a splicing-associated RNA production delay can be signicant To
+investigate this issue more generally it is useful to develop methods ap-
+plicable to genome-wide data sets We introduce a joint model of tran-
+scriptional activation and mRNA accumulation which can be used for in-
+ference of transcription rate RNA production delay and degradation rate
+given data from high-throughput sequencing time course experiments We
+combine a mechanistic dierential equation model with a non-parametric
+statistical modelling approach allowing us to capture a broad range of
+activation kinetics and use Bayesian parameter estimation to quantify
+the uncertainty in the estimates of the kinetic parameters We apply the
+model to data from estrogen receptor ER- activation in the MCF-7
+breast cancer cell line We use RNA polymerase II pol-II ChIP-Seq
+time course data to characterise transcriptional activation and mRNA-
+Seq time course data to quantify mature transcripts We nd that 11
+of genes with a good signal in the data display a delay of more than
+20 minutes between completing transcription and mature mRNA produc-
+tion The genes displaying these long delays are signicantly more likely
+to be short We also nd a statistical association between high delay and
+late intron retention in pre-mRNA data indicating signicant splicing-
+associated production delays in many genes
+Introduction
+Induction of transcription through extracellular signalling can yield rapid changes
+in gene expression for many genes Establishing the timing of events during this
+process is important for understanding the rate-limiting mechanisms regulating
+the response and vital for inferring causality of regulatory events Several pro-
+cesses inuence the patterns of mRNA abundance observed in the cell including
+the kinetics of transcriptional initiation elongation splicing and mRNA degra-
+dation It was recently demonstrated that signicant delays due to the kinetics
+of splicing can be an important factor in a focussed study of genes induced by
+Tumor Necrosis Factor TNF- 1 Delayed transcription can play an impor-
+tant functional role in the cell for example inducing oscillations within negative
+feedback loops 2 or facilitating just-in-time transcriptional programmes with
+optimal eciency 3 It is therefore important to identify such delays and to
+better understand how they are regulated In this contribution we combine RNA
+polymerase pol-II ChIP-Seq data with RNA-Seq data to study transcription
+kinetics of estrogen receptor signalling in breast cancer cells Using an unbiased
+genome-wide modelling approach we nd evidence for large delays in mRNA
+production in 11 of the genes with a quantiable signal in our data A statis-
+tical analysis of genes exhibiting large delays indicates that splicing kinetics is
+a signicant factor and can be the rate-limiting step for gene induction
+A high-throughput sequencing approach is attractive as it gives broad cover-
+age and thus allows us to uncover the typical properties of the system However
+high-throughput data are associated with signicant sources of noise and the
+temporal resolution of our data is necessarily reduced compared to previous
+studies using more focussed PCR-based assays 1 4 We have therefore devel-
+oped a statistically ecient model-based approach for estimating the kinetic
+parameters of interest We use Bayesian estimation to provide a principled as-
+sessment of the uncertainty in our inferred model parameters Our model can be
+applied to all genes with suciently strong signal in both the mRNA and pol-II
+data with only mild restrictions on the shape of the transcriptional activation
+prole 1814 genes here
+A number of other works studying transcription and splicing dynamics eg 1
+5 6 forgo detailed dynamical modelling which limits their ability to properly
+account for varying mRNA half-lives Our statistical model incorporates a lin-
+ear ordinary dierential equation of transcription dynamics including mRNA
+degradation Similar linear dierential equation models have been proposed as
+models of mRNA dynamics previously 478 but assuming a specic paramet-
+ric form for the transcriptional activity In contrast we apply a non-parametric
+Gaussian process framework that can accommodate a quite general shape of
+transcriptional activity As demonstrated previously 911 the linearity of the
+Figure 1 A cartoon illustrating the underlying biology and data gathering at a
+single time point left and time series modelling right The data come from
+pol-II ChIP-seq summarised over the last 20 of the gene body and RNA-seq
+computationally split to pre-mRNA and dierent mRNA transcript expression
+levels The modelling on the right shows the eect of changing mRNA half-life
+t12 or RNA production delay  on the model response both induce a delay
+on the mRNA peak relative to the pol-II peak but the proles have otherwise
+distinct shapes
+dierential equation allows ecient exact Bayesian inference of the transcrip-
+tional activity function Before presenting our results we outline our modelling
+approach
+2 Model-based inference of transcriptional de-
+Our modelling approach is summarised in Fig 1 We model the dynamics of
+transcription using a linear dierential equation
+ pt    mt 
+where mt is the mature mRNA abundance and pt is the transcription rate
+at the 3 end of the gene at time t which is scaled by a parameter  since we do
+not know the scale of our pt estimates The parameter  captures the delay
+between transcription completion and mature mRNA production We refer to
+this as the RNA production delay dened as the time required for the poly-
+merase to disengage from the pre-mRNA and be fully processed into a mature
+transcript The parameter  is the mRNA degradation rate which determines
+the mRNA half-life t12  ln 2 We infer all model parameters   
+the noise variance and parameters of the Gaussian process covariance function
+discussed below using a Markov chain Monte Carlo MCMC procedure The
+posterior distribution of the model parameters quanties our uncertainty and
+we use percentiles of the posterior distribution when reporting credible regions
+around the mean or median values
+DNApre-mRNAmRNAsTIPARP156400 kb156410 kb156420 kb80-100 splicingtranscriptionPol-IIChIP-seqODE modelPol-II activity ptt min0  20 40 80 160320mRNA activity mtt12  8 mint12  32 min  20 minRNA-seqFigure 2 Left Heat map of inferred pol-II and mRNA activity proles after
+MCF7 cells are stimulated with estradiol Genes with sucient signal for mod-
+elling are sorted by the time of peak pol-II activity in the tted model Right
+Examples of tted model for six genes For each gene we show the t using
+the pol-II ChIP-Seq data collected from the nal 20 of the transcribed re-
+gion representing the transcriptional activity pt see Eqn 1 and using the
+RNA-seq data to represent gene expression mt Solid redgreen lines show
+the mean model estimates for the pol-IImRNA proles respectively with asso-
+ciated credible regions In each case we show the posterior distribution for the
+inferred delay parameter  to the right of the temporal proles Note that the
+nal measurement times are very far apart the x-axis is compressed to aid vi-
+sualisation leading to high uncertainty in the model t at late times However
+this does not signicantly aect the inference of delays for early induced genes
+We measure the transcriptional activity pt using RNA polymerase pol-II
+ChIP-Seq time course data collected close to the 3 end of the gene reads lying
+in the last 20 of the transcribed region Our main assumption is that pol-II
+abundance at the 3 end of the gene is proportional to the production rate of
+mature mRNA after a possible delay  due to disengaging from the polymerase
+and processing The mRNA abundance is measured using RNA-Seq reads map-
+ping to annotated transcripts taking all annotated transcripts into account and
+resolving mapping ambiguities using a probabilistic method 12 see Methods
+Section for details As we limit our analysis to pol-II data collected from the
+3-end of the transcribed region we do not expect a signicant contribution to 
+from transcriptional delays when tting the model Such transcriptional delays
+have recently been studied by modelling transcript elongation dynamics using
+pol-II ChIP-Seq time course data 13 and nascent mRNA GRO-Seq data 14
+in the same system Here we instead focus on production delays that can occur
+abcdef040801603206401280t minPolII040801603206401280t minmRNA024Pol IIENSG00000166483 WEE104080160320640128002040mRNA FPKMt min0501000020406081Delay min0123Pol IIENSG00000019549 SNAI204080160320640128002468mRNA FPKMt min0501000020406081Delay min0246Pol IIENSG00000163659 TIPARP040801603206401280050100mRNA FPKMt min0501000020406081Delay min0051Pol IIENSG00000162949 CAPN13040801603206401280051015mRNA FPKMt min0501000020406081Delay min0051Pol IIENSG00000117298 ECE104080160320640128002040mRNA FPKMt min0501000020406081Delay min0123Pol IIENSG00000181026 AEN0408016032064012800102030mRNA FPKMt min0501000020406081Delay minabcdefafter elongation is essentially complete
+Existing approaches to tting models of this type have assumed a parametric
+form for the activation function pt 4 7 8 We avoid restricting the function
+shape by using a non-parametric Bayesian procedure for tting pt We model
+pt as a function drawn from a Gaussian process which is a distribution over
+functions The general properties of functions drawn from a Gaussian process
+prior are determined by a covariance function which can be used to specify
+features such as smoothness and stationarity We choose a covariance function
+that ensures pt is a smooth function of time since our data are averaged across
+a cell population Our choice of covariance function is non-stationary and has
+the property that the function has some persistence and therefore tends to stay
+at the same level between observations see Supplementary Material for further
+details The advantage of using a non-parametric approach is that we only
+have to estimate a small number of parameters dening the covariance function
+two in this case dening the amplitude and time-scale of the function If we
+were to represent pt as a parametrised function we would have to estimate a
+larger number of parameters to describe the function with sucient exibility
+The Bayesian inference procedure we use to associate each estimated parameter
+with a credible region would be more challenging with the inclusion of these
+additional parameters
+We have previously shown how to perform inference over dierential equa-
+tions driven by functions modelled using Gaussian processes 911 The main
+methodological novelty in the current work is the inclusion of the delay term in
+equation 1 and the development of a Bayesian inference scheme for this and
+other model parameters In brief we cast the problem as Bayesian inference
+with a Gaussian process prior distribution over pt that can be integrated out
+to obtain the data likelihood under the model in Eqn 1 assuming Gaussian ob-
+servation noise This likelihood function and its gradient are used for inference
+with a Hamiltonian MCMC algorithm 15 to obtain a posterior distribution
+over all model parameters and the full pol-II and mRNA functions pt and
+3 Results
+We model the transcriptional response of MCF-7 breast cancer cells after stimu-
+lation by estradiol to activate estrogen receptor ER signalling Fig 2 shows
+the inferred pol-II and mRNA proles for all genes with sucient signal for
+modelling along with some specic examples of tted models and estimated
+delay parameters Before discussing these results further below we describe the
+application of our method to realistic simulated data to assess the reliability of
+our approach for parameter estimation under a range of conditions
+Figure 3 Boxplots of parameter posterior distributions illustrating parameter
+estimation performance on synthetic data for the delay parameter  The strong
+black lines indicate the ground truth used in data generation The box extends
+from 25th to 75th percentile of the posterior distribution while the whiskers
+extend from 9th to 91st percentile The results show that delay estimates are
+accurate and reliable with the true value always in the high posterior density
+region
+31 Simulated data
+We applied our method to data simulated from the model in Eqn 1 using a pt
+prole inferred using pol-II data from the TIPARP gene gene c in Fig 2 see
+Supplementary Material for further details over the simulated data We simu-
+lated data using dierent values of  and  to test whether we can accurately
+infer the delay parameter  Fig 3 shows the credible regions of  for dierent
+ground truth levels horizontal lines and for dierent mRNA degradation rates
+half-lives given on the x-axis The results show that  can be condently
+inferred with the ground truth always lying within the central part of the cred-
+ible region The maximum error in posterior median estimates is less than 10
+min and when positive the true value is always above the 25th percentile of
+the posterior We observed that as the mRNA half-life increases our condence
+in the delay estimates is reduced This is because the mRNA integrates the
+transcriptional activity over time proportional to the half-life leading to a more
+challenging inference problem We also note that inference of the degradation
+parameter  is typically more dicult than inference of the delay parameter
+ see Fig S1 However a large uncertainty in the inferred degradation rate
+does not appear to adversely aect the inference of the delay parameters which
+are the main focus here More time-points or a dierent spacing of time points
+would be needed to accurately infer the degradation rates Additional results
+of delay estimation in a scenario where the simulated half-life changes during
+the time course are presented in Fig S2 These results demonstrate that the
+obtained delay estimates are reliable even in this scenario
+248163264248163264248163264248163264020406080 mint12 min32 Estrogen receptor signalling
+We applied our method to RNA-Seq and pol-II ChIP-Seq measurements from
+MCF-7 cells stimulated with estradiol to activate ER- signalling see Methods
+section The measurements were taken from cells extracted from the same pop-
+ulation to ensure that time points are directly comparable across technologies
+Example ts of our model are shown in Fig 2 The examples show a number
+of dierent types of behaviour ranging from early induced a-c to late induced
+d-f and from very short delay a d e to longer delays b c f Example
+e ECE1 is illuminating because visual inspection of the proles suggests a
+possible delay but a more likely explanation according to our model is a longer
+mRNA half-life and the posterior probability of a long delay is quite low In-
+deed it is well known that dierences in stability can lead to delayed mRNA
+expression 16 and therefore delays in mRNA expression peak relative to pol-II
+peak time are not sucient to indicate a production delay Changes in splic-
+ing can be another potential confounder but our transcript-based analysis of
+RNA-seq data can account for that An example of how more naive RNA-seq
+analysis could fail here is presented in Fig S3
+The parameter estimates of the models reveal a sizeable set of genes with
+strong evidence of long delays between the end of transcription and production
+of mature mRNA We were able to obtain good model ts for 1864 genes We
+excluded 50 genes with posterior median delay 120 min as these are unreliable
+due to sparse sampling late in the time course which is apparent from broad
+delay posterior distributions Out of the remaining 1814 genes with reliable
+estimates 204 11 had a posterior median delay larger than 20 min between
+pol-II activity and mRNA production while 98 genes had the 25th percentile of
+delay posterior larger than 20 min indicating condent high delay estimates
+A histogram of median delays is shown in Fig 4 left The 120 min long delay
+cut-o was selected by visual observation of model ts which were generally
+reasonable for shorter delays Note that late time points in our data set are
+highly separated due to the exponential time spacing used and thus the model
+displays high levels of uncertainty between these points see Fig 2 Therefore
+genes displaying condent delay estimates are typically early-induced such that
+time points are suciently close for a condent inference of delay time Our
+Bayesian framework makes it straightforward to establish the condence of our
+parameter estimates
+33 Genomic features associated with long-delay genes
+Motivated by previous studies 5 6 17 we investigated statistical association
+between the observed RNA production delay and genomic features related to
+splicing We found that genes with a short pre-mRNA Fig 5 left panel are
+more likely to have long delays We also nd that genes where the ratio of the
+last introns length in the longest annotated transcript over the total length of
+the transcript is large Fig 5 right panel are also more likely to have long
+delays but this eect appears to be weaker These two genomic features short
+Figure 4 Left A histogram of delay posterior medians from 1864 genes found
+to t the model well Estimated delays larger than 120 min are considered
+unreliable and are grouped together These 50 genes were excluded from fur-
+ther analysis leaving 1814 genes for the main analysis Right Estimated gene
+transcriptional delay for the longest transcript plotted against the estimated
+posterior median RNA production delay The transcriptional delay is estimated
+assuming each gene follows the median transcriptional velocity measured in
+Ref 14 The solid line corresponds to equal delays
+pre-mRNA and relatively long last introns are positively correlated making it
+more dicult to separate their eects To do so Fig S6 shows versions of the
+right panel of Fig 5 but only including genes with pre-mRNAs longer than 10 kb
+or 30 kb The number of genes with long last introns in these sets is smaller and
+the resulting p-values are thus less extreme but the general shape of the curves
+is the same We did not nd a signicant relationship with the absolute length
+of the last intron This may be because the two observed eects would tend to
+cancel out in such cases We also checked if exon skipping is associated with long
+delays as previously reported 6 The corresponding results in Fig S7 show no
+signicant dierence in estimated delays in genes with and without annotated
+exon skipping
+34 Analysis of the intronic read and pol-II distribution
+We investigated whether there was evidence of dierences in the pattern of
+splicing completion for long-delay genes To quantify this eect we developed a
+pre-mRNA end accumulation index the ratio of intronic reads in the last 50
+of the pre-mRNA to the intronic reads in the rst 50 at late 80-320 min
+and early 10-40 min times Fig 6 shows that genes with a long estimated
+delay display an increase in late intron retention at the later times There
+is a statistically signicant dierence in the medians of index values for short
+and long delay genes p  001 Wilcoxons rank-sum test p-values for dierent
+shortlong delay splits are shown in Fig 6 The example on the left of Fig 6
+DLX3 is a relatively short gene of about 5 kb and thus dierences over time
+cannot be explained by the time required for transcription to complete The
+Delay min of genes0408012005010015001550RNA production delay D minElongation time min131030100131030100Figure 5 Tail probabilities for delays Left genes whose longest pre-mRNA
+transcript is short m is the length from transcription start to end Right genes
+with relatively long last introns f is the ratio of the length of the last intron
+of the longest annotated transcript of the gene divided by the length of that
+transcript pre-mRNA The fraction of genes with long delays  is shown by
+the red and blue lines left-hand vertical axis In both subplots the black curve
+denotes the p-values of Fishers exact test for equality of fractions depicted by
+the red and blue curves conducted separately at each point right-hand vertical
+axis with the dashed line denoting p  005 signicance threshold Similar
+plots for other values of m and f as well as dierent gene lter setups are given
+in Figs S4S5
+corresponding analysis for pol-II ChIP-seq reads as well as GRO-seq reads is in
+Fig S8 It shows a clear delay-associated accumulation to the last 5 nearest
+to the 3 end while for pol-II in the last 50 the accumulation is universal
+These results suggest our short delay genes tend to be eciently spliced while
+long delay genes are more likely to exhibit delayed splicing towards the 3 end
+There is also evidence of some accumulation of pol-II near the 3 end although
+the eect appears relatively weak We note that Grosso et al 18 identied
+genes with elevated pol-II at the 3-end which were found to be predominantly
+short consistent with our set of delayed genes and with nucleosome occupancy
+consistent with pausing at the 3 end
+35 Relative importance of production and elongation de-
+To better understand what are the rate-limiting steps in transcription dynamics
+we assessed the relative importance of the observed RNA production delays in
+comparison to transcriptional delays due to elongation time We estimated elon-
+gation times for each gene using assumed transcriptional velocity corresponding
+to the 21 kbmin median estimate from 14 combined with the length of the
+longest annotated pre-mRNA transcript Others eg 13 have reported higher
+020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N300m10000N1514pvalue020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1448f020N366pvalueFigure 6 Left We show the density of RNA-Seq reads uniquely mapping to
+the introns in the DLX3 gene summarised in 200 bp bins The gene region
+is dened from rst annotated transcription start until the end of last intronic
+read The ratio of the number of intronic reads after and before the midpoint
+of the gene region is used to quantify the 3 retention of introns The pre-
+mRNA end accumulation index is the dierence between averages of this ratio
+computed over late times 80-320 min and early times 10-40 min Right
+Dierences in the mean pre-mRNA accumulation index left-hand vertical axis
+in long delay genes blue and short delay genes red as a function of the cut-o
+used to distinguish the two groups horizontal axis Positive values indicate
+an increase in 3 intron reads over time The black line shows the p-values of
+Wilcoxons rank sum test between the two groups at each cut-o right-hand
+vertical axis
+velocities so this approach should provide reasonable upper bounds on actual
+elongation time for most genes A comparison of these delays with our posterior
+median delay estimates is shown in Fig 4 right The gure shows the major-
+ity of genes with short production delays and moderate elongation time in the
+top-left corner of the gure but 143 2601814 of genes have a longer RNA
+production delay than elongation time
+4 Discussion
+Through model-based coupled analysis of pol-II and mRNA time course data
+we uncovered the processes shaping mRNA expression changes in response to
+estrogen receptor signalling We nd that a large number of genes exhibit
+signicant production delays We also nd that delays are associated with short
+overall gene length relatively long nal intron length and increasing late-intron
+retention over time Our results support a major role for splicing-associated
+delays in shaping the timing of gene expression in this system Our study
+complements the discovery of similarly large splicing-associated delays in a more
+focussed study of TNF-induced expression 1 indicating that splicing delays are
+102030405060t min001000001002003004Mean premRNA end accumulation index01234567log10pvaluettpvalueDLX3024610 min051020 min010203040 min0510152080 min0246810160 min02468320 minlikely to be important determinants of expression dynamics across a range of
+signalling pathways
+It is known that splicing can strongly inuence the kinetics of transcrip-
+tion Khodor et al carried out a comparative study of splicing eciency in y
+and mouse and found a positive correlation between absolute gene length and
+splicing eciency 5 This suggests that ecient co-transcriptional splicing is
+facilitated by increased gene length and is consistent with our observation that
+delays are more common in shorter genes In these genes it appears that the ma-
+ture mRNA cannot be produced after transcription until splicing is completed
+it is splicing rather than transcription that is the rate-limiting step for these
+genes In the same study it was also observed that introns close to the 3-end of
+a gene are less eciently spliced which is consistent with our observation that
+the relative length of the nal intron may impact on splicing delays A fur-
+ther theoretical model supporting a link between long nal introns and splicing
+ineciency was recently suggested in Ref 19 but it is unclear if it can fully
+explain the observed relationships
+Our model assumes a constant mRNA degradation rate which may be un-
+realistic Given the diculty of estimating even a single constant degradation
+rate for simulated data where the true rate is constant it seems infeasible to
+infer time-varying rates with the current data On the other hand estimated
+delays were quite reliably inferred even when we simulated data with a time-
+varying degradation rate Fig S2 and hence the potentially incorrect degra-
+dation model should not aect the main results signicantly
+It is important to dierentiate the delays found here with transcriptional de-
+lays required for pol-II elongation to complete Elongation time can be a signi-
+cant factor in determining the timing of gene induction and elongation dynamics
+has been modelled using both pol-II ChIP-Seq 13 and nascent RNA GRO-
+Seq 14 time course measurements in the system considered here However in
+this study we limited our attention to pol-II data at the 3end of the gene ie
+measuring polymerase density changes in the region where elongation is almost
+completed Therefore we will not see transcription delays in our data and the
+splicing-associated delays discussed above are not related to elongation time
+Indeed the splicing-associated delays observed here are more likely to aect
+shorter genes where transcription completes rapidly These splicing-associated
+delays are much harder to predict from genomic features than transcriptional
+delays which are mainly determined by gene length although we have shown
+an association with nal intron length and gene length In the future it would
+be informative to model data from other systems to establish associations with
+system-specic variables eg alternative splice-site usage and thereby uncover
+context-specic mechanisms regulating the delays that we have observed here
+41 Availability
+Raw data are available at GEO accession GSE62789 A browser of all model
+ts and delay estimates is available at httpahonkelauserscshelsinkifipol2rna
+Code for reproducing the experiments is available at
+httpsgithubcomahonkelapol2rna
+5 Methods
+51 Data acquisition and mapping
+MCF-7 breast cancer cells were stimulated with estradiol E2 after being placed
+in estradiol free media for three days similarly as previously described 13 We
+measured pol-II occupancy and mRNA concentration from the same cell pop-
+ulation collected at 10 time points on a logarithmic scale 0 5 10 20 40 80
+160 320 640 and 1280 min after E2 stimulation At each time point the pol-II
+occupancy was measured genome-wide by ChIP-seq and mRNA concentration
+using RNA-Seq Raw reads from the ChIP-Seq data were mapped onto the
+human genome reference sequence NCBI build37 using the Genomatix Min-
+ing Station software version 352 further details in Supplementary Material
+On average 840 of the ChIP-Seq reads were mapped uniquely to the genome
+The RNA-seq reads were mapped using bowtie to a transcriptome constructed
+from Ensembl version 68 annotation allowing at most 3 mismatches and ignor-
+ing reads with more than 100 alignments The transcriptome was formed by
+combining the cDNA and ncRNA transcriptomes with pre-mRNA sequences
+containing the full genomic sequence from the beginning of the rst annotated
+exon to the end of the last annotated exon On average 847 of the RNA-seq
+reads were mapped
+52 RNA-seq data processing
+mRNA concentration was estimated from RNA-seq read data using BitSeq 12
+BitSeq is a probabilistic method to infer transcript expression from RNA-seq
+data after mapping to an annotated transcriptome We estimated expression
+levels to all entries in the transcriptome including the pre-mRNA transcripts
+and used the sum of the mRNA transcript expressions in FPKM units to esti-
+mate the mRNA expression level of a gene Dierent time points of the RNA-seq
+time series were normalised using the method of 20
+53 Pol-II ChIP-seq data processing
+The ChIP-seq data were processed into time series summarising the pol-II oc-
+cupancy at each time point for each human gene We considered the last 20
+of the gene body nearest to the 3-end The gene body was dened from the
+start of the rst exon to the end of the last exon in Ensembl 68 annotation
+The data were subject to background removal and normalisation of time points
+Full details in the Supplementary Material
+54 Filtering of active genes
+We removed genes with no clear time-dependent activity by tting time-dependent
+Gaussian process models to the activity curves and only keeping genes with
+Bayes factor at least 3 in favour of the time-dependent model compared to a
+null model with no time dependence We also removed genes that had no pol-II
+observations at 2 or more time points This left 4420 genes for which we tted
+the models
+55 Modelling and parameter estimation
+We model the relationship between pol-II occupancy and mRNA concentration
+using the dierential equation in Eqn 1 which relates the pol-II time series
+pt and corresponding mRNA time series mt for each gene We model pt
+in a nonparametric fashion by applying a Gaussian Process GP prior over the
+shapes of the functions We sightly modify the model in Eqn 1 by adding a
+constant 0 to account for the limited depth of pol-II ChIP-Seq measurements
+ 0  pt    mt
+This dierential equation can be solved for mt as a function of pt in closed
+form The pol-II concentration function pt is represented as a sample from a
+GP prior which can be integrated out to compute the data likelihood The model
+can be seen as an extension of a previous model applied to transcription factor
+target identication 11 Unlike Ref 11 we model pt as a GP dened as an
+integral of a function having a GP prior with RBF covariance which implies that
+pt tends to remain constant between observed data instead of reverting back
+to the mean Additionally we introduce the delay between pol-II concentration
+and mRNA production as well as model the initial mRNA concentration as
+an independent parameter In the special case where   0 and m0  0
+Eqn S3 reduces to the previous model Eqn 4 in 11 In order to t the model
+to pol-II and mRNA time course data sampled at discrete times we assume we
+observe mt and pt corrupted by zero-mean Gaussian noise independently
+sampled for each time point We assume the pol-II noise variance is a constant
+p and infer it as a parameter of the model The mRNA noise variances for
+each time point are sums of a shared constant 2
+m and a xed variance inferred
+by BitSeq by combining the technical quantication uncertainty from BitSeq
+expression estimation with an estimate of biological variance from the BitSeq
+dierential expression model full details in Supplementary Material
+Given the dierential equation parameters GP inference yields a full pos-
+terior distribution over the shape of the Pol-II and mRNA functions pt and
+mt We infer the dierential equation parameters from the data using MCMC
+sampling which allows us to assign a level of uncertainty to our parameter es-
+timates To infer a full posterior over the dierential equation parameters 0
+   m0 Ep0  p the observation model parameters 2
+m and a
+magnitude parameter Cp and width parameter l of the GP prior we set near-
+at priors for them over reasonable value ranges except for the delay  whose
+prior is biased toward 0 exact ranges and full details are presented in Sup-
+plementary Material We combine these priors with the likelihood obtained
+from the GP model after marginalising out pt and mt which can be per-
+formed analytically We infer the posterior over the parameters by Hamiltonian
+MCMC sampling This full MCMC approach utilises gradients of the distri-
+butions for ecient sampling and rigorously takes uncertainty over dierential
+equation parameters into account Thus the nal posterior accounts for both
+the uncertainty about dierential equation parameters and uncertainty over
+the underlying functions for each dierential equation We ran 4 parallel chains
+starting from dierent random initial states for convergence checking using the
+potential scale reduction factor of 21 We obtained 500 samples from each of
+the 4 chains after discarding the rst half of the samples as burn-in and thin-
+ning by a factor of 10 Posterior distributions over the functions pt and mt
+are obtained by sampling 500 realisations of pt and mt for each parameter
+sample from the exact Gaussian conditional posterior given the parameters in
+the sample The resulting posteriors for pt and mt are non-Gaussian and
+are summarised by posterior mean and posterior quantiles Full details of the
+MCMC procedure are in Supplementary Material
+56 Filtering of results
+Genes satisfying the following conditions were kept for full analysis Full im-
+plementation details of each step are in Supplementary Material
+1 pt has the maximal peak in the densely sampled region between 1 min
+and 160 min
+2 Estimated posterior median delay is less than 120 min
+3 pt does not change too much before t  0 min to match the known start
+in steady state
+57 Analysis of the gene annotation features associated
+with the delays
+Ensembl version 68 annotations were used to derive features of all genes For
+each annotated transcript we computed the total pre-mRNA length m as the
+distance from the start of the rst exon to the end of the last exon and the
+lengths of all the introns Transcripts consisting only of a single exon and hence
+no introns were excluded from further analysis For each gene we identied
+the transcript with the longest pre-mRNA and used that as the representative
+transcript for that gene The last intron share f was dened as the length of
+the last intron of the longest transcript divided by m
+58 Pre-mRNA end accumulation index
+For this analysis we only considered reads aligning uniquely to pre-mRNA
+transcripts and not to any mRNA transcripts We counted the overlap of reads
+with 200 bp bins starting from the beginning of the rst exon of each gene
+ending with the last non-empty bin We compute the fraction rei of all reads in
+the latter half of bins in each sample i and dene the index as the dierence of
+the means of rei over late time points 80-320 min and over early time points
+10-40 min
+Acknowledgments
+The work was funded by the European ERASysBio initiative project Systems
+approach to gene regulation biology through nuclear receptors SYNERGY by
+the BBSRC BBI0047692 to JP MR and NDL Academy of Finland 135311
+to AH and HT and by the BMBF grant award ERASysBio P134 to GR
+grant no 0315715B to KG MR NDL and KG were further supported by EU
+FP7 project RADIANT grant no 305626 and AH and JP by the Academy
+of Finland grant nos 252845 259440 251170
+Supplementary material
+In the following we provide details of data acquisition processing of RNA-seq
+data and ltering of active genes processing of pol-II ChIP-seq data dierential
+equation modelling of the connection between pol-II and mRNA Gaussian pro-
+cess based inference of underlying time series and summarisation and ltering
+of results We then provide an explanation of how synthetic data were used to
+study accuracy of parameter estimation for mRNA half life a measure of mRNA
+decay in the dierential equation model between pol-II and mRNA Lastly we
+provide additional gures about tail probabilities of delays for alternative result
+ltering choices an additional gure about long posterior mean delays with and
+without annotated exon skipping and dierences in pre-mRNA accumulation
+in short and long delay genes
+A Data acquisition
+MCF-7 breast cancer cells were treated with estradiol E2 The cells were put
+in estradiol free media for three days This is dened media devoid of phenol
+red which is estrogenic containing 2 charcoal stripped foetal calf serum The
+charcoal absorbs estradiol but not other essential serum components such as
+growth factors This resulted in basal levels of transcription from E2 dependent
+genes The cells were then incubated with E2 containing media which resulted
+in the stimulation of estrogen responsive genes Measurements were taken at
+logarithmically spaced time points 0 5 10 20     1280 minutes after E2
+stimulation
+At each time point the pol-II occupancy was measured genome-wide by
+ChIP-seq Raw reads were mapped onto the human genome reference sequence
+NCBI build37 using the Genomatix Mining Station software version 352
+The mapping software is an index-based mapper using a shortest unique sub-
+word index generated from the reference to identify possible read positions A
+subsequent alignment step is then used to get the highest-scoring matches ac-
+cording to the parameters used We used a minimum alignment quality thresh-
+old of 92 for mapping reads were not trimmed On average 84 percent of
+reads could be mapped uniquely
+At each time point the pre-mRNA and mature mRNA abundances were
+measured for each human gene by RNA-seq Total RNA was isolated and sub-
+jected to rRNA depletion with the Ribo-Zero Magnetic Gold Kit and processed
+further for strand-specic RNA-seq The RNA-seq reads were mapped using
+Bowtie to a transcriptome constructed from Ensembl version 68 annotation al-
+lowing at most 3 mismatches and ignoring reads with more than 100 alignments
+The transcriptome was formed by combining the cDNA and ncRNA transcrip-
+tomes with pre-mRNA sequences containing the full genomic sequence from the
+beginning of the rst annotated exon to the end of the last annotated exon On
+average 847 of the RNA-seq reads were mapped
+All the ChIP-seq and RNA-seq data are available from the NCBI Gene
+Expression Omnibus under accession number GSE62789
+B RNA-seq data processing
+RNA-seq data were analysed at each time point separately using BitSeq 12
+The reads were rst mapped to human reference transcriptome Ensembl v68
+using Bowtie version 0127 22
+In order to separate pre-mRNA activity as
+well we augmented the reference transcriptome with pre-mRNA transcripts for
+each gene that consisted of the genomic sequence from the beginning of the rst
+exon to the end of the last exon of the gene
+BitSeq uses a probabilistic model to probabilistically assign multimapping
+reads to transcript isoforms 12 in our case also including the pre-mRNA tran-
+scripts We obtained gene expression estimates by adding the corresponding
+mRNA transcript expression levels
+In addition to the mean expression lev-
+els BitSeq provides variances of the transcript isoform expression levels We
+further used the biological variance estimation procedure from BitSeq dieren-
+tial expression analysis on the estimated gene expression levels by treating the
+rst three time points 0 5 10 min as biological replicates Genes with sim-
+ilar mean expression levels log-RPKM were grouped together such that each
+group contained 500 genes except for the last group with 571 genes with the
+highest expression Then the biological variances were estimated for each group
+of genes by using the MetropolisHastings algorithm used in BitSeq stage 2 12
+Biological variances for the single measurements were determined according to
+the gene expression levels at each time point where each gene was considered to
+belong to the closest gene group according to its expression level The observa-
+tion noise variance for each observation was dened as the sum of the technical
+BitSeq stage 1 and biological BitSeq stage 2 variances and transformed from
+log-expression to raw expression using
+raw  2
+log explog2
+Dierent time points of the RNA-seq time series were normalised using the
+method of 20 as implemented in the edgeR RBioconductor package 23
+Statistics of RNA-seq mapping and distribution of reads for pre-mRNA and
+mRNA transcripts are presented in Tables S2 and S3 as well as Fig S9
+C Filtering of active genes
+We removed genes with no clear time-dependent activity by tting time-dependent
+Gaussian process models to the activity curves and only keeping genes with
+Bayes factor at least 3 in favour of the time-dependent model compared to a
+null model with no time dependence We also removed genes that had no pol-II
+observations at 2 or more time points This left 4420 genes for which we tted
+the models
+D Pol II ChIP-seq data processing
+The ChIP-seq data were processed into time series by summarising the pol-II
+occupancy over time for each human gene Ensembl version 68 annotation was
+used for gene positions by a series of steps as follows
+1 Each gene was divided into 200 bp bins and levels of pol-II activity were
+computed at each time point as the total weighted count of reads overlap-
+ping each bin where each read was weighted by how many basepairs in the
+read overlap the bin as follows Only uniquely mapped reads were used
+For any read that at least partially overlaps a bin the number of basepairs
+overlapping the bin was added into the activity level of the bin For any
+read spanning multiple bins the number of basepairs overlapping each bin
+were added into activity of that bin The Genomatix mapping software
+provides alignment scores values between 0 and 1 with our threshold
+only between 092 and 1 for mapping reads to the genome for any read
+having alignment score less than 1 the number of overlapping basepairs
+added to each bin was multiplied by the alignment score
+2 A noise removal was then done a noise level was computed as the average
+activity level in 74 manually selected regions from Chromosome 1 that
+were visually determined to be inactive over the measurement time points
+as follows The regions were divided into 200 bp bins and total weighted
+counts of reads overlapping each bin each read weighted by the number
+of basepairs overlapping the bin were computed in the same way as for
+the genes in the previous step For each time point the noise level was
+computed as the average activity level over all bins from all 74 regions
+The computed noise level was subtracted from the mean of each bin in
+each gene thresholding the result at zero A list of the empty regions used
+is included as a Supplementary Dataset S1
+3 As the number of ChIP-seq reads collected overall for pol-II varies between
+time points a robust normalisation was done After the previous noise
+removal step for each gene g at each time t we compute the mean of
+the remaining activity activity level after noise removal over bins of the
+gene denoted as rgt The activity levels are weighted counts of basepairs
+from reads overlapping the gene we select genes having sucient activity
+that is at least 5  200 overlapping basepairs from reads over each 200 bp
+bin of the gene on average over the bins For each gene g let Tg  tcid48 
+5 10     1280 minrgtcid48  5  200 denote those time points except the
+rst time point where the gene has sucient activity For each time point
+we compute a normalisation factor of 20
+cid27
+Ct  Mediang
+GeomMeantcid48rgtcid48
+GeomMeantcid48rgtcid48  cid81
+Mediang
+denotes
+tcid48Tg
+rgtcid481Tg is the geometric mean over the
+cid26
+time points having sucient activity for gene g The median is com-
+puted for time points after the rst time point for the rst time point
+t  0 min we set Ct  1 The factor Ct normalises all the gene activity
+levels weighted read counts at a time point downwards if genes at that
+time point have unusually many reads exceeding their geometric mean
+activity level and normalises upwards if gene activity levels fall under
+their mean activity level
+4 Lastly time series summaries were computed for pol-II at each gene For
+each gene at each time point t the mean activity level weighted read-
+count of pol-II over bins in the 20 section of the gene nearest to tran-
+scription end was computed normalised by Ct This measured pol-II level
+represents transcriptional activity that had successfully passed through
+the gene to the transcription end site it is expected to correspond better
+with mRNA production rate than pol-II activity at the transcription start
+of the gene since pol-II near the transcription start site can be in the
+active or inactive state and after activation may require a signicant time
+for transcription to complete
+5 For a small number of genes where the active mRNA transcripts covered
+only part of the gene we considered the area from the rst active exon to
+last active exon and summarised the gene using the 20 section nearest
+to the end of the area Active transcripts were dened here as transcripts
+with a mean of more than 11 assigned counts in the BitSeq posterior
+expression estimates BitSeq uses a prior that assigns 1 pseudo-count
+per transcript so the active transcripts were only required to have minimal
+posterior expression that was distinguishable from the prior A list of
+active transcripts is included as Supplementary Dataset S2
+6 Lastly for mathematical convenience for each pol-II time series we sub-
+tracted from all time points the minimum value over the time points
+E Dierential equation based modelling
+We model the role of pol-II as a catalyst of the transcription of DNA into
+mRNA as a dierential equation for each gene the dierential equation relates
+the pol-II time series pt of the gene and the corresponding mRNA time series
+Let us assume the momentary pol-II activity directly represents the momen-
+tary rate of transcription potentially with a delay and that the mRNA decays
+at a constant rate We model this as a linear dierential equation
+ 0  pt    mt
+where  is a delay parameter between the pol-II activity and the momentary
+transcription rate 0 is a parameter representing the baseline transcription rate
+from unobservable pol-II background baseline production level of mRNA 
+is a parameter representing transcriptional eciency that is sensitivity of the
+transcription rate to activity of pol-II and  is a constant mRNA decay rate
+parameter that is related to mRNA half-life t12 through   ln2t12
+The momentary mRNA level mt can be solved from the dierential equa-
+tion to yield the following solution
+cid01  etcid1  et
+cid90 t
+mt  m0et0t 
+eupu  du
+u0 min
+where pol-II activity is assumed to start at t  0 min pt  0 for t  0 min
+t0 cid29 0 min is the time of the rst observation and m0 is an initial mRNA
+abundance at t0 which is inferred as a parameter of the model No parametric
+assumptions are made about the shape of the pol-II time series function pt
+and the only assumption about the mRNA level mt is that it arises through
+the dierential equation
+The linear dierential equation S2 and its linear solution operator S3
+are similar to those used previously in 911 except for the added delay As
+in the previous works the linearity of the solution operator permits exact joint
+Gaussian process GP modelling over pt and mt
+F Gaussian process inference
+We model pol-II and mRNA time series pt and mt in a nonparametric
+fashion which avoids the assumption of a specic parametric shape for the time
+series function instead we set a GP prior over the time series functions
+For each gene GP inference of the posterior distribution over the underlying
+pol-II and mRNA time series can be done in closed form given xed values of the
+dierential equation parameters GP inference is based on mean and covariance
+functions Below we describe the GP model of pol-II and mRNA their respec-
+tive mean functions and covariance functions and the cross-covariance function
+between pol-II and mRNA GP inference of the posterior is then a standard
+inference equation which we provide for completeness
+The above inference provides a posterior distribution over the proles pt
+and mt given known values for the dierential equation parameters However
+these values are not known and to infer a full posterior over both time series and
+these parameters we carry out Markov Chain Monte Carlo MCMC sampling
+over the parameter values as described in Section Parameter inference by
+Hamiltonian Monte Carlo sampling
+F1 GP model of pol-II
+For each gene we model the pol-II activity time series in a nonparametric
+fashion by applying a GP prior over the shapes of the time series Previous
+similar GP models 911 have used a squared exponential covariance function
+for pt as that allows derivation of all the shared covariances in closed form
+This covariance has the limitation that it is stationary and functions following it
+revert to zero away from data These properties severely degrade its performance
+on our highly unevenly sampled data To avoid this we model pt as an integral
+of a function having a GP prior with a squared exponential covariance then the
+posterior mean of pt tends to remain constant between observed data That
+is we model
+cid90 t
+pt  p0 
+where p0 is the initial value at time t  0 min and assign a GP prior with
+the squared exponential covariance over vt as a result pt will also have a
+GP prior whose covariance function is an integral of the covariance function
+of vt For mathematical convenience we assume pt  0 min for t  0 min
+and set the initial observation time t0 to a suciently large value to avoid any
+discontinuity resulting from assumption in pol-II or mRNA modeling
+To dene the GP prior we rst dene the mean function of pt Assume that
+vt is drawn from a zero-mean GP prior with a squared exponential covariance
+function kvt tcid48  Cp  expt  tcid482l2 where Cp is a magnitude parameter
+and l is a length scale which has been parametrised in a non-standard manner
+Evtdt  Ep0  p
+for t  0 min
+to simplify the derivations Then Ept  Ep0cid82 t
+Next we compute the corresponding covariance function for the GP prior of
+pt We have
+kpt tcid48  Ept  pptcid48  p 
+kvs scid48dsdscid48
+cid90 tcid48
+scid480
+cid90 t
+cid18
+cid90 t
+erftcid48  sl  erfsl
+cid19
+cid19
+The remaining integral over the erf functions can be computed using inte-
+gration by parts After straightforward manipulation the integral becomes
+kpt tcid48 
+cid18
+cid18
+expcid0t2
+tlerf tl  tcid48
+l  tcid48
+lerf tcid48
+cid1  expcid0tcid48
+l  tlerf tcid48
+l2cid1  expcid0tcid48
+l  tl
+l  tl2cid1  1
+cid19
+where we denoted tl  tl and tcid48
+l  tcid48l for brevity
+The right-hand side is the covariance function kpt tcid48 of the
+integrated squared-exponential GP prior for pol-II
+F2 GP model of mRNA
+We model the mRNA abundance in a similar nonparametric fashion as the pol-
+II activity Since the mRNA is related to pol-II through a dierential equation
+the GP prior of mRNA can be computed from the GP prior of pol-II through the
+dierential equation In particular as shown in Eq S3 the mRNA time series
+is an integral of the pol-II time series Since integration is a linear operation
+the expected mRNA time series is an integral of the expected pol-II time series
+that is the GP mean function of mRNA is an integral of the mean function of
+pol-II so that
+mt  Emt  m0et0t
+cid01  etcid1  et
+cid90 t
+ m0ett0 
+ m0ett0 
+euEpu  du
+cid90 t
+cid01  etcid1  et
+cid01  etcid1 
+eupdu
+1  et
+where the third line follows since pol-II activity starts at t  0 min Note that
+the start of pol-II activity at t  0 min is for mathematical convenience and
+the initial observation time t0 will be set to a suciently large value so that the
+t    0 min for all t  t0 and hence observed mRNA values are integrated
+over active pol-II only regardless of delay 
+We next compute the corresponding covariance function for the GP prior
+of mRNA The covariance function arises from computing the integral relating
+mRNA to pol-II as follows
+kmt tcid48  Emt  mtmtcid48  mtcid48
+1  et
+eupu  du  p
+1  etcid48
+pucid48  ducid48  p
+eupu  du  p
+1  et
+cid19
+cid19cid21
+cid19
+cid19cid21
+cid18
+et
+cid90 t
+cid20cid18
+etcid48cid90 tcid48
+cid20cid18
+cid90 t
+cid18
+etcid48cid90 tcid48
+ucid480
+et
+eucid48
+ucid48
+eucid48
+pucid48  ducid48  p
+1  etcid48
+where the last equality follows since pol-II activity starts at time 0 min The
+computation of the integrals follows similar steps as computation of the pol-II
+GP covariance The result is
+kmt tcid48  km1t tcid48  km2t tcid48  km3t tcid48  km4t tcid48
+where we divided the covariance function into four parts The rst part is
+cid18cid18
+lCp2
+exptcid48
+t  1
+cid19
+cid18 tcid48
+cid19
+ t  tcid48
+erf
+cid19
+cid18 t
+cid19
+cid18 t  tcid48
+km1t tcid48 
+cid18
+  1
+tcid48
+expt
+cid19cid19
+where t  max0 min t   The second part is
+cid18
+cid18
+cid18 t
+cid192cid19
+cid192cid19
+cid18 tcid48
+cid18
+cid18 t  tcid48
+cid192cid19
+cid18
+ exp
+cid19
+km2t tcid48 
+l2Cp2
+The third part is
+km3t tcid48  
+cid18 3
+lCp2
+erfl2  tl  erfcid0l2  t  tcid48
+exp2l24  t  tcid48
+lcid1
+  tcid0erfl2  erfl2  tcid48
+lcid1
+lcid1cid19
+cid0erfl2  erfl2  tcid48
+exp2l24  tcid48
+exp2l24  tcid48
+ 3
+The fourth part is
+km4t tcid48  
+lCp2
+exp2l24  t  tcid48
+l  erfl2  t  tcid48
+cid18 3
+cid0erfl2  tcid48
+cid0erfl2  erfl2  tlcid1
+exp2l24  tcid0erfl2  erfl2  tlcid1cid19
+lcid1
+exp2l24  t  tcid48
+ 3
+F3 GP joint model
+To dene the full GP prior over both pol-II and mRNA it remains to dene the
+cross-covariance function between pol-II and mRNA The full GP covariance
+is dened by the individual covariances of pol-II and mRNA and the cross-
+covariance
+The cross-covariance function between noiseless mRNA abundance mt
+at time t and noiseless pol-II activity ptcid48 at time tcid48 is computed with similar
+steps as the computation of the mRNA covariance function The result is
+kmpt tcid48  Emt  mtptcid48  ptcid48
+ kmp1t tcid48  kmp2t tcid48  kmp3t tcid48
+where for convenience we separated the kernel function into a sum of three
+components The rst component part of the kernel can be written as
+kmp1t tcid48 
+cid20
+2cid112Cpl
+cid18 l
+cid19
+2cid112Cpl
+tcid48
+ erf
+cid18cid18 l
+cid192  t  tcid48cid19
+cid19cid21
+cid18 l
+cid18cid18 l
+cid19
+cid192  t
+cid18 l
+cid20
+cid19
+tcid48  t
+ t
+The second component can be written as
+kmp2t tcid48 
+ 2cid112Cpl2
+cid20
+cid18
+cid18 t  tcid48
+cid18 l
+cid19cid21
+ erf
+cid192cid19
+cid18
+ exp
+ 1  exp
+cid18
+cid18 t
+cid192cid19
+cid18 tcid48
+cid192cid19cid21
+The third component can be written as
+kmp3t tcid48  
+t  tcid48  1erft  tcid48l
+2cid112Cpl
+cid20
+ t  1erftl  tcid48  expterftcid48l
+cid21
+F4 Observation model
+In order to t the models of the pol-II and mRNA functions to observations
+we need an observation model
+It is assumed that we observe noisy values
+mt  mt  emt and pt  pt  ept where emt and ept are zero-
+mean Gaussian noise independently sampled for each time point For simplicity
+we assume the noise variance of ept is a constant 2
+p and infer it as a parameter
+of the model We estimate the mRNA noise variances 2
+mt for each time point
+t as sums of a shared constant 2
+m and a xed variance inferred by BitSeq
+by combining the technical quantication uncertainty from BitSeq expression
+estimation with an estimate of biological variance from the BitSeq dierential
+expression model full details are in Sec RNA-seq data processing
+Since the noise is zero-mean the GP prior for the noisy observations has the
+same means as the noiseless means that is E mt  Emt and Ept 
+Ept Since the noise is independently added to each observation the covari-
+ance function of observed pol-II becomes
+k pt tcid48  kpt tcid48  t tcid482
+where t tcid48  1 if t  tcid48 and zero otherwise the covariance function of observed
+mRNA becomes
+k mt tcid48  kmt tcid48  t tcid482
+and the cross-covariance function between observed pol-II and mRNA is the
+same as the noiseless version so that
+k m pt tcid48  kmpt tcid48 
+The GP prior over time series functions and the observation model together
+dene a full probability model for the pol-II and mRNA data As the observa-
+tions are noisy and available only at a small set of time points we will apply
+Bayesian inference to infer the underlying time series mt and pt from the
+observations
+F5 Covariance matrix for GP inference
+Given a set of time points here the 10 time points
+Tobs  t0  0 5 10 20 40 80 160 320 640 1280
+ t1     tN 
+where t0 is the initial observation time and the numbers denote time in minutes
+and the corresponding observation data consisting of N  10 pol-II observations
+and N  10 mRNA observations D  pt1     ptN  mt1     mtN  we
+wish to compute the posterior distribution of GP hyperparameters and to pre-
+dict the shape of the underlying time series functions pt and mt given the
+posterior We will especially wish to study delay between pol-II and mRNA
+for mathematical convenience we set t0  300 min and consider mRNA delay
+parameters 0    300 min
+For GP inference given the hyperparameters we must compute the prior
+GP covariance matrix for the observations D We describe the matrix here
+in a general form which is needed later for inference of time series values at
+previously unseen time points
+The covariance matrix describes covariance between measurements at one set
+of time points indexed by rows of the matrix and another set of time points in-
+dexed by columns of the matrix Let Trow  trow1     trowNrow  be a vector
+of Nrow time indices for rows of the matrix and let Tcol  tcol1     tcolNcol 
+be the vector of Nrow time indices for columns of the matrix
+The resulting covariance matrix KTrow Tcol has the block structure
+KTrow Tcol 
+where each block is a Nrow  Ncol matrix of covariance function values between
+the time points t  Trow and the time points tcid48  Tcol so that K p is composed
+of values k pt tcid48 K m is composed of values k mt tcid48 K m p is composed of the
+cross-covariance values k m pt tcid48 and K p m is composed of the cross-covariance
+values k m ptcid48 t The covariance matrix of observed data is then simply Kobs 
+KTobs Tobs
+cid20 K p K p m
+K m p K m
+cid21
+F6 Marginal likelihood function
+The analytical tractability of the GP model allows us to marginalise out the la-
+tent functions pt and mt to compute a marginal likelihood that only depends
+on the model parameters The marginal probability density of the observations
+D is Gaussian and the marginal log-likelihood is
+log P D  12d log2  logKobs  ucid62K1
+where P denotes the marginal probability density d  20 is the total num-
+ber of pol-II and mRNA observations and u is the column vector of observa-
+tions with their expected values subtracted u cid2pt1  Ept1     ptN  
+EptN  mt1  E mt1     mtN   E mtN cid3cid62
+F7 Posterior prediction
+The analytical tractability of the GP model also allows us to obtain the full
+posterior distribution over the latent functions in closed form given the param-
+eters Given the observed data we can thus compute the mean and covariance
+of the underlying time series function values at each time point as expectations
+over the posterior distribution of the underlying functions For N new time
+points T   t
+Ept
+N  the posterior mean is
+N D  u
+prior  KT  TobsK1
+1     mt
+1     pt
+N  mt
+1     t
+obsu S23
+1     Ept
+N  E mt
+1     E mt
+is the vector of prior means computed at the new time points and the posterior
+covariance matrix is
+1     pt
+1     mt
+N  mt
+Covpt
+N D
+ KT  T   KT  TobsK1
+obsKT  Tobscid62 
+The log-likelihood and predictions of function values described here are com-
+puted given xed values of hyperparameters of the GP prior and the observation
+model We will compute a posterior distribution for the hyperparameters given
+suitable prior distributions for each This will allow summarisation of underlying
+pol-II and mRNA functions and GP parameters over the posterior distribution
+of the hyperparameters We next describe the prior distributions of hyperpa-
+rameters and then describe the sampling based inference of hyperparameter
+posterior distributions
+F8 Parameter prior distributions
+All parameters except the delay  have approximately uniform bounded logistic-
+normal priors These priors were used because of convenience they allow easy
+prior cid2Ept
+N cid3cid62
+p 2 a b 
+cid18
+cid19
+Hamiltonian Monte Carlo sampling that requires very little tuning see below
+for details
+The density of the logistic-normal prior logit-normal 2 a b with location
+parameter  and scale parameter 2 for variable  bounded to the interval a b
+ logit  ab  a  2
+b  a
+  ab  
+where logitx  logx1  x We use   0 and   2 which lead to an
+approximately uniform distribution on the interval a b The interval bounds
+a b for all variables are presented in Table S1
+For the delay  we use a prior with   2   2 to reect our prior belief
+that the delays should in most cases be small For  and l we set the priors
+with respect to 2 and 2l2 respectively because these are more convenient as
+model parameters
+Parameter
+Lower bound a
+1280 min2
+ 61  107 min2
+2  104 2
+1  106 min1
+1  106 min2
+0052
+0 min1
+5 min2
+Upper bound b
+ 4  102 min2
+log2 min1  069 min1
+1 min2
+299 min
+1 min1
+Table S1 Bounds for bounded logistic-normal priors of dierential equation
+parameters in the GP inference of pol-II and mRNA time series Each parameter
+is bounded to an interval a b we list the values of the lower bound a and
+upper bound b Here 2
+P ol2 is the empirical variance of the pol-II time series
+after preprocessing
+F9 Parameter inference by Hamiltonian Monte Carlo sam-
+Given the data and the priors for the parameters we apply fully Bayesian in-
+ference with Hamiltonian Monte Carlo HMC sampling 15 to obtain samples
+from the posterior distribution of the parameters HMC is a MCMC algorithm
+that uses gradients of the target distribution to simulate a Hamiltonian dynami-
+cal system with an energy function based on the target distribution This allows
+taking long steps while maintaining a high acceptance rate in the sampling
+In order to apply HMC more easily we transform all parameters to an un-
+bounded space using the logistic transformation The logistic-normal priors cor-
+respond to normal priors on the transformed variables which eectively prevent
+the sampler from wandering o to the saturated region of the transformation
+near the bounds of the intervals
+We run 4 parallel chains starting from dierent random initial states to allow
+convergence checking We use the HMC implementation from NETLAB toolkit
+in Matlab with momentum persistence and number of leap frog steps   20
+which were found to work well in all cases The step length  is tuned separately
+for every model see below After tuning each chain is run for 10000 iterations
+The samples are then thinned by a factor of 10 and the rst half of the samples
+are discarded leaving 500 samples from each chain 2000 in all Convergence is
+monitored using the potential scale reduction factor
+separately for each variable and if any of them is greater than 12 the result
+is discarded and a new sample obtained in a similar manner The 9 genes that
+did not converge after 10 iterations of this process were removed from further
+analysis In most cases these had severely multimodal delay distributions that
+were dicult to sample from and would have made further analysis dicult
+cid112 R is computed
+cid112 R 21
+F91 Tuning
+The applied logistic transformation and priors together allow using the same
+global step length  for all variables or using the identity matrix as the mass ma-
+trix in the HMC formulation The step length  was determined by trying dier-
+ent alternatives in the set 105 104 103 0003 0005 001 003 005 007 01
+03 05 1 in increasing order running the sampler for 100 steps and using the
+largest value with at least 80 acceptance rate This target rate is higher than
+usual in random walk MCMC because HMC acceptance rate should be nearly
+100 even with very long steps if the Hamiltonian system is simulated accu-
+rately
+F92 Summarisation of inference results
+The inference results are summarised using the median of the posterior samples
+This is a convenient statistic because it is invariant to transformations of the
+parameter space such as those used during the sampling
+F10 Validation of the GP modelling results
+In order to validate the GP model we implemented inference for the same ODE
+using a smoothing spline t for pol-II A comparison of the results for the subset
+of genes that yielded reliable results with the spline approach is presented in
+Fig S10
+G Filtering of results
+Reliable posterior samples were obtained for models of 4373 genes 4304 of
+these had multiple-exon transcripts and could thus be used for intron analyses
+These genes were further ltered to remove bad ts by only keeping genes that
+satisfy the following
+1 The global maximum tmax of pt posterior mean pt in the interval t 
+0 min 1280 min occurs in the interval tmax  1 min 160 min This
+condition ensures the prole has a peak in the densely sampled region
+which is necessary for accurate estimation of the delay
+2 The posterior median delay   120 min Because of the increasingly
+sparse sampling longer delay estimates were considered unreliable The
+specic cut-o was determined by visual inspection of the ts to rule out
+implausible ones
+3 The posterior mean pt of pt does not change too much just before
+t  0 min This condition is necessary to avoid cases where a long delay
+pushes distinctive features of mt to pt t  0 min which conicts with
+the assumption that the system is at a steady state until t  0 min
+Quantitatively we dene an index
+D  D  D  D30 min0 min  D0 min10 min
+cid18
+cid19
+pt  min
+pt
+t30 min1280 min
+pt
+and only include genes with
+D  005
+Intuitively DI looks at the magnitude of change in pt in the interval I
+relative to the global magnitude of change in pt The nal statistic D
+looks for genes that have small changes in 30 min 0 min but forgives
+genes with early large changes in 0 min 10 min because these would often
+spill over to t  0 min because of the properties of the GP model The
+cut-o 005 represents 5 change in magnitude which seems reasonably
+small The main conclusions of the work are robust to dierent cutos as
+demonstrated in Fig S5 below
+After these ltering steps there were 1814 genes left for the analysis
+Main results under an additional lter of setting a maximum for posterior
+inter-quartile range are presented in Fig S11
+Figure S1 Boxplots of parameter posterior distributions illustrating parame-
+ter estimation performance on synthetic data for the mRNA half life t12 
+log2 The strong black lines indicate the ground truth used in data genera-
+tion The box extends from 25th to 75th percentile of the posterior distribution
+while the whiskers extend from 9th to 91st percentile The model often under-
+estimates the half lives especially in the presence of a signicant delay
+H Synthetic data generation
+The synthetic data were generated by tting a GP with the MLP covariance 24
+to the Pol-II measurements of the gene TIPARP ENSG00000163659 and nu-
+merically solving the mRNA level using Eq S3 with the GP posterior mean
+as pt The parameters used were   0 10 20 30 min t12  log2 
+2 4 8 16 32 64 min 0  0005   003 m0  0008 The parameter
+values were chosen empirically to get proles that approximately tted the ac-
+tual mRNA observations while looking reasonable and informative across the
+entire range of parameter values
+I Supplementary Results
+In this section we provide supplementary Figs S1S8 discussed in the main
+paper as well as Figs S9S11 discussed in the Supplementary Methods
+I1 Estimation of delays under changing mRNA half life
+References
+1 S Hao and D Baltimore RNA splicing regulates the temporal order of
+TNF-induced gene expression Proc Natl Acad Sci U S A 1102911934
+11939 Jul 2013
+2 N A M Monk Oscillatory expression of Hes1 p53 and NF-kappaB driven
+by transcriptional time delays Curr Biol 131614091413 Aug 2003
+010203001020300102030010203001020300102030020406080t12 min minTable S2 Fraction of reads mapping to mRNA transcripts alone junction
+reads pre-mRNA transcripts alone and both across all time points
+t mRNA pre-mRNA both
+160 min
+320 min
+640 min
+1280 min
+3 A Zaslaver A E Mayo R Rosenberg P Bashkin H Sberro M Tsalyuk
+Just-in-time transcription program in
+M G Surette and U Alon
+metabolic pathways Nat Genet 365486491 May 2004
+4 A Zeisel W J Kstler N Molotski J M Tsai R Krauthgamer J Jacob-
+Hirsch G Rechavi Y Soen S Jung Y Yarden and E Domany Coupled
+pre-mRNA and mRNA dynamics unveil operational strategies underlying
+transcriptional responses to stimuli Mol Syst Biol 7529 2011
+5 Y L Khodor J S Menet M Tolan and M Rosbash Cotranscriptional
+splicing eciency diers dramatically between Drosophila and mouse
+RNA 181221742186 2012
+6 A Pandya-Jones D M Bhatt C-H Lin A-J Tong S T Smale and
+D L Black Splicing kinetics and transcript release from the chromatin
+compartment limit the rate of Lipid A-induced gene expression RNA
+196811827 Jun 2013
+7 M Rabani J Z Levin L Fan X Adiconis R Raychowdhury M Garber
+A Gnirke C Nusbaum N Hacohen N Friedman I Amit and A Regev
+Metabolic labeling of RNA uncovers principles of RNA production and
+degradation dynamics in mammalian cells Nat Biotechnol 295436442
+May 2011
+8 G L Martelot D Canella L Symul E Migliavacca F Gilardi R Liechti
+O Martin K Harshman M Delorenzi B Desvergne W Herr B De-
+plancke U Schibler J Rougemont N Guex N Hernandez F Naef and
+C Consortium Genome-wide RNA polymerase II proles and RNA accu-
+mulation reveal kinetics of transcription and associated epigenetic changes
+during diurnal cycles PLoS Biol 1011e1001442 Nov 2012
+9 N D Lawrence G Sanguinetti and M Rattray Modelling transcriptional
+In B Scholkopf J C Platt and
+regulation using Gaussian processes
+Table S3 Fraction of reads assigned by BitSeq on average to mRNA transcripts
+and pre-mRNA transcripts as well as fraction predicted for pre-mRNA when
+distributing both category reads from Table S2 uniformly according to average
+transcript lengths Only multi-exon genes are considered here because the
+division is not meaningful for others The results demonstrate that BitSeq can
+split the RNA-seq data to mRNA and pre-mRNA fractions in a meaningful
+manner
+t mRNA pre-mRNA pre-mRNA pred
+160 min
+320 min
+640 min
+1280 min
+T Hofmann editors Advances in Neural Information Processing Systems
+volume 19 pages 785792 MIT Press Cambridge MA 2007
+10 P Gao A Honkela M Rattray and N D Lawrence Gaussian process
+modelling of latent chemical species applications to inferring transcription
+factor activities Bioinformatics 2416i70i75 Aug 2008
+11 A Honkela C Girardot E H Gustafson Y-H Liu E E M Furlong
+N D Lawrence and M Rattray Model-based method for transcription
+factor target identication with limited data Proc Natl Acad Sci U S A
+1071777937798 Apr 2010
+12 P Glaus A Honkela and M Rattray Identifying dierentially expressed
+transcripts from RNA-seq data with biological variation Bioinformatics
+281317211728 Jul 2012
+13 C wa Maina A Honkela F Matarese K Grote H G Stunnenberg
+G Reid N D Lawrence and M Rattray Inference of RNA polymerase II
+transcription dynamics from chromatin immunoprecipitation time course
+data PLoS Comput Biol 105e1003598 May 2014
+14 C G Danko N Hah X Luo A L Martins L Core J T Lis A Siepel
+and W L Kraus Signaling pathways dierentially aect RNA polymerase
+II initiation pausing and elongation rate in cells Mol Cell 502212222
+Apr 2013
+15 S Duane A D Kennedy B J Pendleton and D Roweth Hybrid Monte
+Carlo Physics Letters B 1952216222 1987
+16 S Hao and D Baltimore The stability of mRNA inuences the tempo-
+ral order of the induction of genes encoding inammatory molecules Nat
+Immunol 103281288 Mar 2009
+17 D L Bentley Coupling mRNA processing with transcription in time and
+space Nat Rev Genet 153163175 Mar 2014
+18 A R Grosso S F de Almeida J Braga and M Carmo-Fonseca Dynamic
+transitions in RNA polymerase II density proles during transcription ter-
+mination Genome Res 22814471456 Aug 2012
+19 F Catania and M Lynch A simple model to explain evolutionary trends
+of eukaryotic gene architecture and expression how competition between
+splicing and cleavagepolyadenylation factors may aect gene expression
+and splice-site recognition in eukaryotes Bioessays 356561570 Jun
+20 S Anders and W Huber Dierential expression analysis for sequence count
+data Genome Biol 1110R106 2010
+21 A Gelman and D B Rubin
+Inference from iterative simulation using
+multiple sequences Statistical Science 74457472 1992
+22 B Langmead C Trapnell M Pop and S L Salzberg Ultrafast and
+memory-ecient alignment of short DNA sequences to the human genome
+Genome Biol 103R25 2009
+23 M D Robinson D J McCarthy and G K Smyth edgeR a Bioconductor
+package for dierential expression analysis of digital gene expression data
+Bioinformatics 261139140 Jan 2010
+24 C E Rasmussen and C Williams Gaussian Processes for Machine Learn-
+ing MIT Press 2006
+25 N Hah C G Danko L Core J J Waterfall A Siepel J T Lis and
+W L Kraus A rapid extensive and transient transcriptional response to
+estrogen signaling in breast cancer cells Cell 1454622634 May 2011
+Figure S2 Boxplots of parameter posterior distributions illustrating parameter
+estimation performance on synthetic data for the delay parameter  The
+strong black lines indicate the ground truth used in data generation The box
+extends from 25th to 75th percentile of the posterior distribution while the
+whiskers extend from 9th to 91st percentile This is a counterpart of Fig 3 in
+a situation where the simulated mRNA half-life t12 changes during the time
+course something our model cannot capture The simulated changes are point
+changes up or down with a factor of 15 or 2 at 80 min The results show
+that delay estimates remain accurate and reliable with the true value always in
+the high posterior density region and demonstrate the conservativeness of the
+estimates with no sign of serious overestimation of small delays
+248163264248163264248163264248163264020406080 mint12 initial minIncrease t12 by factor 2 at 80 min248163264248163264248163264248163264020406080 mint12 initial minIncrease t12 by factor 15 at 80 min248163264248163264248163264248163264020406080 mint12 initial minDecrease t12 by factor 2 at 80 min248163264248163264248163264248163264020406080 mint12 initial minDecrease t12 by factor 15 at 80 minFigure S3 An illustration of how proper summarisation of the RNA-seq data
+is important for ruling out confounding eects from changing splicing patterns
+during the experiment Left Gene expression time series of the gene OSGIN1
+from RNA-seq data using either transcript-based RNA-seq data summarisation
+as in the paper or using a simpler summarisation of counts of reads aligned
+uniquely to the mRNA transcripts of OSGIN1 Centre Proportion of tran-
+script ENST00000563543 out of all OSGIN1 transcripts At 567 bp this mRNA
+transcript is much shorter than the other major transcripts whose mRNAs are
+around 2 kb Right The model t for OSGIN1 shows no evidence of signicant
+delay while the count-based prole in the left gure would suggest a longer
+0408016032064012800020406081121416182t minExpression rescaled  04080160320640128000102030405060708091t minENST00000563543 relative expressionTranscriptbasedCountbased02468Pol IIENSG00000140961 OSGIN104080160320640128001020mRNA FPKMt min0501000020406081Delay minFigure S4 Alternative versions of Fig 5 of the main paper tail probabilities for
+delays for dierent cut-os for D in Eq S29 Top D  005 value used for
+main results middle D  01 bottom D  001 Left genes whose longest
+pre-mRNA transcript is short m is the length from transcription start to end
+Right genes with relatively long last introns f is the ratio of the length of
+the last intron of the longest annotated transcript of the gene divided by the
+length of that transcript pre-mRNA The fraction of genes with long delays 
+is shown by the red and blue lines left axis In both subplots the black curve
+denotes the p-values of Fishers exact test conducted separately at each point
+right axis with the dashed line denoting p  005 signicance threshold The
+general shapes of the curves are the same in every case
+D005020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N300m10000N1514pvalueD005020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1448f020N366pvalueD010020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N334m10000N1545pvalueD010020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1488f020N391pvalueD001020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N227m10000N1293pvalueD001020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1224f020N296pvalueFigure S5 Alternative versions of Fig 5 of the main paper dierent cut-os
+for f and m Left genes whose longest pre-mRNA transcript is short m is the
+length from transcription start to end Right genes with relatively long last
+introns f is the ratio of the length of the last intron of the longest annotated
+transcript of the gene divided by the length of that transcript pre-mRNA
+The fraction of genes with long delays  is shown by the red and blue lines
+left axis In both subplots the black curve denotes the p-values of Fishers
+exact test conducted separately at each point right axis with the dashed line
+denoting p  005 signicance threshold The general shapes of the curves are
+the same in every case
+020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem30000N731m30000N1083pvalue020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef030N1549f030N265pvalue020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem50000N1036m50000N778pvalue020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef050N1645f050N169pvalueFigure S6 Alternative versions of Fig 5 right of the main paper explore
+the dependence on f for genes with a lower bound on mRNA length m The
+fraction of genes with long delays  is shown by the red and blue lines left
+axis The black curve denotes the p-values of Fishers exact test conducted
+separately at each point right axis with the dashed line denoting p  005
+signicance threshold The general shapes of the curves are the same in every
+Figure S7 Proportion of long posterior median delays for genes withwithout
+annotated exon skipping The fraction of genes with long delays  is shown by
+the red no skipped exons and blue skipped exons lines left axis The black
+curve denotes the p-values of Fishers exact test conducted separately at each
+point right axis with the dashed line denoting p  005 signicance threshold
+There is no clear dierence between the two groups
+All genes020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1448f020N366pvaluem  10 kb020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1282f020N232pvaluem  30 kb020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N969f020N112pvalue020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valueno skipsN1590skipsN224pvalueFigure S8 Alternative version of Fig 6 right of the main paper computing
+the index based on pol-II ChIP-seq and GRO-seq instead of intronic RNA-seq
+reads The top plots show dierences in the mean pol-II accumulation index in
+long delay genes blue and short delay genes red as a function of the cut-o
+used to distinguish the two groups left axis Positive values indicate increased
+pol-II accumulation at the 3 end top left
+last 50 of the gene body top
+right last 5 of the gene body over time The black line shows the p-values of
+Wilcoxons rank sum test between the two groups at each cut-o right axis
+The bottom plot is the same as top right except for GRO-seq data of 25 with
+the index is dened as the dierence between the only late 160 min time point
+and the average of the early 0-40 min time points
+In contrast to the pre-
+mRNA gure in the main paper both long and short delay genes show a clear
+tendency towards accumulation of pol-II towards the end of the gene but there
+is no clear dierence between the two groups for the last 50 top left while
+there is a very consistent pattern of more pol-II accumulation very close to 3
+end top right for long delay genes and the level is essentially independent of
+the estimated delay GRO-seq data in the last 5 bottom behave similarly as
+pol-II ChIP-seq top right
+102030405060t min001000001002003004Mean PolII end accumulation index last 5001234567-log10p-valueDtDtpvalue102030405060t min001000001002003004Mean PolII end accumulation index last 501234567-log10p-valueDtDtpvalue102030405060t min001000001002003004Mean GROseq end accumulation index01234567-log10p-valueDtDtpvalueFigure S9 Distributions of per-gene mRNA and pre-mRNA counts and cover-
+ages based on BitSeq expression estimates Top two rows show broad distribu-
+tions for all genes while the bottom two rows show distributions biased toward
+higher values for the selected 1786 genes The results show that the mRNA
+coverages are mostly clearly higher than for pre-mRNA again demonstrating a
+sensible split between pre-mRNA and mRNA
+All geneslog10premRNA countFrequency0246040008000All geneslog10premRNA coverageFrequency64202040008000All geneslog10mRNA countFrequency02460400010000All geneslog10mRNA coverageFrequency64202040008000Selected geneslog10premRNA countFrequency02460100300Selected geneslog10premRNA coverageFrequency642020200400Selected geneslog10mRNA countFrequency02460100200300Selected geneslog10mRNA coverageFrequency64202050150250Figure S10 Comparison of estimated posterior median delays from the GP
+model with an alternative spline-based model for n  15 genes with reliable es-
+timates In this model we used cubic smoothing splines to t continuous curves
+to pol-II measurements To account for the uneven sampling the times were
+transformed as tcid48  logtmin  5 The regularisation strength was shared
+over all genes and optimised by leave-one-out cross validation over all internal
+time points The time transformation was also found to work much better than
+untransformed time in the cross validation The smoothed pol-II curves were
+used as input to Eq S2 which was solved numerically to obtain predictions
+for mt Assigning a Gaussian noise model to mt similar to the GP model
+and using similar priors for all shared parameters we run MCMC to obtain
+posteriors over the parameters We were only able to obtain reliable parameter
+estimates for a small subset of genes for which the method had a good t mea-
+sured through expected relative residual variance for both pol-II and mRNA
+The other estimates were unreliable presumably because the method estimated
+the pol-II proles independently but then ignored the uncertainty related to this
+estimation which further highlights the benets of the GP approach
+lllllllllllllll020406080020406080100GP median delay minSpline model median delay minFigure S11 Alternative versions of Figs 5 and 6 under more stringent ltering
+of delay posterior interquartile range IQR
+020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N289m10000N1455pvalueIQR  120 min N1744020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1394f020N350pvalue102030405060t min001000001002003004Mean premRNA end accumulation index01234567-log10p-valueDtDtpvalue020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N279m10000N1440pvalueIQR  90 min N1719020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1373f020N346pvalue102030405060t min001000001002003004Mean premRNA end accumulation index01234567-log10p-valueDtDtpvalue020406080t min000005010015020025030Fraction of genes with Dt024681012-log10p-valuem10000N268m10000N1385pvalueIQR  60 min N1653020406080t min000005010015020025Fraction of genes with Dt0246810-log10p-valuef020N1322f020N331pvalue102030405060t min001000001002003004Mean premRNA end accumulation index01234567-log10p-valueDtDtpvalue

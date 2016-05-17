@@ -1,405 +1,418 @@
-Memoization in Constraint Logic Programming
-Mark Johnson
-Brown University
-Introduction
-This paper shows how to apply memoization caching of subgoals and associated answer substi-
-tutions in a constraint logic programming setting The research is is motivated by the desire to
-apply constraint logic programming CLP to problems in natural language processing
-In general logic programming provides an excellent theoretical framework for computational
-linguistics 13 CLP extends standard logic programming by allowing program clauses to in-
-clude constraints from a specialized contraint language For example the CLP framework allows
-the feature-structure constraints that have proven useful in computational linguistics 15 to be
-incorporated into logic programming in a natural way 1 5 16
-Because modern linguistic theories describe natural language syntax as a system of interacting
-modules which jointly determine the linguistic structures associated with an utterance 2 a
-grammar can be regarded as a conjunction of constraints whose solutions are exactly the well-formed
-or grammatical analyses Parsers for such grammars typically coroutine between a tree-building
-component that generates nodes of the parse tree and the well-formedness constraints imposed by
-the linguistic modules on these tree structures 4 6 8 Both philosophically and practically this
-ts in well with the CLP approach
-But the standard CLP framework inherits some of the weaknesses of the SLD resolution pro-
-cedure that it is based on When used with the standard formalization of a context-free grammar
-the SLD resolution procedure behaves as a recursive descent parser With left-recursive gram-
-mars such parsers typically fail to terminate because a goal corresponding to a prediction of a
-left-recursive category can reduce to an identical subgoal up to renaming producing an innite
-loop Standard techniques for left-recursion elimination 12 13 in context-free grammars are not
-always directly applicable to grammars formulated as the conjunction of several constraints 10
-With memoization or the caching of intermediate goals and their corresponding answer sub-
-stitutions a goal is solved only once and its solutions are cached the solutions to identical goals
-are obtained from this cache Left recursion need not lead to non-termination because identical
-subgoals are not evaluated and the innite loop is avoided Further memoization can sometimes
-provide the advantages of dynamic programming approaches to parsing the Earley deduction proof
-procedure a memoized version of SLD resolution simulates an Earley parse 3 when used with
-the standard formalization of a context-free grammar 14
-This paper was presented at the First Workshop on Principles and Practice of Constraint Programming April
-2830 1993 Newport Rhode Island The research descrined in it was initiated during a summer visit to the IMSV
-Universitat Stuttgart which I would like to thank for their support Thanks also to Pascal van Hentenryck and
-Fernando Pereira for their important helpful suggestions
-parseString Tree - wfTree s yTree String 
-y -Word WordWords Words
-y Tree1 Words0 Words - yTree1 Words0 Words
-y Tree1Tree2 Words0 Words -
-yTree1 Words0 Words1 yTree2 Words1 Words
-wfnp-kim np
-wfn-friend n
-wfv-walks v
-wfsTree1 Tree2 s - wfTree1 np wfTree2 vp
- S  NP VP
-wfnpTree1 Tree2 np - wfTree1 np wfTree2 n  NP  NP N
-wfvpTree1 vp - wfTree1 v
- NP  Kim
- VP  V
- N  friend
- V  walks
-Figure 1 A grammar fragment
-Thus constraint logic programming and memoization are two recent developments in logic pro-
-gramming that are important for natural language processing But it is not obvious how or even if
-the two can be combined in a single proof procedure For example both Earley Deduction 14 and
-OLDT resolution 17 20 resolve literals in a strict left-to-right order so they are not capable of
-rudimentary constraint satisfaction techniques such as goal delaying The strict left-to-right order
-restriction is relaxed but not removed in 18 19 where literals can be resolved in any local order
-This paper describes soundness and completeness proofs for a proof procedure that extends these
-methods to allow for goal delaying In fact the lemma table proof procedure generalizes naturally
-to constraint logic programming over arbitrary domains as described below
-The lemma table proof procedure generalizes Earley Deduction and OLDT resolution in three
- Goals can be resolved in any order including non-local orders rather than a xed left-to-
-right or a local order
- The goals entered into the table consist of non-empty sets of literals rather than just single
-literals These sets can be viewed as a single program literal and zero or more constraints
-that are being passed down into the subsidary proof
- The solutions recorded in the lemma table may contain unresolved goals These unresolved
-goals can be thought of as constraints that are being passed out of the subsidary proof
-2 A linguistic example
-Consider the grammar fragment in Figure 1 cf also 4 pages 142177 The parse relation holds
-between a string and a tree if the yield of the tree is the string to be parsed and tree satises a well-
-formedness condition In this example the well-formedness condition is that the tree is generated
-by a simple context-free grammar but in more realistic fragments the constraints are considerably
-more complicated
-Trees are represented by terms A tree consisting of a single pre-terminal node labelled C whose
-single child is the word W is represented by the term C-W  A tree consisting of a root node labelled
-C dominating the sequence of trees T1    Tn is represented by the term CT1     Tn
-The predicate wfTree Cat holds if Tree represents a well-formed parse tree with a root node
-labelled Cat for the context free grammar shown in the comments The predicate yTree S0 S
-holds if S0S is a dierence list representing the yield of Tree it collects the terminal items in the
-familiar tree-walking fashion From this program the following instances of parse can be deduced
-these are meant to approximate possessive constructions like Kims friends friend walks
-parsekimwalks snp-kimvpv-walks
-parsekimfriendwalks snpnp-kimn-friendvpv-walks
-parsekimfriendfriendwalks
-snpnpnp-kimn-friendn-friendvpv-walks
-The parsing problem is encoded as a goal as follows The goal consists of an atom with the
-predicate parse whose rst argument instantiated to the string to be parsed and whose second
-argument is uninstantiated The answer substitution binds the second argument to the parse tree
-For example an answer substitution for the goal parseKimfriendwalks Tree will have the parse
-tree for the string Kim friend walks as the binding for Tree
-Now consider the problem of parsing using the program shown in Figure 1 Even with the vari-
-able String instantiated both of the subgoals of parse taken independently have an innite number
-of subsumption-incomparable answer substitutions Informally this is because there are an innite
-number of trees generated by the context-free grammar and there are an innite number of trees
-that have any given non-empty string as their yield Because the standard memoization techniques
-mentioned above all compute all of the answer substitutions to every subgoal independently they
-never terminate on such a program
-However the set of answer substitions that satisfy both constraints is nite because the number
-of parse trees with the same yield with respect to this grammar is nite The standard approach
-to parsing with such grammars takes advantage of this by using a selection rule that coroutines
-the goals wf and y delaying all wf goals until the rst argument is instantiated to a non-variable
-In such a system the wf goals function as constraints that lter the trees generated by the goals y
-In this example however there is a second related problem Coroutining is not sucient to
-yield a nite SLD tree even though the number of refutations is nite Informally this is because
-the grammar in Figure 1 is left recursive and the search space for a recursive descent parser which
-an SLD refutation mimics with such a program is innite
-Figure 2 shows part of an innite SLD derivation from the goal parseKW T where KW is
-assumed bound to kimwalks although the binding is actually immaterial as no step in this
-refutation instantiates this variable The selection rule expresses a preference for goals with
-certain arguments instantiated If there is a literal of the form wfT C with T instantiated to a non-
-variable then the left-most such literal is selected otherwise if there is a literal of the form yT S0 S
-with S0 instantiated to a non-variable then the left-most such literal is selected otherwise the left-
-most literal is selected The selected literal is underlined and the new literals introduced by each
-reduction are inserted to the left of the old literals
-Note that the y and wf literals resolved at steps 6 and 7 in Figure 2 are both children
-1 parseKWT
-2 wfTs yTKW
-3 wf T1T2s yT1KWS1 yT2S1
-4 wfT1np wfT2vp yT1KWS1   
-5 yT3KWS3 yT4S3S1 wf T3T4np   
-6 wfT3np wfT4n yT3KWS3   
-7 yT5KWS5 yT6S5S3 wf T5T6np   
-Figure 2 An innite SLD refutation despite co-routining
-of and variants of the literals resolved at steps 5 and 6 This sequence of resolution steps
-can be iterated an arbitrary number of times
-It is a manifestation of the left recursion in the
-well-formedness constraint wf
-One standard technique for dealing with such left-recursion is memoization 14 13 But there
-are two related problems in applying the standard logic programming memoization techniques to
-this problem
-First because the standard methods memoize and evaluate at the level of an individual literal
-the granularity at which they apply memoization is is to small As noted above in general individual
-wf or y literal can have an innite number of answer substitutions The lemma table proof procedure
-circumvents this problem by memoizing conjunctions of literals in this example a conjunction of
-wf and y literals which has only a nite number of subsumption-incomparable valid instances
-The second problem is that the standard memoization techniques restrict the order in which
-literals can be resolved
-In general these restrictions prevent the goal delaying required to
-co-routine among several constraints The lemma table proof procedure lifts this restriction by
-allowing arbitrary selection rules
-3 The Lemma Table proof procedure
-Like the Earley Deduction and the OLDT proof procedures the Lemma Table proof procedure
-maintains a lemma table that records goals and their corresponding solutions After a goal has
-been entered into the lemma table other occurences of instances of that goal can be reduced by
-the solutions from the lemma table instead of the original program clauses
-We now turn to a formal presentation of the Lemma Table proof procedure In what follows
-lower-case letters are used for variables that range over atoms Upper-case letters are used for
-variables that range over goals which are sets of atoms Goals are interpreted conjunctively a goal
-is satised i all of its members are
-A goal G subsumes a goal G i there is some substitution  such that G  G Note that
-mgus for sets of goals are in general not unique even up to renaming
-The informational units manipulated by the lemma table proof procedure are called general-
-ized clauses A generalized clause is a pair of goals and is written G1  G2 G1 is called the head
-of the clause and G2 is called the body Both the head and body are interpreted conjunctively ie
-G1  G2 should be read as if each of the G2 are true then all of the G1 are true A generalized
-clause has a natural interpretation as a goal subject to constraints G1 is true in any interpretation
-which satises the constraints expressed by G2
-A lemma table is a set of table entries of the form hG T Si where
-1 G is a goal this entry is called a table entry for G
-2 T is a lemma tree see below and
-3 S is a sequence of clauses called the solution list for this entry
-A lemma tree is a tree constructed by the algorithm described below Its nodes have two labels
-These are
-1 a clause A  B called the clause labelling of the node and
-2 an optional tag which when present is one of solution programb for some b  B or
-tableB  p where   B   B and p is either the null pointer nil or a pointer into a so-
-lution list of a table entry for some G that subsumes B 
-Untagged nodes are nodes that have not yet been processed All nodes are untagged when they
-are created and they are assigned a tag as they are processed The tags indicate which kind of
-resolution has been applied to this clause A node tagged programb is resolved against the clauses
-dening b in the program A node tagged tableB  p is resolved against the instances of a table
-entry E for some goal that subsumes B  the pointer p keeps track of how many of the solutions
-from E have been inserted under this node just as in OLDT resolution Finally a node tagged
-solution is not resolved rather its clause labelling is added to the solution list for this table entry
-Just as SLD resolution is controlled by a selection rule that determines which literal will be
-reduced next the Lemma Table proof procedure is controlled by a control rule R which determines
-the next goal if any to be reduced and the manner of its reduction
-More precisely R must tag a node with clause labelling A  B with a tag that is either solution
-programb for some b  B or tableB  nil such that   B   B Further R must tag the root
-node of every lemma tree with the tag programb for some b this ensures that some program
-reductions are performed in every lemma tree and hence that a lemma table entry cannot be used
-to reduce itself vacuously
-Finally as in OLDT resolution the Lemma Table proof procedure allows a user-specied ab-
-straction operation  that maps goals to goals such that G subsumes G for all goals G This
-is used to generalize the goals in the same way as the term-depth abstraction operation in OLDT
-resolution which it generalizes
-The Lemma Table proof procedure can now be presented
-Input A non-empty goal G a program P  an abstraction operation  and a control rule R
-Output A set  of clauses of the form G  C where G is an instance of G
-Algorithm Create a lemma table with one table entry hG T i where T contains a single un-
-tagged node with the clause labelling G  G Then repeat the following operations until no
-operation applies Finally return the solution list from the table entry for G
-The operations are as follows
-Prediction Let v be an untagged node in a lemma tree T of table entry hG T Si and let
-vs clause labelling be A  B Apply the rule R to v and perform the action specied
-below depending on the form of the tag R assigned to v
-solution  Add A  B to the end of the solution list S
-programb  Let B   B  b Then for each clause b  C in P such that b and b
-unify with a mgu  create an untagged child node v of v labelled A  B   C
-tableB  nil  The action in this case depends on whether there already is a table entry
-hG T  S i for some G that subsumes B  If there is set the pointer in the tag to
-the start of the sequence S  If there is not create a new table entry hB  T  i
-where T  contains a single untagged node with clause labelling B   B  Set
-the pointer in vs tag to point to the empty solution list of this new table entry
-Completion Let v be a node with clause labelling A  B and tagged tableB  p such that
-p points to a non-null portion S  of a solution list of some table entry Then advance
-p over the rst element B   C of S  to point to the remainder of S  Further if
-B  and B  unify with mgu  then add a new untagged child node to v labelled
-A  B  B   C
-It may help to consider an example based on the program in Figure 1 The computation
-rule R used is the following Let v be a node in a lemma tree and let A  B be its clause
-If v is the root of a lemma tree and B contains a literal of the form yT S0 S then
-Rv  programyT S0 S
-If B is empty then Rv  solution no other tagging is pos-
-If B contains a literal of the form wfT C where T is a non-variable
-sible for such nodes
-then Rv  programwfT C there is never more than one such literal Otherwise if B
-contains two literals of the form wfT C yT S0 S where S0 is a non-variable then Rv 
-tablewfT C yT S0 S nil These four cases exhaust all of the node labelling encountered in
-the example1
-Figure 3 depicts the completed lemma table constructed using the rule R for the goal wfTrees
-yTreekimwalks To save space kim and walks are abbreviated to k and w respectively Only
-the tree from each table entry is shown because the other components of the entry can be read
-o the tree The goal of each table entry is the head of the clause labelling its root clause and is
-shown in bold face Solution nodes are shown in italic face Lookup nodes appear with a dashed
-line pointing to the table entry used to reduce them
-The rst few steps of the proof procedure are the following each step corresponds to the circled
-node of the same number
-1 The root node of the rst table entrys tree restates the goal to be proven Informally this node
-searches for an S located at the beginning of the utterance The literal yTreekimwalks is
-selected for program reduction This reduction produces two child nodes one of which dies
-in the next step because there are no matching program nodes
-2 The reduction 1 partially instantiates the parse tree Tree The literal wfCT1T2 is
-selected for program reduction
-1 When used with a program encoding a context-free grammars in the manner of Figure 1 the Lemma Table
-proof procedure with the control rule R simulates Earleys CFG parsing algorithm 3 The operations in the Lemma
-Table proof procedure are named after the corresponding operations of Earleys algorithm
-wfTrees yTreekw  wfTrees yTreekw
-wfCT1s yCT1kw 
-    wfCT1s yT1kw
-wfCT1T2s yCT1T2kw 
-     wfCT1T2s yT1kwS1 yT2S1
-wfsT1T2s ysT1T2kw 
-     wfT1np wfT2vp yT1kwS1 yT2S1
-wfsnp-kimT2s ysnp-kimT2kw 
-    wfT2vp yT2w
-wfsnp-kvpv-ws ysnp-kvpv-wkw  
-wfTnp yTkwS   wfTnp yTkwS
-wfC-knp yC-kkww 
-    wfC-knp
-wfnp-knp ynp-kkww  
-wfCT1np yCT1kwS 
-    wfCT1np yT1kwS
-wfCT1T2np yCT1T2kwS 
-    wfCT1T2np yT1kwS1 yT2S1S
-wfnpT1T2np ynpT1T2kwS 
-    wfT1np wfT2n yT1kwS1 yT2S1S
-wfnpnp-kT2np ynpnp-kT2np 
-    wfT2n yT2wS
-wfTn yTwS   wfTn yTwS
-wfC-wn yC-ww 
-    wfC-wn
-wfCT1T2n yCT1T2wS 
-    wfCT1T2n yT1wS1 yT2S1S
-wfCT1n yCT1wS 
-    wfCT1n yT1wS
-wfTvp yTwS   wfTvp yTwS
-wfC-wvp yC-ww 
-    wfC-wvp
-wfCT1T2vp yCT1T2wS 
-    wfCT1T2vp yT1wS1 yT2S1S
-wfCT1vp yCT1wS 
-    wfCT1vp yT1wS
-wfvpT1vp yvpT1wS 
-    wfT1v yT1wS
-wfvpv-wvp yvpv-ww  
-wfTv yTwS   wfTv yTwS
-wfC-wv yC-ww 
-    wfC-wv
-wfv-wv yv-ww  
-wfCT1T2v yCT1T2wS 
-    wfCT1T2v yT1wS1 yT2S1S
-wfCT1v yCT1wS 
-    wfCT1v yT1wS
-Figure 3 A lemma table for wfTrees yTreekimwalks
-3 This produces a clause body that contains literals that refer to the subtree T1 and literals
-that refer to the subtree T2 The computation rule in eect partitions the literals and selects
-those that refer to the subtree T1 because they are associated with an instantiated left string
-argument
-4 A new table entry is created for the literals selected in 3 Informally this entry searches for
-an NP located at the beginning of the utterance Because this node is a root node the literal
-yTkimwalksS is selected for program expansion
-56 The literals with predicate wf are selected for program expansion
-7 The body of this nodes clause label is empty so its label is added to the solutions list of the
-table entry Informally this node corresponds to the string kim having been recognized as
-8 The solution found in 7 is incorporated into the tree beneath 3 A new table entry is
-generated to search for a VP spanning the string walks
-9 Just as in 3 the literals in the body of this clauses label refer to two distinct subtrees and
-as before the computation rule selects the literals that refer to T1 However there is already a
-table entry 4 for the selected goal so a new table entry is not created The solutions already
-found for 4 generate a child node to search for an N beginning at walks No solutions are
-found for this search
-4 Soundness and Completeness
-This section demonstrates the soundness and completness of the lemma table proof procedure
-Soundness is straight-forward but completeness is more complex to prove The completeness proof
-relies on the notion of an unfolding of a lemma tree in which the table nodes of a lemma tree are
-systematically replaced with the tree that they point to In the limit the resulting tree can be
-viewed a kind of SLD proof tree and completeness follows from the completeness of SLD resolution
-Theorem 1 Soundness If the output of lemma table proof procedure contains a clause G  C
-then P  C  G
-Proof Each of the clause labels on lemma tree nodes is either a tautology or derived by resolving
-other clause labels and program clauses Soundness follows by induction on the number of steps
-taken by the proof procedure
-As might be expected the completeness proof is much longer than the soundness proof For
-space reasons it is only sketched here
-For the completeness proof we assume that the control rule R is such that the output  of
-the lemma table proof procedure contains only clauses with empty bodies This is reasonable
-in the current context because non-empty clause bodies correspond to goals that have not been
-completely reduced
-Then completeness follows if for all P  G and  if P  G then there is an instance G on the
-solution list that subsumes G
-Further without loss of generality the abstraction operation  is assumed to be the identity
-function on goals since if Gt  Gt the goal Gt can be replaced with the equivalent
-Gt  t  t and  taken to be the identity function
-Now it is a corollary of the Switching Lemma 11 pages 4547 that if P  G then there is an
-n such that for any computation rule there is an SLD refutation of G of length n whose computed
-answer substitution  subsumes  We show that if  is a computed answer substitution for an
-SLD derivation of length n then there is a node tagged solution and labelled G   in lemma tree
-T for the top-level goal
-First a well-formedness condition on lemma trees is introduced Every lemma tree in a lemma
-table at the termination of the lemma table proof procedure is well-formed Well-formedness and
-the set of nodes tagged solution are preserved under an abstract operation on lemma trees called
-expansion The expansion of a lemma tree is the tree obtained by replacing each node tagged
-tableB  p with the lemma tree in the table entry pointed to by p
-Because expansions preserves well-formedness the lemma tree T  resulting from n iterated
-expansions of the lemma tree T for the top-level goal is also well-formed Moreover since the root
-node of every lemma tree is required to be tagged program all nodes in T  within distance n arcs of
-the root will be tagged program or solution This top part of T  is isomorphic to the top part of an
-SLD tree Ts for G so if  is a computed answer substitution for an SLD derivation in Ts of length
-n or less then there is a node tagged solution and labelled G   in T  and hence T  Since n was
-arbitrary every SLD refutation in Ts has a corresponding node tagged solution in T  and hence in
-5 Conclusion
-This paper generalizes standard memoization techniques for logic programming to allow them to
-be used for constraint logic programming The basic informational unit used in the Lemma Table
-proof procedure is the generalized clause G  C Generalized clauses can be given a constraint
-interpretation as any interpretation which satises the constraints C also satises G The lemmas
-recorded in the lemma table state how sets of literals are reduced to other sets of literals Because
-the heads of the lemmas consist of sets of literals rather than just individual literals the lemmas
-express properties of systems of constraints rather than just individual constraints Because the
-solutions recorded in the lemma table can contain unresolved constraints it is possible to pass
-constraints out of a lemma into the superordinate computation
-In this paper G and C were taken to be sets of literals and the constraints C were dened by
-Horn clauses In a more general setting both G and C would be permitted to contain constraints
-drawn from a specialized constraint language not dened by a Horn clause program Hohfeld
-and Smolka 5 show how to extend SLD resolution to allow general constraints over arbitrary
-domains Their elegant relational approach seems to be straight-forwardly applicable to the Lemma
-Table proof procedure and would actually simplify its theoretical description because equality and
-unication would be treated in the constraint system Unication failure would then be a special
-case of constraint unsatisability and would be handled by the optimization described by Hofeld
-and Smolka that permits nodes labelled with clauses G  C to be deleted if C is unsatisable
-References
-1 Chen W and DS Warren 1989 C-Logic of Complex Objects ms Department of Computer
-Science State University of New York at Stony Brook
-2 Chomsky N 1986 Knowledge of Language Its nature origins and use Praeger New York
-3 Earley J 1970 An ecient context-free parsing algorithm in Comm ACM 132 pages 94
-4 Giannesini F H Kanoiui R Pasero and M van Canegham 1986 Prolog Addison-Wesley
-Reading Massachusetts
-5 Hohfeld M and G Smolka 1988 Denite Relations over Constraint Languages Lilog re-
-port 53 IBM Deutschland
-6 Johnson M 1989 The Use of Knowledge of Language in Journal of Psycholinguistic Re-
-search 181
-7 Johnson M 1990 Features frames and quantier-free formulae in P Saint-Dizier and S
-Szpakowicz eds Logic and Logic Grammars for Language Processing Ellis Horwood New
-York pages 94107
-8 Johnson M 1991 Deductive Parsing The Use of Knowledge of Language in RC Berwick
-SP Abney and C Tenny eds Principle-based Parsing Computational and Psycholinguistics
-Kluwer Academic Publishers Dordrecht pages 3965
-9 Johnson M 1991 Techniques for deductive parsing in CG Brown and G Koch eds
-Natural Language and Logic Programming III North Holland Amsterdam pages 2742
-10 Johnson M 1992 The left-corner program transformation ms Brown University
-11 Lloyd J 1984 Foundations of Logic Programming Springer-Verlag Berlin
-12 Matsumoto M H Tanaka H Hirakawa H Miyoshi and H Yasukawa 1983 BUP a bottom-
-up parser embedded in Prolog in New Generation Computing 12 pages 145158
-13 Pereira F and S Shieber 1987 Prolog and Natural Language Analysis CSLI Lecture Notes
-Series Chicago University Press
-14 Pereira F and DH Warren 1983 Parsing as Deduction in Proceedings of the 21st Annual
-Meeting of the Association for Computational Linguistics MIT Cambridge Mass
-15 Shieber S 1985 Introduction to Unication-based theories of Grammar CLSI Lecture Notes
-Series Chicago University Press
-16 Smolka G 1992 Feature Constraint Logics for Unication Grammars in The Journal of
-Logic Programming 121-2 pages 5187
-17 Tamaki H and T Sato 1986 OLDT resolution with tabulation in Proceedings of Third
-International Conference on Logic Programming Springer-Verlag Berlin pages 8498
-18 Vieille L 1987 Database-complete proof procedures based on SLD resolution in Logic
-Programming Proceedings of the fourth international conference The MIT Press Cambridge
-Massachusetts
-19 Vieille L 1989 Recursive query processing
-the power of logic Theoretical Computer
-Science 69 pages 153
-20 Warren D S 1992 Memoing for logic programs in Communications of the ACM 353
-pages 94111
+Clustering and signalling of cell receptors
+Cavendish Laboratory University of Cambridge Cambridge CB3 0HE United Kingdom
+Yu Shi 
+Abstract
+As a response to ligand binding transmembrane cell receptors often en-
+hance their clustering or oligomerization during the signalling process Here
+we present a statistical mechanical model which combines the aspects of clus-
+tering and signalling
+In this model receptors oat on the surface while
+for two neighboring receptors there is an interaction energy dependent on
+their conformational states On the other hand ligand binding of a receptor
+shifts the energy dierence between the two conformational states Due to
+thermal uctuation the eects of clustering and signalling are statistical av-
+erage quantities This model reduces to a oating Ising model with a random
+eld We calculate the signalling in a grand canonical ensemble mean eld
+approach using Hubbard-Stratonovich transformation and replica method
+Monte Carlo simulations are also performed Essential biological features are
+obtained in our model
+Keywords cell receptors clustering oating Ising model in a random eld
+PACS numbers 8710e 8717-d 0520-y
+Typeset using REVTEX
+Email address ys219camacuk
+1 INTRODUCTION
+On the surface of a cell there are many transmembrane receptor molecules They are
+sensory machines of the cell Binding extracellular ligands changes the conformational
+states or in our point of view the probability distribution of the conformational states
+Consequently a cascade of responses occurs inside the cell This is called signalling which
+is often quite sensitive An example is bacterial chemotaxis 1 through the detection by
+its receptors a bacterium swims towards higher concentration of a chemical it likes or a
+lower concentration of a chemical it dislikes
+In this case thousands of receptors cluster
+together at a pole of the cell Recently based on detailed analyses on the experimental
+ndings I proposed that cooperative receptor-receptor interaction enhances the signalling
+and constructed a statistical mechanical theory for this process 24 My idea has since
+received considerable attention 1
+In 4 good consistency was found in comparing this
+theory with experimental results 510 and it was also suggested what kinds of experiment
+are needed
+In the case of many other cell receptors however usually they oat on the cell membrane
+A ubiquitous phenomenon is that ligand binding enhances the clustering of receptors during
+the signalling process Investigations on this issue are widely reported for various receptors
+for example integins which attach cells to the extracellular matrix tyrosine kinase receptors
+cytoskine receptors growth factor receptors tumor necrosis factor receptors including death
+receptors antigen receptors such as T-cell receptors bone morphogenetic protein receptor
+G-protein-coupled receptors etc 1119 In our previous works 24 the position of each
+receptor is xed and there is an a priori cluster In the present article we shall consider
+statistical mechanics of oating receptors Based on our model it is proposed that signalling
+sensitivity and clustering enhancement in certain cases are likely two consequences of the
+same mechanism based on conformation-dependent local receptor-receptor interaction
+In Sec 2 we give a detailed description of the model A mean eld calculation of the
+signalling as a statistical average quantity quantity is given in Sec 3 In Sec 4 we discuss
+receptor clustering Results of Monte Carlo simulations are given in Sec 5 Finally a
+summary and discussion is made in Sec 6
+2 THE MODEL
+Consider a collection of receptors on a lattice Fig 1 is an illustrative conguration
+Let the coordinate number be  which is 6 for a honeycomb lattice and is 4 for a square
+lattice Suppose that the receptors can move around on the lattice Hence at an instant
+a receptor has   nearest-neighboring receptors The conformational state of the receptor
+at lattice point i is represented as Vi the value of which is either V 0 or V 1 if we follow
+the two-state convention Vi can be understood as the position of the receptor molecule
+1The reference was mostly made to a publication which popularizes some rudiments of my idea
+T Duke and D Bray Proc Nat Acad Sci 96 10104 1999 and the attribution of credit was
+inappropriately made in T Duke N Le Novere and D Bray J Mol Bio 308 541 2001
+Obviously Vi is inuenced by whether this receptor is bound to ligand We suggest that
+Vi is also inuenced by the conformational states of its nearest-neighboring receptors due
+to receptor-receptor interaction which is dependent on their conformational states We use
+Hi to represent whether there is a ligand binding that is Hi  H 6 0 if the receptor is
+bound to ligand otherwise Hi  0 H can be understood as the force or torque generated
+by the ligand binding HVi is the energy due to ligand binding Given the ambient chemical
+concentration L the occupancy ie the fraction of receptors with ligand bound is
+L  Kd
+where Kd is the dissociation constant Therefore each Hi is randomly distributed between
+H and 0 with probabilities c and 1  c respectively Formally the probability distribution
+can be written as
+pHi  cHi  H  1  cHi
+where x  0 if x 6 0 while R xdx  1 Since usually Kd  L it is reasonable to
+regard the randomness of Hi as quenched 34
+We associate each site i with a variable ni which is 1 if there is a receptor on this site
+and is 0 otherwise In reality of course Vi and Hi are only dened when there is a receptor
+on site i However because the presence or not of a receptor at site i has been determined
+by ni for the convenience of treatment equivalently we may associate Vi and Hi to each site
+i no matter whether there is a receptor on site i Since the receptors are allowed to diuse
+ni is time-dependent One may constrain that the total number of receptors N  Pi ni is
+conserved It is also possible that the receptors may get out of the relevant region hence N is
+not conserved In any case we may use grand canonical ensemble approach characterized by
+the chemical potential which in the rst case is given by the constraint on the conservation
+of receptor number
+Therefore in absence of thermal uctuation we have
+Vi  Xj
+tijnjVj  Hi  Ui with x   V 1 if x  0
+V 0 if x  0
+where the summation is over the nearest neighbors j of site i Ui is a threshold value Tij is a
+coecient for the coupling between nearest neighbors Pj tijnjVj is the inuence ie force
+or torque on the receptor at site i from the nearest-neighboring sites Hi is the inuence
+ie force or torque generated by the ligand binding of the receptor at i itself Eq 3 means
+that if the total inuence on a receptor as the sum of that due to its ligand binding and
+that due to the interaction with the nearest-neighbors is larger than a certain value Ui the
+receptors is in state V 1 Otherwise it is V 0 Equivalently with tij  tji and tii  0 the
+dynamics is determined in the following Hamiltonian
+H  tXhiji
+ninjViVj Xi
+HiniVi  U Xi
+where hiji represents pairs of nearest neighbors tij and Ui have been set to be constants
+Eq 4 gives the total energy of the system with the kinetic energy neglected The rst
+term is the total interaction energy of nearest-neighboring pairs The second term is the
+energy due to ligand binding The third term is the original energy which together with
+the rst term determines the probability distribution of the conformational states of all
+the receptors in the absence of ligand binding of any receptor Without ligand binding and
+coupling with others the energy of a receptor is UV 0 for state V 0 and is UV 1 for state V 1
+With ligand binding but without coupling it is U  HV 0 for state V 0 and is U  HV 1
+for state V 1 The interaction energy of the pair hiji if sites i and j are both occupied by
+receptors is tViVj the value of which is dependent on both Vi and Vj Since ligand binding
+can cause more Vi to ip from V 0 to V 1 it is required that H  UV 1  V 0  0 Precise
+form of H is subject to future experiments However 4 captures the essential elements
+while allows a theoretical treatment
+For convenience we transform to a spin language with the spin dened as
+Vi  V 0
+V 1  V 0  1
+Hence it is Si  1 if Vi  V 1 and is Si  1 if Vi  V 0 In order to simplify the mathematics
+without loss of the essence suppose V 1  V 0 Therefore we obtain the following simplied
+Hamiltonian
+H  J Xij
+ninjSiSj Xi
+BiniSi
+with J  tV 1  V 024 Bi  Hi  UV 1  V 02 which is thus B1  H  UV 1  V 02
+with probability c and is B2  UV 1  V 02 with probability 1  c ie
+pBi  cBi  B1  1  cBi  B2
+We call this model dened by 6 and 7 oating Ising model with a quenched random eld
+at each site Note that it is not a diluted Ising model since ni is not a quenched disorder
+but is a dynamical variable on the same footing as Si
+It should be mentioned that a cell signalling process often involves dierent and largely
+separated time scales On a much longer time scale the degrees of signalling and clustering
+evolve after the stimulus till they return to the pre-stimulus levels So there is a piece of
+short-time scale physics and there is a piece of long-time scale physics Here it suces to
+discuss the the short-time scale physics ie the quasi-equilibrium part of the theory With
+an incorporation of the feedback the long-time scale behavior is similar to that described in
+Ref 34 With the adaptation process taken into account the ligand concentration above
+should be replaced as the change of the ligand concentration However as studied in 34
+perfect adaptation is equivalent to no ligand binding
+Guo and Levine studied the clustering of receptors under the assumption that the in-
+teraction between neighbors depends on whether the receptors are liganded 20 while the
+signalling problem was not considered As described in our model We think that it is
+more likely that the interaction depends on the conformations of the receptors rather than
+whether the receptors are liganded
+In addition to the consistency with the situation of
+chemotaxis 24 this is also supported by the strong experimental evidence that oligomer-
+ization is stabilized by receptor-receptor interaction promoted by conformational changes of
+the receptors 11141819
+3 MEAN-FIELD CALCULATION OF SIGNALLING
+sites h  i represents ensemble average ie average over the probability distribution of all
+possible congurations of the system It is straightforward to write it as V 1  V 0W2
+The activity of the system is hPi niVii where the summation is over all the lattice
+with W  hPi niSii  Im where m  hniSii is the average spin per site I is the number of
+lattice sites The signalling can be characterized by the change of W when the occupancy
+is changed from c  0 to c ie W c  W c  0  Imc  mc  0
+Therefore we set out to calculate m as a function of c using grand canonical ensemble
+approach The grand partition function is
+ Xni01 XSi11
+ePi nieH
+where  is the chemical potential H is as given in 6 Using Hubbard-Stratonovich trans-
+formation we obtain
+eH  AZ Yi
+di exp
+iK 1
+ij j Xi
+i  BiniSi
+where A  2I2detK12 K  Jij is a matrix K 1 is its inverse Consequently
+ZBi  AZ Yi
+di exp
+iK 1
+ij jYi
+2  eiBi  eiBi
+Based on ln Z  limn0Z n  1n the replica method yields
+ln ZBi  lim
+n 
+AnZ Yi
+i  exp
+2 Xij
+i K 1
+ij 
+j Yi
+2  e
+i Bi  e
+i Bi  1
+where   1     n denote the replicas
+Averaging ln Z over the Bi distribution 7 one obtains
+ln Z  Z ln ZBiYi
+AnZ Yi
+pBiYi
+2 Xij
+i  exp
+i K 1
+ij 
+Yi c1Y
+2  e
+i B1  e
+i B1  c2Y
+2  e
+i B2  e
+i B2  1 11
+where for notation convenience we have set c1  c and c2  1  c
+The mean eld value of 
+i can be obtained by deciding the saddle point of the integrand
+in Eq 11 for which one can obtain
+ij n 
+c1f n1
+g1  c2f n1
+1  c2f n
+where n is the saddle point value of 
+i  corresponding to n replicas fk  2enBk 
+enBk gk  enBk  enBk k  1 2 Taking n  0 limit we have
+ij   c1g1f 1  c2g2f 2 where   limn0 n f k  2  eBk  eBk
+gk  eBk  eBk k  1 2 Therefore
+Pj K 1
+  J  c1
+is the mean-eld value of the Hubbard-Stratonovich eld The saddle point approximation
+implies that
+ln Z  lim
+exp
+K 1
+ij c1f
+1  c2f
+n 
+2 I  1
+the ensemble average of Si
+m as a measure of the activity is calculated in the following way For given Bi
+is hSiiBi  lnZBiBi  lnZBii 
+where  is the mean-eld value of the Hubbard-Stratonovich eld as given in 13 Therefore
+  Jm Eq 13 can thus be written as
+ij hiiBi whose average over pBi gives the m Thus m  hSiiBi  Pj K 1
+Pj K 1
+m  Xk12
+eJmBk  eJmBk
+2  eJmBk  eJmBk
+The average receptor number is hNi  ln Z and can be evaluated as
+hNi  I Xk12
+eJmBk  eJmBk
+2  eJmBk  eJmBk
+15 and 16 can also be obtained in a simple mean eld approach regarding H  N
+as an eective Hamiltonian and considering four possibilities of the state ni Si at site i
+subject to an eective eld Jm  Bi
+Hence we have obtained an analytical expression for the signalling as a statistical average
+quantity If the receptor number is conserved in the system 16 gives  as a function of
+the receptor number
+Sensitivity of the signalling to ligand concentration is given by mc which can be
+arbitrarily large
+For annealed randomness which may apply to the rare case in which L is comparable
+to Kd one may obtain
+m  Pk12 ckeJmBk  eJmBk 
+Pk12 ck2  eJmBk  eJmBk 
+hNi  I Pk12 ckeJmBk  eJmBk 
+Pk12 ck2  eJmBk  eJmBk 
+In the high temperature limit the dierence between 15 and 17 and that between
+16 and 18 tend to diminish
+4 CLUSTERING
+The conformation-dependent interaction not only enhances signalling sensitivity it is
+also responsible for clustering The rst term of the Hamiltonian 6 implies that in order
+to minimize the Hamiltonian the receptors tend to aggregate together to maximize the
+number of nonzero ninj with Si  Sj for neighboring hiji Therefore receptors with the
+same conformational state tend to cluster However because of thermal uctuation they
+cannot all cluster together since there is a probability distribution for various congurations
+As an illustration of the situation a snapshot obtained in a Monte Carlo simulation is shown
+in Fig 1
+The second term in 6 determines how ligand binding aects the clustering situation It
+can be seen that U determines the bias of the distribution of the receptor state Si between
+1 and 1 when there is no ligand binding Hi  0 That is if U  0 for not-too-strong
+interaction compared with the temperature J2 there is an equal number of receptors
+with spin 1 and those with 1 If U  0 there are more receptors with spin 1 U also
+determines whether ligand binding enhances or suppresses the clustering For example we
+may consider two typical cases
+Case i U  H According to 3 this means that merely a ligand binding of a receptor
+is enough to change its conformational state In this case B1  0 B2  HV 1  V 02
+Case ii U  0 According to 4 this means that in the absence of ligand binding
+Hi  0 there is no bias in the state distribution In this case B1  HV 1 V 02 B2  0
+These two cases can map to each other with the transformation H  H and c  1  c
+In case i since B2  0 in the absence of ligand all Si tend to be close to 1 Ligand
+binding causes more Si to be 1 Because receptors with the same value of Si tend to
+cluster those with dierent Si tend to be disconnected the conclusion is that ligand binding
+suppresses clustering
+In case ii if there is no ligand binding there is no biasing eld so there are equal
+probabilities for Si to be 1 and 1 consequently the clustering is minimized When there
+is ligand binding the clustering is enhanced
+For other values of U ie U 6 0 and U 6 H we have the following general picture
+Without ligand binding there is a uniform eld B2 at every site In the presence of ligand
+binding there is a random eld as given by 7 With a rough mean eld estimation one
+may see that whether the clustering is enhanced depends on whether 1  cB2  cB1 has
+larger absolute value than B2 Thus only if H  2Uc is the clustering enhanced by ligand
+binding Case ii belongs to this region If U  H2 we have B1  B2
+The clustering of receptors can be studied quantitatively by dening a clustering corre-
+lation function as
+hniniri  hni2
+where the average is over dierent sites i and dierent directions of r rst and then over
+the thermodynamic ensemble ie dierent possible congurations at the same temperature
+2There is no such a limitation if the adaptation on a long time scale is considered see Ref 34
+hni  hNiI is the density of receptors on the lattice If there is no clustering correlation
+hninirihni2 consequently Cr  0 This correlation function measures the deviation
+from the non-correlating case and allows comparison of situations for dierent receptor
+densities This denition is similar to the two-point correlation function in the study of
+galaxy clustering One may also dene higher-order correlation functions We leave for
+future investigations the analytical calculation of the clustering correlation function and
+turn to numerical simulations here
+5 RESULTS OF MONTE CARLO SIMULATIONS
+To investigate the extent of clustering and to calculate the activity we have done Monte
+Carlo simulations using the Metropolis algorithm on a square lattice In the simulations
+we conserve the receptor numbers We have specically studied Case ii from which one
+may obtain the results for case i simply by changing c to 1  c The results show strong
+correlations for small values of r and weak correlations for large values of r The decay looks
+like exponential as expected for a non-critical system
+We studied correlation functions for dierent values of the ligand binding fraction c with
+a same receptor density hni See Figs 2a and 2b for results under dierent values of the
+coupling-noise-ratio J From the correlation function for small values of r it is clear that
+the larger the ligand binding fraction c the larger the correlation This conrms the above
+analyses
+Comparing Figs 2a and 2b it can be seen that with larger coupling-noise ratio J
+as in Fig 2a the correlation function Cr is larger at small values of r while smaller at
+large values of r indicating that clustering is stronger On the other hand for larger J
+the decay of Cr with r is faster because it is further from criticality
+We also studied the correlation functions for dierent values of receptor densities hni with
+a same ligand binding fraction c see Fig 2c It is shown that the smaller the receptor
+density the larger the correlation function This can be understood since the larger the
+density the less freedom two receptors can approach each other
+In the simulations we also obtained the activity The activity W can also be written as
+i represents summation over the receptors instead of the lattice sites Hence
+i Si where P
+it equals NM where M is the average activity per receptor
+Fig 3 gives the relation between the average activity per receptor M and the ligand
+binding occupancy c for dierent values of coupling-noise ratio J From the plots we see
+that the activity increases with the ligand binding fraction c with J and with the receptor
+density hni as consistent with the mean eld solution
+6 SUMMARY AND DISCUSSION
+In this paper we propose a statistical mechanical theory which accounts for clustering
+and signalling of receptors in a same framework Clustering and signalling of a network of
+receptors are treated as statistical average quantities In our model which can be reduced
+to a so-called oating Ising model in a random eld the interaction energy between neigh-
+boring receptors depends on their conformational states therefore through this interaction
+the conformational state of one receptor inuences those of its neighbors On the other
+hand since the receptors are allowed to move on the membrane the receptors with a same
+conformational state tend to cluster together in order to decrease the total energy of the
+system Therefore clustering and signalling are unied as two consequences of the same
+coupling between receptors
+According to our theory clustering exists even in absence of the ligand binding This
+is consistent with a recent experimental nding 18 We have studied clustering based on
+an appropriate denition of clustering correlation function Monte Carlo simulations were
+made To obtain the situation that ligand binding enhances the clustering a parameter
+namely the threshold value U for the change of the conformational state which determines
+the state distribution in the absence of ligand binding must be within a certain range If the
+values of the variable characterizing the two conformational states are symmetric ie with
+a same magnitude and with opposite signs then a simple possibility is that this threshold
+value is zero We note that it was found experimentally that in the absence of ligands the
+receptors are hindered to cluster by certain inhibitors which are squeezed out when ligands
+bind 21 In such a case it may be constrained that clustering is always enhanced by ligand
+binding
+By using a mean eld theory based on Hubbard-Stratonovich transformation and replica
+method as well as by using Monte Carlo simulations we also studied the activity as a
+function of ligand binding fraction c
+This model is also be interesting from the point of the view of statistical mechanics
+On the other hand it is straightforward to make appropriate extensions of this model for
+example to put in more details of the realistic systems The adaptation can be studied
+by straightforwardly generalizing our previous approach based on a counteracting eld as
+a feedback from the signal to the eld 3 In this case both signalling and clustering are
+adapted through a feedback on a long time scale
+A simple and direct experimental test of our theory is to examine whether conformational
+state of a receptor can be changed by ligand binding of its nearest-neighboring receptors It is
+interesting to study the forces generated by ligand bindings of a receptor and its neighbors
+Parameters in our model need to be measured The techniques used in studying single
+molecules may be useful for this subject
+ACKNOWLEDGEMENT
+I am grateful to Prof Howard Berg at Harvard University for enlightening useful and
+pleasant discussions during my work on Ref 4 and the current paper
+Figure Captions
+Fig 1 A congurational snapshot of 300 receptors on a 50  50 lattice It is in 10000
+Monte Carlo steps after an initial random conguration An empty circle represents a
+receptor with Si  1 and Bi  0 a lled circle represents a receptor with Si  1 and
+Bi  B an empty square represents a receptor with Si  1 and Bi  0 a lled square
+represents a receptor with Si  1 and Bi  B The probability for Bi to be B is 08
+B  2 J  08 Obviously increasing J enhances clustering
+Fig 2 Monte Carlo calculation of the clustering correlation function Cr for receptors
+on a 50  50 lattice The result is obtained by averaging over dierent sites with the
+same distance and over 1000 Monte Carlo steps following 10000 initial steps to approach
+equilibrium B  2 a J  16 there are 300 receptors results for dierent values
+of ligand binding fraction are displayed as dierent symbols b J  08 there are 300
+receptors results for dierent values of ligand binding fraction are displayed as dierent
+symbols
+c J  08 the ligand binding fraction c  08 results for dierent total
+numbers of receptors are displayed as dierent symbols
+Fig3 Monte Carlo calculation of the activity of the receptors on a 50  50 lattice
+For comparison between dierent densities of receptors we give the relation between the
+average spin per receptor M and the ligand binding occupancy c The result is obtained
+by averaging over all receptors and over 1000 Monte Carlo steps following 10000 initial
+steps to approach equilibrium B  2 i N  300 J  0  ie there is no receptor-
+receptor interaction ii N  300 J  04  iii N  300 J  08  iv N  300
+J  16  In this case the deviation of Mc  0 from 0 is spontaneous magnetization
+due to strong coupling but it is always brought to 0 by the negative feedback on a long time
+scale 34 v N  900 J  08 
+1 H Berg Random Walk in Biology Princeton University Press Princeton 1993 Phys
+REFERENCES
+Today 531 24 2000
+httpxxxarXivorgabsphysics9901052
+1998
+3 Y Shi Europhys Lett 50 113 2000 httpxxxarXivorgabsphysics9901053
+4 Y Shi Phys Rev E 64 021910 2001 httpxxxarXivorgabsphysics0103033
+5 S Khan et al Biophys J 65 2368 1993
+6 R Jasuja et al Proc Natl Acad Sci USA 96 11346 1999
+7 R Jasuja et al Biophys J 76 1706 1999
+8 J L Spudich and D E Koshland Proc Natl Acad Sci USA 72 710 1975
+9 J A Bornhorst and J J Falke Biochemistry 39 9486 2000
+10 V Sourjik and H C Berg Mol Microbio 37 740 2000
+11 M A Lemmon et al Embo J 16 281 1997
+12 C -H Heldin C-H Cell 80 213 1995
+13 M A Lemmon et al Trends Biochem Sci 19 459 1994
+14 R N Germain Curr Biol 7 R640 1997
+15 Z Reich et al Nature 387 617 1997
+16 A Ashkenazi and V M Dixit Science 281 1305 1998
+17 F G Giancotti and E Ruoslahti Science 285 1028 1999
+18 L Gilboa it et al Mol Bio Cell 11 1023 2000
+19 A Schulz A et al J Bio Chem 275 2381 2000
+20 C Guo and H Levine Biophys J 77 2358 1999
+21 Y Jiang et al Science 283 543 1999

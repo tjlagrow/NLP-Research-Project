@@ -1,878 +1,952 @@
-Gap Analysis of Natural Language Processing
-Systems with respect to Linguistic Modality
-Vishal Shukla
-Abstract
-Modality is one of the important components of grammar in linguistics It
-lets speaker to express attitude towards or give assessment or potentiality
-of state of aairs It implies dierent senses and thus has dierent percep-
-tions as per the context This paper presents an account showing the gap
-in the functionality of the current state of art Natural Language Processing
-NLP systems The contextual nature of linguistic modality is studied In
-this paper the works and logical approaches employed by Natural Language
-Processing systems dealing with modality are reviewed It sees human cog-
-nition and intelligence as multi-layered approach that can be implemented
-by intelligent systems for learning Lastly current ow of research going on
-within this eld is talked providing futurology
-Keywords modality NLP gap shortcomings multi-layered learning
-1 Introduction
-Research in NLP is gaining interest as its applications are becoming more
-signicant Natural language is highly ambiguous and understanding it ef-
-fectively can be considered as a primary concern Modality in language is
-associated with contextual understanding and implied perceptions Dening
-modality from a computational linguistics perspective is somewhat dicult
-because several concepts are used to refer to phenomena that are related to
-modality depending on the task at hand and the specic singularities that
-V Shukla
-Systems Engineer
-Infosys Bangalore India
-Contact no 91-97394 99580
-E-mail vishal shukla04infosyscom
-the speaker addresses There are dierent senses that can be articulated by
-modality Understanding precise sense conveyed is important
-The major tasks involved in dealing with modality in text are detecting
-the occurrence of modality categorizing the type of modality and perceiving
-the sense conveyed through it Parsers and language processing tools iden-
-ties the occurrence of modals by Part of Speech POS tagging Talking
-about type of modality in the literature standard classication of types is
-not available as various types are dened But we consider the classication
-broadly as in two types epistemic and deontic According to Palmer 2014
-epistemic is used by the speakers to express their judgment about the factual
-status of the proposition Whereas deontic modality is concerned with the
-speakers directive attitude towards an action to be carried out It relates
-to obligation or permission and to conditional factors that are external to
-the relevant individual The senses of necessity and possibility are incorpo-
-rated by epistemic type while those of permission and obligation by deontic
-Modality type categorization and the sense recognition has been carried out
-by annotation approaches
-This paper will closely observe the methods applied for the abovemen-
-tioned tasks and also review the works in the subject eld
-It will then
-highlight shortcomings of the state of art natural language systems in con-
-text to linguistic modality that forming the gap in their functionality Latter
-sections will be covering the directions for the scope of improvement in the
-same context
-2 Context Review
-As tagging and annotating are the two key aspects lets summarize them
-regarding to the language processing The process of tagging involves assign-
-ing tags to each word in the corpus corresponding to the part of speech that
-it embodies The Part of Speech tagging is an essential subtask in language
-processing and is very useful for subsequent phases like syntactic parsing
-The tags into which a token can possibly classied depends on the tagset
-adopted for this task That is it depends upon the Treebank taken into use
-which denes the directory of the tags
-Annotation on the other hand uses machine learning approach It uses
-pre-annotated corpus to learn and annotate plain text The annotations
-made are markups usually representing extended features The extended fea-
-tures may include polarity certainty subjectivity sense and type of modality
-event mentions etc POS tagging is also carried out with machine learn-
-ing methods in a similar way as annotation Manning and Schutze 1999
-Ratnaparkhi et al 1996 Toutanova and Manning 2000
-21 Detecting occurrence
-A number of dierent expressions in language can have modal meanings
-Von Fintel 2006 discusses on a subset of variety of modal expressions Tak-
-ing into account the tagging output of Stanford NLP parser of few sample
-sentences with dierent expressions some points will be highlighted
-In case of modal auxiliaries used the parser tags the same with MD ie
-1 Sandy must be home
-SandyNNP mustMD
-homeNN
-Thus any explicit occurrence of modal auxiliaries such as must shouldshall
-might may couldcan will be detected well and clear
-Whereas semi-modals like has to need to ought to follow dierent treat-
-ment Sometimes ought to is considered as modal and sometimes as semi-
-modal because of dierence in its syntax Anyhow it is tagged as a modal
-Rest of the semi-modals are not tagged as modal but auxiliary verbs and
-structure of sentence can be identied by parsers
-2 Sandy has to be home
-SandyNNP
-hasVBZ
-homeNN
-3 Sandy ought to be home
-SandyNNP
-oughtMD
-homeNN
-Apart from modal auxiliaries and semi-modals modal meaning can also
-be conveyed using adverbs perhaps probably etc nouns possibility ne-
-cessity etc adjectives bound certain etc and also conditional constructs
-if then
-4 It is far from necessary that Sandy is home
-SandyNNP
-homeNN
-fromIN
-necessaryJJ
-thatIN
-5 There is a slight possibility that Sandy is home
-ThereEX
-SandyNNP
-homeNN
-slightJJ
-possibilityNN
-thatIN
-6 Perhaps Sandy is home
-PerhapsRB
-SandyNNP
-homeNN
-7 If the light is on Sandy is home
-IfIN theDT
-homeNN
-lightNN
-SandyNNP
-Although the advances in calibration of parsers has improved the ability
-to tag words accurately but above certain point the mechanism seem to
-become insucient to gather underlying information that is not supercial
-or apparent
-22 Type Categorization and Sense Perception
-Categorization of type of modality in text and the identication of sense
-conveyed can be done by developing annotation schemes There are works
-that accommodate annotating of those features but not necessarily they are
-organized with study of languages perspective which makes it dicult to
-summarize and separate out the relevant points of interest Upon review-
-ing the literature it can be seen that various annotating schemes has been
-constructed over time for marking annotations of dierent components
-Baker et al 2012 described a modalitynegation MN annotation scheme
-which isolates three components of modality and negation a trigger that is
-source of modality or negation a target action associated with modality or
-negation and a holder the experiencer of modality Moreover they have
-constructed MN lexicon and two automated MN taggers using the annotation
-scheme
-Ruppenhofer and Rehbein 2012 presents annotation scheme that anno-
-tates type of English modals in MPQA corpus The modal verbs targeted
-were cancould maymight must ought shallshould The annotation in-
-volved categorization of the modals in to six types epistemic deontic dy-
-namic optative concessive conditional
-Pakray et al 2012 experimented on QA4MRE data sets to identify modal-
-ity and negation in text and assign labels mod neg neg-mod none for oc-
-currences of modal negation modality and negation and absence of both
-modality and negation respectively And the detected modals were catego-
-rized into epistemic and deontic
-Hendrickx et al 2012 presents a scheme for annotation of modality in
-Portuguese using MMAX2 tool The components annotated were trigger
-the element conveying the modal value target the expression in the scope
-of the trigger source of the event mention speaker or writer and source
-of the modality agent or experiencer Also for trigger two attributes were
-specied modal value and polarity They stated thirteen dierent types into
-which the modal value could be categorized
-Rubinstein et al 2013 proposed ne-grained annotation approach utiliz-
-ing MPQA corpus and MMAX2 tool It was said to be ne-grained as it ex-
-tends some of the previous works with a number of novel features to improve
-detection and interpretation of modals in text The features annotated were
-modality type polarity propositional arguments source background modi-
-ed element degree indicator outscoping quantier and lemma The types
-into which modality was categorized are ne grained types epistemic cir-
-cumstantial ability deontic bouletic teleological and bouleticteleological
-and the coarse grained types epistemic or circumstantial ability or circum-
-stantial and priority
-On surveying other studies carried out using annotations apparently it
-seems that more and more attributes were annotated to make text under-
-standing precise Certain works moved in the direction of subjectivity anal-
-ysis some in certainty analysis whereas others focused on time events and
-temporal analysis all of them being implicitly useful in the study of type
-andor sense understanding of modality
-Dierent types of subjectivity is implied in discourse by dierent types
-epistemic and deontic modals The relationship between subjectivity and
-modality is elaborately discussed in Sanders and Spooren 1997
-Rubin et al
-2004 2006 presented a certainty categorization model
-based on four hypothesized dimensions and tested the model on a sample of
-news articles Rubin 2010 identies that certainty can be seen as a variety
-of epistemic modality expressed in form of markers like probably perhaps
-undoubtedly etc
-Nissim et al 2013 proposed modality annotation model that they say
-to be two layered Factuality and speakers attitude being two components
-marked they also plan to make the model more coherent by annotating
-strength of modality
-Matsuyoshi et al 2010 clearly draws attention to the point that recent
-developments in language processing has improved precision but is insuf-
-cient for applications such as information extraction question answering
-and recognizing textual entailment Such applications require more informa-
-tion such as modality polarity and other associated information collectively
-referred as extended modality Matsuyoshi proposes an annotation scheme
-that represents extended modality and consists of seven components source
-time conditional primary modality type actuality evaluation and focus
-Utilizing the work they also constructed an annotated corpus in Japanese
-Emphasizing upon event modality Saur et al 2006a says that modality
-is an important component of discourse together with other levels of infor-
-mation such as argument structure and temporal information That made
-an apparent need for a more sophisticated approach that is sensitive to such
-additional information They worked on annotation scheme that annotates
-event modality and also identifying its scope using TimeML Saur 2006b
-has also worked on SlinkET attempting the construction of modal parser for
-events Pustejovsky et al 2003 built the TimeBank corpus which is an-
-notated with information like modals events times relation between events
-and temporal expressions Saur and Pustejovsky 2009 built the FactBank
-on the basis of TimeBank where events are assigned with dierent degrees of
-factuality according to their source-introducing predicates SIPS and source
-Dierent degrees of factuality are determined by dierent degrees of certainty
-and polarity axes Degrees of certainty include certain probable possible and
-unknown Whereas polarity axis contained positive negative and underspec-
-ied
-3 Gap and Futurology
-Linguistic modality is one of the components of discourse that is asso-
-ciated with context sense and meaning mental and real spaces and force
-dynamics
-Also there is no proper well dened classication of dierent types and
-senses of modality in linguistic literature This lack of taxonomy has con-
-trived enormous confusions regarding types and senses Considering the fact
-that the section is complex and modality in discourse has many aspects as-
-sociated with it and its wider scope even language scientists can contribute
-towards it
-First point noted is that dierent kinds of expressions can be used to
-convey modal meanings And we saw that the tagging approach is limited
-to tag modals explicit use in text Moreover taggers dont put any further
-light on the type and sense of the modality Though attempts have made on
-type and sense classication using annotation methods but due to exibility
-of meanings it is dicult to standardize Flexibility of meaning means the
-modal verb has dierent meaning according to context Modality in language
-has contextual meanings and implied perceptions And mechanisms fail to
-identify perspective aspect and contextuality
-Another drawback is dependency in both methods tagging as well as
-annotating The process of tagging is dependent on the tagset and the an-
-notation scheme is limited by its own training corpus Although this lexicon
-dependency of the available approaches are useful for preliminary passes of
-processing but not an eective way for understanding natural language which
-includes cognition and perception
-At this point inspiring from human information processing mechanisms
-would be seen appropriate In this context understanding of human cognitive
-process can denitely enlighten the path of development to make our systems
-articially intelligent Computational models of cognition creative insight
-skill acquisition and the design of instructional software as well as other top-
-ics in higher cognition needs to be reconsidered It is noteworthy to see the
-humans perceptive systems visual or speechaudio etc both are essentially
-layered and hierarchical in structure Thus it is natural to believe that the
-state-of-the-art can be advanced in processing these types of natural lan-
-guage if structurally ecient and eective learning model can be developed
-The layered structure of human learning shown in Kaplan  Sadocks Com-
-prehensive Textbook of Psychiatry Sadock 2000 g 24-1 is instrumental
-in visualization of complexity and multi-stage structure involved Moreover
-the interconnection and synergy between the layers is equally vital
-Real systems are dynamic in nature and reform continuous shift that
-produce perceptual dierence If the shift is in upward direction in hierar-
-chical multi-layered model that results in high dimensionality in nature of
-expression Thus the expression becomes nonspecic and losses subjectiv-
-ity Nonspecic discourse are too complex to interpret and to reach to any
-conclusion is very dicult From viewing the software dealing with language
-processing looks in direction and trends accordance to the subject Articial
-Intelligence AI and Robotics that attempts to mimic the dynamic and be-
-havioral output from human In context of natural language processing with
-special reference to modality processing noticeable development observed in
-static format of expressions and expression of contextuality also attempted
-within one document as in MMAX2 from German NLP group
-Neural network hidden layer processing and continuous modication were
-successfully executed in mechanical output in eld of machine learning The
-directions were explored with annotated titles like deep learning and lay-
-ered approach handling are most popular among research works in language
-processing
-As per the objectives of a system some key features that should be consid-
-ered such as relevant well-structured knowledge base with improved feature
-space should be formed upon each processing And this knowledge base must
-be dynamically updated active learning that means continuous updatation
-of the knowledge base by each layer of the model so that it can eectively
-be useful in applications of the system
-Machine learning has been a dominant tool in NLP for many years How-
-ever the use of traditional machine learning in NLP has been mostly lim-
-ited to numerical optimization of weights for human designed representations
-and features from the text data The goal of representation learning is to
-automatically develop features or representations from the raw text material
-appropriate for a wide range of NLP tasks
-Deep learning is gaining popularity very recently as it provides levels of
-abstraction The multi-layered architecture formed due to the levels ensure
-natural progression from low level to high level structure as seen in natural
-complexity Deep learning works on the principle of formation of learning
-representations The essence of deep learning is to automate the process
-of discovering eective features or representations for any machine learning
-task including automatically transferring knowledge from one task to an-
-other concurrently In regard to NLP deep learning develops and makes use
-an important concept called embedding which refers to the representation
-of symbolic information in natural language text at word-level phrase-level
-and even sentence-level in terms of continuous-valued vectors
-Another concept of multi-task learning has also shown improvements in
-learning approaches Multi-task learning is a machine learning approach that
-learns to solve several related problems at the same time using a shared
-representation It can be regarded as one of the two major classes of transfer
-learning or learning with knowledge transfer which focuses on generalizations
-across distributions domains or tasks The other major class of transfer
-learning is adaptive learning where knowledge transfer is carried out in a
-sequential manner typically from a source task to a target task
-31 Recent works with deep architectures in NLP
-Variety of deep architectures like neural networks deep belief networks
-and others has shown signicant performance in various applications of lan-
-guage processing including other elds
-Collobert et al 2011 provide a comprehensive review on ways of apply-
-ing unied neural network architectures and related deep learning algorithms
-to solve NLP problems from scratch meaning that no traditional NLP meth-
-ods are used to extract features The recent work by Mikolov et al 2013a
-derives word embeddings by simplifying the Neural Network Language Model
-NNLM It is found that the NNLM can be successfully trained in two
-steps Yet another deep learning approach to machine translation appeared
-in Mikolov et al 2013b
-One most interesting NLP task recently tackled by deep learning meth-
-ods is that of knowledge base ontology completion which is instrumental in
-question-answering and many other NLP applications An early work in this
-space came from Bordes et al 2011 where a process is introduced to auto-
-matically learn structured distributed embeddings of knowledge bases The
-proposed representations in the continuous-valued vector space are compact
-and can be eciently learned from large-scale data of entities and relations
-A specialized neural network architecture is used In the follow-up work that
-focuses on multi-relational data Bordes et al 2014 the semantic matching
-energy model is proposed to learn vector representations for both entities
-and relations
-Other recent works Socher et al 2013 and Bowman 2013 adopts an
-approach based on the use of neural tensor networks to attack the problem
-of reasoning over a large joint knowledge graph for relation classication
-The knowledge graph is represented as triples of a relation between two en-
-tities and the authors aim to develop a neural network model suitable for
-inference over such relationships The model they presented is a neural ten-
-sor network with one layer only but it would be encouraged to work further
-on multi-layered network models The network is used to represent entities
-in xed-dimensional vectors which are created separately by averaging pre-
-trained word embedding vectors It then learns the tensor with the newly
-added relationship element that describes the interactions among all the la-
-tent components in each of the relationships Experimentally Socher et al
-shows that this tensor model can eectively classify unseen relationships in
-WordNet and FreeBase Thus models built on tensors can contribute upto
-certain extent for reasoning over relationships between entities enhancing
-knowledge bases for improved performance Works utilizing Recursive Neu-
-ral Networks RNN for syntactic parsing and word representations has been
-performed in Luong et al 2013 Socher et al 2010 Deep neural networks
-have been popular and are well performing as they are intrinsically multi-
-layered in structure
-Deep learning is a hot area of research and there is still much potential
-for signicant advances It can be said that the paradigm of deep learning
-architectures can improve the results of our models upto quite a certain ex-
-tent but there is still a limit to it considering the whole problem statement
-This is because the deep neural networks are yet a kind of black box model
-in terms of functionality By revising models and designs enhancement in
-performance of deep learning algorithms can surely be made as per specic
-application domain but there would be a bound to the possible improvements
-and the available approaches wouldnt provide enough means to the desired
-level of Articial Intelligence Approaches that are multi-layered and prefer-
-ably white box models would be essentially important for organization and
-control of intermediate layers functionalities
-As mentioned above not only for application in NLP but for any ap-
-plication that deals with dynamics of real world conditions development
-of complex system using combination of several simple modular and multi-
-layered hierarchal architectures with the key features will be helpful And
-hopefully such models can attain better linguistic understanding accuracy
-that would be contributory to the application expertise
-References
-Baker K Bloodgood M Dorr BJ Callison-Burch C Filardo NW Piatko C
-Levin L Miller S 2012 Modality and negation in simt use of modality and
-negation in semantically-informed syntactic mt Computational Linguistics
-382411438
-Bordes A Weston J Collobert R Bengio Y et al 2011 Learning structured
-embeddings of knowledge bases In AAAI
-Bordes A Glorot X Weston J Bengio Y 2014 A semantic matching en-
-ergy function for learning with multi-relational data Machine Learning
-942233259
-Bowman SR 2013 Can recursive neural tensor networks learn logical rea-
-soning arXiv preprint arXiv13126192
-Collobert R Weston J Bottou L Karlen M Kavukcuoglu K Kuksa P 2011
-Natural language processing almost from scratch The Journal of Ma-
-chine Learning Research 1224932537
-Hendrickx I Mendes A Mencarelli S 2012 Modality in text a proposal for
-corpus annotation In LREC pp 18051812
-Luong MT Socher R Manning C 2013 Better word representations with
-recursive neural networks for morphology CoNLL-2013 104
-Manning CD Schutze H 1999 Foundations of statistical natural language
-processing MIT press
-Matsuyoshi S Eguchi M Sao C Murakami K Inui K Matsumoto Y 2010
-Annotating event mentions in text with modality focus and source infor-
-mation In LREC
-Mikolov T Chen K Corrado G Dean J 2013a Ecient estimation of word
-representations in vector space arXiv preprint arXiv13013781
-Mikolov T Le QV Sutskever I 2013b Exploiting similarities among lan-
-guages for machine translation arXiv preprint arXiv13094168
-Nissim M Pietrandrea P Sanso A Mauri C 2013 Cross-linguistic anno-
-tation of modality a data-driven hierarchical model In Workshop on
-Interoperable Semantic Annotation p 7
-Pakray P Bhaskar P Banerjee S Bandyopadhyay S Gelbukh AF 2012 An
-automatic system for modality and negation detection In CLEF Online
-Working NotesLabsWorkshop Citeseer
-Palmer FR 2014 Modality and the English modals Routledge
-Pustejovsky J Hanks P Sauri R See A Gaizauskas R Setzer A Radev
-D Sundheim B Day D Ferro L et al 2003 The timebank corpus In
-Corpus linguistics vol 2003 p 40
-Ratnaparkhi A et al 1996 A maximum entropy model for part-of-speech
-tagging In Proceedings of the conference on empirical methods in natural
-language processing Philadelphia PA vol 1 pp 133142
-Rubin VL 2010 Epistemic modality From uncertainty to certainty in the
-context of information seeking as interactions with texts Information Pro-
-cessing  Management 465533540
-Rubin VL Kando N Liddy ED 2004 Certainty categorization model In
-AAAI spring symposium Exploring attitude and aect in text Theories
-and applications Stanford CA
-Rubin VL Liddy ED Kando N 2006 Certainty identication in texts Cat-
-egorization model and manual tagging results In Computing attitude and
-aect in text Theory and applications Springer pp 6176
-Rubinstein A Harner H Krawczyk E Simonson D Katz G Portner P 2013
-Toward ne-grained annotation of modality in text In Proceedings of the
-Tenth International Conference for Computational Semantics IWCS 2013
-Ruppenhofer J Rehbein I 2012 Yes we can annotating the senses of
-english modal verbs In Proceedings of the 8th International Conference
-on Language Resources and Evaluation LREC pp 2426
-Sadock BJ 2000 Kaplan  Sadocks Comprehensive Textbook of Psychiatry
-2 Volume Set Lippincott Williams  Wilkins
-Sanders J Spooren W 1997 Perspective sulijectivity and modality from
-a cognitive inguis ic point of view Discourse and perspective in cognitive
-linguistics 15185
-Saur R Pustejovsky J 2009 Factbank A corpus annotated with event
-factuality Language resources and evaluation 433227268
-Saur R Verhagen M Pustejovsky J 2006a Annotating and recognizing
-event modality in text In Proceedings of 19th International FLAIRS
-Conference
-Saur R Verhagen M Pustejovsky J 2006b Slinket a partial modal parser
-for events In In Language Resources and Evaluation Conference LREC
-2006 Citeseer
-Socher R Manning CD Ng AY 2010 Learning continuous phrase represen-
-tations and syntactic parsing with recursive neural networks In Proceed-
-ings of the NIPS-2010 Deep Learning and Unsupervised Feature Learning
-Workshop pp 19
-Socher R Chen D Manning CD Ng A 2013 Reasoning with neural tensor
-networks for knowledge base completion In Advances in Neural Informa-
-tion Processing Systems pp 926934
-Toutanova K Manning CD 2000 Enriching the knowledge sources used in a
-maximum entropy part-of-speech tagger In Proceedings of the 2000 Joint
-SIGDAT conference on Empirical methods in natural language processing
-and very large corpora held in conjunction with the 38th Annual Meeting
-of the Association for Computational Linguistics-Volume 13 Association
-for Computational Linguistics pp 6370
-Von Fintel K 2006 Modality and language
-Gap Analysis of Natural Language Processing
-Systems with respect to Linguistic Modality
-Vishal Shukla
-Abstract
-Modality is one of the important components of grammar in linguistics It
-lets speaker to express attitude towards or give assessment or potentiality
-of state of aairs It implies dierent senses and thus has dierent percep-
-tions as per the context This paper presents an account showing the gap
-in the functionality of the current state of art Natural Language Processing
-NLP systems The contextual nature of linguistic modality is studied In
-this paper the works and logical approaches employed by Natural Language
-Processing systems dealing with modality are reviewed It sees human cog-
-nition and intelligence as multi-layered approach that can be implemented
-by intelligent systems for learning Lastly current ow of research going on
-within this eld is talked providing futurology
-Keywords modality NLP gap shortcomings multi-layered learning
-1 Introduction
-Research in NLP is gaining interest as its applications are becoming more
-signicant Natural language is highly ambiguous and understanding it ef-
-fectively can be considered as a primary concern Modality in language is
-associated with contextual understanding and implied perceptions Dening
-modality from a computational linguistics perspective is somewhat dicult
-because several concepts are used to refer to phenomena that are related to
-modality depending on the task at hand and the specic singularities that
-V Shukla
-Systems Engineer
-Infosys Bangalore India
-Contact no 91-97394 99580
-E-mail vishal shukla04infosyscom
-the speaker addresses There are dierent senses that can be articulated by
-modality Understanding precise sense conveyed is important
-The major tasks involved in dealing with modality in text are detecting
-the occurrence of modality categorizing the type of modality and perceiving
-the sense conveyed through it Parsers and language processing tools iden-
-ties the occurrence of modals by Part of Speech POS tagging Talking
-about type of modality in the literature standard classication of types is
-not available as various types are dened But we consider the classication
-broadly as in two types epistemic and deontic According to Palmer 2014
-epistemic is used by the speakers to express their judgment about the factual
-status of the proposition Whereas deontic modality is concerned with the
-speakers directive attitude towards an action to be carried out It relates
-to obligation or permission and to conditional factors that are external to
-the relevant individual The senses of necessity and possibility are incorpo-
-rated by epistemic type while those of permission and obligation by deontic
-Modality type categorization and the sense recognition has been carried out
-by annotation approaches
-This paper will closely observe the methods applied for the abovemen-
-tioned tasks and also review the works in the subject eld
-It will then
-highlight shortcomings of the state of art natural language systems in con-
-text to linguistic modality that forming the gap in their functionality Latter
-sections will be covering the directions for the scope of improvement in the
-same context
-2 Context Review
-As tagging and annotating are the two key aspects lets summarize them
-regarding to the language processing The process of tagging involves assign-
-ing tags to each word in the corpus corresponding to the part of speech that
-it embodies The Part of Speech tagging is an essential subtask in language
-processing and is very useful for subsequent phases like syntactic parsing
-The tags into which a token can possibly classied depends on the tagset
-adopted for this task That is it depends upon the Treebank taken into use
-which denes the directory of the tags
-Annotation on the other hand uses machine learning approach It uses
-pre-annotated corpus to learn and annotate plain text The annotations
-made are markups usually representing extended features The extended fea-
-tures may include polarity certainty subjectivity sense and type of modality
-event mentions etc POS tagging is also carried out with machine learn-
-ing methods in a similar way as annotation Manning and Schutze 1999
-Ratnaparkhi et al 1996 Toutanova and Manning 2000
-21 Detecting occurrence
-A number of dierent expressions in language can have modal meanings
-Von Fintel 2006 discusses on a subset of variety of modal expressions Tak-
-ing into account the tagging output of Stanford NLP parser of few sample
-sentences with dierent expressions some points will be highlighted
-In case of modal auxiliaries used the parser tags the same with MD ie
-1 Sandy must be home
-SandyNNP mustMD
-homeNN
-Thus any explicit occurrence of modal auxiliaries such as must shouldshall
-might may couldcan will be detected well and clear
-Whereas semi-modals like has to need to ought to follow dierent treat-
-ment Sometimes ought to is considered as modal and sometimes as semi-
-modal because of dierence in its syntax Anyhow it is tagged as a modal
-Rest of the semi-modals are not tagged as modal but auxiliary verbs and
-structure of sentence can be identied by parsers
-2 Sandy has to be home
-SandyNNP
-hasVBZ
-homeNN
-3 Sandy ought to be home
-SandyNNP
-oughtMD
-homeNN
-Apart from modal auxiliaries and semi-modals modal meaning can also
-be conveyed using adverbs perhaps probably etc nouns possibility ne-
-cessity etc adjectives bound certain etc and also conditional constructs
-if then
-4 It is far from necessary that Sandy is home
-SandyNNP
-homeNN
-fromIN
-necessaryJJ
-thatIN
-5 There is a slight possibility that Sandy is home
-ThereEX
-SandyNNP
-homeNN
-slightJJ
-possibilityNN
-thatIN
-6 Perhaps Sandy is home
-PerhapsRB
-SandyNNP
-homeNN
-7 If the light is on Sandy is home
-IfIN theDT
-homeNN
-lightNN
-SandyNNP
-Although the advances in calibration of parsers has improved the ability
-to tag words accurately but above certain point the mechanism seem to
-become insucient to gather underlying information that is not supercial
-or apparent
-22 Type Categorization and Sense Perception
-Categorization of type of modality in text and the identication of sense
-conveyed can be done by developing annotation schemes There are works
-that accommodate annotating of those features but not necessarily they are
-organized with study of languages perspective which makes it dicult to
-summarize and separate out the relevant points of interest Upon review-
-ing the literature it can be seen that various annotating schemes has been
-constructed over time for marking annotations of dierent components
-Baker et al 2012 described a modalitynegation MN annotation scheme
-which isolates three components of modality and negation a trigger that is
-source of modality or negation a target action associated with modality or
-negation and a holder the experiencer of modality Moreover they have
-constructed MN lexicon and two automated MN taggers using the annotation
-scheme
-Ruppenhofer and Rehbein 2012 presents annotation scheme that anno-
-tates type of English modals in MPQA corpus The modal verbs targeted
-were cancould maymight must ought shallshould The annotation in-
-volved categorization of the modals in to six types epistemic deontic dy-
-namic optative concessive conditional
-Pakray et al 2012 experimented on QA4MRE data sets to identify modal-
-ity and negation in text and assign labels mod neg neg-mod none for oc-
-currences of modal negation modality and negation and absence of both
-modality and negation respectively And the detected modals were catego-
-rized into epistemic and deontic
-Hendrickx et al 2012 presents a scheme for annotation of modality in
-Portuguese using MMAX2 tool The components annotated were trigger
-the element conveying the modal value target the expression in the scope
-of the trigger source of the event mention speaker or writer and source
-of the modality agent or experiencer Also for trigger two attributes were
-specied modal value and polarity They stated thirteen dierent types into
-which the modal value could be categorized
-Rubinstein et al 2013 proposed ne-grained annotation approach utiliz-
-ing MPQA corpus and MMAX2 tool It was said to be ne-grained as it ex-
-tends some of the previous works with a number of novel features to improve
-detection and interpretation of modals in text The features annotated were
-modality type polarity propositional arguments source background modi-
-ed element degree indicator outscoping quantier and lemma The types
-into which modality was categorized are ne grained types epistemic cir-
-cumstantial ability deontic bouletic teleological and bouleticteleological
-and the coarse grained types epistemic or circumstantial ability or circum-
-stantial and priority
-On surveying other studies carried out using annotations apparently it
-seems that more and more attributes were annotated to make text under-
-standing precise Certain works moved in the direction of subjectivity anal-
-ysis some in certainty analysis whereas others focused on time events and
-temporal analysis all of them being implicitly useful in the study of type
-andor sense understanding of modality
-Dierent types of subjectivity is implied in discourse by dierent types
-epistemic and deontic modals The relationship between subjectivity and
-modality is elaborately discussed in Sanders and Spooren 1997
-Rubin et al
-2004 2006 presented a certainty categorization model
-based on four hypothesized dimensions and tested the model on a sample of
-news articles Rubin 2010 identies that certainty can be seen as a variety
-of epistemic modality expressed in form of markers like probably perhaps
-undoubtedly etc
-Nissim et al 2013 proposed modality annotation model that they say
-to be two layered Factuality and speakers attitude being two components
-marked they also plan to make the model more coherent by annotating
-strength of modality
-Matsuyoshi et al 2010 clearly draws attention to the point that recent
-developments in language processing has improved precision but is insuf-
-cient for applications such as information extraction question answering
-and recognizing textual entailment Such applications require more informa-
-tion such as modality polarity and other associated information collectively
-referred as extended modality Matsuyoshi proposes an annotation scheme
-that represents extended modality and consists of seven components source
-time conditional primary modality type actuality evaluation and focus
-Utilizing the work they also constructed an annotated corpus in Japanese
-Emphasizing upon event modality Saur et al 2006a says that modality
-is an important component of discourse together with other levels of infor-
-mation such as argument structure and temporal information That made
-an apparent need for a more sophisticated approach that is sensitive to such
-additional information They worked on annotation scheme that annotates
-event modality and also identifying its scope using TimeML Saur 2006b
-has also worked on SlinkET attempting the construction of modal parser for
-events Pustejovsky et al 2003 built the TimeBank corpus which is an-
-notated with information like modals events times relation between events
-and temporal expressions Saur and Pustejovsky 2009 built the FactBank
-on the basis of TimeBank where events are assigned with dierent degrees of
-factuality according to their source-introducing predicates SIPS and source
-Dierent degrees of factuality are determined by dierent degrees of certainty
-and polarity axes Degrees of certainty include certain probable possible and
-unknown Whereas polarity axis contained positive negative and underspec-
-ied
-3 Gap and Futurology
-Linguistic modality is one of the components of discourse that is asso-
-ciated with context sense and meaning mental and real spaces and force
-dynamics
-Also there is no proper well dened classication of dierent types and
-senses of modality in linguistic literature This lack of taxonomy has con-
-trived enormous confusions regarding types and senses Considering the fact
-that the section is complex and modality in discourse has many aspects as-
-sociated with it and its wider scope even language scientists can contribute
-towards it
-First point noted is that dierent kinds of expressions can be used to
-convey modal meanings And we saw that the tagging approach is limited
-to tag modals explicit use in text Moreover taggers dont put any further
-light on the type and sense of the modality Though attempts have made on
-type and sense classication using annotation methods but due to exibility
-of meanings it is dicult to standardize Flexibility of meaning means the
-modal verb has dierent meaning according to context Modality in language
-has contextual meanings and implied perceptions And mechanisms fail to
-identify perspective aspect and contextuality
-Another drawback is dependency in both methods tagging as well as
-annotating The process of tagging is dependent on the tagset and the an-
-notation scheme is limited by its own training corpus Although this lexicon
-dependency of the available approaches are useful for preliminary passes of
-processing but not an eective way for understanding natural language which
-includes cognition and perception
-At this point inspiring from human information processing mechanisms
-would be seen appropriate In this context understanding of human cognitive
-process can denitely enlighten the path of development to make our systems
-articially intelligent Computational models of cognition creative insight
-skill acquisition and the design of instructional software as well as other top-
-ics in higher cognition needs to be reconsidered It is noteworthy to see the
-humans perceptive systems visual or speechaudio etc both are essentially
-layered and hierarchical in structure Thus it is natural to believe that the
-state-of-the-art can be advanced in processing these types of natural lan-
-guage if structurally ecient and eective learning model can be developed
-The layered structure of human learning shown in Kaplan  Sadocks Com-
-prehensive Textbook of Psychiatry Sadock 2000 g 24-1 is instrumental
-in visualization of complexity and multi-stage structure involved Moreover
-the interconnection and synergy between the layers is equally vital
-Real systems are dynamic in nature and reform continuous shift that
-produce perceptual dierence If the shift is in upward direction in hierar-
-chical multi-layered model that results in high dimensionality in nature of
-expression Thus the expression becomes nonspecic and losses subjectiv-
-ity Nonspecic discourse are too complex to interpret and to reach to any
-conclusion is very dicult From viewing the software dealing with language
-processing looks in direction and trends accordance to the subject Articial
-Intelligence AI and Robotics that attempts to mimic the dynamic and be-
-havioral output from human In context of natural language processing with
-special reference to modality processing noticeable development observed in
-static format of expressions and expression of contextuality also attempted
-within one document as in MMAX2 from German NLP group
-Neural network hidden layer processing and continuous modication were
-successfully executed in mechanical output in eld of machine learning The
-directions were explored with annotated titles like deep learning and lay-
-ered approach handling are most popular among research works in language
-processing
-As per the objectives of a system some key features that should be consid-
-ered such as relevant well-structured knowledge base with improved feature
-space should be formed upon each processing And this knowledge base must
-be dynamically updated active learning that means continuous updatation
-of the knowledge base by each layer of the model so that it can eectively
-be useful in applications of the system
-Machine learning has been a dominant tool in NLP for many years How-
-ever the use of traditional machine learning in NLP has been mostly lim-
-ited to numerical optimization of weights for human designed representations
-and features from the text data The goal of representation learning is to
-automatically develop features or representations from the raw text material
-appropriate for a wide range of NLP tasks
-Deep learning is gaining popularity very recently as it provides levels of
-abstraction The multi-layered architecture formed due to the levels ensure
-natural progression from low level to high level structure as seen in natural
-complexity Deep learning works on the principle of formation of learning
-representations The essence of deep learning is to automate the process
-of discovering eective features or representations for any machine learning
-task including automatically transferring knowledge from one task to an-
-other concurrently In regard to NLP deep learning develops and makes use
-an important concept called embedding which refers to the representation
-of symbolic information in natural language text at word-level phrase-level
-and even sentence-level in terms of continuous-valued vectors
-Another concept of multi-task learning has also shown improvements in
-learning approaches Multi-task learning is a machine learning approach that
-learns to solve several related problems at the same time using a shared
-representation It can be regarded as one of the two major classes of transfer
-learning or learning with knowledge transfer which focuses on generalizations
-across distributions domains or tasks The other major class of transfer
-learning is adaptive learning where knowledge transfer is carried out in a
-sequential manner typically from a source task to a target task
-31 Recent works with deep architectures in NLP
-Variety of deep architectures like neural networks deep belief networks
-and others has shown signicant performance in various applications of lan-
-guage processing including other elds
-Collobert et al 2011 provide a comprehensive review on ways of apply-
-ing unied neural network architectures and related deep learning algorithms
-to solve NLP problems from scratch meaning that no traditional NLP meth-
-ods are used to extract features The recent work by Mikolov et al 2013a
-derives word embeddings by simplifying the Neural Network Language Model
-NNLM It is found that the NNLM can be successfully trained in two
-steps Yet another deep learning approach to machine translation appeared
-in Mikolov et al 2013b
-One most interesting NLP task recently tackled by deep learning meth-
-ods is that of knowledge base ontology completion which is instrumental in
-question-answering and many other NLP applications An early work in this
-space came from Bordes et al 2011 where a process is introduced to auto-
-matically learn structured distributed embeddings of knowledge bases The
-proposed representations in the continuous-valued vector space are compact
-and can be eciently learned from large-scale data of entities and relations
-A specialized neural network architecture is used In the follow-up work that
-focuses on multi-relational data Bordes et al 2014 the semantic matching
-energy model is proposed to learn vector representations for both entities
-and relations
-Other recent works Socher et al 2013 and Bowman 2013 adopts an
-approach based on the use of neural tensor networks to attack the problem
-of reasoning over a large joint knowledge graph for relation classication
-The knowledge graph is represented as triples of a relation between two en-
-tities and the authors aim to develop a neural network model suitable for
-inference over such relationships The model they presented is a neural ten-
-sor network with one layer only but it would be encouraged to work further
-on multi-layered network models The network is used to represent entities
-in xed-dimensional vectors which are created separately by averaging pre-
-trained word embedding vectors It then learns the tensor with the newly
-added relationship element that describes the interactions among all the la-
-tent components in each of the relationships Experimentally Socher et al
-shows that this tensor model can eectively classify unseen relationships in
-WordNet and FreeBase Thus models built on tensors can contribute upto
-certain extent for reasoning over relationships between entities enhancing
-knowledge bases for improved performance Works utilizing Recursive Neu-
-ral Networks RNN for syntactic parsing and word representations has been
-performed in Luong et al 2013 Socher et al 2010 Deep neural networks
-have been popular and are well performing as they are intrinsically multi-
-layered in structure
-Deep learning is a hot area of research and there is still much potential
-for signicant advances It can be said that the paradigm of deep learning
-architectures can improve the results of our models upto quite a certain ex-
-tent but there is still a limit to it considering the whole problem statement
-This is because the deep neural networks are yet a kind of black box model
-in terms of functionality By revising models and designs enhancement in
-performance of deep learning algorithms can surely be made as per specic
-application domain but there would be a bound to the possible improvements
-and the available approaches wouldnt provide enough means to the desired
-level of Articial Intelligence Approaches that are multi-layered and prefer-
-ably white box models would be essentially important for organization and
-control of intermediate layers functionalities
-As mentioned above not only for application in NLP but for any ap-
-plication that deals with dynamics of real world conditions development
-of complex system using combination of several simple modular and multi-
-layered hierarchal architectures with the key features will be helpful And
-hopefully such models can attain better linguistic understanding accuracy
-that would be contributory to the application expertise
-References
-Baker K Bloodgood M Dorr BJ Callison-Burch C Filardo NW Piatko C
-Levin L Miller S 2012 Modality and negation in simt use of modality and
-negation in semantically-informed syntactic mt Computational Linguistics
-382411438
-Bordes A Weston J Collobert R Bengio Y et al 2011 Learning structured
-embeddings of knowledge bases In AAAI
-Bordes A Glorot X Weston J Bengio Y 2014 A semantic matching en-
-ergy function for learning with multi-relational data Machine Learning
-942233259
-Bowman SR 2013 Can recursive neural tensor networks learn logical rea-
-soning arXiv preprint arXiv13126192
-Collobert R Weston J Bottou L Karlen M Kavukcuoglu K Kuksa P 2011
-Natural language processing almost from scratch The Journal of Ma-
-chine Learning Research 1224932537
-Hendrickx I Mendes A Mencarelli S 2012 Modality in text a proposal for
-corpus annotation In LREC pp 18051812
-Luong MT Socher R Manning C 2013 Better word representations with
-recursive neural networks for morphology CoNLL-2013 104
-Manning CD Schutze H 1999 Foundations of statistical natural language
-processing MIT press
-Matsuyoshi S Eguchi M Sao C Murakami K Inui K Matsumoto Y 2010
-Annotating event mentions in text with modality focus and source infor-
-mation In LREC
-Mikolov T Chen K Corrado G Dean J 2013a Ecient estimation of word
-representations in vector space arXiv preprint arXiv13013781
-Mikolov T Le QV Sutskever I 2013b Exploiting similarities among lan-
-guages for machine translation arXiv preprint arXiv13094168
-Nissim M Pietrandrea P Sanso A Mauri C 2013 Cross-linguistic anno-
-tation of modality a data-driven hierarchical model In Workshop on
-Interoperable Semantic Annotation p 7
-Pakray P Bhaskar P Banerjee S Bandyopadhyay S Gelbukh AF 2012 An
-automatic system for modality and negation detection In CLEF Online
-Working NotesLabsWorkshop Citeseer
-Palmer FR 2014 Modality and the English modals Routledge
-Pustejovsky J Hanks P Sauri R See A Gaizauskas R Setzer A Radev
-D Sundheim B Day D Ferro L et al 2003 The timebank corpus In
-Corpus linguistics vol 2003 p 40
-Ratnaparkhi A et al 1996 A maximum entropy model for part-of-speech
-tagging In Proceedings of the conference on empirical methods in natural
-language processing Philadelphia PA vol 1 pp 133142
-Rubin VL 2010 Epistemic modality From uncertainty to certainty in the
-context of information seeking as interactions with texts Information Pro-
-cessing  Management 465533540
-Rubin VL Kando N Liddy ED 2004 Certainty categorization model In
-AAAI spring symposium Exploring attitude and aect in text Theories
-and applications Stanford CA
-Rubin VL Liddy ED Kando N 2006 Certainty identication in texts Cat-
-egorization model and manual tagging results In Computing attitude and
-aect in text Theory and applications Springer pp 6176
-Rubinstein A Harner H Krawczyk E Simonson D Katz G Portner P 2013
-Toward ne-grained annotation of modality in text In Proceedings of the
-Tenth International Conference for Computational Semantics IWCS 2013
-Ruppenhofer J Rehbein I 2012 Yes we can annotating the senses of
-english modal verbs In Proceedings of the 8th International Conference
-on Language Resources and Evaluation LREC pp 2426
-Sadock BJ 2000 Kaplan  Sadocks Comprehensive Textbook of Psychiatry
-2 Volume Set Lippincott Williams  Wilkins
-Sanders J Spooren W 1997 Perspective sulijectivity and modality from
-a cognitive inguis ic point of view Discourse and perspective in cognitive
-linguistics 15185
-Saur R Pustejovsky J 2009 Factbank A corpus annotated with event
-factuality Language resources and evaluation 433227268
-Saur R Verhagen M Pustejovsky J 2006a Annotating and recognizing
-event modality in text In Proceedings of 19th International FLAIRS
-Conference
-Saur R Verhagen M Pustejovsky J 2006b Slinket a partial modal parser
-for events In In Language Resources and Evaluation Conference LREC
-2006 Citeseer
-Socher R Manning CD Ng AY 2010 Learning continuous phrase represen-
-tations and syntactic parsing with recursive neural networks In Proceed-
-ings of the NIPS-2010 Deep Learning and Unsupervised Feature Learning
-Workshop pp 19
-Socher R Chen D Manning CD Ng A 2013 Reasoning with neural tensor
-networks for knowledge base completion In Advances in Neural Informa-
-tion Processing Systems pp 926934
-Toutanova K Manning CD 2000 Enriching the knowledge sources used in a
-maximum entropy part-of-speech tagger In Proceedings of the 2000 Joint
-SIGDAT conference on Empirical methods in natural language processing
-and very large corpora held in conjunction with the 38th Annual Meeting
-of the Association for Computational Linguistics-Volume 13 Association
-for Computational Linguistics pp 6370
-Von Fintel K 2006 Modality and language
+Increased accuracy of ligand sensing by receptor diusion on cell surface
+Division of Molecular Biosciences and Centre for Integrated Systems Biology at Imperial College
+Gerardo Aquino and Robert G Endres
+Imperial College London SW7 2AZ London UK
+Dated September 1 2010
+The physical limit with which a cell senses external ligand concentration corresponds to the perfect
+absorber where all ligand particles are absorbed and overcounting of same ligand particles does
+not occur Here we analyze how the lateral diusion of receptors on the cell membrane aects the
+accuracy of sensing ligand concentration Specically we connect our modeling to neurotransmission
+in neural synapses where the diusion of glutamate receptors is already known to refresh synaptic
+connections We nd that receptor diusion indeed increases the accuracy of sensing for both the
+glutamate AMPA and NDMA receptors although the NMDA receptor is overall much noiser We
+propose that the dierence in accuracy of sensing of the two receptors can be linked to their dierent
+roles in neurotransmission Specically the high accuracy in sensing glutamate is essential for the
+AMPA receptor to start membrane depolarization while the NMDA receptor is believed to work in
+a second stage as a coincidence detector involved in long-term potentiation and memory
+PACS numbers
+INTRODUCTION
+Biological cells live in very noisy environments from
+which they receive many dierent stimuli The survival
+of a cell highly depends on its ability to respond to such
+stimuli and to adapt to changes in the environment A
+fundamental role in this task is played by membrane re-
+ceptors proteins on the cell surface which are able to
+bind external ligand molecules and trigger signal trans-
+duction pathways Although the precision with which
+a cell can measure the concentration of a specic lig-
+and is negatively aected by many sources of noise 14
+several examples exist in which such measurements are
+performed with surprisingly high accuracy In bacterial
+chemotaxis for instance the bacterium Escherichia coli
+can respond to changes in concentration as low as 32 nM
+5 corresponding to only three molecules in the volume
+of a cell High accuracy is observed also in spatial sensing
+by single cell eukaryotic organisms as eg
+in the slime
+mold Dictyostelium discoideum which is able to sense a
+concentration dierence of only 1  5 across the cell
+diameter 6 and in Saccharomyces cerevisiae budding
+yeast which is able to orient growth in a gradient of -
+pheromone mating factor down to estimated 1 receptor
+occupancy dierence across the cell 7 Spatial sensing
+is also eciently performed by growing neurons lympho-
+cytes neutrophils and other cells of the immune system
+dendrite
+FIG 1 Color online Synaptic junction during neurotrans-
+mission A vesicle containing a neurotransmitter eg glu-
+tamate for excitatory synapses releases its content into the
+synaptic cleft Receptors on the post-synaptic surface bind
+the neurotransmitter increasing the likelihood of the propa-
+gation of the electric impulse action potential Red arrow
+indicates the incoming potential yellow arrow the set of reac-
+tions leading to propagation of potential small green arrows
+indicate receptor mobility
+There has been substantial progress in our theoretical
+understanding of the accuracy of concentration sensing
+In 1977 Berg and Purcell were the rst to point out
+that ligand sensing is limited by ligand diusion pro-
+ducing a counting noise at the receptors 8 Bialek
+and Setayeshgar 9 and later others 10 used the Fluc-
+tuation Dissipation Theorem FDT to separate the con-
+tributions from random bindingunbinding events from
+rebinding due to diusion of ligand molecules Subse-
+quently Wingreen and Endres showed that the perfect
+absorber is the absolute fundamental limit of ligand sens-
+ing accuracy it does not suer from ligand unbinding and
+rebinding noise 10 11
+In previous work we analyzed the contribution of endo-
+cytosis ie the internalization of cell-surface receptors
+to the accuracy of external ligand concentration sensing
+12 We showed with a simple model that internalization
+by making the cell act as an absorber of ligand increases
+sensing accuracy by reducing the noise from rebinding
+of already measured ligand molecules In this paper we
+consider the eect of lateral diusion of receptors on the
+accuracy of ligand concentration sensing
+In a situation in which ligand sensing is concentrated
+in a specic region on the cell membrane signaling
+hotspot receptors bind ligand molecules locally but may
+release them remotely from the region of interest thus
+preventing those particles from rebinding locally Noise
+from overcounting could therefore be reduced potentially
+increasing the accuracy of sensing
+A potential implementation of such localized sensing
+occurs in neural synapses responsible for transmission
+of action potentials and short-term synaptic plasticity
+see Fig 1 for a schematic description At such crit-
+ical places in the central nervous system the accuracy
+of sensing ought to be important 13 At a synapse the
+propagation of an action potential arriving from the pre-
+synaptic neuron causes the opening of ion channels on
+the pre-synaptic membrane which increases calcium-ion
+inow 14 Calcium ions trigger a biochemical cascade
+which results in the formation of vesicles containing neu-
+rotransmitter eg glutamate in the case of excitatory
+synapses One or more vesicles eventually fuse with the
+membrane at a point on the pre-synaptic surface to form
+a fusion pore Glutamate is subsequently released and
+diuses into the synaptic cleft reaching the receptors on
+the post-synaptic surface on the opposite side of the cleft
+These receptors mainly the AMPA and NMDA receptors
+named after the agonists -amino-3-hydroxy-5-methyl-
+4-isoxazolepropionic acid and N-methyl-D-aspartic acid
+respectively cause ion channels on the post-synaptic
+membrane to open facilitating the propagation of the
+action potential
+The AMPA receptor AMPAR has a tetrameric struc-
+ture with four binding sites for glutamate Binding glu-
+tamate on two sites leads to conformational change and
+opening of a pore More occupied binding sites imply a
+higher current through the channel mainly of calcium
+sodium and potassium ions The NMDA receptor NM-
+DAR has a tetrameric structure as well but its chan-
+nel needs coincidental binding of glutamate and glycine
+molecules on dedicated sites for it to open A small mem-
+brane depolarization is furthermore necessary to clear out
+the magnesium ions blocking the channel This third
+condition makes the NMDA receptor a type of coinci-
+dence detector for membrane depolarization and synap-
+tic transmission playing an important role in memory
+and learning Interestingly AMPA receptors diuse on
+the post-synaptic surface unusually fast especially when
+ligand is bound 15 In addition to refreshing the synap-
+tic plasticity 16 such diusion may also increase the
+accuracy of sensing in neurotransmission
+This paper is organized as follows
+in Sec II we re-
+view the case of a single immobile receptor in Sec III we
+consider receptor diusion on the membrane and derive
+the dynamical equations determining the spatial concen-
+tration of ligand and the occupancy of the receptor In
+Sec IV we derive the stationary solution for the receptor
+occupancy and in Sec V using a non-equilibrium ap-
+proach based on the eective temperature we derive the
+accuracy of sensing In Section VI we describe how our
+theoretical results connect to neurotransmission in neu-
+ral synapses The nal section is devoted to an overall
+discussion including cases of further biological relevance
+Technical details are provided in two appendices
+II REVIEW OF THE SINGLE RECEPTOR
+In this section we review previous results for a single
+immobile receptor As depicted in Fig 2 such a recep-
+tor can bind and release ligand with rates kc and k
+respectively The kinetics for the occupancy nt of the
+receptor are therefore given by
+ kc 1  nt  knt
+where the concentration of ligand c is assumed uniform
+and constant The steady-state solution for the receptor
+occupancy is given by
+c  KD
+with KD  kk the ligand dissociation constant The
+rates of binding and unbinding are related to the nega-
+tive free energy F of binding through the detailed bal-
+with T the temperature in energy units In the limit of
+very fast ligand diusion ie when a ligand molecule is
+immediately removed from the receptor after unbinding
+the receptor dynamics are eectively decoupled from the
+diusion of ligand molecules and hence diusion does
+not need to be included explicitly
+Following Bialek and Setayeshgar 9 the accuracy of
+sensing is obtained by applying the FDT 17 which re-
+lates the spectrum of uctuations in occupancy to the
+linear response of the receptor occupancy to a pertur-
+bation in the receptor binding energy Furthermore at
+equilibrium the uctuations in occupancy can be directly
+related to the uncertainty in ligand concentration using
+Eq 2 After time-averaging over a duration  much
+larger than the correlation time of the binding and un-
+binding events the normalized uncertainty of sensing is
+given by 9 18
+hc2i
+kc1  n 
+2D3cs
+where the right-hand side is obtained for diusion-limited
+binding 18 ie when kc1  n  4cD3s with D3
+the diusion constant and s the dimension of the spher-
+ical receptor Eq
+4 shows that the uncertainty is
+limited by the random binding and unbinding of ligand
+FIG 2 Color online Single receptor immobile at position
+x0 binds and unbinds ligand with rates kc and k respec-
+tively
+The accuracy of sensing is dened as the inverse of the
+uncertainty
+In the case where diusion of ligand is slow ligand
+binding to the receptor is perturbed 9 The kinetics
+of receptor occupancy and ligand concentration are de-
+scribed by
+
+
+FIG 3 Color online Ligand-receptor binding by mobile re-
+ceptors characterized by diusion coecient D2 green ar-
+rows Ligand red dots is concentrated only in a small area
+A around x0 due to eg local release of glutamate from vesi-
+cle fusion pore with rate k Ligand can bind to receptors at
+x0 but unbind everywhere on the membrane Parameter D3
+describes the diusion coecient of the ligand
+cx t
+ kcx0 t1  nt  knt
+ D32cx t  x  x0
+calculated from the diusive ux to a small sphere of
+radius s which represents the receptor
+where x0 indicates the position of the receptor In the
+last term in the second equation the Dirac delta func-
+tion x  x0 describes a sink or source of ligand at x0
+corresponding to ligand binding or unbinding from the
+receptor respectively
+Following a similar procedure as in the previous case
+the uncertainty of sensing is given by 9 18
+hc2i
+kc1  n
+2D3cs
+D3cs
+where the rst term on the right-hand side of Eq 6a
+is the same as in Eq 4 while the second term is the
+increase in uncertainty due to diusion This term ac-
+counts for the additional measurement uncertainty from
+rebinding of previously bound ligand to the receptor For
+diusion-limited binding one obtains Eq 6b 18
+Comparison of Eqs 4 and 6 shows that removal of
+previously bound ligand by fast diusion increases the
+accuracy of sensing since the same ligand molecule is
+never measured more than once
+The uncertainty in Eq
+4 can be further reduced
+by a factor of two consequently increasing the accuracy
+of sensing by the same factor by considering the fun-
+damental limit
+In this limit ligand particles are ab-
+sorbed and hence only binding noise contributes For
+diusion-limited binding the fundamental limit is given
+by 8 10 11
+hc2i
+4D3cs
+III RECEPTOR DIFFUSION MODEL
+In this model depicted in Fig 3 receptors are free
+to diuse on the 2-dimensional 2D membrane surface
+with diusion coecient D2 A receptor located in the
+limited area A centered at x0 can bind and unbind
+ligand of average concentration c with rates kc and k
+respectively When a receptor leaves this area and dif-
+fuses to the remaining large region of negligible ligand
+concentration it can either release ligand or diuse back
+in the area
+We consider a situation in which receptor diusion has
+reached a stationary condition resulting in a uniform den-
+sity 0 of receptors on the membrane and this condition
+is not changed by interaction with ligand molecules Lig-
+and binding and unbinding only aects the number of
+occupied and unoccupied receptors with respective den-
+sities b and u given by
+0  br  ur
+where r  x y is a position on the 2D membrane sur-
+face For purposes of comparison with the single immo-
+bile receptor model we also assume that there is always
+exactly one receptor in the area A around x0  r0 z0
+ie 0  1
+The dynamics of such a system is captured by the fol-
+lowing set of coupled dierential equations
+br t
+cx t
+ D22br t  kbr t
+k0  br t cr z0 t A r  r0
+ D32cx t  z  z0cid20 br t
+D22br tcid21  kx  x
+where rate constant k ensures the replenishment of lig-
+and molecules x  x y z  r z indicates a location
+in 3D space Specically br t is the density of bound
+receptors and cx t is the ligand concentration both de-
+pending on space and time An additional equation for
+ur t is not necessary due to receptor conservation in
+Eq 8
+After normalization by the average density using
+nr t  br t0 in Eq 9 we obtain
+nr t
+cx t
+ D22nr t  k1  nr t cr z  z0 t A r  r0  knr t
+t  D22nr tcid21  kx  x
+ D32cx t  0z  z0cid20 nr t
+These equations describe the coupled dynamics of
+the diusing receptors and their occupancy with ligand
+In summary receptors can bind ligand molecules only
+within area A but can release them anywhere on the
+membrane The solution is provided in the following sec-
+IV NON-EQUILIBRIUM STATIONARY
+SOLUTION FOR RECEPTOR OCCUPANCY
+It is possible to extract an exact analytical expression
+for the stationary solution nr for the receptor occu-
+pancy from Eq
+10a Setting the right-hand side to
+zero and Fourier Transforming both sides leads to
+nq 
+k1  nr0cx0A
+D2q2  k
+where q is the wave vector of magnitude q  q The
+inverse Fourier Transform upon introducing a cut-o
+  1s due to the receptor size leads to the follow-
+ing solution
+k cid19  12
+nr  k1  nr0cx0
+logcid181 
+stationary solution corresponds
+equilibrium condition since ligand is continuously taken
+away from area A Setting A  42  s2 and
+evaluating Eq 12 in r0 leads therefore to the following
+value for the occupancy at r0
+AMPAR
+n 1-n
+NMDAR
+m2 s-1
+FIG 4 Color online Receptor occupancy at r0 Eq 13
+for n is plotted as a function of lateral diusion coecient D2
+and unbinding rate k for a range of experimentally relevant
+values in neurotransmission top surface Specically the
+k values for AMPA and NMDA receptors are indicated see
+Table I Corresponding plot for n1n is also shown bottom
+surface
+namely n0  kck  kc In order to quantify the
+deviation from equilibrium we apply Ficks rst law to
+calculate the ux J of occupied receptors
+nr0 
+1 hkcx0 A
+which is plotted in Fig 4 and in the limit D2  0 leads
+to the recovery of the immobile receptor solution Eq 2
+out of region A 19 Integrating Eq 14 over the bor-
+der of A allows us to dene an eective internalization
+logcid161  4D2
+Akcid17i1 
+J  D2 nr t
+rate for removal of ligand in analogy to 12 via
+perature Te dened by 12
+i n  
+AI nrdr  
+AZA
+AZA 2 nrd2r
+d2r kc1  nAr  kn 
+where the second equality follows from integration by
+parts and the last equality results from the stationary
+condition for Eq 10a Carrying out the last integration
+leads to the following nal expression for the eective
+internalization rate
+i  kccid18 1  n
+n cid19  k 
+A logcid161  4D2
+Akcid17  k
+where we used Eq 13 to express n in terms of the re-
+ceptor diusion coecient Using condition A  42
+we can dene a modied unbinding rate
+  k  ke
+kc1  n
+k cid17
+logcid161  D22
+and extend the equilibrium condition Eq 3 to the sta-
+tionary non-equilibrium condition via an eective tem-
+This eective temperature allows us to generalize the or-
+dinary FDT to a stationary non-equilibrium condition
+and to derive the receptor accuracy of sensing in the next
+section
+V ACCURACY OF SENSING
+Here we we derive the accuracy of sensing for dius-
+ing receptors Starting from Eq
+10 we consider an
+expansion to rst order around the stationary solutions
+nr t  n  nr t
+cx t  c  cx t
+where n and c are the stationary solutions of Eq 10
+which in this case have a spatial dependence ie n 
+nr and c  cx Hence the linearized equation for the
+receptor occupancy and ligand concentration are given
+nr t
+cx t
+ D22nr t cid201  ncr z0 t  cnr t  1  nc
+ D32cx t  z  z00  nr t
+ D22nr t
+kt
+k  n
+kt
+k cid21 kA r  r0  knr t
+where we assumed that uctuations
+in the bind-
+ingunbinding rate constants occur as well This math-
+ematical trick allows us to introduce uctuations in the
+receptor-binding free energy and so to apply the FDT
+9 17 Using the stationary non-equilibrium condition
+18 we obtain the uctuations in the rates and
+binding free energy
+binding free energy resulting in
+nr t
+ D22nr t  knr t cid20kc1  n
+k1  n cr z0 t  kcnr tcid21 A r  r0
+Fourier Transforming Eq 22 and setting q  q we
+solve for nq  and obtain
+Using this equation allows us to replace uctuations in
+the rate constants in Eq 20a with uctuations in the
+nq   G r0 z0
+eiq r0
+D2q2  k  i
+where for convenience of calculation we have dened the
+following function
+G r0 z0 cid20k1  n cr0 z0   kc nr0 
+1  nc
+F 
+Te cid21 A
+Inverse Fourier Transforming Eq 23 leads to the fol-
+lowing expression for the spectrum of the uctuations in
+occupancy
+nr0   Z
+22 eiqr0nq 
+ G r0 z0Z
+D2q2  k  i
+ G r0 z01
+where we dened
+1 Z
+D2q2  k  i
+with the integral provided in Appendix A In order to
+remove the ligand concentration in Eq 24 we Fourier
+Transform Eq 20b leading to
+cq   0
+i  D2q2
+D3q2  q2
+  i
+nq eiqz0
+Inserting Eq 23 in Eq 27 and inverse Fourier Trans-
+forming leads to the following expression for the spectrum
+of the uctuations in ligand concentration
+cr0 z0   Z dq
+eiqz0Z
+ G r0 z002
+22 eiqr0cq 
+iD2  q2
+2 Z dq
+eiqr0
+D2  i
+provided in Appendix B Inserting Eqs 25 and 28
+in Eq 24 leads to a closed equation for the function
+G r0 z0
+D3q2  q2
+  i
+q2  k
+G r0 z0 cid20k1  n02G r0 z0 30
+kc1G r0 z0  kc1  n
+Te  A
+ F 
+which can be solved for G r0 z0 This leads to
+G r0 z0 
+kc 1  nA  F Te
+1  k1  n2  kc1A
+Exact solution
+Eff intern rate
+Exact solution
+Eff intern rate
+Diffusion strength 
+FIG 5 Receptor-occupancy uctuations hn2i in units of
+ as a function of   16D2s2k for AMPAR a and
+NMDAR b Shown are solid line plot of hn2i as given
+by Eqs 34 and 36 dashed line plot of Eq 37 using the
+eective internalization rate Eq 16 and vertical thin line
+experimental value of  for each receptor type see Table I
+for all parameters value Glutamate concentration was set to
+c01mM here and in Fig 6 In order to produce a signicant
+eect from ligand rebinding we used D3  01m2s here and
+in subsequent plots as may result from binding of glutamate
+to neuroligins neurexins and other cleft proteins
+where condition 0  1A was applied Using Eqs 25
+and 31 a nal expression for the response is obtained
+nr0 
+ F 
+G r0 z01
+ F 
+kc1  nA 1
+1  k1  n2  kc1A
+Applying the generalized FDT we derive the spectrum
+of the uctuations in receptor occupancy nr0  from
+the response namely
+S 
+ F   
+Im nr0 
+By replacing the expressions for 1 and 2 in Eq
+32 taking the imaginary part and setting   0 we
+obtain for the zero-frequency limit of the power spectrum
+S0 
+kc1  nA2
+L  k1n
+1  h1  k c
+cid201 
+16D3 cid181 
+k1  n
+D32  k
+D321  
+1  Ai2
+L2 cid19 Lcid21 
+1  A
+where we conveniently dened the following functions of
+the dimensionless parameter   D22k
+L 
+log 1  
+ A 
+arctan
+Note that in Eq 34 occupancy n also depends on 
+via Eq
+13 The zero-frequency spectrum is related
+to the receptor occupancy uctuations averaged over a
+time   k1
+  kc1 by the following relation
+hn2i  S0
+In Fig 5 we plot the occupancy uctuations given by
+Eq 36 as a function of  ie the eective diusion
+strength This is done for the two main receptors in-
+volved in neurotransmission namely AMPAR and NM-
+DAR with parameters taken from Table I For AMPAR
+the eect of diusion is that of decreasing the uctuations
+in occupancy due to reduced overcounting of previously
+bound molecules Fig 5a For small unbinding rates
+k though such as occurs for the NMDA receptor an
+actual increase in the noise is observed for a range of
+physiologically relevant diusion strengths
+GLUTAMATE
+300 m2sacqueous solution20
+10m2s synaptic cleft21 22
+01-1 mM 20 23 24
+1 ms 25
+8 nm 14 26
+D2 0028-01m2 s 27 28
+k 4-10 106M1s120 29 5-84 106M1s129 30
+k 2-8 103s1 20 29
+5-80 s1 29 30
+0021m2s 27 28
+TABLE I Summary of experimentally determined parameters
+for glutamate ligand top AMPA receptor bottom left and
+NMDA receptor bottom right
+In order to make the origin of this eect more transpar-
+ent we also plot the occupancy uctuations in Fig 5 as
+calculated for the case of receptor internalization 12
+hn2i 
+2n21  n
+kc
+i  with ke
+where n  kckc  k  ke
+i dened in Eq
+16 The experimental unbinding rate of NMDAR leads
+to values for n such that starting from D2  0 the func-
+tion n1  n increases reaches a maximum and then
+decreases again Such a maximum is avoided by AM-
+PAR whose spectrum monotonically decreases when D2
+increases see Fig 4 The comparison between recep-
+tor diusion and receptor internalization in Fig 5 shows
+qualitatively similar results conrming the eective lig-
+and removal by receptor diusion
+A Equilibrium limit for vanishing D2
+Here we show that Eq 34 leads to the expression
+for the single receptor obtained in Refs
+9 18 in the
+limit for D2  0 ie   0 Taking the limit and using
+A  42 we indeed obtain
+S0 
+k  kc2 cid201 
+2kc1  n0
+k1  n0 
+cid21 
+which is identical to the result for the single receptor for
+  4s
+B Near-equilibrium result for small D2
+We derive here the exact result Eq 34 in the limit
+of slow receptor diusion on the membrane using  
+D2s2k as a small parameter Specically we are
+interested in the accuracy of sensing which is derived
+from the normalized variance for the ligand concentration
+of ligand as in 9
+hc2i
+ hn2i
+n21  n2 
+n21  n2
+where the right-hand term follows from Eq 36 Ex-
+pansion to rst order in parameter  leads to
+hc2i
+kc1  n0
+1  8n0 
+sD3c cid201 cid18 16k2
+3kc2D3s
+n2
+ 8n0
+3k  kc
+s2cid19 cid21 
+Comparison with Eq 6a shows that the correction
+due to lateral receptor diusion is twofold to rst or-
+der i the rst term is reduced due to a reduction in n
+Exact solution
+1st term only
+Linear approx
+Fund limit
+Exact solution
+1st term only
+Linear approx
+Fund limit
+Diffusion strength
+FIG 6 Uncertainty hc2i c2 as a function of  
+16D2s2k for the AMPA receptor a and the NMDA re-
+ceptor b in units of   Shown are solid line plot of Eq
+39 as obtained from the exact solution Eq 34 dashed
+line linear approximation for small  and dotted line con-
+tribution to the accuracy of sensing from only the rst term in
+Eq 40 Also shown are vertical thin line the experimen-
+tal value of  for each receptor see Table I and horizontal
+dot-dashed line the fundamental physical limit Eq 7
+ii the second term is reduced for most parameter val-
+ues due to a reduction in rebinding of already measured
+ligand molecules
+In Fig 6 we plot the uncertainty in sensing for both
+AMPAR and NMDAR In both cases the total eect of
+lateral diusion is that of decreasing the uncertainty in
+the concentration and therefore of increasing the accu-
+racy of sensing Receptor diusion for AMPAR Fig
+6a mainly reduces the rebinding term while for NM-
+DAR Fig 6b the rst term from binding and unbind-
+ing is reduced In the latter case the maximum in the
+occupancy uctuations see Fig 5 is removed through
+n21  n2 in the denominator of Eq 39 For large val-
+ues of  the occupancy uctuations and hence the accu-
+racy of sensing become unphysical zero ie below the
+physical limit or diverge as the eective temperature
+breaks down far from equilibrium For large  recep-
+tors remove ligand molecules eciently which introduces
+large non-equilibrium ligand uxes These cannot be rep-
+Experiment
+Fit with 3 Gaussians
+EPSC pA
+Diffusing receptors
+Immobile receptors
+Individual Gaussians
+current I pA
+FIG 7 Quantal transmission a Histogram of experimen-
+tal EPSC excitatory post-synaptic current data taken from
+Ref 34 and tted by three Gaussian distributions b Dis-
+tribution of predicted EPSCs Shown are individual Gaus-
+sian distributions corresponding to one two and three vesi-
+cles from left to right thin lines as well as envelope func-
+tions sums with equal weighting thick lines Calculation is
+done for AMPA receptors using Eqs 41 42 Eq 39 for
+the variances of diusing thin solid lines and Eq 6a for
+immobile thin dashed lines receptors assuming glutamate
+concentration cn  cb  ncv for n  1 2 3 vesicles back-
+ground cb  002mM  vesicle concentration cv  004mM
+and N  100 receptors 44 45 Furthermore Eq 41 with
+parameters from Refs 34 35 was used
+resented by an eective temperature
+In summary lateral receptor diusion aects the accu-
+racy of sensing in two ways i by reducing the station-
+ary value for the receptor occupancy and ii by reduc-
+ing the noise from rebinding of already measured ligand
+molecules
+VI QUANTAL TRANSMISSION
+A remarkable property of synaptic transmission is that
+the amplitude of the synaptic response i e the excita-
+tory post-synaptic current EPSC varies by an integral
+multiple of a quantum This property rst unveiled by
+the pioneering work of Katz 31 was traced to the forma-
+tion of synaptic vesicles and subsequent pore formation
+The latter leads to a release of glutamate into the synap-
+tic cleft 32 This quantization is considered a way to
+minimize the variability of the response from each con-
+tributing synapse and therefore to allow ecient neural
+computation This variability is quantied by the coe-
+cient of variation CV dened as the standard deviation
+devided by the mean value The reason for a large CV
+is controversial cf Fig 7a but can be attributed to a
+variation in the size of the vesicles carrying glutamate or
+to the fact that large EPSCs are generated by multiple
+vesicles 13 46 The experimental detection of EPSCs
+with an amplitude distribution of more than one peak is
+consistent with the latter explanation 33
+In Fig 7a the experimental data taken from Ref 34
+show EPSC peaks as a result of repetitive suprathresh-
+old stimulation of granule cell somata in CA3 pyramidal
+cells Some stimuli did not evoke an EPSC termed fail-
+ures The histogram of successful events can be tted
+with three Gaussian distributions showing the quantal
+nature of the EPSC The peaks of the Gaussians corre-
+spond to the discrete multiple values 7 14 and 21 pA
+respectively
+We can compare this distribution to the result pre-
+dicted by the accuracy of sensing Specically we would
+like to know if fast diusion helps resolve the EPSC
+peaks A simple model based on the structural properties
+of AMPAR was previously used to derive the dynamics
+of glutamate binding and unbinding as well as channel
+opening and closing 34 Based on this model the fol-
+lowing relation connecting the current through the ion
+channel of AMPAR and the concentration of glutamate
+was deduced
+1  cn 
+where I0  and the Hill coecient n are parameters
+provided in Ref 34 35 Based on Eq 41 the following
+relation connecting the width in the distribution of EPSC
+currents to the uctuations in glutamate concentration
+can be derived
+I  I0n
+cn1
+1  cn2 c
+We further assume that a number N of receptors inde-
+pendently contribute to the measurement i e
+hc2iN
+ hc2i
+with the uncertainty of a single receptor given by Eq
+39 Averaging over N  therefore further reduces the
+uncertainty in Eq 43 and hence increases the accuracy
+of sensing
+From our calculations we found that the eect of lateral
+receptor diusion is to increase the resolution of peaks
+and so also the ability of the synapse to count the num-
+ber of vesicles released into the synaptic cleft Note that
+in order to resolve the EPSC peaks experimentally the
+probability of vesicle release from the presynaptic side
+was drastically reduced This was achieved by modulat-
+ing the ratio of CaMg ions in the extracellular so-
+lution resulting in a 50-60 reduction of peak currents
+VII DISCUSSION AND CONCLUSIONS
+Our previous work on the fundamenal physical limit
+of ligand sensing 12 led us to conclude that receptor
+diusion by removing bound ligand from a region of
+interest may reduce the local overcounting of ligand
+molecules therefore potentially increasing the local ac-
+curacy of sensing In this paper we set out to investigate
+this possibility by constructing a mathematical model
+that contains all the necessary ingredients to describe
+the role of receptor diusion in ligand sensing We have
+considered a receptor that can bind and unbind ligand
+molecules as well as diuse on a 2D membrane Lig-
+and is allowed to diuse in 3D space Using this model
+we derived the uctuations in receptor occupancy in the
+area of interest via a generalization of the FDT with the
+introduction of an eective temperature 12 This ulti-
+mately allowed us to derive an equation for the accuracy
+of sensing
+We applied our model to the biologically relevant case
+of glutamate receptors which are responsible for trans-
+mitting action potentials at neural synapses We found
+that for AMPAR and NMDAR our model shows that the
+lateral diusion of receptors increases their accuracy of
+sensing and hence may allow synapses to count the num-
+ber of released vesicles However the local occupancy
+uctuations are decreased only for AMPAR for NMDAR
+these uctuations are increased This dierence is due to
+the smaller unbinding rate of the latter receptor Conse-
+quently the accuracy of sensing for NMDAR is an order
+of magnitude smaller than for AMPAR It is important
+to remark that these results are consistent with the dier-
+ent roles these receptors play In fact the transmission
+of an excitatory potential through a synapse occurs in
+several steps Initially it is AMPAR which senses gluta-
+mate and by letting in ions starts a small depolarization
+of the membrane This in turn allows NMDAR to open
+its channel and start an even bigger inux of ions es-
+pecially Ca This stimulates the production of more
+AMPARs and so increases the strength and sensitivity
+of the synapses Sensitivity to glutamate is important
+for AMPAR while the roles of NMDAR are coincidence
+detection and amplication important for long-term po-
+tentiation and memory
+Figure 7b shows that the distributions of predicted EP-
+SCs is in qualitative agreement with the experiments
+In order to derive the accuracy of sensing for diusing
+receptors we made a number of symplifying assumptions
+Appendix B Calculation of 2
+In this appendix we calculate 2 in Eq
+Without loss of generality we set x0 y0 z0  0 0 0
+and obtain
+2 Z 
+q2  q2
+2 Z 
+2 Z 
+ I1  I2
+iD2  q2
+  i
+q2  q2
+  i
+q2  k
+kD2
+D2  i
+q2  k
+D2  i
+q2  q2
+  i
+kD2
+D2  i 
+q2  k
+q2  k
+kD2
+D2  i
+arctan s 2  iD3
+D2  1
+D2  i 1
+I1 Z 
+2 Z 
+piD3  q2 
+D2  1
+k8D3
+D2  i 1
+ arctan s
+iD3
+D2  i 1
+D2  1
+i  D3q2  q2
+I2 Z 
+D3 Z 
+8D3  r
+2 Z 
+pq2  iD3
+D3 r2 
+using a cut o to account for the nite size of the receptor
+Taken together the integral 2 is given by
+2  I1  I2  r2 
+arctan s
+D2  i 1
+D2  1
+kD2
+D2  i 1
+ arctan s
+D2  1
+D3 r
+2  i
+D2  i 1
+D2  1
+We neglected uctuations in the total receptor density
+and vesicle size assumed to be constant 13 46 Fur-
+thermore we assumed a constant ligand concentration
+in the hotspot area A during the receptor measure-
+ment time while in reality the concentration prole will
+broaden out Additionally we made the simplifying as-
+sumption that multiple vesicles are released in the same
+spot so that released glutamate concentrations add up
+and that other eects such as spillover from neighboring
+cells can be neglected 42 43 Finally we introduced
+the eective temperature Te to generalize the FDT to
+non-equilibrum processes 12 3639 The approximate
+nature of Te for which we neglected any potential time
+or frequency dependence limits the quantitative valid-
+ity of our model to small deviations from equilibrium
+In fact for large receptor diusion coecients the occu-
+pancy uctuations and hence the accuracy of sensing be-
+come unphysical Nevertheless the mapping of receptor
+diusion to an eective internalization process already
+studied in Ref 12 provides condence in our method
+In conclusion in this paper we highlighted the role
+of diusion in increasing the accuracy of sensing This
+might be important for synaptic counting of glutamate
+vesicles This hypothesis can be tested experimentally by
+reducing the mobility of receptors This can be achieved
+by cross-linking or addition of cholesterol Alternatively
+the glutamate diusion costant can be reduced by adding
+dextran Such perturbations should lead to a broadening
+of the EPSC peaks although signaling may be aected
+as well Similarly to AMPAR 15 an increase in re-
+ceptor diusion upon ligand binding was recently also
+observed in the pseudopods of migrating Dictyostelium
+discoideum cells 40 This phenomenon was attributed
+to signal amplication However since cells may sense
+locally in pseudopods at least in shallow gradients 41
+receptor diusion may also be responsible for increasing
+the accuracy of sensing
+Acknowledgments
+We would like to thank Aldo Faisal and Peter Jonas
+for helpful comments We acknowledge nancial support
+from Biotechnological and Biological Sciences Research
+Council grant BBG0001311 and the Centre for Inte-
+grated Systems Biology at Imperial College
+Appendix A Calculation of 1
+We devote this Appendix to the calculation of the in-
+tegral 1 in Eq 26 1 is given by
+q2  k
+D2  i
+1 Z
+D2  i
+which is divergent Hence we introduce a cut-o   1s
+to account for the nite dimension s of the receptor This
+procedure leads to the nal result
+q2  k
+1 Z 
+q2  k
+D2  i
+kicid17
+logcid161  D22
+1 A Raj and A van Oudenaarden Cell 135 216 2008
+2 R C Yu et al Nature 456 755 2008
+3 M S Samoilov1 G Price and A P Arkin Sci STKE
+2006 re17 2006
+4 T Gregor et al Cell 130 153 2007
+5 H Mao PS Cremer M D Manson Proc Natl Acad
+Sci USA 100 5449 2003
+6 R A Arkowitz Trends Cell Biol 9 20 1999
+7 J E Segall Proc Natl Acad Sci USA 90 8332 1993
+8 H C Berg and E M Purcell Biophys J 20 193 1977
+9 W Bialek and S Setayeshgar Proc Natl Acad Sci USA
+102 10040 2005
+10 R G Endres and N S Wingreen Proc Natl Acad Sci
+2006
+23 F Ventriglia and V Di Maio Biosys 58 67 2000
+24 P Jonas News Physiol Sci 15 83 2000
+25 Molecular Biology of the Cell M J T Fitzgerald G
+Gruener and E Mtui Clinical Neuroanatomy and Neu-
+roscience Saunders Elsevier Ed fth edition 2007
+26 T Nakagawa Y Cheng M Sheng and T Walz Biol
+Chem 387 179 2006
+27 L Groc et al Nature Neurosci 7 695 2004 L Groc
+et al Proc Nat Acad of Sci USA 103 18769 2006
+28 A J Borgdor and D Choquet Nature 417 649 2002
+29 D Attwell and A Gibb Neuroscience 6 841 2005
+30 K Erreger and S F Traynelis J Physiol 569 381
+USA 105 15749 2008
+2005
+11 R G Endres and N S Wingreen Phys Rev Lett 103
+31 B Katz The Release of Neural Neurotransmitter Sub-
+158101 2009
+12 G Aquino and R G Endres Phys Rev E 81 021909
+2010
+stances Liverpool University Press Liverpool 1969
+32 J E Heuser J Cell Biol 81 275 1979
+33 M J Wall and M M Usowicz Nature Neurosci 1 675
+13 AA Faisal LPJ Selen and DM Wolvert Nature 9
+1998
+292 2008
+14 B Alberts A Johnson J Lewis M Ra K Roberts
+and Peter Walter Molecular Biology of the Cell Garland
+Publishing Inc US fth edition 2007
+15 M Renner et al Curr Opin Neurobio 18 532 2008
+16 M Heine et al  Science 320 201 2008
+17 R Kubo Rep Prog Phys 29 255 1966
+18 R G Endres and NS Wingreen Progr Biophys Mol
+Biol 100 33 2009
+19 H C Berg Random Walks in Biology Princeton Uni-
+versity Press 1993
+20 M Postlethwaite et al J Physiol 579 69 2007
+21 T A Nielsen D A Di Gregorio and R A Silver Neuron
+42 757 2004 E E Saftenku J Theor Biol 234 363
+2005
+22 D Choquet and A Triller Nat Rev Neurosci 4 251
+2003 D Holcman and A Triller Biophys J 91 2405
+34 P Jonas and BSakmann J Physiol 472 615 1993
+35 P Jonas and BSakmann J Physiol 455 143 1992
+36 L F Cugliandolo J Kurchan and L Peliti Phys Rev
+E 55 3898 1997
+37 Th M Nieuwenhuizen Phys Rev Lett 80 5580 1998
+38 A Crisanti and F Ritort J Phys A 36 R181 2003
+39 L Leuzzi J of Non-Cryst Solids 355 686 2009
+40 S de Keijzer et al J Cell Sci 121 1750 2008
+41 N Andrew and R H Insall Nat Cell Biol 9 193 2007
+42 JJ Lawrence et al J of Phys 554 175 2003
+43 P B Sargent et al J of Neurosci 25 8173 2005
+44 D M Kullmann M-Y Min F Asztely DA Rusakov
+Phil Trans R Soc Lond B 354 395 1999
+45 J R Cottrell et al J Neurophysiol 84 1573 2000
+46 K M Franks CF Stevens T K Sejnowski J Neurosci
+23 3186 2003

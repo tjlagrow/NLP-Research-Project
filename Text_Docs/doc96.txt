@@ -1,860 +1,679 @@
-A Pointillism Approach for Natural Language
-Processing of Social Media
-Peiyou Song
-Computer Science
-University of New Mexico
-Albuquerque NM 87131
-Email peiyoucsunmedu
-Anhei Shu
-Computer Science
-Rice University
-Houston TX 77251
-Anyu Zhou
-Computer Science
-Harbin Engineering University
-Harbin 150086 China
-Dan Wallach
-Computer Science
-Rice University
-Houston TX 77251
-Jedidiah R Crandall
-Computer Science
-University of New Mexico
-Albuquerque NM 87131
+Target shape dependence in a simple model of
+receptor-mediated endocytosis and phagocytosis
+David M Richards12 Robert G Endres2
+1 Wellcome Trust Centre for Biomedical Modelling and Analysis Exeter University Exeter EX2 5DW UK
+2 Department of Life Sciences Imperial College London SW7 2AZ UK
+ E-mail davidrichardsexeteracuk
 Abstract
-The Chinese language poses challenges for natural language
-processing based on the unit of a word even for formal uses of the
-Chinese language social media only makes word segmentation
-in Chinese even more difcult In this document we propose
-a pointillism approach to natural language processing Rather
-than words that have individual meanings the basic unit of a
-pointillism approach is trigrams of characters These grams take
-on meaning in aggregate when they appear together in a way
-that is correlated over time
-Our results from three kinds of experiments show that when
-words and topics do have a meme-like trend they can be
-reconstructed from only trigrams For example for 4-character
-idioms that appear at least 99 times in one day in our data
-the unconstrained precision that is precision that allows for
-deviation from a lexicon when the result is just as correct as the
-lexicon version of the word or phrase is 093 For longer words
-and phrases collected from Wiktionary including neologisms the
-unconstrained precision is 087 We consider these results to be
-very promising because they suggest that it is feasible for a
-machine to reconstruct complex idioms phrases and neologisms
-with good precision without any notion of words Thus the
-colorful and baroque uses of language that typify social media in
-challenging languages such as Chinese may in fact be accessible
-to machines
-I INTRODUCTION
-Social media poses many challenges for natural language
-processing Many of these challenges center around the con-
-cept of a word For example social media users might in-
-vent new words called neologisms which can express more
-meaning than the original word or evade content ltering
-An example in English would be Intarweb to refer to the
-Internet by using the neologism Intarweb net users are
-adding the additional meaning that the Internet and web are
-not something that is fully understood
-Chinese social media compounds these problems that are
-caused by the notion of a word both because the written
-Chinese language does not delimit words with spaces and
-because Chinese net users use neologisms very heavily How
-can we track trends discover memes and perform other basic
-natural
-language processing techniques for Chinese social
-media when it is not even clear that the problem of segmenting
-Chinese social media into words is a tractable problem
-This document is centered around a thought experiment
-how much can machines understand about trends in social
-media for challenging languages such as Chinese without any
-lexicon or notion of words We propose a pointillism approach
-to natural language processing and through experiments show
-that longer words and phrases can be put back together based
-only on temporal correlations of trigrams
-To motivate the pointillism approach to natural language
-processing in this document we focus on the Chinese lan-
-guage A unique feature of the Chinese writing system is that
-it is a linear sequence of non-spaced ideographic characters
-The fact that there are no delimiters between words poses
-the well-known problem of segmentation A natural language
-processing system with a lexicon could perform quite well
-however the unknown words which are not registered in the
-lexicon become the bottle-neck in terms of precision and
-recall 1 For Chinese Chooi and Ling 2 observed that if
-one can obtain good recall for unknown words the overall
-segmentation is better However
-in Chinese social media
-unknown words are used regularly
-In this document we illustrate an approach to recognize
-trends not based on words as are traditional methods but
-based on trigrams and use the trends to nd words which
-can be either known or unknown This method uses only a
-corpus with a time series meaning that a system dictionary and
-grammar knowledge is not required The underlying concept
-of the proposed method is as follows We regard the problem
-of trend analysis as nding the trigrams which have the same
-trend We observe that the trigrams that have correlated trends
-over a long period of time have a high probability that they
-belong to the same topic or even belong to the same word
-We concatenate the trigrams back until it becomes a word or
-a phrase
-The rest of this document is organized as follows First we
-give some background about the Chinese language and Sina
-Weibo in Section II Then Section III discusses some prelim-
-inary observations that motivate the approach and Sections V
-and IV explain the key algorithms and procedures for discover-
-ing bigram and trigram trends and then concatenating trigrams
-to form a word or phrase Our experimental methodology and
-results are explained in Section VI Then the discussion in
-Section VII and related works in Section VIII are followed by
-the conclusion
-II BACKGROUND IN BRIEF
-English speakers expect words to be separated by whites-
-pace or punctuation In Chinese however words are simply
-concatenated together Therefore in order to understand Chi-
-nese text the rst thing that we need to do is to divide the
-sentences into word segments The problem of mechanically
-segmenting Chinese text into its constituent words is a difcult
-problem During the process of segmentation of Chinese two
-main problems are encountered segmentation ambiguities and
-unknown word occurrences
-Since social media is heavily centered around current events
-it contains many new named entities that will not appear in
-even the most comprehensive lexicons Neologisms another
-type of unknown words are created to express a new meaning
-or the same meaning with different nuance Neologisms are
-also an integral part of social media
-For example in the following post from a microblogging
-site of China weibocom there is at least one unknown word
-in each sentence
--S 
-
-
-SINA Weibo has the most active user community among the
-other top 3 portal sites Tencent Sohu and NetEase Moreover
-SINA has the best relationship with the Chinese government
-Recently even government employees and government media
-use SINA weibo to broadcast news and other events 6
-Microblogging entails real-time sharing of content
-is specic to a time and audience This is in contrast to
-traditional media that has a longer news cycle and a prolonged
-process that makes the content and timing of the content more
-uniform Compared to other online corpora microblogs are
-distinguished by short sentences and casual language Most
-microblog sites limit the maximum length of a post to 140
-UTF-8 characters1 demanding precise and clear execution
-Microblogs are important birthplaces of new words Moreover
-microblog posts have timestamps This information is essensial
-to our pointillism approach
-III OBSERVATIONS
-To illustrate how a word can create ambiguities for word
-segmenters we use  Peoples Republic of
-China as an example This is neither a neologism nor an
-unknown word that cannot be found in the dictionary but it is
-a good example of segmentation ambiguities and gram trends
-The word  Peoples Republic of China is
-seven characters long and has smaller words within as shown
-in Figure 1
-Fig 1 Peoples Republic of China
-1Note that compared to English 140 Chinese characters usually carry much
-more information than 140 letters in English
-ZhongHuaRen
-HuaRenMin
-RenMinGong
-MinGongHe
-GongHeGuo
-PingGuoDian
-Fig 2 Trigram trends for  on Weibo
-Figure 2 shows the plot of trigram frequency of occurrence
-for a period of 47 days2  has 5 trigrams
- ZhongHuaRen HuaRenMin  Ren-
-MinGong  MinGongHe and  GongHeGuo
-What can be seen in Figure 2 is that trigrams from 
-     have a very distinictive temporal correlation
-when compared to other trigrams such as the trigram 
- PingGuoDian the rst three characters of  or
-Apple Computers The x-axis is time in days The y-axis is the
-number of occurrences of the trigram per day for our dataset
-which at the time this data was taken was only about 2 of
-all Weibo posts What is most interesting are trigrams that are
-not words themselves but through time correlations serve as
-a sort of glue to hold trigrams which belong to the same word
-together
-The observations that there are time correlations that appear
-among trigrams leads to the question can we use this feature
-to nd words phrases memes or even nd topics In this
-research we examine the possibility of using only time corre-
-lation information of grams to concatenate words and phrases
-without a lexicon or knowledge of the grammar
-IV PROCEDURES
-In this section we explain the key algorithms and pro-
-cedures for discovering bigram and trigram trends and then
-concatenating trigrams to form a word or phrase
-Step 1 Collecting posts with time sequences
-Starting from 23 July 20113 we send a request every
-second to the public timeline and the Weibo server returns
-roughly 200 posts responding to each request These 200 posts
-are not continuous in terms of post ID 
-Step 2 Count the frequency of occurrence of grams
-2The data is from 23 July 2011 to 18 August 2011 and 24 August 2011
-to 11 September 2011 Due to system failure we missed the data from 19
-August 2011-23 August 2011
-3We have collected data continuously until now but in this document we
-only use the data from 23 July to 23 March 2012
-            Given a Chinese text with time series information
-system will divide the text into trunks of three consecutive
-characters that are called trigrams Our system obtains the fre-
-quency of occurrence of each trigram hourly In this document
-we mostly use the frequency of occurrence of each trigram for
-a daily basis
-Step 3 Check if the trigram is a valid root
-For convenience we call the program connecting the tri-
-grams based on time correlation information Connector We
-call the rst trigram we feed into Connector the root trigram
-Not all trigrams can be used as the root for concatenating
-trigrams There are two kinds of trigrams that cannot be root
-trigrams
-First trigrams that are rarely used where most of their daily
-frequencies are zeros This is important because if a vector has
-too many zeros this would bias the cosine similarity value
-Second trigrams which have no obvious uctuation in our
-examination period We measure this by obtaining the cosine
-similarity value between the trigram and the constant vector
-111 If the value is higher than a certain threshold 098
-in our current system then it is considered too normal and
-will be treated as an invalid root for concatenation
-Step 4 Find time correlation of grams
-The trigrams that have temporal correlations and overlap
-will be concatenated together The detailed algorithms for this
-step are described in the next section
-V ALGORITHMS
-Cosine similarity is used to judge whether two trigrams have
-correlated trends
-hand and used this model to decide which vector should be
-used in nding the relationship between trigrams Once we
-decide which vector we are going to use to nd similarity we
-concatenate the trigrams
-Let us use an English meme putting lipstick on a pig as
-an example to explain how we concatenate trigrams
-Suppose Connector has thus far produced putting lipstick
-on a The system now considers which trigram from the set
-on a boat on a pig on a clear and on a plain it
-should concatenate next The root trigram is the rst trigram
-putting lipstick on with which Connector starts The parent
-trigram is the last trigram appended to the phrase at this
-point lipstick on a is the parent trigram The stem trigram
-is the one which has the lowest frequency in putting lipstick
-on a We use the median value of the frequency vector to
-decide which trigrams frequency is the lowest and the stem
-trigram should be closest to the real frequency of the phrase
-To decide whether we should connect a trigram to the phrase
-we are working on we compare the cosine similarity value
-between each candidate trigram and the root simRoot parent
-simParent and stem trigram simStem We use simScore to
-measure how close a gram is to the phrase
-simScore  maxsimRoot simP arent simStem
-The candidate trigrams are sorted by simScore We recur-
-sively search for the next trigram to concatenate by a depth-
-rst traversal into highest-score nodes rst Only the top 5
-candidate trigrams are considered The traversal stops when
-all candidate trigrams have a simScore lower than a threshold
-which is set manually to 097 We set a threshold of 60 seconds
-for Connector to concatenate trigrams to avoid unbounded
-searches
-simP ath 
-cosSimsimStem trigrami
-n2i1
-cosSim 
-n
- Ai Bi 
-2 n
-where   denotes an inner product between two vectors
-We tested three types of vectors
-the daily frequency of
-trigrams FT the daily difference in frequency of trigrams
-DFT and the daily rate of change in frequency CFT
-CF Tdaytrigram  log10
-F Tdaytrigram
-F Tday1trigram
-DF Tdaytrigram  F TdaytrigramF Tday1trigram
-During our initial experiments we found that for some
-trigrams CFT cosine similarity works better and for other
-trigrams DFT works better In light of this we used an
-SVM Support Vector Machine to learn which parameters we
-should use for connecting the words The features we used for
-the SVM were cosine similarity between the root trigram and
-the constant vector 111 maximum change rate of the
-root minimum FT maximum FT mean of FT and the length
-of the time period of vectors The corresponding variable y is
-a vector of FT DFT and CFT We used the libsvm package 9
-to train our model We labeled 100 data points for training by
-where n is the number of characters in the phrase
-The phrase which has the highest simPath is considered to
-be the nal result If there are other phrases which also have a
-simPath higher than the threshold we output them as possible
-results as shown in Section VII-A
-VI EVALUATION
-To gain a better understanding of the capabilities and limi-
-tations of connecting trigrams into longer words and phrases
-we performed three experiments For these experiments we
-were interested in both known words in the dictionary and
-unknown words or phrases not in the dictionary Unknown
-words are the already existing words that are not in the dic-
-tionary They include named entities and neologisms Named
-entities can be the names of people companies movies and
-anything that is given a name Neologisms are words created
-recently they are usually not words before they are created
-We collect three different types of word and phrase sets
-long words or phrases from Wiktionary hot keywords or
-phrases from weibocom and 4-character idioms from Wik-
-tionary Words or phrases in Wiktionary include both known
-PRECISIONS VALUE FOR LONG WORDS IN WIKTIONARY
-TABLE I
-Named entities 133
-New words 16
-Phrases 244
-4-character idioms 29
-Total 422
-and unknown words and they usually do not have an obvious
-trend4 4-character idioms are known words and do not usually
-have obvious trends Hot keyword lists from weibocom are
-newly created words or phrases and have obvious trends in
-a certain period
-The procedures of these experiments start from Step 3
-in Section IV Step 1 and 2 have been done before the
-experiments The output of Connector is compared with the
-original dataset and judged by a human to determine if it is
-a correct result
-For this document because our emphasis is on connecting
-trigrams into longer words and phrases rather than on how to
-detect trends we assume that the word or phrase exists in our
-database and that the root trigram is given For this reason we
-have no negative observations only positive observations This
-is why we focus on precision and do not report recall in this
-document To compare two scenarios one where Connector
-must only match words or phrases in a lexicon and one where
-a human can judge if Connector constructed a valid word
-or phrase we report two different precision scores lexicon-
-constrained and unconstrained
-Lexicon-constrained precision LCP is calculated as
-LCP  M atching W iktionary or W eibo
-V alid Root T rigrams
-Unconstrained precision UP is calculated as
-U P  M atching W iktionary or W eibo  Correct
-V alid Root T rigrams
-M atching W iktionary or W eibo are those exactly
-match with the words or phrases listed by them Correct
-are those different from the phrases listed by the source but
-judged to be correct by a human
-A Long words and phrases from Wiktionary
-We collected 500 words or phrases which were longer than
-3 characters from wiktionarycom 10 The results for each
-type are listed in Table I
-Except for 4-character idioms the LCP scores are less than
-055 LCP needs to be put in the proper context for our system
-For example  One bedroom and one living room
-becomes  One house one wife policy The latter
-is a newly created phrase describing a new social phenomenon
-4A trigram having an obvious trend means it has a deviation from its
-standard tendency For example a trigram involved in a news event or a hot
-We also found that the results tended to be effected by new
-events For example for one named entity 
- China Banking Regulatory Commission in
-wiktionary the result of Connector is 
-Bank of China One Hundred Year Anniversary
-The fact
-that UP scores tend to be much higher than
-LCP scores in or results implies that even with a relatively
-comprehensive lexicon such as Wiktionary the lexicon is
-incomplete and not up to date This motivates the pointillism
-approach our aim in this document is to move away from
-lexicons Using an online corpus and analysing time enables
-us to extract newly created wordsphrases and even topics
-with unknown words in real time
-Moreover we found that when there are several candidate
-phrases which start from the same root trigrams Connector
-would return the one which is used most frequently in a certain
-period of time and this one may not be the one listed on
-Wiktionary If we shorten the experiment duration and just
-include the period which had a trend Connector would just
-return the exact phrases which were involved in the trend
-In light of this in Section VI-B we use the hot keywords
-or phrases announced by weibocom and set the experiment
-duration for from one week before to one week after the peak
-Among the four types of words 4-character idioms showed
-the best UP score and high LCP This is because 4-character
-idioms are xed and most of them are from ancient Chinese
-there are rarely other phrases which share the same root
-trigrams with 4-character idioms This implies that if the words
-or phrases are stable or xed then they are not inuenced by
-current events heavily To test this hypothesis in Section VI-C
-we collect 4-character idioms only from Wiktionary and test
-them in a 3-month and an 8-month period separately
-B Weibo hot keywords
-Weibocom lists 50 hot keywords or phrases hourly daily
-and weekly We used the weekly hot keywords of 2 November
-2011 to nd out how Connector works on unknown words
-or phrases with pronounced trends We picked 7 days before
-and 7 days after 2 November 2011 as the frequency vector
-so the vector length is 15 As in the previous section UP
-is the reasonable results judged by a human 39 divided by
-the valid root trigrams 43 LCP is the results which match
-the keywords provided by weibocom 24 perfectly divided
-by the valid root trigrams 43 The UP we measured in this
-experiment is 0907 3943 and the LCP is 0558 2443
-These are promising results since some of the phrases are
-longer than 7 characters contain several words and especially
-have stop words in them
-The 7 invalid trigrams are due to the fact
-that some
-keywords listed by Weibo are not really hot in terms of what
-users are actually talking about For example for 
-the frequency of  has 13 frequency values equal to 0
-and 2 equal to 1 We treated these as invalid root trigrams as
-described in Section V
-The relatively low LCP value is because we sometimes
-observe alternate results from the hot keywords provided by
-weibocom For example for the hot word  A love
-letter from Steve Jobs the result of the connector is 
- Steve Jobs A Biography The reason for this is because
- Steve Jobs A Biography has higher frequency and
-uctuation than  A love letter from Steve Jobs
-during the vector period We only count them as UP but not
-LCP For further error analysis please refer to Section VII
-We also used the 8-month data to concatenate those key-
-words and the LCP score was 0 with the UP score less than
-040 The low LCP and UP score
-C LCP and UP for known words
-To test our hypothesis that xed words or phrases are not
-inuenced by current events as heavily we collected all 853
-Chinese 4-character idioms listed on Wiktionary 11 The
-Connector was executed for two periods one is about a 3-
-month period 23 July 2011 to 12 September 2011 the other
-is an 8-month period 23 July 2011 to 22 March 2011 The
-results are listed in Table II
-The LCP value needs to be put into context because there
-are two reasons why it is not as high as the precision of
-common natural language processing tasks using conventional
-approaches and the UP score in the same experiment First
-some 4-character idioms have common rst root trigram For
-example     and 
- have the same root  so Connector only returns
-the one with the most frequent result  For this case
-we only count  as matches with Wiktionary the
-other four are not counted in LCP but are counted in UP
-Secondly the words listed in Wiktionary may not necessarily
-be the common usage of the word For example people
-frequently use  as Connector gives instead of 
- which is listed in Wiktionary5
-Though Table II shows that the 8-month period experiment
-columns 2 and 4 gives more words that matching the
-Wiktionary lexicon or are judged correct by a human than
-the 3-month period column 3 and 5 does the LCP and UP
-values are relatively stable For those 4-character idioms they
-are usually used when people want to express a strong feeling
-and are seldom involved in pronounced trends There are more
-invalid root trigrams in a 3-month period than in an 8-month
-period experiment because some trigrams do not appear often
-enough
-D Error Analysis
-According to our manual error analysis the top three errors
-are the following
- When test words or phrases contain stop words  eg
-of is and high frequency common three charac-
-ter words or phrases  eg  will
- If there are multiple phrases to describe the same thing
-or at the time of the experiment period there are multiple
-memes which contain the same trigrams then the whole
-phrase tends to be lengthened and the results can be a
-TABLE III
-TRIGRAM FREQUENCY OF 
-27 28 29 30 31 01 02
-04 05 06 07 08
- 1
- 1
-49 127 43 46 44 65 50 49 227 129 38 39 65 63
-84 14 11 21 14
-15
-15
-85 14 10 21 13
-4 13 10
-6 11 166
-6 11 168
-combination of multiple phrases  eg Both 
- Our friendship will forever last and 
-Our friendship will last forever are correct the result
-becomes  Our friendship will last
-forever last 
- If the target phrases are composed of multiple words
-and they have different patterns during the experiment
-period For example the trigram trend of 
- Googles developer conference one of the hot
-keywords in our experiment in Section VI-C are shown
-in Table III Trigrams  and  only have one
-peak on 27 October 2011   and 
- have two peaks on 27 October and 3 November 2011
-respectively Connector returns  Google de-
-velop incorrectly We hypothesize that there was another
- Developer conference held on 3 November
-These three challenges will be the subject of future work
-VII DISCUSSION
-One of the questions this document focuses on is does the
-frequent creation and use of new unknown words exacerbate
-the existing problems that natural language processing tasks
-have with word segmentation or does it provide an opportunity
-where the temporal variance in these new words can be
-leveraged to do a better job of the natural language processing
-task In this section we rst use an example to show how
-a trigram which is not a word can actually help with an
-information retrieval
-task Then we discuss why we use
-trigrams
-A From trends to stories
-To understand what Chinese net users talk about on social
-media we selected 12891 trigrams which had a chage rate
-greater than 100 in one day from 23 July 2011 to 22 March
-2012 and tried to concatenate them using an 11 day period 5
-days before and 5 days after the increasing date On average
-about 56 trigrams6 had rates higher than 100 everyday
-Interestingly we found that the Connector sometimes can
-tell us the story of the event and what caused a large increment
-in frequency on that day Here is an example from our results
-10010020110804d gram
-
-Wan made a TV program about the first immigrants
-
-5The whole data set and results can be found on the authors website
-612 891229  563 where 229 is the number of days we collect the
-data successfully
-LCP AND UP BASED ON 4-CHARACTER IDIOMS FROM WIKTIONARY
-TABLE II
-Valid Root Trigrams Match with wiktionary
-3 months
-8 months
-8 months
-3 months
-Correct human1
-8 months
-3 months
-8 months
-3 months
-8 months
-3 months
-Data period
-F req  99
-F req  29
-F req  4
-1 In addition to Matching with Wiktionary
-The statue was splashed 
-
-The statue was splashed with red oil paint
-5
-The statue was smashed
-
-The first immigrant people
- is a trigram which has no meaning in Chinese We
-caught this particular trigram out of the 323 million trigrams
-in our database because it appeared 100 times more frequently
-than average on 4 August 2011 After we fed this trigram into
-Connector and set the connection time from 5 days before
-to 5 days afterward we found the phrase 
- Wan made a TV program about the rst immigrants It
-is still not clear enough to tell us why making a TV program
-created a trend However if you read the candidate results the
-whole story becomes clear It tells us that 5 men smashed and
-splashed red oil paint on the statue of The First Immigrants
-In this event there are many trigram words such as 
- statues  immigrants  red oil paint and
-so on However the trigram which had the most signicant
-was  a meaningless trigram In general these three
-characters did not appear together before this event The
-sudden frequency increase of this trigram from 0 helps our
-system notice this trigram which lead us to notice this event
-Other trigrams did not increase in rate as much as 
-because of this event This may be because they already exist
-and thus it is difcult for them to have a precipitous increase in
-one day What our preliminary results regarding trend analysis
-suggest is that the new emergence of the trend of new words
-can actually be more conspicuous than known words
-From this example we can see that by re-thinking the order
-of operations a natural language processing task can leverage
-the frequent creation and use of new words as shown in
-Figure 3
-Traditional methods need to have a lexicon containing
-known words or terms to do analysis After analyzing the
-trend they can infer the topics memes hot keywords etc
-for only already-known words and terms However in Chinese
-social meida the unknown words that net users use are an
-important part of understanding what is being discussed Our
-approach is to consider the trends of trigrams rst where
-we do not need to know the words and the meaning of the
-words After analyzing trends we can get the topics memes
-and keywords for both known words and unknown words and
-build larger words and phrases from the temporal correlation
-Fig 3 Change of Order
-of trigrams
-B Why trigrams
-As we mentioned in Section III there can be trends for
-bigrams trigrams quadgrams and so forth Here we discuss
-why we focus on trigrams By combining individual bigrams
-trigrams and the subject of this document which is longer
-words and phrases connected via trigrams then we can analyse
-the trends for words or phrases of any length
-Referring back to the example in Section III 
- can also be successfully concatenated using bigrams
-However we only investigated the feasibility of using trigrams
-in this document We choose trigrams instead of bigrams or
-quadgrams as a tradeoff of efciency for accuracy
-Monograms have temporal correlation information but can-
-not give us order information of the phrase For bigrams the
-bigram trends of  are plotted in Figure 4
-Together with Figure 2 we can see that this trend information
-reects what we analyzed in Figure 1 We can also see that the
-trigrams information is more efcient than bigrams in terms of
-serving as glue to hold the larger word together The reason
-for this is because 70 of Chinese words are bigrams 12
-Trigrams are a good way to remove the noise of the sub-bi-
-words in the long word for example remove the noise of 
- from 
-Next why not longer grams Larger grams are computation-
-ally expensive As of 22 March 2012 our dataset has a total
-of 36674 monograms 16353985 bigrams and 323862767
-trigrams in our database Figure 5 is the daily increment of
-distinct monograms bigrams and trigrams7 We can see that
-7The sudden drop around 26 August 2011 before day 50 is caused by
-a system failure for three days around that time The increase around 12
-November 2011 is due to several changes which increased the performance
-of Collector
-Analysis topics memes keywords etcTrends of Words or TermsKnown Words  Terms lexiconTraditional Trend AnalysisOur MethodTrends of N-gramsAnalysisKnown  Unknown Wordstopics memes keywords etc0
-ZhongHua
-MinGong
-Fig 4 Bigram trends for  on Weibo
-the distinct grams are constantly growing though the growth
-rate is decreasing slightly For trigrams it is notable that
-there are more than 800 thousand new trigrams added to our
-database every day
-trigram
-monogram
-Fig 5 Distinct n-grams increase rate
-followers are not strong determinants for the creation of trends
-Specic to China Wei 19 discusses new media research pa-
-pers published in Chinese-language scholarly journals Wang
-et al 20 studies Chinese-language scientist bloggers
-The only two English-language analyses of Weibo that we
-are aware of are Yu et al 21 and Bamman et al 22 Yu
-et al 21 conclude People tend to use Sina Weibo to share
-jokes images and videos and a signicantly large percentage
-of posts are retweets The trends that are formed are almost
-entirely due to the repeated retweets of such media content
-Leskovec et al 15 present a framework for tracking trends
-on a short time-scale ie tracking memes They analyzed
-information ow between traditional media and blogs during
-the 2008 US Presidential election They found that memes
-such as lipstick on a pig started in the traditional media but
-moved to blogs within hours In their mathematical model of
-memes only imitation and recency are needed to qualitatively
-reproduce the observed dynamics of the news cycle
-Unknown word extraction in Chinese is a very challenging
-problem Goh 2 presents an approach based on tagging
-characters and then applying support vector machines and
-maximum entropy models to the appropriate features Lu
-et al 24 propose the use of ant colony optimization for
-unknown word extraction Cortez and da Silva 25 have
-developed an unsupervised approach to information extraction
-by text segmentation Search engines also must deal with
-unknown words which has been the subject of considerable
-research 26 27 26 28 29
-There are several notable entropy-based approaches to word
-segmentation Kempe 30 describes a technique for segment-
-ing a corpus into words without information about the lan-
-guage or corpus and no lexicon or grammar information This
-technique works with corpora containing clearly perceptible
-separators such as new lines and spaces Jin and Tanaka-Ishii
-14 propose an unsupervised word segmentation algorithm
-that is based on the entropy of successive characters at word
-boundaries Zhang et al 31 propose a method that is based
-on a maximum entropy model Zhikov et al 32 utilize the
-local predictability of adjacent character sequences which is
-analogous to entropy
-VIII RELATED WORK
-IX CONCLUSIONS
-With regard to natural language processing and social me-
-dia our work is distinguished from related work mainly in
-that related work has not addressed two challenges specic to
-Internet online corpora the frequent use of neologisms and the
-usage of time sequences in the corpus for extra information
-Natural language processing can be a very powerful tool for
-understanding social aspects of content through data mining
-Chao and Xu 16 show some interesting demographics of
-hate groups on a blog platform Kwak et al 17 study the
-dynamics of Twitter and nd that re-tweeting causes very
-fast diffusion of information Asur et al 18 model
-formation persistence and decay of trends and show evidence
-that surprisingly factors such as user activity and number of
-We propose a pointillism approach for Chinese social media
-natural language processing Time is an important aspect of the
-pointillism approach Language is viewed as a time sequence
-of points that represent the grams The pointillism approach
-allows us look at a corpus in a different dimension and from
-a different perspective In the pointillism approach trigrams
-serve as an intermedium to extract trend information
-Our results show that when words and topics do have a
-meme-like trend they can be reconstructed from only trigrams
-For example for 4-character idioms that appear at least 99
-times in one day in our data unconstrained precision is
-093 For longer words and phrases collected from Wiktionary
-including neologisms unconstrained precision is 087 We
-17 H Kwak C Lee H Park and S Moon What
-is twitter a
-social network or a news media in Proceedings of
-the 19th
-international conference on World wide web ser WWW 10 New
-York NY USA ACM 2010 pp 591600
-Online Available
-httpdoiacmorg10114517726901772751
-18 G S C W Sitaram Asur Bernardo A Huberman Trends in social
-media  Persistence and decay
-19 R Wei The state of new media technology research in china
-a review and critique Asian Journal of Communication vol 19
-no 1 pp 116127 2009 Online Available httpdxdoiorg10
-108001292980802603991
-and F Ma
-Blog-supported
-20 X Wang T
-scientic
-communication An exploratory analysis based on social hyperlinks in
-a chinese blog community J Inf Sci vol 36 pp 690704 December
-2010 Online Available httpdxdoiorg1011770165551510383189
-21 B A H Louis Yu Sitaram Asur What trends in chinese social media
-22 N S David Bamman Brendan OConnor Censorship and deletion
-practices in chinese social media First Monday vol 17 no 3-5
-March 2012 Online Available httpwwwuiceduhtbincgiwrapbin
-ojsindexphpfmarticleview39433169
-23 V S X Z Cheng Chen Kui Wu Battling the internet water army
-Detection of hidden paid posters
-24 Q L H W P Qian Antseg an ant approach to disambiguation of
-chineseword segmentation Information Reuse and Integration 2006
-IEEE International Conference on pp 420425 Sep 2006
-25 E Cortez and A S da Silva Unsupervised strategies for information
-extraction by text segmentation in Proceedings of the Fourth SIGMOD
-PhD Workshop on Innovative Database Research ser IDAR 10
-New York NY USA ACM 2010 pp 4954 Online Available
-httpdoiacmorg10114518111361811145
-26 B Tan and F Peng Unsupervised query segmentation using
-generative language models and wikipedia in Proceeding of
-17th international conference on World Wide Web ser WWW 08
-New York NY USA ACM 2008 pp 347356 Online Available
-httpdoiacmorg10114513674971367545
-27 J Huang J Gao J Miao X Li K Wang F Behr and C L Giles
-Exploring web scale language models for search query processing in
-Proceedings of the 19th international conference on World wide web
-ser WWW 10 New York NY USA ACM 2010 pp 451460
-Online Available httpdoiacmorg10114517726901772737
-28 Y Li B-J P Hsu C Zhai and K Wang Unsupervised
-query segmentation using clickthrough for information retrieval in
-the 34th international ACM SIGIR conference on
-Proceedings of
-in Information ser SIGIR 11 New
-Research and development
-York NY USA ACM 2011 pp 285294
-Online Available
-httpdoiacmorg10114520099162009957
-29 N Mishra R Saha Roy N Ganguly S Laxman and M Choudhury
-Unsupervised query segmentation using only query logs
-Proceedings of the 20th international conference companion on World
-wide web ser WWW 11 New York NY USA ACM 2011 pp 91
-92 Online Available httpdoiacmorg10114519631921963239
-30 A Kempe Experiments in unsupervised entropy-based corpus seg-
-mentation Conference on Computational Natural Language Learning
-CoNLL-99 Jun 1999
-31 L-Y Z M Q X-M Z H-X Ma A chinese word segmentation algo-
-rithm based on maximum entropy Machine Learning and Cybernetics
-ICMLC 2010 International Conference on pp 1264  1267 Jul 2010
-32 V Zhikov H Takamura and M Okumura An efcient algorithm
-for unsupervised word segmentation with branching entropy and mdl
-the 2010 Conference on Empirical Methods in
-in Proceedings of
-Natural Language Processing ser EMNLP 10
-Stroudsburg PA
-USA Association for Computational Linguistics 2010 pp 832842
-Online Available httpdlacmorgcitationcfmid18706581870739
-consider these results to be very promising because they
-suggest that it is feasible for a machine to reconstruct complex
-idioms phrases and neologisms with good precision without
-any notion of words Experiments also tell us that a longer
-period of frequency of trigrams can be used to connect xed
-words while shorter periods which include the trend can be
-used to connect phrases memes and even nd the overall
-topic Thus the colorful and baroque uses of language that
-typify social media in challenging languages such as Chinese
-may in fact be accessible to machines
-The way we can extract hot words without any aid of
-dictionary and grammar is not only useful in languages which
-do not delimit the words by space but also help seach query
-segmentations dynamic ranking pages search engine index
-etc for Indo-European languages
-REFERENCES
-1 T-H C Lin Ming-Yu and K-Y Su A preliminary study on unknown
-word problem in chinese word segmentation in ROCLING 6 1993 pp
-119141
-2 C-L Goh Unknown word identication for chinese morphological
-analysis PhD dissertation Nara Institute of Science and Technology
-3 X Jingyue Low variety in diglossia the research of users attitudes
-toward zhuyin wen Masters thesis National Chung Cheng University
-4 29th
-Internet Development
-Statistical Report
-in China
-httpwwwcnniccnresearchbgxztjbg201201
-Center Dec
-Information
-Internet Network
-Online Available
-P020120118512855484817pdf
-5 wikipedia Sina weibo httpzhwikipediaorgwiki
-6 S YE Sina weibo controls the holy shit idea of a generation
-launches new url weibocom 2011
-7 Wikipedia Protests of wukan httpzhwikipediaorgwiki
-8 R Dingledine N Mathewson and P Syverson Tor
-the second-
-generation onion router in Proceedings of the 13th conference on
-USENIX Security Symposium - Volume 13 ser SSYM04 Berkeley
-CA USA USENIX Association 2004 pp 2121 Online Available
-httpdlacmorgcitationcfmid12513751251396
-9 C-C Chang and C-J Lin LIBSVM A library for
-support
-vector machines ACM Transactions on Intelligent Systems and
-Technology vol 2 pp 2712727 2011 software available at
-httpwwwcsientuedutw cjlinlibsvm
-10 Wiktionary Chinese nouns httpzhwiktionaryorgCategory
-11 Chinese 4-word idioms httpzhwiktionaryorgwiki
-12 C S Richard W Sproat A statistical method for nding word bound-
-aries in chinese text Computer Processing of Chinese and Oriental
-Languages vol 4 pp 336351 1990
-chinese
-13 Peoplecomcn
-language
-situation
-2010
-published
-httpedupeoplecomcnGB14620075html
-ministry
-education
-china
-14 Z Jin and K Tanaka-Ishii Unsupervised segmentation of chinese text
-by use of branching entropy in Proceedings of the COLINGACL on
-Main conference poster sessions ser COLING-ACL 06 Stroudsburg
-PA USA Association for Computational Linguistics 2006 pp 428
-Online Available httpdlacmorgcitationcfmid1273073
-1273129
-15 J Leskovec L Backstrom and J Kleinberg Meme-tracking and the
-dynamics of the news cycle in Proceedings of the 15th ACM SIGKDD
-international conference on Knowledge discovery and data mining ser
-KDD 09 New York NY USA ACM 2009 pp 497506 Online
-Available httpdoiacmorg10114515570191557077
-16 M Chau and J Xu Mining communities and their relationships
-in blogs A study of online hate groups Int J Hum-Comput
-Stud vol 65 pp 5770 Jan 2007
-Online Available http
-dlacmorgcitationcfmid12222441222622
+Phagocytosis and receptor-mediated endocytosis are vitally important par-
+ticle uptake mechanisms in many cell types ranging from single-cell organisms
+to immune cells In both processes engulfment by the cell depends critically on
+both particle shape and orientation However most previous theoretical work
+has focused only on spherical particles and hence disregards the wide-ranging
+particle shapes occurring in nature such as those of bacteria Here by imple-
+menting a simple model in one and two dimensions we compare and contrast
+receptor-mediated endocytosis and phagocytosis for a range of biologically rel-
+evant shapes including spheres ellipsoids capped cylinders and hourglasses
+We nd a whole range of dierent engulfment behaviors with some ellipsoids
+engulng faster than spheres and that phagocytosis is able to engulf a greater
+range of target shapes than other types of endocytosis Further the 2D model
+can explain why some nonspherical particles engulf fastest not at all when
+presented to the membrane tip-rst lying at Our work reveals how some
+bacteria may avoid being internalized simply because of their shape and sug-
+gests shapes for optimal drug delivery
+Introduction
+Cells are capable of ingesting a huge range of particle shapes from rod-shaped E
+coli to doubly-lobed budding yeast from helical Borrelia to lamentous Legionella
+1 2 3 Further the shape is critical in determining whether engulfment is possible
+and if so how long it takes In fact it has been argued that the target shape plays an
+even more critical role than size 4 5 In addition target orientation strongly aects
+internalisation with ellipsoidal particles engulfed far easier when the highly-curved
+tip is presented rst 4 6 Yet despite this there is relatively little work studying
+shape and orientation dependence with the vast majority of previous papers both
+experimental and theoretical involving only spherical targets
+Endocytosis encompasses a number of dierent mechanisms of cellular internal-
+isation including clathrin-mediated endocytosis caveolar-type endocytosis macro-
+pinocytosis and phagocytosis 7 Whilst sharing some similarities these processes
+often proceed in strikingly dierent manners For example phagocytosis is typi-
+cally highly active and involves the membrane extending outwards with nger-like
+protrusions surrounding the target in an actin-dependent process 8 9 Conversely
+clathrin-mediated endocytosis is a more passive process with targets appearing to
+sink into the cell 10 Here we focus on types of endocytosis that involve target
+recognition via receptors We assume that receptors bind irreversibly to ligands on
+the target so that engulfment proceeds monotonically 11 12 In particular we dis-
+tinguish phagocytosis from other less active forms of receptor-driven internalisation
+We refer to all these latter processes as receptor-mediated endocytosis including
+clathrin-mediated endocytosis
+Various mathematical models have attempted to understand the mechanism and
+dynamics of engulfment All forms of endocytosis in particular phagocytosis are
+extremely complex involving hundreds of dierent protein species in signalling cas-
+cades and cytoskeleton remodelling 13 14 15 16 As a result overly-complicated
+models that try to include every component are unlikely to be useful Instead more
+progress can be made by considering simpler intuitive models that capture the es-
+sential mechanisms For example viral engulfment has been modelled by examining
+the free energy of membrane bending and adhesion 17 18 Similarly van Een-
+terre et al used a thermodynamic approach that involved considering an ensemble
+of target particles 19 Recently the role of actin during endocytosis in yeast was
+addressed by using a variational approach and arguing that the nal pinch-o stage
+is due to a pearling-like instability 20
+There are also models that focus on phagocytosis For example van Zon et al
+included simple dynamics for both actin and receptors which they used to under-
+stand why engulfment normally either stalls before halfway or reaches completion
+6 Herant et al
+focussed on the forces required to explain the cup shape and
+showed using a continuum mechanics approach the need for both repulsion at the
+cup edge and attening within the cup 21 22 Various other approaches focus only
+on energetic requirements such as those due to membrane bending and receptor-
+ligand binding equating the phagocytic cup with some minimum energy state For
+example Dasgupta et al used this approach to argue that ellipsoids are harder to
+engulf than spheres 23 24 whereas Tollis et al found that an actin-driven ratchet
+mechanism can lead to robust engulfment 25
+One particularly elegant approach by Gao et al models endocytosis by consid-
+ering only the motion of receptors within the membrane 26 They argued that the
+essence of receptor-mediated endocytosis is related to the dynamics of the recep-
+tors themselves which can be mapped to the supercooled Stefan problem a simple
+physical model of how the boundary between ice and water moves during freez-
+ing Although they were able to understand how particle radius aects the rate of
+engulfment predicting an optimum radius corresponding to the quickest possible
+engulfment time they only considered spherical particles Cylindrical ellipsoids
+were considered in 27 but not in a consistent manner In 28 we extended the
+Gao et al model to phagocytosis arguing that a similar mathematical model can
+explain receptor motion in both cases This involved including receptor drift and
+signalling and showed that the two distinct stages of engulfment an initial slow
+stage followed by a much quicker second stage can be explained by dierent recep-
+tor dynamics during dierent stages However again we almost exclusively focused
+on only spherical particles
+Here to address the role of particle shape during engulfment we extend these
+models in three ways First by allowing nonconstant curvature we are able to study
+Figure 1 Biologically relevant particle shapes A Spheres B Spheroids both
+prolate left and oblate right C Capped cylinders consisting of a cylindrical region
+capped by hemispheres which describe certain bacteria D Hourglasses made from
+spherical caps and a narrow neck region which model cells during the division process
+nonspherical particle shapes such as ellipsoids capped cylinders and hourglasses
+Fig 1 All the shapes we consider are relevant for real biological systems such as
+rod-shaped bacteria and dividing budding yeast Second we include signalling and
+a role for actin in order to examine the dierent target shape dependence between
+phagocytosis and other types of receptor-mediated endocytosis Third we extend
+the formalism from a 1D to a 2D model which allows for the rst time to our
+knowledge lower-symmetry shapes such as lying ellipsoids to be studied With
+this model we are able to address how orientation aects engulfment nding an
+explanation for why prolate spheroids engulf quickest when presented to the cell
+tip-rst Finally we compare our model with known experimental results
+Results
+We rst study endocytosis in general and consider particles both with and with-
+out circular symmetry Then we extend the model to apply to phagocytosis by
+including signalling and actin By particle symmetry we mean the symmetry of the
+particle looking from directly above the membrane For example a prolate spheroid
+will have circular symmetry only when presented tip rst as in the shape on the
+left in Fig 1B As we now show our model for circularly-symmetric particles be-
+comes eectively 1D allowing easier analytic and numerical treatment Conversely
+non-symmetric particles require a full 2D model introducing extra physical and nu-
+merical issues We rst consider circularly-symmetric particlesspheres tip-rst
+spheroids capped cylinders hourglassesand next examine non-symmetric parti-
+cles for example ellipsoids that lie at as in the rst shape in Fig 1B lying on its
+1D model for endocytosis of circularly-symmetric particles
+We rst extend the model in Gao et al 26 to include nonspherical particles This
+is a model of receptor motion with the inclusion of membrane bending and ligand-
+receptor binding which focuses on the cup size as a function of time Consider a
+particle whose cross section parallel to the membrane is circularly symmetric such
+as all the shapes in Fig 1 Then receptor motion within the membrane and the
+fraction of engulfment can be parameterised by just one spatial parameter r the
+ABCDdistance from the centre of the cup Thus at time t the receptors are described
+by a density r t and the engulfment by at which represents the engulfed arc
+length measured from the centre of the cup Fig 2A
+Initially  is assumed uniform and given by 0 which is also the value that
+is imposed at r   at all times As the particle is engulfed receptors bind to
+ligands on the bead and the density increases to L in the engulfed region Fig 2B
+We assume for simplicity that receptors are never destroyed or created so that the
+evolution of the receptor density  in the non-engulfed region r  a is governed
+simply by diusion with diusion constant D At the cup boundary receptors ow
+into the bound region increasing the engulfment a By considering the conservation
+of receptors the rate of increase of a can be related to the ux of receptors so that
+our 1D model is given in the non-engulfed region r  a by
+Dcid48
+L  
+cid18
+cid19
+where  is the receptor density at the cup edge Initial conditions are r 0  0
+and a0  0 This is identical to the supercooled 1D Stefan problem studied in
+physics as a model of the freezing of water
+To nd a unique solution we impose one extra condition the value of  at the
+edge of the cup  Since the boundary continually moves the position where this
+extra condition is applied also continually moves such that t  at t As
+in 26 we x t by requiring that there is no free-energy jump across the cup
+ie that all energy from receptor-ligand binding is used for engulfment We consider
+three contributions to the free energy receptor-ligand binding membrane curvature
+and receptor entropy which leads to the condition
+where E is the binding energy per receptor-ligand bond B is the bending modulus
+and H is the mean curvature of the particle at the cup edge We ignore any contri-
+bution from the Gaussian curvature since its eect is normally similar to that from
+the mean curvature for biologically relevant target shapes
+The original model in 26 only considered spherical particles so that the cur-
+vature H is constant
+In order to consider other particle shapes we allow H to
+depend on the engulfment a This in turn means that  is now not constant in
+time and that analytic solutions can no longer be found This same approach was
+attempted in 27 for cylindrical particles but with a misunderstanding that we be-
+lieve invalidates their results To make progress we numerically solve the system
+see Materials and Methods and consider in turn spheroids capped cylinders and
+hourglasses
+Spheroids
+A spheroid is an ellipsoid where two of the principal axes have the same length
+Later in our 2D model we will be able to consider spheroids presented to the cell
+cid18 
+cid19
+ E  2BH 2
+Figure 2 Sketch of the model A Sketch of the receptors blue moving within the
+membrane and a partially engulfed particle red The model variables are the cup size a
+and the receptor density  B The typical prole of  with L the ligand density 0
+the receptor density at innity and  the receptor density at the cup edge
+both end-on and lying down However in the 1D model which requires circularly-
+symmetric particles only standing spheroids can be examined A spheroid is char-
+acterised by two radii R1 the radius of the semi-principal axis parallel to the
+membrane and R2 the radius perpendicular to the membrane Fig 3A We
+use a standard parameterisation of the surface of a spheroid given by x y z 
+R1 sin v cos u R1 sin v sin uR2 cos v where u  0 2 and v  0  Here the
+z-axis represents the perpendicular distance from the membrane so that v  0 is
+the lowest point the point of the spheroid that rst touches the membrane and
+is the rst to be engulfed
+We must relate the mean curvature H to the arc length s measured from v  0
+The curvature can be written in terms of v as
+11  cos2v  R2
+1 cos2v  R2
+2 sin2vcid1
+2 sin2vcid132
+cid0R2
+cid0R2
+cid113
+cid90 v
+whereas the arc length is given by an incomplete elliptic integral of the second kind
+1 cos2w  R2
+2 sin2w dw
+3 and 4 we proceed as
+Since v cannot be directly eliminated between Eqs
+follows for a given engulfment arc length a we numerically solve Eq 4 to nd
+v and then use Eq 3 to nd the curvature
+We nd that for R1 cid54 R2 engulfment no longer proceeds with the square root
+of time Fig 3B The speed of engulfment now depends on the local curvature
+at the cup edge Higher curvatures decrease the right hand side of Eq 2 and
+increase  In turn a higher  decreases cid48 at the cup edge and tends to reduce
+the engulfment rate Thus highly curved regions lead to slow engulfment whereas
+atter regions engulf faster Regions which are too highly curved lead to stalling
+where engulfment cannot proceed further Fig 3B In our mathematical model
+this occurs when   0 so that the right-hand side of the second part of Eq 1
+becomes negative which we interpret as a  0
+To compare dierent spheroids we vary R1 whilst always choosing R2 to ensure
+the same total surface area We nd similar results by instead xing the volume
+Receptorsdensity ABLigandsdensity LraL0Cup size aor R2 As shown in Figs 3B and 3C we nd ve classes of behaviour depending
+on the value of R1 First for suciently small R1 the initial curvature is so high
+that engulfment can never begin and the particle simply sits on the cell membrane
+Second for larger R1 we reach a slow-fast-slow mode of engulfment the initial high
+curvature at the particle base leads to slow engulfment with quicker engulfment
+in the smaller-curvature middle region before again a highly-curved slow stage
+near the top of the particle Third as R1 is further increased the spherical case
+is reached R1  R2 characterised by
+t engulfment Fourth at still higher R1
+a fast-slow-fast stage is encountered with engulfment quickest at the beginning
+and end where the curvature is lowest Finally suciently high R1 again leads to
+incomplete engulfment although now unlike for small R1 engulfment stalls around
+halfway
+To better understand the eect of changing R1 we study the half and full en-
+gulfment times Fig 3D Spheroids with R1  R2 like those on the left in Fig
+1B always take longer than the equivalent sphere to reach both half and full en-
+gulfment Conversely spheroids with R1 slightly bigger than R2 engulf faster than
+spheres This is interesting and suggests that rod-shaped bacteria can sometimes
+be engulfed faster than coccus-shaped bacteria of the same surface area As R1 is
+further increased a minimum is reached Beyond this the high curvature becomes a
+dominant factor and causes both the half and full engulfment times to rise sharply
+for larger values of R1
+To study the orientation dependence of engulfment we compare ellipsoids with
+R1 R2  R 1m to those with R1 R2  1m R where R is chosen so
+that the surface area is the same for both cases Of course these two shapes do not
+correspond to the same spheroid only later in our extended 2D model we will be
+able to directly compare the same ellipsoid in dierent orientations In particular
+we compare the dierence in total engulfment time for these two shapes Fig 3E
+For R  1m we nd that the oblate spheroid with R1 R2  R 1m engulfs
+quickest This is simply because the total engulfment length is smaller For the
+same reason for R slightly smaller than 1m engulfment is also quickest for oblate
+spheroids which are now those with R1 R2  1m R However for suciently
+small R the required value of R is such that the curvature at the mid-point becomes
+limiting slowing engulfment for the R1 R2  1m R spheroid so that prolate
+spheroids are engulfed faster
+Capped cylinders and hourglasses
+We now briey consider two other circularly-symmetric shapes Capped cylinders
+consisting of a cylinder with a hemisphere attached at either end are good models
+for various rod-shaped bacteria such as E coli and Bacillus subtilis These display
+a slow-fast-stall-slow engulfment behaviour related to the lower curvature found in
+the neck region The stalling is caused by a jump in  at the top of the neck
+By xing the surface area and varying the neck height we nd that the quickest
+engulfment corresponds to a sphere Even though rods are not capped cylinders
+Figure 3 Engulfment time for spheroids in 1D model A Cross section of a
+spheroid dened by R1 the axis length parallel to the membrane and R2 the
+perpendicular axis length The full shape is obtained by rotating around the z-axis thus
+giving an ellipsoid with axis lengths R1 R1 R2 B Progression of engulfment for
+spheroids with various R1 In each case R2 is chosen so that the surface area is the same as
+for a sphere of radius 08m The spherical case red curve shows classic
+Nonspherical spheroids show slower rates of engulfment in regions with high curvatures
+This occurs at the beginning and end of engulfment for prolate spheroids green curve and
+towards the middle for oblate spheroids cyan curve Suciently eccentric spheroids blue
+and purple curves stall at the point where the curvature gets so high that   0 Solid
+dots represent complete engulfment C The ve types of behaviour for increasing R1 for
+xed surface area i stalling before engulfment starts ii slow-fast-slow engulfment iii
+classic
+t spherical behaviour iv fast-slow-fast engulfment and v stalling at halfway
+D The half- and full-engulfment times as a function of R1 Again R2 is chosen to keep
+the surface area constant The dashed line represents the spherical case Interestingly the
+quickest engulfment occurs not for spheres but for oblate spheroids where R1  R2
+Grey shapes sketches of the target particle E The dierence in total engulfment time
+between ellipsoids with radii R R 1m and those with 1m 1m R where R is
+chosen to give the same surface area The vertical dashed line represents the case of a
+sphere Parameters 0  50m2 L  500m2 D  04m2s1 E  15 B  10
+t engulfment
+this could explain the observation that for endocytosis spheres engulf in less time
+than rod-shaped particles 29
+Hourglasses are more complicated shapes but are useful for modelling cases
+of dividing cells such as budding yeast during division 1 30 The engulfment
+behaviour and the total engulfment time depend on exactly how narrow the neck is
+compared to the spherical caps with the neck region engulfed sometimes faster and
+sometimes slower than the caps Interestingly the quickest engulfed hourglass does
+not correspond to the shape with the smallest neck curvature
+ADCEBR1R2Cup size m0123050100150200250R1 mEngulfment time s0708091050100150200250Full engulf timeHalf engulf timeTime sslowfastslowfastslowfaststalls at half- waystalls before starting08091111260402002040RmDiff in engulf time s0spheremax R1min R1R1R1065mR106544mR108mR10963mR1097mExtension to phagocytosis
+Although actin plays a role in many types of endocytosis it seems to be far more
+important for successful engulfment in phagocytosis 31 32 25 To this end we
+extend our model to apply to phagocytosis by adding a simple role for actin Moti-
+vated by our previous work 28 we achieve this by including a signalling molecule
+S which recruits actin to push at the cup edge We assume that S is produced
+only within the cup with rate L is degraded everywhere with lifetime   and
+diuses with constant DS Then S is described by 28
+cid18
+cid19
+ La  r  1S
+where x is the Heaviside function
+Even though the actin network provides a pushing force at the cup edge this
+will not necessarily increase the engulfed target length a unless sucient receptors
+are also present simply pushing the membrane further around the target without
+a suitable zipper mechanism risks subsequent unwrapping 25 Thus the real eect
+of actin at least as far as our model is concerned is in facilitating receptor motion
+to the cup edge One way this could be achieved is by actin helping to bend the
+membrane around the target thus eectively reducing the free energy needed for
+membrane bending For example an actin network structure that matches the target
+curvature would naturally encourage the membrane to bend in the same manner via
+scaolding 33 We implement this mechanism by allowing the bending modulus B
+to depend on the value of S at the cup edge S via B  B01B1S where Bi are
+constants We identify B0 with the constant value of B in the non-phagocytic model
+and call B1 the bending-actin constant Then B1  0 corresponds to non-phagocytic
+endocytosis and B1  0 to phagocytosis Note that this mechanism does not require
+that the membrane becomes softer only that bending becomes easier This could be
+related for example to changes in lipid composition within the phagocytic cup as a
+result of localised small GTPase recruitment 34 or to changes in the spontaneous
+curvature
+We rst examine the dierence between receptor-mediated endocytosis and phago-
+cytosis for oblate spheroids R1  R2 Suciently eccentric spheroids cannot be
+engulfed by receptor-mediated endocytosis since the curvature around half way is
+too high Fig 3D However with the introduction of signalling and a role for actin
+such ellipsoids can often be ingested by phagocytosis Fig 4A In these cases the
+initial rate of engulfment when S is small is similar in both models However when
+engulfment slows down around half way the recruitment of actin to the cup edge
+provides an extra push If the bending-actin constant is large enough this then leads
+to complete engulfment Fig 4A The situation is markedly dierent for prolate
+spheroids R1  R2 for which the high curvature stalling occurs at the beginning of
+engulfment when there are relatively few receptor-ligand bonds The lack of bound
+receptors means that there is little signalling and so little recruitment of actin In
+such cases often both models fail to engulf
+Figure 4 Results for spheroids in phagocytosis model A Engulfment times for
+both half and full engulfment as a function of the bending-actin constant B1 for a
+spheroid with R1  098m and R2  045m B1  0 corresponds to non-phagocytic
+endocytosis and B1  0 to phagocytosis B The range of spheroids grey region that can
+be engulfed as a function of the bending-actin constant R2 is always chosen so that the
+surface area is the same as that of a 08m-radius sphere The dashed line represents the
+largest possible value of R1 above this the surface area constraint can no longer be
+imposed Parameters 0  50m2 L  500m2 D  04m2s1 E  15 B0  10
+DS  1m2s1   04s1   05s
+For oblate spheroids we can examine the eect of the bending-actin constant on
+engulfment time in cases where non-phagocytic endocytosis stalls around half way
+Fig 4A Initially as B1 is increased there is still no engulfment However at
+a critical onset about B1  0315m2 with the parameters in Fig 4A complete
+engulfment occurs As B1 is increased still further the engulfment time rapidly
+drops For values near the critical B1 value engulfment takes a long time with
+the majority of time spent around half engulfment waiting for enough actin to be
+recruited to the cup edge This suggests that certain shapes that appear to stall
+around half way will actually fully ingest given a sucient amount of time
+Finally we examine how the range of ingestible spheroids changes as the bending-
+actin constant increases Fig 4B For any xed value of B1 there is always a limit
+on which ellipsoids can be engulfed particles that are too oblate or too prolate
+will never be ingested However these limits correspond to progressively more and
+more eccentric spheroids as B1 increases From experimental measurements of which
+ellipsoids can and cannot be engulfed it should be possible to infer the value of the
+bending-actin constant Thus phagocytosis B1  0 allows not only larger particles
+but also more eccentric particles to be ingested compared to other types of receptor-
+mediated endocytosis B1  0 However our model suggests that there are always
+suciently eccentrically shaped targets that can evade engulfment
+2D model for noncircularly-symmetric particles
+A limitation of the 1D model is that only circularly-symmetric particles can be
+studied In particular this excludes general ellipsoids with all the axes dierent
+lengths and even spheroids that are not presented tip-rst To study such shapes
+we extend the above model to two dimensions which involves studying a 2D Stefan
+problem We parameterise the surface by polar coordinates r and  with r  0
+and 0    2 The receptor density is now described by r  t whereas the
+AB0204060801000020406081Minmax R1 mB1 m2B1 m2Engulf time s0303504045050200400600800Full engulf timeHalf engulf timeengulfed arc length a t becomes a function of the angular direction With the
+same boundary conditions as in the 1D model   0 both at t  0 and at r  
+we now have to solve the 2D diusion equation
+cid18
+cid19
+2 
+for r  a As before   L within the cup The evolution of a can be derived
+from the conservation of receptors which leads to the second part of Eq 1 being
+replaced by
+D  n
+L  
+where n is a unit outward-pointing normal to the cup surface The nal boundary
+condition xing  again follows from requiring no free-energy jump across the
+cup edge Although the derivation is more involved the nal condition is the same
+as in the 1D model Eq 2 To nd solutions we developed a numerical approach
+that involves a 2D lattice that must be continually updated as the cup enlarges see
+Materials and Methods To test our numerics we checked that spherical particles
+with constant curvature H  R1 agree with the analytic results from the 1D
+We focus on studying ellipsoids which are parameterised by their three semi-
+principal axes R1 R2 and R3 Fig 5A Since the cup does not proceed in unison
+around the particle dierent angles engulf at dierent rates there is now no unique
+denition of half engulfment We consider two denitions half-area engulfment
+when the engulfed area is half the ellipsoid surface area and half-circumference en-
+gulfment when all points of the cup are over half way to the top of the particle Half-
+area engulfment always occurs before or at the same time as half-circumference
+engulfment
+As an example of engulfment consider an ellipsoid with R1  R3  R2 which
+is a lying-down prolate spheroid as in the rst gure in Fig 1B if it was lying on its
+side see Video S1 The lack of circular symmetry when viewed from above means
+that engulfment now proceeds at dierent rates at dierent angles In particular
+consider   0 compared to   
+2  corresponding to the two principal axes parallel
+to the membrane Cup progression at   0 proceeds along a circle of radius R1
+with constant curvature H0 Conversely the cup edge at   
+2 follows an ellipse
+with the curvature starting at H0 rising to a maximum at half-way and then
+decreasing back to H0 In addition the total arc length along   
+2 is longer
+than that along   0 so that the   
+2 direction must engulf more membrane to
+reach full engulfment
+As seen in Fig 5B and Video S1 the   
+2 direction takes considerably longer to
+engulf This is partly due to both the greater curvature along   
+2 and the greater
+arc length However there is another more important reason that slows engulfment
+at   
+2 compared to   0 which is only revealed in the full 2D simulation
+Once   
+2 starts to lag behind   0 due to higher curvature angular diusion
+diusion in the  direction causes even more receptors to move away from   
+and towards   0 This increases the ux at   0 so that the   
+2 direction
+slips even further behind   0 amplifying the eect This amplication explains
+why engulfment takes so much longer at   
+2  This eect may also explain the
+asymmetric spreading over ellipsoidal particles in 4
+For the rst time to our knowledge we are now able to compare spheroids
+presented to the cell with dierent orientations To do this we compare spheroids
+with radii R1 R2 R3   R R R to those with R1 R2 R3   R R R We
+refer to the rst case as a symmetrically-presented spheroid since from above this
+spheroid has circular symmetry and the second case as an asymmetrically-presented
+spheroid For a given R we always choose R to keep constant surface area the surface
+area of a sphere with radius 04m This allows us to directly compare spheroids
+with dierent eccentricities Fig 5C shows the results for the total engulfment
+time Both symmetrically- and asymmetrically-presented spheroids demonstrate
+the expected characteristic behaviour with quickest engulfment corresponding to
+some intermediate spheroid more squashed or more pointed ellipsoids take longer
+to engulf with suciently eccentric shapes never reaching complete engulfment
+Further the symmetrically-presented spheroid always engulfs rst both for prolate
+and oblate spheroids This is due to the amplication of angular diusion described
+above where the   
+2 angle for asymmetrically-presented spheroids takes much
+longer to engulf than   0
+For symmetrically-presented spheroids we nd as we should similar results to
+those for spheroids in the 1D model For xed surface area the sphere is not the
+optimal shape Rather slightly oblate spheroids R  R engulf faster This is
+true not only for the total engulfment time but also for the half-area and half-
+circumference engulfment times which are always equal for such a shape Con-
+versely for asymmetrically-presented spheroids the sphere always corresponds to
+quickest total engulfment This again is caused by the amplication eect which
+penalises non-symmetric shapes The half-circumference engulfment time which
+requires all angles to have reached half-engulfment is also a minimum for spheres
+Fig S5B However the situation is dierent for the half-area engulfment time
+where prolate spheroids R  R reach half-area engulfment sooner than spheres
+Fig S5A
+Thus our 2D model leads to three important conclusions for spheroids First
+prolate spheroids engulf quickest when presented to the membrane tip-rst which
+agrees with previous phagocytic measurements 4 and is a prediction for other types
+of endocytosis Suciently spherical targets will completely engulf in either orien-
+tation whereas targets that are too eccentric are not engulfed in any orientation
+This could well explain the observation in 4 where the membrane sometimes only
+spreads along the target with no internalisation However there also exists an inter-
+mediate regime where prolate spheroids are engulfed only when one of the highly-
+curved tips is engulfed rst Although in phagocytosis this orientation dependence
+can be explained by adding active processes and a second engulfment stage to the
+1D model 28 our 2D model shows that this for all types of endocytosis can
+Figure 5 Engulfment time for ellipsoids in 2D model A Sketch of an ellipsoid
+which is dened by its three semi-principal axis lengths R1 R2 and R3 B Comparison
+of engulfment at dierent angles for an ellipsoid with R1  R3  03m and R2  06m
+Dierent directions around the ellipsoid engulf at dierent rates with complete engulfment
+occurring just after 118s Here we show the two most extreme angles   0 and   
+Insert cup shape when the   0 direction is about half engulfed with the target in grey
+and the cell membrane in red For the full movie see Video S1 C Comparison of total
+engulfment time for spheroids presented to the cell in two perpendicular orientations R is
+always chosen so that the surface area is the same as that of a sphere of radius 04m The
+dashed line represents the spherical case Grey shapes sketches of the target particle
+Parameters 0  50m2 L  500m2 D  04m2s1 E  6 B  04
+also be understood simply by receptor diusion Second we predict that oblate
+spheroids engulf quickest when presented at to the membrane This nding is
+perhaps surprising since it is then the low curvature region that is engulfed rst
+and last rather than the highly-curved tips as for prolate spheroids Hence oblate
+and prolate spheroids have completely dierent engulfment behaviours even for su-
+percially similar shapes such as the two standing spheroids in Fig 5C Further
+experiments with spheroidal targets should help clarify this prediction Third the
+2D model predicts that the absolute quickest engulfment for a spheroid with xed
+surface area occurs for a slightly oblate spheroid that lies at with respect to the
+membrane The last nding is conrmed by Sharma et al for macrophages 35
+Discussion
+In analogy with the freezing of water as described by the heat equation with a mov-
+ing boundary we used a minimal model of receptor diusion and capture to study
+shape and orientation dependence during endocytosis The process of engulfment is
+then equivalent to a rst-order phase transition characterised by a transition from
+mobile unbound receptors to immobile ligand-bound receptors By including sig-
+nalling and a role of actin we were then able to adapt our model to phagocytosis
+and examine the dierent role shape plays for receptor-mediated endocytosis and
+phagocytosis
+We both extended a previous 1D model to include nonspherical targets and de-
+veloped a more realistic 2D version allowing lower-symmetry particles to be studied
+The 1D model shows that a whole host of engulfment behaviours emerge from dif-
+ferent particle types This supports the idea that the local curvature at the cup edge
+is a crucial factor in determining whether and how quickly targets are engulfed
+ABCR1R1R2R30203040506020406080Engulf time sR mR1R2R3RRRR1R2R3RRR04080120005115Cup size mTime s20r4 Highly-curved regions may prevent complete engulfment and so are likely to be
+factors that at least partially drive the evolution of pathogen shapes We found
+that for some shapes such as capped cylinders the more spherical the target the
+quicker the engulfment whereas for other shapes such as spheroids nonspherical
+particles can be engulfed faster Thus long narrow lamentous shapes could in some
+situations be more benecial for pathogens that try to avoid ingestion Further our
+hourglass-shaped particles also explain the observation that phagocytosis of budded
+yeast can stall at half engulfment 1 30
+The 2D model allowed for the rst time to our knowledge the orientation de-
+pendence of engulfment to be probed We found that for nonspherical targets
+engulfment can sometimes proceed at completely dierent rates in dierent direc-
+tions with higher-curved directions engulng much slower This should be directly
+observable with for example scanning electron microscopy Further we discov-
+ered that this eect can explain the experimental observation that prolate spheroids
+phagocytose quickest when presented to the cell tip-rst 4 In addition the 2D
+model predicts both that oblate spheroids engulf fastest when presented at to the
+cell and that slightly oblate spheroids can engulf even faster than the equivalent
+sphere These perhaps counterintuitive results could readily be tested in the near
+future
+Although phagocytosis is distinct to other forms of receptor-mediated endocyto-
+sis the role of receptors and their motion towards the cup is equally important 28
+By adding signalling and a simple role for actin our models predict that all types
+of endocytosis including phagocytosis have similar shape dependence In addition
+we found that phagocytosis not only fulls its traditional role of allowing larger
+particles to be ingested but also allows more highly-curved targets to be engulfed
+It is important to point out the limitations of our models We have focussed only
+on passive diusion of receptors neglecting more active receptor motion 15 16
+Further in our phagocytosis model we have only included one signalling molecule
+and have added actin in a highly-simplied manner without any attempt to model
+the underlying structure of the cytoskeleton Although these simplications will not
+capture many aspects of endocytosis it is likely that the interplay between target
+and hence membrane curvature and the motion of receptors is correctly represented
+even in our minimal models Our phagocytosis model also assumes that signalling
+reduces the membrane bending modulus eectively making bending around highly
+curved objects easier An alternative model representation could have focussed
+on forces instead of receptor dynamics so that for example signalling and actin
+polymerisation would lead to a membrane pushing force Taking spatial derivatives
+of the cup energy would translate our energy-based model to a force-based model 6
+Finally we have assumed that targets do not rotate during engulfment It would
+be interesting to also include this in our models which would then allow further
+questions such as the stability of dierent orientations to be addressed
+Shape dependence is a fascinating aspect of endocytosis which is probably even
+more important for successful engulfment than target size 4 Understanding the
+role of shape may also have direct applications to for example how some pathogens
+invade cells 36 how other pathogens avoid uptake the optimal design for drug
+delivery carriers 37 38 and even cell behaviour 39 We have shown that there is
+great variety in the uptake of dierent target shapes which is also heavily orientation
+dependent Future work using dierently coated particles will need to address how
+geometric mechanical and chemical signals are integrated to explain the wide range
+of observed engulfment outcomes
+Materials and Methods
+1D numerical simulations
+For nonspherical particles even the 1D model must be solved numerically We used
+a grid with spacing r  01m and total length L  50m Eq 1 was solved
+using the Euler method with time step t  1  103s At each time step we also
+imposed the boundary condition at t   which involves rst calculating the
+mean curvature at the cup edge and solving Eq 2 We checked convergence by
+showing that smaller values of r and t did not noticeably change the results
+2D numerical simulations
+Our 2D numerical solutions were calculated on a 2D grid with r  25nm and
+  8 The maximum radius was set at 20m The area of each lattice point
+was no longer constant but depended on r a fact that had to be taken into account
+We solved Eqs 6 and 7 with the usual Euler method using t  25 106s At
+a given time t and angle  the normal to the cup surface was estimated from a t
+and a   t Similarly  was estimated as a nite dierence Updating the
+cup edge normally moved a away from the discrete -lattice points n Linear
+interpolation was then performed to move them back Finally for each point on the
+cup edge the mean curvature was calculated giving a value for  which was then
+imposed as a boundary condition
+Parameter values
+The parameter values were chosen as follows D  04m2s1 is close to the Fc
+receptor diusion constant given in 6 0  50m2 is a typical receptor density
+26 40 L  500m2 is a typical ligand density 41 E  15 is the measured
+FcR-IgG binding free energy 15kBT  42 B  0441 are typical values of the
+bending modulus 04kBT 41kBT  43 Signalling parameters DS    are chosen
+as in our previous paper 28
+Acknowledgments
+DMR and RGE were supported by BBSRC grant BBI0199871 DMR was also sup-
+ported by the Wellcome Trust Institutional Strategic Support Award WT105618MA
+RGE also acknowledges funding from ERC Starting Grant 280492-PPHPI
+References
+1 Clarke M Engel U Giorgione J Muller-Taubenberger A Prassler J Veltman D
+Gerisch G 2010 Curvature recognition and force generation in phagocytosis
+BMC Biol 8154
+2 Rittig MG Krause A Haupl T Schaible UE Modolell M Kramer MD Lutjen-
+Drecoll E Simon MM Burmester GR 1992 Coiling phagocytosis is the pref-
+erential phagocytic mechanism for Borrelia burgdorferi Infect Immun 604205
+3 Horwitz MA 1984 Phagocytosis of the legionnaires disease bacterium le-
+gionella pneumophila occurs by a novel mechanism engulfment within a pseu-
+dopod coil Cell 362733
+4 Champion JA Mitragotri S 2006 Role of target geometry in phagocytosis
+Proc Natl Acad Sci USA 1031349304
+5 Champion JA Mitragotri S 2009 Shape induced inhibition of phagocytosis of
+polymer particles Pharm Res 2612449
+6 van Zon JS Tzircotis G Caron E Howard M 2009 A mechanical bottleneck
+explains the variation in cup growth during FcR phagocytosis Mol Syst Biol
+7 Doherty GJ McMahon HT 2009 Mechanisms of endocytosis Annu Rev
+Biochem 78857902
+8 Diakonova M Bokoch G Swanson JA 2002 Dynamics of cytoskeletal pro-
+teins during Fc receptor-mediated phagocytosis in macrophages Mol Biol Cell
+13402411
+9 Dart AE Tollis S Bright MD Frankel G Endres RG 2012 The motor protein
+myosin 1G functions in FcR-mediated phagocytosis J Cell Sci 12560206029
+10 Smythe E Warren G 1991 The mechanism of receptor-mediated endocytosis
+Eur J Biochem 202689699
+11 Grin FM Grin JA Leider JE Silverstein SC 1975 Studies on the mech-
+I Requirements for circumferential attachment of
+anism of phagocytosis
+particle-bound ligands to specic receptors on the macrophage plasma mem-
+brane J Exp Med 14212631282
+12 Grin FM Grin JA Leider JE Silverstein SC 1976 Studies on the mecha-
+nism of phagocytosis II The interaction of macrophages with antiimmunoglob-
+ulin IgG-coated bone marrow-derived lymphocytes J Exp Med 144788809
+13 Samaj J Baluska F Voigt B Schlicht M Volkmann D Menzel D 2004 En-
+docytosis Actin Cytoskeleton and Signaling Plant Physiol 13511501161
+14 Qualmann B Kessels MM 2002 Endocytosis and the cytoskeleton Int Rev
+Cytol 22093144
+15 Swanson JA 2008 Shaping cups into phagosomes and macropinosomes Nat
+Rev Mol Cell Bio 9639649
+16 Underhill DM Ozinsky A 2002 Phagocytosis of microbes complexity in ac-
+tion Annu Rev Immunol 20825852
+17 Sun SX Wirtz D 2005 Mechanics of Enveloped Virus Entry into Host Cells
+Biophys J 90L10L12
+18 Tzlil S Deserno MGelbart WM Ben-Shaul A 2004 A statistical-
+thermodynamic model of viral budding Biophys J 8620372048
+19 van Eenterre D Roux D 2003 Adhesion of colloids on a cell surface in com-
+petition for mobile receptors Europhys Lett 64543549
+20 Zhang T Sknepnek R Bowick MJ Schwarz JM 2015 On the modeling of
+endocytosis in yeast Biophys J 108508519
+21 Herant M Heinrich V Dembo M 2006 Mechanics of neutrophil phagocytosis
+experiments and quantitative models J Cell Sci 11919031913
+22 Herant M Lee C-Y Dembo M Heinrich V 2011 Protrusive push versus en-
+veloping embrace computational model of phagocytosis predicts key regulatory
+role of cytoskeletal membrane anchors PLoS Comput Biol 7e1001068
+23 Dasgupta S Auth T Gompper G 2013 Wrapping of ellipsoidal nano-particles
+by uid membranes Soft Matter 95473
+24 Dasgupta S Auth T Gompper G 2014 Shape and orientation matter for the
+cellular uptake of nonspherical particles Nano Lett 142687693
+25 Tollis S Dart AE Tzircotis G Endres RG 2010 The zipper mechanism in
+phagocytosis energetic requirements and variability in phagocytic cup shape
+BMC Syst Biol 4149
+26 Gao H Shi W Freund L 2005 Mechanics of receptor-mediated endocytosis
+Proc Natl Acad Sci USA 1022794699474
+27 Decuzzi P Ferrari M 2008 The receptor-mediated endocytosis of nonspherical
+particles Biophys J 941037903797
+28 Richards DM Endres RG 2014 The mechanism of phagocytosis two stages
+of engulfment Biophys J 10715421553
+29 Chithrani BD Ghazani AA Chan WC 2006 Determining the size and shape
+dependence of gold nanoparticle uptake into mammalian cells Nano Lett 6662
+30 Dieckmann R von Heyden Y Kistler C Gopaldass N Hausherr S Crawley
+SW Schwarz EC Diensthuber RP Cote GP Tsiavaliaris G Soldati T 2010
+A myosin IK-Abp1-PakB circuit acts as a switch to regulate phagocytosis e-
+ciency Mol Biol Cell 21150518
+31 Engqvist-Goldstein AE Drubin DG 2003 Actin assembly and endocytosis
+from yeast to mammals Annu Rev Cell Dev Biol 19287332
+32 Robertson AS Smythe E Ayscough KR 2009 Functions of actin in endocy-
+tosis Cell Mol Life Sci 662049206
+33 McMahon HT Boucrot E 2015 Membrane curvature at a glance J Cell Sci
+12810651070
+34 Hoppe AD Swanson JA 2004 Cdc42 Rac1 and Rac2 display distinct patterns
+of activation during phagocytosis Mol Biol Cell 1535093519
+35 Sharma G Valenta DT Altman Y Harvey S Xie H Mitragotri S Smith JW
+2010 Polymer particle shape independently inuences binding and internal-
+ization by macrophages J Control Release 147340812
+36 Hagedorn M Rohde KH Russell DG Soldati T 2009 Infection by tubercular
+mycobacteria is spread by nonlytic ejection from their amoeba hosts Science
+32317291733
+37 Champion JA Katare YK Mitragotri S 2007 Particle shape A new design
+parameter for micro- and nanoscale drug delivery carriers J Control Release
+12139
+38 Nowacek AS Balkundi S McMillan J Roy U Martinez-Skinner A Mosley
+RL Kanmogne G Kabanov AV Bronich T Gendelman HE 2011 Analyses of
+nanoformulated antiretroviral drug charge size shape and content for uptake
+drug release and antiviral activities in human monocyte-derived macrophages
+J Control Release 1502204211
+39 Huang X Teng X Chen D Tang F He J 2010 The eect of the shape of
+mesoporous silica nanoparticles on cellular uptake and cell function Biomate-
+rials 313438448
+40 Quinn O Griths G Warren G 1984 Density of newly synthesized plasma
+membrane proteins in intracellular membranes II Biochemical studies J Cell
+Biol 9821422147
+41 Gandour DM Walker WS 1983 Macrophage cell cycling
+inuence on Fc
+receptors and antibody-dependent phagocytosis J Immunol 13010081012
+42 Raychaudhuri G McCool D Painter RH 1985 Human IgG1 and its Fc frag-
+ment bind with dierent anities to the Fc receptors on the U937 HL-60 and
+ML-1 cell lines Mol Immunol 2210091019
+43 Pontes B Ayala Y Fonseca ACC Romao LF Amaral RF Salgado LT Lima
+FR Farina M Viana NB Moura-Neto V Nussenzveig HM 2013 Membrane
+elastic properties and cell function PLoS One 8e67708

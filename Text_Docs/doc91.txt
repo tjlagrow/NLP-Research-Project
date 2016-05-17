@@ -1,233 +1,755 @@
-PyPLN a Distributed Platform for Natural Language
-Processing
-Flavio Codeco Coelho
-School of Applied Mathematics
-Fundacao Getulio Vargas
-Rio de Janeiro RJ 22250-900 Brazil
-Renato Rocha Souza
-School of Applied Mathematicsl
-Fundacao Getulio Vargas
-Rio de Janeiro RJ 22250-900 Brazil
-Alvaro Justen
-School of Applied Mathematicsl
-Fundacao Getulio Vargas
-Rio de Janeiro RJ 22250-900 Brazil
-Flavio Amieiro
-School of Applied Mathematics
-Fundacao Getulio Vargas
-Rio de Janeiro RJ 22250-900 Brazil
-Heliana Mello
-Faculdade de Letras
-Universidade Federal de Minas Gerais
-Belo Horizonte MG 31270-901
-Editor
-fccoelhofgvbr
-renatosouzafgvbr
-alvarojustenfgvbr
-flavioamieirogmailcom
-hmelloufmgbr
-Abstract
-This paper presents PyPLN1 a distributed platform for Natural Language Processing Py-
-PLN leverages a vast array of NLP and text processing open source tools managing the
-distribution of the workload on a variety of congurations from a single server to a clus-
-ter of linux servers PyPLN is developed purely in Python but makes it very easy to
-incorporate other softwares for specic tasks as long as a linux version is available Py-
-PLN facilitates analyses both at document and corpus levels simplifying management and
-publication of corpora and analytical results through an easy to use web interface
-the current beta release it supports English and Portuguese languages with support
-to other languages planned for future releases To handle texts in Portuguese language
-PyPLN uses the PALAVRAS parserBick 2000 if the user has it available2 Currently
-PyPLN oers the following features Text extraction with encoding normalization to UTF-
-8 part-of-speech tagging token frequency semantic annotation n-gram extraction word
-1 pyplnorg
-2 PALAVRAS must be purchased and installed
-Coelho et al
-and sentence repertoire and full-text search across corpora The platform is licensed as
-GPL-v3
-Keywords Python data mining natural language processing machine learning
-1 Introduction
-The PyPLN platform is a research project in active development in the School of Applied
-Mathematics of Fundacao Getulio Vargas Brazil
-Its main goal is to make available a
-scalable computational platform for a variety of language-based analyses Its main target
-audience is the academic community where it can have a powerful impact by making so-
-phisticated computational analyses doable without the requirement of programming skills
-on the part of the user Among the many features already available we can cite Simplied
-access to corpora with interactive visualization tools text extraction from HTML and PDF
-documents Encoding detection and conversion to utf-8 Language detection Tokenization
-full-text search across corpora part-of-speech tagging Word and sentence level statistics
-n-gram extraction and word concordance Many more features are in development and
-should become available soon such as semantic annotation sentiment and text polarity
-analysis automatic social network information monitoring stylistic analysis and the gen-
-eration of Knowledge Organization Systems such as ontologies and thesauri PyPLN aims
-for unrivaled ease of use and wide availability through its web interface and full support
-to Portuguese language Besides being a free uncomplicated research platform for lan-
-guage scholars capable of handling large corpora PyPLN is also a free software platform
-for distributed text processing which can be downloaded and installed by users on their
-own infrastructure
-The motivations for the development of PyPLN are multifaceted however its major
-inspiration comes from the current demands spanning from the myriad possibilities for
-textual-based analysis inspired by the ever growing number of unstructured masses of tex-
-tual data in digital form A good example of this type of data are the streams of human
-communication in social platforms such as Twitter and Facebook These social platforms
-alone have provoked an extraordinary surge in the development of natural language pro-
-cessing NLP tools But the applications of NLP are not limited to this area Traditional
-document collections are migrating to digital format and becoming a huge new market
-for NLP
-Despite the availability of a number of commercial and very good quality free open source
-computational solutions for English eg GATE OpenNLP UIMA and even complete
-programming frameworks for NLP eg NLTK for Python NLP tasks for R Portuguese
-suers from a scarcity of tools for the automatic treatment of language PyPLN tries to
-ll this niche by providing a solution which covers both the needs of end-users via the
-web interface and the computer savvy analyst via the PyPLN API while providing the
-computational resources in a scalable platform capable of handling very large corpora
-PyPLN is free software licensed under GPLv3 The source code can be downloaded
-from pyplnorg
-2 The Software
-21 Architecture
-At the core of any text mining solution is the need to quickly put together custom analytical
-workows Custom solutions are key due to the ample applicability of these tools for every
-new data set there is a large set of original analyses which can be proposed Though the
-number of possible analytical scenarios is very large they can be framed by the recombi-
-nation of relatively simple smaller analytical steps For example no textual analysis can
-be performed without some form of tokenization for instance These intermediary results
-are calculated once for each document and cached for future uses The modularity of these
-analytical steps leads to great performance gains by allowing the distribution of the work-
-load among multiple corescomputers running in parallel The Python ecosystem already
-provides excellent libraries for this kind of analysis But merely having a good library for
-doing NLP is not enough The most interesting problems in NLP involve large volumes of
-data which can be neither stored nor processed on a single PC PyPLN integrates a number
-of open-source libraries and applications into a distributed pipeline for linguistic analysis
-Being a distributed pipeline for analytical text processing PyPLN applies the philosophy
-of Unix pipeline processing to distributed computing on a cluster environment It provides
-a tool capable of handling large volumes of data while remaining simple to deploy and
-program for customized analyses PyPLN implements distributed processing by relying
-on ZeroMQ for handling communication between processes on a single SMP machine or
-cluster Coelho et al 2012c Job specications and data are farmed to worker processes
-in the pipeline as JSON messages which are balanced among the cluster Every step of the
-pipeline can be parallelized as long as it applies to more than one document Finer grained
-parallelization is also possible with the implementation of custom workers Workers are
-typically Python scripts which can on their turn call any executable or library available
-in the system Figure 1 depicts the general architecture of PyPLN
-A common bottleneck in the analysis of large collections of documents is disk IO
-PyPLN relies on a NoSQL database Mongodb to store all the documents and analytical
-results Due to memory mapping even a single instance of Mongodb proves much more
-performant than direct le system storage For cluster congurations the database can be
-sharded and replicated to maximize performance and locality of the data with respect to
-the workers Any collection of documents in the PyPLN database is fully searchable as each
-new document uploaded is immediately indexed by a high performance search engine
-22 The Workers
-The worker is the basic unit of analysis in the platform Its basic structure was designed to
-be as simple as possible so that anyone with minimal knowledge of PyPLN internals can
-write and contribute a worker to the project Figure 2 shows the code of a worker to count
-the frequency of words in a document
-Workers are Python modules with a very simple minimal structure but which can be as
-complex as their tasks may require Lets go through the required lines of code as can be
-found in the example of gure 2 It must contain an import statement like the one shown
-on line 1 It must declare a Class with an informative name which inherits the Worker
-Coelho et al
-Figure 1 Overview of PyPLNs architecture
-r e q u i r e s    t o k e n s  
-c l a s s F r e q D i s t  Worker  
-1 from p y p e l i n i n import Worker
-def p r o c e s s  s e l f  document  
- l a n g u a g e  
-t o k e n s   i n f o  l o w e r  
-f r e q u e n c y d i s t r i b u t i o n   token 
-for i n f o in document   t o k e n s   
-t o k e n s  count  token  
-for token in s e t  t o k e n s 
-f d  f r e q u e n c y d i s t r i b u t i o n  i t e m s  
-f d  s o r t lambda x  y  cmp y  1   x  1   
-return   f r e q d i s t  
-Figure 2 Token counter
-base class This class must declare at least one method named processline 7 and a global
-variable named requires line 5 The requires variable must be assigned a list containing
-analytical results3 on which this worker depends In this case the FreqDist worker depends
-on the text having been tokenized before and its language detected The process method
-3 These may have been calculated before in which case they are simply read from the database
-p i p e l i n e  P i p e l i n e  Job   WorkerName1    Job   WorkerName2   
-Job   WorkerName2    Job   WorkerName3   
-data  f o o  
- bar   
-Figure 3 Dening a new pipeline
-takes one argument a Python dictionary that represents the JSON document stored in
-the database and returns a dictionary with at least one keyvalue pair where the key
-corresponds to the name of the result provided
-Analyses which are fundamental andor pre-requisites for other analyses are persisted
-in the document database to be easily accessible for reuse
-Typically most worker implementations wraps code from an existing NLP library such
-as NLTK Bird 2006 or external executable such as html2text The wrapping ensures that
-the calling of the external code conforms with the requirements of the platform and can be
-dispatched to other machines of the cluster to be executed in parallel
-23 The Pipeline
-As mentioned before distributed processing is implemented in Python using the metaphor
-of a pipeline Pipelines come in two basic avors in PyPLN The rst type are built-in ones
-which consist of basic preprocessing which has to be applied to every new document added
-to the system gure The second type are custom pipelines which can be specied by
-the user and submitted to the system via the API or in the future via the web interface
-Figure 3 show the basic syntax for dening a pipeline A pipeline is dened as a simple
-Python dictionary where every keyvalue pair represents a pipe
-Pipelines are created and managed by the pipelinin library4 which is part of the Py-
-PLN distribution By providing means of dening analytical pipelines PyPLN makes it
-easy to store complex analytical workows in very high-level description language which
-can be parsed and executed by the system with maximal performance Using the API pro-
-grammatically is another way to achieve the same results but with a little less scalability
-24 The Web Interface
-PyPLN oers a web-based interface for interactive text analysis5 in which one can create and
-manage corpora perform full text searches and visualize the analyses performed Figure 4
-shows one aspect of the web interface displaying the part-of-speech tagging of a document
-Currently the web interface of PyPLN is the easiest way to interact with the platform
-Either through our free public server or on the users own infrastructure The installation
-and deploy of PyPLNs backend and web front-end is fully documented 6 and requires
-no special hardware just a single computer running a recent version of GnuLinux for a
-minimal install
-4 githubcomNAMDpypelinin
-5 demopyplnorg
-6 pyplnorgdocs
-Coelho et al
-Figure 4 Part-of-speech tagging analysis of PyPLN Note the various verbal forms high-
-lighted in the text
-When a document is uploaded via the web interface it will pass through the workers
-dened in the pipeline After the analyses are done the user has access to interactive visu-
-alizations on the web interface along with links for the data in machine readable formats
-Besides being an easy to use tool for interactive text processing the web interface is also
-meant to be a showcase of the platforms capabilities
-All the functionality provided by the web interface is also available as a REST API
-which can be used to interact with PyPLN using your own scripts This API is also the
-only way to communicate with the backend so all connections go through the authentication
-and authorization system
-3 Final Remarks
-In this paper we have provided a general description of the PyPLN platform developed to
-make it possible to process large quantities of unstructured textual data PyPLNs goal of
-integrating a very comprehensive array of NLP tools into an easy to use web-based platform
-is still at least one year away But this goal will be approached incrementally and many
-new features are already scheduled for the next releases
-Another goal of the PyPLN project is to contribute linguistic knowledge back to the
-academic community in the form of annotated corpora thesauri and other linguistic con-
-structions produced by the platforms analytical engine
-PyPLN is an open-source project and welcomes the participation of anyone which would
-like to see such a platform as proposed in this paper grow and remain available without
-cost to the community at large
-Despite being on an early stage of development PyPLN is already very usable and has
-been employed to help in computational linguistic studies Coelho et al 2012ab
-Acknowledgments
-We would like to acknowledge support for this project from Fundacao Getulio Vargas
-Coelho et al
-References
-Eckhard Bick The Parsing System Palavras Automatic Grammatical Analysis of Por-
-tuguese in a Constraint Grammar Framework Aarhus University Press 2000
-S Bird Nltk the natural language toolkit
-In Proceedings of the COLINGACL on
-Interactive presentation sessions pages 6972 Association for Computational Linguistics
-Flavio Codeco Coelho Claudia Torres Codeco and Renato Rocha Souza Towards an on-
-tology for mathematical modeling with application to epidemiology In Proceedings of the
-12th International ISKO Conference - Categories Relations and Contexts in Knowledge
-Organization 2012a
-Flavio Codeco Coelho Renato Rocha Souza and Pablo de Camargo Cerdeira Information
-mining and visualization of data from the brazilian supreme court stf a case study
-In Proceedings of the 12th International ISKO Conference - Categories Relations and
-Contexts in Knowledge Organization 2012b
-Flavio Codeco Coelho Renato Rocha Souza and Alvaro Justen Pypln a natural
-language processing pipeline in python page 6838 Euroscipy 2012c URL http
-wwweuroscipyorgtalk6838
+EXPRESSION OF MHC II GENES 
+GORAZD DROZINA1 JIRI KOHOUTEK1 NABILA JABRAN-FERRAT2 AND B MATIJA 
+PETERLIN1 
+1Departments of Medicine Microbiology and Immunology 
+Rosalind Russell Medical Research Center 
+University of California San Francisco 
+San Francisco CA 94143 
+2Structural Immuno-Pharmacology 
+Institute of Pharmacology and Structural Biology 
+CNRS VMR 5089 
+31400 Toulouse 
+France 
+Correspondence matijaitsaucsfedu
+                        NabilaJabrane-Ferratipbsfr
+ABSTRACT 
+Innate and adaptive immunity are connected via antigen processing and presentation APP which 
+results in the presentation of antigenic peptides to T cells in the complex with the major 
+histocompatibility MHC determinants MHC class II MHC II determinants present antigens to 
+CD 4 T cells which are the main regulators of the immune response Their genes are transcribed 
+from compact promoters that form first the MHC II enhanceosome which contains DNA-bound 
+activators and then the MHC II transcriptosome with the addition of the class II transactivator 
+CIITA CIITA is the master regulator of MHC II transcription It is expressed constitutively in 
+dendritic cells DC and mature B cells and is inducible in most other cell types Three isoforms of 
+CIITA exist depending on cell type and inducing signals CIITA is regulated at the levels of 
+transcription and post-translational modifications which are still not very clear Inappropriate 
+immune responses are found in several diseases which include cancer and autoimmunity Since 
+CIITA regulates the expression of MHC II genes it is involved directly in the regulation of the 
+immune response The knowledge of CIITA will facilitate the manipulation of the immune 
+response and might contribute to the treatment of these diseases     
+INNATE AND ADAPTIVE IMMUNITY  
+The immune system is composed of innate and adaptive branches which are 
+nonspecific and specific ie they target common and unique parts of non-self 
+antigens respectively Table 1 They discriminate between self and non-self and 
+activate appropriate effectors Although innate and adaptive immunity appear 
+independent appropriate interactions between them are indispensable for the 
+normal function of the immune response Indeed mistakes that happen in either 
+branch can affect the organism as a whole 
+Innate immunity is the first defense against invading pathogens and performs the 
+function of immune surveillance Calandra et al 2003 Janeway 2001 Cells that 
+constitute innate immunity are antigen-presenting cells APC including DC 
+macrophages and B cells Innate immunity does not develop any antigen 
+specificity because the discrimination between self and non-self is primarily based 
+on pathogen associated molecular patterns PAMP which are common 
+components of many microorganisms and are not found in humans ie 
+lipopolisacharides LPS Ligation of PAMP with toll-like receptors TLR on the 
+surface of APC Bachmann and Kopf 2002 Takeda et al 2003 leads to 
+phagocytosis and APP APP results in the presentation of processed antigens to T 
+cells Cresswell and Lanzavecchia 2001 Fig1 and the establishment of 
+adaptive immunity Kelly et al 2002 Smyth et al 2001  
+The function of adaptive immunity is the elimination of non-self antigens and the 
+creation of immune memory Constituents of adaptive immunity are B and T cells 
+Adaptive immunity is unique and created only after the encounter with a specific 
+non-self antigen which is presented to them by APC Discrimination between self 
+and non-self at the level of adaptive immunity is complex and involves the 
+elimination or functional inactivation of self-reactive lymphocytes from the 
+repertoire Establishment of adaptive immunity is slow but once it is established 
+it is memorized and able to respond faster to subsequent contacts with the same 
+antigen However since innate immunity is faster it keeps infections under 
+control until the establishment of adaptive immunity Smyth et al 2003 
+Very important role in APP which connects innate and adaptive immunity play 
+the MHC determinants Namely processed antigenic peptides are presented to T 
+cells only in the groove of MHC heterodimers 
+MAJOR HISTOCOMPATIBILLITY COMPLEX 
+DETERMINANTS 
+Genes that encode MHC determinants also known as human leukocyte antigens 
+HLA are located on the short arm of chromosome six and are extraordinary 
+polymorphic anonymous 1999 They are divided into two classes MHC I and 
+MHC II determinants that present intracellular and extracellular antigens 
+respectively MHC I determinants are expressed on most nucleated cells whereas 
+MHC II determinants only on APC mature B and activated T cells  
+Three different MHC I determinants namely HLA-A HLA-B and HLA-C are 
+assembled and loaded with antigenic peptides which are generated by protein 
+degradation in the 26S proteasome in the ER Fruci et al 2003 Saveanu et al 
+2002 The complex between MHC I heterodimer and antigenic peptide passes 
+through the trans-Golgi network to the cell surface of APC and activates CD8 T 
+cells  
+In humans there are three classical MHC II determinants termed HLA-DP HLA-
+DQ and HLADR and two non-classical determinants named HLA-DM and 
+HLADO Fig 2 The former are cell surface heterodimers that present antigenic 
+peptides whereas the latter are cytoplasmic oligomers that are involved in loading 
+of antigenic peptides HLA-DP HLA-DQ HLADR and HLA-DM are composed 
+of  and  chains whereas HLA-DO form heterotetramers composed of two  
+and two  chains Fig 2 Classical MHC II determinants are assembled in the ER 
+in the complex with the invariant chain Ii which stabilizes them and prevents 
+premature loading of antigenic peptides This complex is transported to the late 
+endosome that contains degraded antigens Loading of antigenic peptides is a 
+three-step process Fig 2 The first two steps which take place in the late 
+endosome are the degradation and immediate replacement of Ii by the class II-
+associated Ii-chain peptide CLIP The third step happens in the MHC class II 
+compartment MIIC and is the exchange of CLIP with antigenic peptides This 
+exchange is mediated by HLA-DM and is regulated by HLA-DO The complex 
+between MHC II determinants and antigenic peptides then travels to the surface of 
+APC where the antigen is presented to CD4 T cells which are the main 
+regulators of the immune response 
+Since they present antigens to CD4 T cells MHC II determinants are involved 
+directly in the regulation of the immune response Therefore it is not surprising 
+that the precise control of MHC II gene expression which takes place at the level 
+of transcription is necessary for the equilibrated function of the immune system 
+Most of our knowledge about this control has been elucidated from studies of the 
+severe combined immunodeficiency called MHC II deficiency or the type II bare 
+lymphocyte syndrome BLS Table 2  
+BARE LYMPHOCYTE SYNDROME 
+BLS is an autosomal recessive disease characterized by the lack of constitutive 
+and inducible MHC II gene expression Table 2 reviewd in Reith and Mach 
+2001 and Nekrep et al 2003 It is caused by mutations in factors that direct 
+the transcription from MHC II promoters rather than in MHC II genes themselves 
+More than ten years ago transcription of MHC II genes was known to require 
+several unidentified proteins The earliest studies performed to identify these 
+proteins employed in vitro assays which revealed many irrelevant DNA-protein 
+interactions However only genetic studies of BLS finally resolved this puzzle 
+First CIITA Steimle et al 1993 and regulatory factor X 5 RFX5 Steimle et 
+al 1995 were identified which rescued the expression of MHC II determinants 
+in complementation group CG A and C respectively Subsequently these 
+findings led to the identification of regulatory factor X that contains ankyrin 
+repeats RFXANKB Masternak et al 1998 Nagarajan et al 1999 and 
+regulatory factor X associated protein RFXAP Durand et al 1997 that rescued 
+the expression of MHC II determinants in CG B and D respectively These 
+factors not only account for four CG of BLS but also represent all gene-specific 
+trans-acting factors that bind cis-acting elements for MHC II transcription    
+cis-ACTING ELEMENTS 
+MHC II genes are transcribed from compact promoters Fig 3A They contain 
+variable proximal promoter PPS and conserved upstream sequences CUS 
+reviewed in Nekrep et al 2003 Reith and Mach 2001 Ting and Trowsdale 
+2002  
+In HLA-DRA PPS are located from position  52 to the transcription start site 
+From the 5 direction they contain octamer binding site OBS and initiator Inr 
+sequences but lack a functional TATA box OBS binds the octamer binding 
+protein-1 Oct-1 which recruit the B cell octamer binding protein 1Octamer 
+binding factor 1Oct coactivator from B cells Bob1OBF-1OCAB Matthias 
+1998 whereas the initiator which represents the transcription start site binds 
+RNA polymerase II associated transcription factor I TFIII and TATA binding 
+protein TBP associated factor of 250 kDa TAFII250   
+CUS are located from positions 139 to 67 From the 5 direction they contain 
+S X and Y boxes X box can be further divided into X1 and X2 boxes Tight 
+spatial constraints are preserved between these boxes Jabrane-Ferrat et al 1996 
+which bind different trans-acting factors S and X1 boxes bind RFX Table 2 
+Jabrane-Ferrat et al 1996 Ting and Trowsdale 2002 the X2 box binds X2 
+binding protein X2BP which can be c-AMP responsive element binding protein 
+CREBP or activator protein 1 AP-1 Moreno et al 1997 Setterblad et al 
+1997 and the Y box binds nuclear factor Y NF-Y Table 2 Maity and de 
+Crombrugghe 1998 Mantovani 1999  
+However PPS and CUS are not sufficient for HLA-DRA gene expression A 
+distal locus control region LCR which is located approximately 24 kb upstream 
+of the CUS is needed for efficient transcription from the HLA-DRA promoter in 
+the organism Masternak et al 2003 Fig 3 LCR is a mirror image of CUS It 
+contains S X1 X2 and Y boxes but in the opposite orientation from the 
+promoter Indeed the LCR binds the same trans-acting factors as the CUS  
+trans-ACTING FACTORS  
+Several trans-acting factors are required for MHC II transcription Fig 4 Among 
+them RFX and NF-Y create the platform for other co-activators to access MHC II 
+promoters     
+NF-Y is composed of three subunits Table 2 reviewd in Matuoka and Yu 
+Chen 1999 NF-YA contains 374 residues At the N-terminus of NF-YA there 
+is glutamine-rich region which is followed by a stretch of prolines serines and 
+threonines Its subunit interaction and DNA binding domains DBD are at the C-
+terminus  
+NF-YB contains 207 residues They form a histone fold and TATA-binding 
+protein TBP binding domains The histone fold is similar to that of histones 2A 
+and 2B Mantovani 1999 which is responsible for their dimerization This 
+domain has the same function in the assembly of NF-Y 
+NF-YC contains 335 residues As with NF-YB it contains a histone fold and TBP 
+binding domains and in addition a glutamine-rich region  
+RFX is also composed of three subunits Table 2 reviewd in Reith and Mach 
+2001 RFXANKB contains 260 residues that form an acidic domain and four 
+ankyrin repeats which gave it its name  
+RFX5 contains 616 residues which form DBD and PEST domains It is the 5th 
+member of the RFX family that binds S and X boxes of MHC II promoters which 
+gave it its name  
+RFXAP contains 272 residues This protein has acidic basic and glutamine-rich 
+domains Because it interacts directly with RFX5 it was named the RFX 
+associated protein  
+Transcription from MHC II promoters starts after productive interactions between 
+cis-acting elements and trans-acting factors which lead to the formation of the 
+MHC II enhanceosome and transcriptosome 
+MHC II ENHANCEOSOME AND TRANSCRIPTOSOME 
+The MHC II enhanceosome is formed on CUS and LCR Its assembly requires 
+specific protein-protein and DNA-protein interactions The formation of the 
+enhanceosome starts off DNA Fig 5 where RFX and NF-Y bind loosely Both 
+RFX and NF-Y are formed in two steps RFXANKB forms a complex with 
+RFXAP which binds the RFX5 oligomer Jabrane-Ferrat et al 2002 NF-YB 
+and NF-YC first form heterodimer via their histone folds and then bind NF-YA 
+RFX and NF-Y are linked via interactions between RFXANKB NF-YA and NF-
+YC Jabrane-Ferrat et al 2002 Nekrep et al 2003 Ting and Trowsdale 2002 
+The binding of the enhanceosome to promoters occurs via DBD of RFX5 NF-YB 
+and NF-YC Each individual contact between the enhanceosome and DNA takes 
+place on the same side of the double helix As mentioned earlier preserved spatial 
+constraints are present in CUS and LCR Completely invariant spacing between S 
+and X boxes can be explained by the RFX5 oligomers which bind each others 
+next to theirs DBD These higher ordered RFX complexes can occupy S and X 
+boxes only if the exact spacing between them is preserved Between X and Y 
+boxes are tolerated full helical turns This finding can be explained because their 
+binding occurs far from DBD  
+NF-Y not only interacts with RFX but also with different histone 
+acetyltransferases HAT that make chromatin accessible for other co-activators 
+Fontes et al 1999 Harton et al 2001  Moreover NF-YB and NF-YC bind 
+TBP in vitro This interaction helps to attract general transcription factors GTF 
+to promoters which lack a TATA box The X2 box is bound by CREBP or AP-1 
+Moreno et al 1995 Setterblad et al 1997  
+The very last step is the recruitment of CIITA to the MHC II enhanceosome 
+which converts it into the MHC II transcriptosome Fig 5 Once the 
+transcriptosome is formed MHC II genes can be transcribed   
+CLASS II TRANSACTIVATOR 
+CIITA is the master regulator of MHC II gene expression Except for CIITA all 
+trans-acting factors that are needed for the transcription of MHC II genes are 
+expressed ubiquitously Thus the synthesis of MHC II determinants correlates 
+directly with the presence of CIITA which is expressed constitutively only in DC 
+and mature B cells and is inducible in most other cell types After CIITA is 
+recruited to the MHC II enhanceosome it recruits the general transcriptional 
+machinery 
+CIITA contains 1130 residues Fig 7 It can be divided into several domains 
+which are the N- terminal activation AD prolineserinethreonine rich PST and 
+GTP binding domains GBD as well as the C-terminal leucine rich region 
+LRR Additionally CIITA contains three nuclear localization signals NLS and 
+two putative nuclear export sequences NES Fig 7 
+The optimal AD of CIITA spans the first 322 residues Its amino terminal part is 
+rich in aspartic and glutamic acids and resembles the classical acidic AD similar 
+to that of VP16 Indeed it can be replaced by AD from VP16 herpes simplex 
+and E1a adenovirus Riley and Boss 1993 Between residues 145 and 322 is 
+the PST domain As its name implies it contains several prolines serines and 
+threonines that are targets for post-translational modifications A consensus PEST 
+sequence is located from positions 283 to 308 but it does not represent a 
+degradation motif or degron Schnappauf et al 2003 Rather degrons are located 
+within the first 99 residues and from positions 230 to 260 of CIITA respectively 
+Schnappauf et al 2003 
+A putative GBD resides downstream of AD from positions 420 to 561 In 
+contrast with the classical GBD which contain four GTP-interacting sequences 
+CIITA contains only three Harton et al 1999 These are Walker type A motif 
+G1 magnesium coordination site G3 and a site that confers specificity for 
+guanosine G4 Indeed although CIITA binds GTP it does not hydrolyse it in 
+vitro Harton et al 1999 This finding suggests that CIITA might be a 
+constitutively active GTP-binding protein As mutations of either motif reduce the 
+activity of CIITA the sole function of GTP binding to CIITA may be to alter its 
+conformation  
+Five or six consensus LRR are located from positions 988 to 1097 Harton et al 
+2002 They bind a 33 kDa protein of unknown function Hake et al 2000 
+Certain mutations positioned in  helices of LRR but not in  sheets decrease the 
+activity of CIITA An additional LRR flanking the GBD might be involved in the 
+aggregation of CIITA Linhoff et al 2001 
+In CIITA three NLS and two NES have been described A bipartite NLS is 
+located from positions 141 to 159 and two additional NLS were mapped from 
+positions 405 to 414 next to G1 and 940 to 963 in the LRR Cressman et al 1999 
+Cressman et al 2001 Nekrep et al 2002 Spilianakis et al 2000 NES have 
+been poorly characterized The first is located in the first 114 residues the second 
+from positions 408 to 550 Kretsovali et al 2001 However none of these NLS 
+and NES have been examined directly  
+REGULATION OF CIITA GENE EXPRESSION 
+Since the transcription of MHC II genes is dependent on the presence of CIITA it 
+is not surprising that its expression is highly regulated In general there are two 
+types of regulation of gene expression genetic and epigenetic CIITA employs 
+both Whereas specific activators dictate active transcription epigenetic silencing 
+occurs via chromatin condensation 
+Transcription of CIITA can be initiated from up to three different promoters PI 
+PIII and PIV Fig 6 Muhlethaler-Mottet et al 1997 In DC and mature B cells 
+constitutive expression of CIITA is initiated from PI and PIII respectively 
+Muhlethaler-Mottet et al 1997 IFN- inducible expression of CIITA is 
+mediated by PI and PIV in bone marrow derived APC DC and somatic cells 
+respectively Muhlethaler-Mottet et al 1997 Waldburger et al 2001 All 
+promoters have a unique exon 1 which is spliced into the common exon 2 
+Muhlethaler-Mottet et al 1997 Translation of CIITA transcripts from PI and 
+PIII starts from the first methionine in exon 1 whereas from PIV it begins from 
+the first methionine in exon 2 This brings unique sequences to the N-terminus of 
+CIITA Muhlethaler-Mottet et al 1997 and results in three isoforms IF of 
+CIITA IF I IF III and IF IV IF I and IF III contain additional 94 and 17 residues 
+respectively The additional sequence in IF I bears homology with the caspase 
+recruitment domain CARD Nickerson et al 2001 and most likely represents a 
+new protein-protein interaction domain It also has the highest transcriptional 
+activity Nickerson et al 2001 Importantly a single mutation of a conserved 
+leucine in CARD abrogates the activity of CIITA Nickerson et al 2001  
+Epigenetic regulation of CIITA gene expression is utilized for embryonic 
+survival Notably immune responses against paternal antigens in the placenta 
+cause fetal death In these tissues promoter hypermethylation and histone 
+deacetylation are proposed mechanisms for silencing the transcription of CIITA 
+Holtz et al 2003 Morris et al 2000 van den Elsen et al 2000 Derepression 
+of CIITA transcription in trophoblasts after treatment with methylation inhibitors 
+and trichostatin A with IFN- supports this mechanism  
+In immature DC the expression of CIITA is observed from PI but it does not lead 
+to APP Phagocytosis of an antigen leads to the maturation of DC which is 
+accompanied by the cessation of further phagocytosis and repression of de novo 
+CIITA and MHC II transcription and up-regulation of APP Cella et al 1997 
+Landmann et al 2001 Pierre et al 1997 Turley et al 2000 These events 
+might be mediated by TLR Because only the specific population of encountered 
+antigens are processed and presented to T cells such regulation could represent 
+the best way of establishing adaptive immunity Because the expression of CIITA 
+is shut down after the clearance of a foreign antigen it also lowers the chance of 
+DC randomly presenting self-antigens   
+In B cells the constitutive expression of CIITA from PIII is accompanied by the 
+presence of high levels of MHC II determinants on the cell surface However 
+after B cells differentiate into highly specialized antibody producing plasma cells 
+the expression of CIITA and MHC II determinants is lost Chen et al 2002 B 
+lymphocyte inhibitory maturation protein 1 BLIMP1 begins the process of this 
+silencing Piskurich et al 2000  
+CIITA gene expression can be induced with IFN- from PI and PIV PIV contains 
+gamma-activated sites GAS which bind the signal transducer and activator of 
+transcription 1 STAT1 and an interferon regulatory factor-1 binding site which 
+binds interferon regulatory factor-1 IRF-1 Muhlethaler-Mottet et al 1998 
+Since PI is also responsive to IFN- it could contain the same elements After 
+stimulation with IFN- activated phosphorylated STAT 1 translocates into the 
+nucleus and binds GAS Activated STAT 1 also induces the expression and 
+accumulation of IRF-1 Binding of STAT 1 to GAS itself causes a weak 
+acetylation of histones 3 and 4 in PIV Morris et al 2002 However the 
+hyperacetylation of histones which makes transcription more efficient happens 
+only after the accumulation and binding of IRF-1 to its site  
+Thus the regulation of transcription of the CIITA gene represents the first level of 
+control of CIITA function The second level consists of post-translational 
+modifications of CIITA 
+POST-TRANSLATIONAL MODIFICATIONS OF CIITA   
+CIITA is post-translationaly modified by acetylation phosphorylation and 
+ubiquitylation Fig 8 Effects of these modifications are complex and far from 
+being clearly understood but a general picture can be drawn from several studies 
+The fate of CIITA in the cell is not random but each step starting after its 
+translation and ending with its possible degradation is regulated precisely by the 
+following modifications     
+Phosphorylation is the first post-translational modification of CIITA Two studies 
+have shown that this modification increases the activity of CIITA The first study 
+mapped phosphorylation sites into the PST region from positions 253 to 321 Tosi 
+et al 2002 The second study showed that protein kinase A PKA 
+phosphorylates CIITA on one or more serines in the region between PST and 
+GBD Sisk et al 2003 The phosphorylation of CIITA leads to its accumulation 
+oligomerization and nuclear translocation Most likely these latter events happen 
+because the phosphorylation changes the conformation of CIITA and exposes its 
+After it translocates into the nucleus CIITA is acetylated on lysines 141 and 144 
+by CBPp300 and also by pCAF which are located in the nucleus Spilianakis et 
+al 2000 Acetylation of these residues keeps CIITA in the nucleus and increases 
+the stability of the MHC II transcriposome Acetylation might also facilitate the 
+subsequent ubiquitylation of CIITA Indeed recent data suggest that histone 
+deacetylases HDAC are involved in the ubiquitylation of CIITA Greer et al 
+2003  
+Ubiquitylation which is a covalent modification of lysines plays an important 
+role in transcription Monoubiquitylated transcription factors tend to be more 
+potent activators whereas polyubiquitylated proteins are destined for degradation 
+by the 26S proteasome The role of ubiquitylation of CIITA has been addressed in 
+two studies but clear conclusions on the function of ubiquitin cannot be reached 
+In the first study monoubiquitin fused to CIITA prevented the degradation of the 
+modified CIITA protein but did not affect its transcriptional activity Schnappauf 
+et al 2003 In the second study CIITA co-expressed with ubiquitin had a higher 
+activity than CIITA alone which was even more pronounced if ubiquitin could 
+not form oligomers Greer et al 2003 This effect of ubiquitin was on the 
+stabilization of the MHC II transcriptosome rather than on transcription itself 
+Interestingly the same study showed that HDAC prevent the ubiquitylation of 
+CIITA  
+Phosphorylation also completes the post-translational modifications of CIITA 
+Interestingly PKA inactivates CIITA with phosphorylation of serines 834 and 
+1050 Li et al 2001 Does this modification influence the stability of the 
+enhanceosome Does it lead to the degradation of CIITA or does it expose the 
+NES and enables the export of CIITA from the nucleus  
+CIITA IS SHUTTLING  PROTEIN 
+Transcription factors and co-factors need to be transported into the nucleus to 
+perform their function Nucleo-cytoplasmic shuttling usually requires two types of 
+functionally unique signals NLS and NES CIITA contains both but none of 
+them have been examined adequately Fig 7  
+At steady state CIITA is distributed equally between the nucleus and the 
+cytoplasm Mutant CIITA proteins which do not follow this pattern led to the 
+identification of NLS As mentioned earlier two NLS are located at the N-
+terminus and one NLS in the C-terminus of CIITA Fig 7 Cressman et al 
+1999 Cressman et al 2001 Spilianakis et al 2000 However none of them 
+has been examined directly ie they have not been demonstrated to shuttle a 
+heterologous protein Moreover binding to importins has not been investigated  
+Two regions in the N-terminus of CIITA have been proposed to function as NES 
+Fig 7 The only support comes from interactions between these regions with the 
+chromosomal region maintenance-1 Crm-1 protein Kretsovali et al 2001 
+Indeed treatment with leptomycin B LMB which blocks Crm-1 dependent 
+nuclear export Kudo et al 1998 leads to the nuclear accumulation of CIITA 
+Cressman et al 2001 Kretsovali et al 2001 However no consensus NES can 
+be found within these sequences In addition none of the five putative NES three 
+of which correspond perfectly to the consensus sequence Lx23Lx23-LxL 
+functioned in a direct export nor bound Crm-1 Drozina Kohoutek Peterlin 
+unpublished observation  
+All these results imply the presence of other transport mechanisms Indeed 
+several additional regions of CIITA are involved in its nuclear localization 
+including GBD Harton et al 1999 Raval et al 2003 and LRR Hake et al 
+2000 Harton et al 2002 Towey and Kelly 2002 Moreover some mutations in 
+the LRR disrupt interaction between p33 and CIITA which interferes with its 
+nuclear localization Hake et al 2000 Furthermore it was suggested that NES 
+from CIITA resemble that of snurportin-1 which is discontinuous Paraskeva et 
+al 1999 In this case only after a conformational change can Crm-1 bind and 
+transport snurportin-1 from the nucleus to the cytoplasm Paraskeva et al 1999 
+CIITA IS TRANSCRIPTIONAL  INTEGRATOR  
+Once CIITA is modified appropriately and present in the nucleus it can perform 
+its function It binds to the MHC II enhanceosome attracts several transcription 
+factors and co-factors and integrates initiation and elongation of transcription as 
+well as chromatin remodeling into a process that finally results in the expression 
+of MHC II genes Moreover CIITA might also be involved in the dissociation of 
+the MHC II enhanceosome after the termination of transcription  
+CIITA recruits RNA polymerase II RNAPII to MHC II promoters and increases 
+rates of initiation and elongation of transcription For the former function 
+interactions with TAF Fontes et al 1997 TFIIB Mahanta et al 1997 and 
+Bob1OBF-1OCAB Fontes et al 1996 might be necessary For the latter the 
+interaction between CIITA and the positive transcription elongation factor b P-
+TEFb which phosphorylates the CTD of RNAPII is needed Kanazawa et al 
+2000    
+Not surprisingly CIITA also recruits HAT and chromatin remodeling machinery 
+to the HLA-DRA promoter The AD of CIITA binds CBPp300 Fontes et al 
+1999 pCAF Spilianakis et al 2000 and Brahma-related gene 1 BRG-1 
+Mudhasani and Fontes 2002 In addition it has been suggested that CIITA 
+posseses intrinsic HAT activity Harton et al 2001 Raval et al 2001 This 
+activity of CIITA has been mapped into AD and bears homology with other HAT 
+domains eg in CBPp300 Harton et al 2001 Interestingly CIITA that lacks 
+its AD is still able to mediate the acetylation of histone 4 but not of histone 3 
+Beresford and Boss 2001 Thus CIITA could contain another region with direct 
+or indirect HAT activity  
+After the termination of transcription deacetylation of histones which is mediated 
+by HDAC is involved in chromatin condensation Binding of CIITA to HDAC1 
+and HDAC2 decreases the activity of CIITA most probably because histone 
+deacetylation disrupts the MHC II enhanceosome Zika et al 2003 Thus CIITA 
+might play an active role in the regulation of its own function on MHC II 
+promoters  
+CONCLUSIONS AND FUTURE DIRECTIONS 
+In the last few years much research resulted in greater understanding of the 
+function and regulation of CIITA Since CIITA plays a major role in the 
+regulation of the immune response via MHC II determinants this is not 
+surprising Moreover if one understood the rules of this regulation one could 
+use this knowledge for the manipulation of the immune system However many 
+questions remain 
+Why is CIITA transcribed from three distinct promoters Are different IF of 
+CIITA modified differently which influences their activity and regulation  
+Are post-translational modifications independent from each other or are they 
+carefully orchestrated or sequential The phosphorylation of CIITA increases or 
+decreases the activity of CIITA depending on phosphorylated residues What 
+signals regulate this phosphorylation that results in activation and inactivation of 
+CIITA respectively and how Why does the acetylated CIITA protein 
+accumulate in the nucleus What is the role of its ubiquitylation Where is CIITA 
+ubiquitylated These and probably many more questions regarding the post-
+translational modifications of CIITA still need to be answered 
+The shuttling of CIITA is a big puzzle Since CIITA has not been shown to bind 
+importins and since no NES can be found how does CIITA shuttle And why 
+does it shuttle at all  
+A lot is known about the cis-acting elements in the MHC II promoters but the 
+role of LCR needs more attention What is the mode of action of these LCR Do 
+they also bring P-TEFb to RNAPII How many LCR are there in the MHC 
+cluster  
+Once these questions have been answered the manipulation of the immune 
+system could become possible and eventually applicable in clinical medicine 
+Cancer and inadequate vaccination represent weak immune responses 
+Introduction of the constitutively active CIITA proteins could turn cancer cells 
+into APC They would then present their own antigenic peptides to CD4 T cells 
+to activate and direct immune response against transformed cells Vaccination 
+could also be more effective with the addition of CIITA Autoimmunity is caused 
+by the inappropriate responses to self-antigens Dominant negative CIITA 
+proteins could attenuate immune responses as well as the need for other 
+immunosuppressive therapies Thus CIITA could become a new tool for 
+immunotherapy in humans  
+References 
+Anonymous 1999 Complete sequence and gene map of a human major histocompatibility 
+complex The MHC sequencing consortiumcomment Nature 401 921-923 
+Bachmann M F and Kopf M 2002 Balancing protective immunity and immunopathology 
+Current Opinion in Immunology 14 413-419 
+Beresford G W and Boss J M 2001 CIITA coordinates multiple histone acetylation 
+modifications at the HLA-DRA promoter Nat Immunol 2 652-657 
+Calandra T Froidevaux C Martin C and Roger T 2003 Macrophage migration inhibitory 
+factor and host innate immune defenses against bacterial sepsis Journal of Infectious Diseases 187 
+Suppl 2 S385-390 
+Cella M Engering A Pinet V Pieters J and Lanzavecchia A 1997 Inflammatory stimuli 
+induce accumulation of MHC class II complexes on dendritic cells Nature 388 782-787 
+Chen X Laur O Kambayashi T Li S Bray R A Weber D A Karlsson L and Jensen P 
+E 2002 Regulated expression of human histocompatibility leukocyte antigen HLA-DO during 
+antigen-dependent and antigen-independent phases of B cell development J Exp Med 195 1053-
+Cressman D E Chin K C Taxman D J and Ting J P 1999 A defect in the nuclear 
+translocation of CIITA causes a form of type II bare lymphocyte syndrome Immunity 10 163-
+Cressman D E OConnor W J Greer S F Zhu X S and Ting J P 2001 Mechanisms of 
+nuclear import and export that control the subcellular localization of class II transactivator J 
+Immunol 167 3626-3634 
+Cresswell P and Lanzavecchia A 2001 Antigen processing and recognition Current Opinion 
+in Immunology 13 11-12 
+Durand B Sperisen P Emery P Barras E Zufferey M Mach B and Reith W 1997 
+RFXAP a novel subunit of the RFX DNA binding complex is mutated in MHC class II 
+deficiency Embo J 16 1045-1055 
+Fontes J D Jabrane-Ferrat N Toth C R and Peterlin B M 1996 Binding and cooperative 
+interactions between two B cell-specific transcriptional coactivators J Exp Med 183 2517-2521 
+Fontes J D Jiang B and Peterlin B M 1997 The class II trans-activator CIITA interacts 
+with the TBP-associated factor TAFII32 Nucleic Acids Research 25 2522-2528 
+Fontes J D Kanazawa S Jean D and Peterlin B M 1999 Interactions between the class II 
+transactivator and CREB binding protein increase transcription of major histocompatibility 
+complex class II genes Molecular  Cellular Biology 19 941-947 
+Fruci D Lauvau G Saveanu L Amicosante M Butler R H Polack A Ginhoux F 
+Lemonnier F Firat H and van Endert P M 2003 Quantifying recruitment of cytosolic 
+peptides for HLA class I presentation impact of TAP transport Journal of Immunology 170 
+2977-2984 
+Greer S F Zika E Conti B Zhu X S and Ting J P 2003 Enhancement of CIITA 
+transcriptional function by ubiquitin Nat Immunol 4 1074-1082 
+Hake S B Masternak K Kammerbauer C Janzen C Reith W and Steimle V 2000 
+CIITA leucine-rich repeats control nuclear localization in vivo recruitment to the major 
+histocompatibility complex MHC class II enhanceosome and MHC class II gene transactivation 
+Molecular  Cellular Biology 20 7716-7725 
+Harton J A Cressman D E Chin K C Der C J and Ting J P 1999 GTP binding by 
+class II transactivator role in nuclear importcomment Science 285 1402-1405 
+Harton J A OConnor W Jr Conti B J Linhoff M W and Ting J P 2002 Leucine-rich 
+repeats of the class II transactivator control its rate of nuclear accumulation Human Immunology 
+63 588-601 
+Harton J A Zika E and Ting J P 2001 The histone acetyltransferase domains of CREB-
+binding protein CBP and p300CBP-associated factor are not necessary for cooperativity with the 
+class II transactivator Journal of Biological Chemistry 276 38715-38720 
+Holtz R Choi J C Petroff M G Piskurich J F and Murphy S P 2003 Class II 
+transactivator CIITA promoter methylation does not correlate with silencing of CIITA 
+transcription in trophoblasts Biol Reprod 69 915-924 
+Jabrane-Ferrat N Fontes J D Boss J M and Peterlin B M 1996 Complex architecture of 
+major histocompatibility complex class II promoters reiterated motifs and conserved protein-
+protein interactions Molecular  Cellular Biology 16 4683-4690 
+Jabrane-Ferrat N Nekrep N Tosi G Esserman L J and Peterlin B M 2002 Major 
+histocompatibility complex class II transcriptional platform assembly of nuclear factor Y and 
+regulatory factor X RFX on DNA requires RFX5 dimers Molecular  Cellular Biology 22 
+5616-5625 
+Janeway C A Jr 2001 How the immune system works to protect the host from infection a 
+personal view Proceedings of the National Academy of Sciences of the United States of America 
+98 7461-7468 
+Kanazawa S Okamoto T and Peterlin B M 2000 Tat competes with CIITA for the binding 
+to P-TEFb and blocks the expression of MHC class II genes in HIV infection Immunity 12 61-70 
+Kelly J M Takeda K Darcy P K Yagita H and Smyth M J 2002 A role for IFN-gamma 
+in primary and secondary immunity generated by NK cell-sensitive tumor-expressing CD80 in 
+vivo Journal of Immunology 168 4472-4479 
+Kretsovali A Spilianakis C Dimakopoulos A Makatounakis T and Papamatheakis J 
+2001 Self-association of class II transactivator correlates with its intracellular localization and 
+transactivation J Biol Chem 276 32191-32197 
+Kudo N Wolff B Sekimoto T Schreiner E P Yoneda Y Yanagida M Horinouchi S 
+and Yoshida M 1998 Leptomycin B inhibition of signal-mediated nuclear export by direct 
+binding to CRM1 Exp Cell Res 242 540-547 
+Landmann S Muhlethaler-Mottet A Bernasconi L Suter T Waldburger J M Masternak 
+K Arrighi J F Hauser C Fontana A and Reith W 2001 Maturation of dendritic cells is 
+accompanied by rapid transcriptional silencing of class II transactivator CIITA expression 
+Journal of Experimental Medicine 194 379-391 
+Li G Harton J A Zhu X and Ting J P 2001 Downregulation of CIITA function by 
+protein kinase a PKA-mediated phosphorylation mechanism of prostaglandin E cyclic AMP 
+and PKA inhibition of class II major histocompatibility complex expression in monocytic lines 
+Mol Cell Biol 21 4626-4635 
+Linhoff M W Harton J A Cressman D E Martin B K and Ting J P 2001 Two distinct 
+domains within CIITA mediate self-association involvement of the GTP-binding and leucine-rich 
+repeat domains Molecular  Cellular Biology 21 3001-3011 
+Mahanta S K Scholl T Yang F C and Strominger J L 1997 Transactivation by CIITA 
+the type II bare lymphocyte syndrome-associated factor requires participation of multiple regions 
+of the TATA box binding protein Proc Natl Acad Sci U S A 94 6324-6329 
+Maity S N and de Crombrugghe B 1998 Role of the CCAAT-binding protein CBFNF-Y in 
+transcription Trends in Biochemical Sciences 23 174-178 
+Mantovani R 1999 The molecular biology of the CCAAT-binding factor NF-Y Gene 239 15-
+Masternak K Barras E Zufferey M Conrad B Corthals G Aebersold R Sanchez J C 
+Hochstrasser D F Mach B and Reith W 1998 A gene encoding a novel RFX-associated 
+transactivator is mutated in the majority of MHC class II deficiency patients Nat Genet 20 273-
+Masternak K Peyraud N Krawczyk M Barras E and Reith W 2003 Chromatin 
+remodeling and extragenic transcription at the MHC class II locus control region Nature 
+Immunology 4 132-137 
+Matthias P 1998 Lymphoid-specific transcription mediated by the conserved octamer site who 
+is doing what Semin Immunol 10 155-163 
+Matuoka K and Yu Chen K 1999 Nuclear factor Y NF-Y and cellular senescence Exp Cell 
+Res 253 365-371 
+Moreno C S Emery P West J E Durand B Reith W Mach B and Boss J M 1995 
+Purified X2 binding protein X2BP cooperatively binds the class II MHC X box region in the 
+presence of purified RFX the X box factor deficient in the bare lymphocyte syndrome Journal of 
+Immunology 155 4313-4321 
+Moreno C S Rogers E M Brown J A and Boss J M 1997 Regulatory factor X a bare 
+lymphocyte syndrome transcription factor is a multimeric phosphoprotein complex J Immunol 
+158 5841-5848 
+Morris A C Beresford G W Mooney M R and Boss J M 2002 Kinetics of a gamma 
+interferon response expression and assembly of CIITA promoter IV and inhibition by 
+methylation Mol Cell Biol 22 4781-4791 
+Morris A C Spangler W E and Boss J M 2000 Methylation of class II trans-activator 
+promoter IV a novel mechanism of MHC class II gene control J Immunol 164 4143-4149 
+Mudhasani R and Fontes J D 2002 The class II transactivator requires brahma-related gene 1 
+to activate transcription of major histocompatibility complex class II genes Molecular  Cellular 
+Biology 22 5019-5026 
+Muhlethaler-Mottet A Di Berardino W Otten L A and Mach B 1998 Activation of the 
+MHC class II transactivator CIITA by interferon-gamma requires cooperative interaction between 
+Stat1 and USF-1 Immunity 8 157-166 
+Muhlethaler-Mottet A Otten L A Steimle V and Mach B 1997 Expression of MHC class 
+II molecules in different cellular and functional compartments is controlled by differential usage of 
+multiple promoters of the transactivator CIITA Embo J 16 2851-2860 
+Nagarajan U M Louis-Plence P DeSandro A Nilsen R Bushey A and Boss J M 1999 
+RFX-B is the gene responsible for the most common cause of the bare lymphocyte syndrome an 
+MHC class II immunodeficiency Immunity 10 153-162 
+Nekrep N Fontes J D Geyer M and Peterlin B M 2003 When the lymphocyte loses its 
+clothes Immunity 18 453-457 
+Nekrep N Jabrane-Ferrat N Wolf H M Eibl M M Geyer M and Peterlin B M 2002 
+Mutation in a winged-helix DNA-binding motif causes atypical bare lymphocyte syndrome 
+Nature Immunology 3 1075-1081 
+Nickerson K Sisk T J Inohara N Yee C S Kennell J Cho M C Yannie P J 2nd 
+Nunez G and Chang C H 2001 Dendritic cell-specific MHC class II transactivator contains a 
+caspase recruitment domain that confers potent transactivation activity J Biol Chem 276 19089-
+19093 
+Paraskeva E Izaurralde E Bischoff F R Huber J Kutay U Hartmann E Luhrmann R 
+and Gorlich D 1999 CRM1-mediated recycling of snurportin 1 to the cytoplasm J Cell Biol 
+145 255-264 
+Pierre P Turley S J Gatti E Hull M Meltzer J Mirza A Inaba K Steinman R M and 
+Mellman I 1997 Developmental regulation of MHC class II transport in mouse dendritic cells 
+Nature 388 787-792 
+Piskurich J F Lin K I Lin Y Wang Y Ting J P and Calame K 2000 BLIMP-I 
+mediates extinction of major histocompatibility class II transactivator expression in plasma cells 
+Nat Immunol 1 526-532 
+Raval A Howcroft T K Weissman J D Kirshner S Zhu X S Yokoyama K Ting J and 
+Singer D S 2001 Transcriptional coactivator CIITA is an acetyltransferase that bypasses a 
+promoter requirement for TAFII250 Mol Cell 7 105-115 
+Raval A Weissman J D Howcroft T K and Singer D S 2003 The GTP-binding domain 
+of class II transactivator regulates its nuclear export J Immunol 170 922-930 
+Reith W and Mach B 2001 The bare lymphocyte syndrome and the regulation of MHC 
+expression Annu Rev Immunol 19 331-373 
+Riley J L and Boss J M 1993 Class II MHC transcriptional mutants are defective in higher 
+order complex formation J Immunol 151 6942-6953 
+Saveanu L Fruci D and van Endert P 2002 Beyond the proteasome trimming degradation 
+and generation of MHC class I ligands by auxiliary proteases Molecular Immunology 39 203-
+Schnappauf F Hake S B Camacho Carvajal M M Bontron S Lisowska-Grospierre B and 
+Steimle V 2003 N-terminal destruction signals lead to rapid degradation of the major 
+histocompatibility complex class II transactivator CIITA Eur J Immunol 33 2337-2347 
+Setterblad N Peterlin B M and Andersson G 1997 Role of the X2 box in activated 
+transcription from the DRA promoter in B cells Immunogenetics 46 318-325 
+Sisk T J Nickerson K Kwok R P and Chang C H 2003 Phosphorylation of class II 
+transactivator regulates its interaction ability and transactivation function Int Immunol 15 1195-
+Smyth M J Godfrey D I and Trapani J A 2001 A fresh look at tumor immunosurveillance 
+and immunotherapy Nature Immunology 2 293-299 
+Smyth M J Takeda K Hayakawa Y Peschon J J van den Brink M R and Yagita H 
+2003 Natures TRAIL--on a path to cancer immunotherapy Immunity 18 1-6 
+Spilianakis C Papamatheakis J and Kretsovali A 2000 Acetylation by PCAF enhances 
+CIITA nuclear accumulation and transactivation of major histocompatibility complex class II 
+genes Mol Cell Biol 20 8489-8498 
+Steimle V Durand B Barras E Zufferey M Hadam M R Mach B and Reith W 1995 
+A novel DNA-binding regulatory factor is mutated in primary MHC class II deficiency bare 
+lymphocyte syndrome Genes Dev 9 1021-1032 
+Steimle V Otten L A Zufferey M and Mach B 1993 Complementation cloning of an 
+MHC class II transactivator mutated in hereditary MHC class II deficiency or bare lymphocyte 
+syndrome Cell 75 135-146 
+Takeda K Kaisho T and Akira S 2003 Toll-like receptors Annual Review of Immunology 
+21 335-376 
+Ting J P and Trowsdale J 2002 Genetic control of MHC class II expression Cell 109 Suppl 
+S21-33 
+Tosi G Jabrane-Ferrat N and Peterlin B M 2002 Phosphorylation of CIITA directs its 
+oligomerization accumulation and increased activity on MHCII promoters Embo J 21 5467-
+Towey M and Kelly A P 2002 Nuclear localisation of CIITA is controlled by a carboxy 
+terminal leucine-rich repeat region Mol Immunol 38 627-634 
+Turley S J Inaba K Garrett W S Ebersold M Unternaehrer J Steinman R M and 
+Mellman I 2000 Transport of peptide-MHC class II complexes in developing dendritic cells 
+Science 288 522-527 
+van den Elsen P J van der Stoep N Vietor H E Wilson L van Zutphen M and Gobin S 
+J 2000 Lack of CIITA expression is central to the absence of antigen presentation functions of 
+trophoblast cells and is caused by methylation of the IFN-gamma inducible promoter PIV of 
+CIITA Hum Immunol 61 850-862 
+Waldburger J M Suter T Fontana A Acha-Orbea H and Reith W 2001 Selective 
+abrogation of major histocompatibility complex class II expression on extrahematopoietic cells in 
+mice lacking promoter IV of the class II transactivator genecomment Journal of Experimental 
+Medicine 194 393-406 
+Zika E Greer S F Zhu X S and Ting J P 2003 Histone deacetylase 1mSin3A disrupts 
+gamma interferon-induced CIITA function and major histocompatibility complex class II 
+enhanceosome formation Mol Cell Biol 23 3091-3102 
+Figure1
+Figure 2 
+Figure 3 
+Figure 4 
+Figure 5 
+Figure 6 
+Figure 7 
+Figure 8 
+Table 1  
+INNATE 
+Tolerance to self 
+Specificity 
+Diversity 
+Memory 
+Abbrevation APC antigen presenting cells  
+Table 2  
+ADAPTIVE 
+B and T cells 
+Complementation 
+MHC II expression 
+Enhanceosome 
+Mutated gene 
+Mutated protein 
+Absent 
+Formed 
+MHC2TA 
+Absent 
+Not formed 
+RFXANKB 
+RFXANKB 
+Absent 
+formed 
+Absent 
+Not formed
+Abbrevations MHC2TA major histocompatibility class 2 trans-activator 
+RFXANKB regulatory factor X ANKB RFX5 regulatory factor X 5 RFXAP 
+regulatory factor X AP CIITA class II transactivator 
+FIGURE LEGENDS 
+Figure 1  Pathway of antigen processing and presentation APP 
+HLA-DP HLA-DQ HLA-DR which are in complex with Ii and HLA-DM heterodimers are 
+assembled in the endoplasmic reticulum ER depicted in blue They travel to the trans Golgi 
+network depicted in pink and either fuse with the late endosome depicted in orange or continue 
+to the cell surface Degradation of phagocytozed antigenic peptides depicted in violet starts in an 
+early endosome depicted in green In the late endosome Ii is removed from the complex with 
+HLA-DP HLA-DQ HLA-DR and replaced with antigenic peptides Loaded with antigens MHC 
+II molecules travel from MHC class II compartment MIIC depicted in yellow to the cell surface 
+where they activate T cells   
+Figure 2  The organization and direction of MHC II genes as well as sub-cellular 
+localization of their proteins  
+Three heterodimers are transcribed from promoters that point in opposite directions HLA-DPA 
+and HLA-DPB HLA-DQA and HLA-DQB HLA-DRA and HLA-DRB HLA-DO heterodimer 
+and HLA-DM heterotetramer are transcribed from promoters that point towards the telomere 
+Genes for  and  chains are shown as red and green bars respectively Pseudogenes and MHC II 
+unrelated genes are shown as grey and yellow bars respectively Black arrows point in the 
+direction of transcription  
+HLA-DP HLA-DQ and HLA-DR heterodimers are found on the cell surface in complex with 
+antigenic peptides HLA-DM heterodimers and HLA-DO heterotetramers are cytoplasmic 
+molecules as well as invariant chain Ii all of which are also found in MHC class II 
+compartments MIIC depicted as yellow circles Genes coding for HLA-DP HLA-DQ HLA-
+DR HLA-DM and HLA-DO are located on the short arm of chromosome 6 but gene coding for Ii 
+is located on the chromosome 5 
+Figure 3  cis-acting elements in the DRA promoter 
+Locus control region LCR conserved upstream sequences CUS and proximal promoter 
+sequences PPS are needed for the transcription from the DRA promoter LCR is located 24 kb 
+upstream from CUS LCR and CUS contain Y X2 X1 S and S X1 X2 and Y boxes 
+respectively PPS contain the octamer binding site OBS and the initiator INR  
+The spacing between CUS and PPS are presented in the lower pannel  
+Figure 4   cis-acting elements and trans-acting factors on MHC II promoters 
+Conserved upstream sequences CUS contain S X and Y boxes X box is divided into X1 and X2 
+boxes In DRA gene the octamer binding site OBS and the initiator INR form the proximal 
+promoter sequences PPS RFX which contains RFXANK RFXAP and RFX5 binds S and X1 
+boxes X2 binding protein X2BP binds X2 box NF-Y which contains NF-YA NF-YB and NF-
+YC binds Y box OBS binds octamer binding protein-1 Oct-1 which recruit the B cell octamer 
+binding protein 1Octamer binding factor 1Oct coactivator from B cells Bob1OBF-1OCAB 
+The initiator binds general transcription factors and positions RNA polymerase II RNAPII on the 
+promoter CIITA is recruited to the MHC II enhanceosome which consists of RFX X2BP and 
+NF-Y on CUS It binds histone acetyl-transferases HAT CBPp300 pCAF and Brahma related 
+gene BRG proteins that remodel the chromatin Bob1OBF-1OCAB GTF and TAF that recruit 
+RNAPII and initiate transcription and positive transcription elongation factor b P-TEFb that 
+phosphorylates the C terminal domain CTD of RNAPII and facilitates the elongation of 
+transcription These steps in the transcriptional process are given above the drawing     
+Figure 5  Assembly of the MHC II enhanceosome and transcriptosome 
+RFXANKB forms complex with RFXAP which recruits the RFX5 oligomer RFX binds S and 
+X1 boxes whereas NF-Y binds Y box They form the MHC II enhanceosome The 
+phosphorylation of CIITA leads to its oligomerization and nuclear import It binds to the MHC II 
+enhanceosome and forms the MHC II transcriptosome which forms the preinitiation complex 
+PIC and recruits as well as modifies RNA polymerase II RNAPII 
+Figure 6  CIITA promoters their composition and specificity  
+CIITA is transcribed from three different promoters PI PIII and PIV with unique exons 1 
+depicted as red purple and green boxes for PI PIII and PIV respectively that are spliced into 
+common exon 2 depicted as a blue box The additional sequences in CIITA transcribed from PI 
+is given in red letters and from PIII in purple letters while a common sequence from all promoters 
+is given in green letters Cell types and stimuli are given above the scheme  Abbreviations IFN- 
+interferon gamma APC antigen-presenting cells DC dendritic cells   
+Figure 7  The scheme of CIITA its post-translational modifications and partner proteins 
+CIITA is divided into several domains which are activation AD prolineserinethreonine rich 
+PST GTP binding GBD domains and leucine-rich repeats LRR Additionally two nuclear 
+localization signals NLS are located in the N-terminus and one in the C-terminus of the protein 
+Within PST domain there is a consensus prolineglutamineserinethreonine rich PEST sequence 
+GBD contains three GTP interacting sequences designated by G1 G3 and G4 Positions of post-
+translational modifications of CIITA which are phosphorylation acetylation and ubiquitylation 
+are given above the drawing in red letters as PO4 Ac and Ub respectively Chromosomal region 
+maintenence-1 protein Crm-1 depicted as a purple box interacts with AD and GBD and p33 
+depicted as a white box binds LRR Transcriptional co-activators TBP TAFs HATs BRG-1 P-
+TEFb as well as constituents of the MHC II enhanceosome RFXAP RFX5 NF-YB NF-YC and 
+X2BP which interact with CIITA are listed under the drawing   
+Figure 8  Post-translational modifications of CIITA   
+After an unknown signal depicted as the red arrow CIITA is phosphorylated which causes its 
+oligomerization and nuclear translocation black arrow directed from the cytoplasm into the 
+nucleus Acetylation and ubiquitylation increase transcriptional activity of CIITA Termination of 
+transcription is accompanied by additional modifications of CIITA possibly phosphorylation that 
+might result in the translocation of CIITA into the cytoplasm black arrow directed from the 
+nucleus into the cytoplasm or in its degradation CIITA monomers and oligomers are depicted as 
+gray and orange circles Phosphorylation of CIITA is represented as a red P attached to CIITA 
+Acetylation and ubiquitylation of CIITA are depicted as red Ac and Ub respectively NLS and 
+NES stand for nuclear localization signal and nuclear export sequence respectively      
+Table 1   Properties of innate and adaptive immunity  
+Table 2   Properties of bare lymphocyte syndrome 

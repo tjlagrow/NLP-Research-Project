@@ -1,366 +1,169 @@
-Towards an Automated Requirements-driven Development of
-Smart Cyber-Physical Systems
-Position paper
-Jiri Vinarek
-Petr Hnetynka
-Charles University in Prague Faculty of Mathematics and Physics
-Department of Distributed and Dependable Systems
-Malostranske namesti 25 Prague Czech Republic
-vinarekd3smffcunicz
-hnetynkad3smffcunicz
-The Invariant Renement Method for Self Adaptation IRM-SA is a design method targeting de-
-velopment of smart Cyber-Physical Systems sCPS It allows for a systematic translation of the
-system requirements into the system architecture expressed as an ensemble-based component sys-
-tem EBCS However since the requirements are captured using natural language there exists the
-danger of their misinterpretation due to natural language requirements ambiguity which could even-
-tually lead to design errors Thus automation and validation of the design process is desirable In
-this paper we i analyze the translation process of natural language requirements into the IRM-SA
-model ii identify individual steps that can be automated andor validated using natural language
-processing techniques and iii propose suitable methods
-1 Introduction
-Smart Cyber-Physical Systems sCPS are complex distributed decentralized systems of cooperating
-mobile and stationary devices closely interacting with the physical environment Examples of sCPS
-include systems like smart home smart trafc management etc
-Designing and developing such a system is a quite complex task with many challenges Mobility
-and distribution bring the high level of dynamism to the system which has to be aware of changes in
-its environment Openness and open-endness are other challenging issues resulting in needs that the
-designed system has to be able to tackle unanticipated changes and participants unknown at design time
-The traditional software design and development techniques have been shown unsuitable for such
-systems and novel approaches 8 13 14 have been proposed to tackle with the challenges One of these
-promising approaches is Ensemble-Based Component Systems EBCS 1 Using EBCS the system is
-modeled and developed as a set of ensembles ie dynamic cooperation groups of software components
-Components are specied by their knowledge ie components attributes and by a set of processes
-manipulating the knowledge
-The Invariant Renement Method for Self Adaptation IRM-SA 2 is a design method targeting de-
-velopment of sCPS using EBCS IRM-SA allows for a systematic translation of the system requirements
-written in natural language into the system architecture expressed as components and ensembles Using
-IRM-SA a designer gradually renes the initial requirements and iteratively builds a model that con-
-sists of so-called invariants Invariants are then hierarchically decomposed and at the lowest level they
-directly correspond to an implementation in the DEECo component model 1 with which IRM-SA is
-currently tied
-J Kofron J Tumova B Buhnova Eds Formal Engineering
-Approaches to Software Components and Architectures FESCA16
-EPTCS 205 2016 pp 5968 doi104204EPTCS2055
-ccid13 J Vinarek P Hnetynka
-This work is licensed under the
-Creative Commons Attribution License
-Towards an Automated Requirements-driven Development of sCPS
-To speedup and ease the design process with IRM-SA the guide 1 and graphical editor 2 have been
-created The editor allows for editing of the constraints and performing several basic validations of the
-designed IRM-SA model Additionally skeletons of the implementation can be generated directly from
-the designed model Even though the guide and editor exist the whole process ie translation of re-
-quirements into the IRM-SA model is manual and it can be time-consuming and laborious Additionally
-as the requirements are expressed as a text in natural language there is a danger of ambiguity and misin-
-terpretation of them which can result in a suboptimal design Even more designers can unintentionally
-miss important requirements
-The goal of this paper is to analyze the IRM-SA design process and identify particular steps which
-can be fully or at least partially automated with the help of natural language processing tools To achieve
-the goal we use our experience gained with automated processing of textual use-cases their verication
-and transformation into an implementation 15 16 18
-The paper is structured as follows Section 2 explains the IRM-SA method and its inputs and outputs
-Section 3 discusses steps of the IRM-SA method from the perspective of their automation and proposes
-solutions for them Finally Section 4 discusses related work while Section 5 concludes the paper
-2 IRM-SA explained by example
-In this section we briey describe the IRM-SA method and its usage on an example for a detailed
-description please see the IRM-SA guide
-The experiment described in 6 proved that usage of IRM-SA represents a signicant help in EBCS
-design and development Participants of this experiment designed using IRM-SA an EBCS architecture
-with less errors than participants using another design method Even though the resulting architectures
-were not completely without errors especially thank to different understanding of the input requirements
-provided as a text in natural language and thus there is still space for improvements
-This is even more important as one of the outputs of the IRM-SA method  the IRM-SA model  can
-be used not only at design time but also during development and maintenance of the developed system
-In particular the IRM-SA model allows for traceability between purpose of each invariant requirement
-and its realization and therefore it is ideal for documentation and maintenance Plus as stated in 10
-it is a mistake to understand requirements specications as nal and unchangeable and thus keeping
-up-to-date traceability links to requirements is quite important
-Additionally the IRM-SA model is in the DEECo implementation employed for controlling self-
-adaptation of the system ie the model captures multiple alternatives of the system architecture and the
-appropriate one is chosen based on actual situation
-To sum up the IRM-SA model is one of the key artifacts of the developed system and its correctness
-is essential Therefore designersdevelopers would benet from a tool which not only allows for easy
-creation of the model the currently available editor allows for this but also which would be able to
-semiautomatically parse the textual requirements generate parts of the model from the requirements
-and validate individual actions performed by the designerdeveloper To provide such a tool natural
-language processing methods and tools have to be incorporated in the process
-1httpsvnpstifilmudeascensguideirm
-2httpsgithubcomd3scompIRM-SA
-J Vinarek P Hnetynka
-IRM-SA method and model
-The IRM-SA design method is an iterative top-down design approach A designer has to perform the
-following steps in order to built the IRM-SA model from the requirement specication
-1 Find the top-level goals of the system and specify the top-level abstract invariants
-2 Find the components of the system and their elds by asking which knowledge does each in-
-variant involve and where is this knowledge obtained from
-3 Decompose each invariant by asking how can this invariant be satised
-4 Separate the concerns of the abstract invariants into sub-invariants that correspond to abstract
-activities that can be done in isolation
-5 Compose invariants together by asking why do I need to satisfy these invariants
-6 In case of situation-specic requirements try rst to accurately capture the condition of being in
-one situation or another Use the assumptions to do that Then use OR decomposition to specify
-which invariants to satisfy in each situation
-Figure 1 IRM-SA model for e-cars system
-Figure 1 shows the IRM-SA model created for the electric car e-car navigation and parking system
-example its requirement specication is in Figure 2 Both the specication and model are overtaken
- idavailabilityParking id POIpositionplanplanFeasibilityenergyavailabilityMapE-carINV-13 Distance of e-car from POI  5kmINV-2 Up-to-date Vplan is availableINV-5 VplanFeasibility is checkedINV-9 Venergy is monitored within 60 secsPTakes-rolerelationInvariantProcess invariantExchange invariantAssumptionANDdecompositionComponent  PXINV-6 Up-to-date Vplan wrt Pavailability and VplanFeasibility is availableINV-7 Vposition is determined within 60 secsINV-8 VplanFeasibility wrt VenergyVposition VPOI is determinedwithin 60 secsPPORdecompositionINV-12 VavailabilityMap of parking lots within a 100m distance from POI is up-to-date within 60 secsXINV-11 Up-to-date Vplan wrt VavailabilityMap and VplanFeasibility is available within 60 secsPINV-16 Distance of e-car from POI  5kmINV-15 VavailabilityMap of parking lots within a 100m distance from POI is up-to-date within 10 secsXINV-14 Up-to-date Vplan wrt VavailabilityMap and VplanFeasibility is available within 10 secsPINV-10 Pavailability is monitored within 10 secsP62
-Towards an Automated Requirements-driven Development of sCPS
-from the IRM-SA guide and they were also employed in the experiment mentioned above The model
-was created manually with the help of the IRM-SA model editor
-The highlighting and underlining in the requirements specication is included solely for the purpose
-of this paper and would not appear in an actual specication Meaning of the highlightingunderlining is
-as follows
- Underlined text refers to components and their attributes double line for components single line
-for attributes Red color is used for the E-car component blue one for the Parking component
- Highlighted text is related to a particular invariant colors correspond with colors in gure 1
- Purple numbers in the requirements specication refer to corresponding invariants in the model
-Electric Car Navigation and Parking ECNP
-Summary
-The main objective of this system is to allow e-cars to coordinate with parking stations and have an adequately up-to-date view of the
-availability of parking spaces at each time point At the same time e-cars should monitor their battery level and choose a different
-trip plan eg which involves picking a parking place which is closer to the e-car if the existing plan is not possible to follow any more
-Requirements
-The general requirements for the ECNP are
-1 Every e-car has to arrive to its place of interest POI and park within a radius of 100 meters 2 In order to do that every car
-needs to 
-a Continuously monitor its energy level battery 9
-b Continuously monitor its position 7
-c Continuously assess whether its energy level would be enough to complete the trip based on the distance left to cover
-d Have a plan to follow which is based on its energy level and on the available parking slots in the parking places near the
-POI 11 14
-2 Every parking place has to continuously monitor its availability level eg in terms of available parking slots per time slot 10
-3 The information regarding the availability of the parking slots has to be exchanged with the appropriate e-cars 12 15
-The situation-specic requirements of the ECNP are
-4 When an e-car is more than 5km far from the POI 16 it should update its plan at least once per 60 seconds 14
-5 When an e-car is equal to or less than 5km far from the POI 13 it should update its plan at least every 10 seconds 11
-Figure 2 e-cars system requirements
-3 Automation of IRM-SA
-In this section we analyze the IRM-SA method from the perspective of its automation We identify in-
-dividual steps that can be automated using natural language processing techniques and propose suitable
-methods
-The individual goals of such an automation are i semiautomatically generate invariants in the
-IRM-SA model from the requirements document and thus make synchronization and traceability be-
-tween the requirements and IRM-SA model more robust and faster to obtain ii semiautomatically
-validate the resulting IRM-SA model
-J Vinarek P Hnetynka
-31 Component identication
-Components in EBCS design represent smart entities of the system In our example there are two
-types of components  E-Car and Parking Both components and also their attributes are several times
-mentioned in the requirements as well as in the summary Based on our experience with derivation of the
-domain model from textual specication 17 it seems possible to obtain a list of potential components
-in an automated fashion Also a similar approach is employed in 5 where authors retrieve UML class
-models from test cases
-Both names of the components and their attributes are in the requirement texts almost always repre-
-sented as noun phrases which in simple sentences appear as subjects or objects either direct or indirect
-To parse a sentence and identify its elements the Stanford CoreNLP toolkit 11 is an ideal tool For
-example with the usage of the Stanford dependency parser on the sentence Every car needs to contin-
-uously monitor its energy level battery we get the dependency graph showed in Figure 3 The parser
-returns a part-of-speech POS tag for each word eg VB for verb in base form NN for singular noun
-and dependency relations between the words eg nsubj for nominal subject or dobj for direct object
-The resulting list of potential names of components and attributes contains car nominal subject and
-energy level direct object Unfortunately this might not be sufcient not all of the subjectsobjects
-are componentsattributes A possible way to overcome this issue is to employ statistical classication
-techniques to learn the patterns from training data Similarly we have employed these techniques in 18
-Figure 3 Dependencies and POS tags obtained from Stanford dependency parser
-32 Component disambiguation
-Another issue with the list of candidates for componentattribute names is that it may be ambiguous
-Multiple noun phrases may refer to the same component eg in our e-cars system specication the
-words e-car and car refer to the same component Similarly parking station and parking place
-or energy level and battery These ambiguities can be a sign of a poorly written specication and
-their replacement with the same word or phrase is advisable On the other hand such a situation may
-happen especially if the specication is prepared by multiple authors andor it evolves over time and
-even more in some cases the use of different words for the same entity may be intentional eg in a case
-of abbreviations and noun phrase shortenings place of interest and POI or trip plan and plan
-A distinction of these cases is not always clear and we expect that user will have to be involved in a
-decision about these ambiguities
-For example the requirement in Figure 3 is written in a way which suggest that the phrase energy
-level and battery can be used interchangeably This relation can be deduced automatically as the
-EveryDTcarNNneedsVBZtoTOmonitorVBcontinuouslyRBlevelNNenergyNNitsPRPdetnsubjxcompmarkadvmoddobjnmodposscompoundbatteryNNappos64
-Towards an Automated Requirements-driven Development of sCPS
-word battery has been marked as appositional modier appos of the word level Another option for
-disambiguation might be employment of string distance metrics 43 to identify corresponding entities
-eg car and e-car
-Invariant type identication
-During applying the IRM-SA method sentences in the Requirements section of the specication are
-rather directly translated into invariants of the IRM-SA model However the issue is to identify whether
-the particular sentence relates to the abstract process exchange or assumption invariant It would be
-helpful if the IRM-SA editor could automatically propose the invariant type
-Assumption invariants should be included only in the situation-specic section of the requirements
-specication and thus is easier to locate them see the yellow highlighting in Figure 2 and the yellow
-invariants in Figure 1 Additionally the particular sentences express a condition which is necessary
-to detect and extract To extract it the dependency parser can be again utilized To support it tools
-for information extraction like Ollie4 or OpenIE5 can also be used as they are able to detect enabling
-conditions
-To distinguish between process and exchange invariants it is necessary to analyze the main verb
-of the sentence see the blue and green highlighting in Figure 2 and the blue and green invariants in
-Figure 1 With verbs such as exchange or propagate there is a high chance that the sentence
-corresponds to exchange invariant while verbs have monitor assess obtain acquire or de-
-termine usually denote a process invariant A direct solution would be a simple comparison of the
-particular verb with a predened set of verbs but it would be rather limiting Instead a suitable approach
-is to classify verbs according to their meaning which is taken from WordNet12 WordNet is a large
-lexical database of English nouns verbs adjectives and adverbs In the database synonyms are grouped
-together forming so-called synsets The synsets are interlinked according to their relations forming net-
-work of related words and concepts Multiple WordNet similarity measures were proposed and their
-implementation is available6 and can be used for the process and exchange invariants identication
-Finally sentences containing additional sub-requirements can be marked as abstract invariants the
-gray highlighting and the gray invariants in Figures 1 and 2
-34 Knowledge ow recognition
-One of the key IRM-SA ideas is that each invariant with the exception of assumption ones represents
-a computation that produces output knowledge given a particular input knowledge such that the invariant
-is satised as stated in 2
-For example in the invariant deduced from the requirement 1d in Figure 2 the energy level and POI
-of the vehicle and the available parking slots from the parking places serve as the input parameters for
-computation of the vehicles plan all possible parameters ie component attributes are already known
-as they were identied in the previous phases Schematically it can be written
-Venergy VPOI Pavailability - Vplan
-3an implementation available at httpsecondstringsourceforgenet
-4httpsgithubcomknowitallollie
-5httpsgithubcomknowitallopenie
-6httpsearchcpanorgdistWordNet-Similarity
-J Vinarek P Hnetynka
-Such an abstraction of the requirements to input and output parameters allows for easier reasoning about
-the invariants and it is employed in subsequent sections
-However an issue is how to identify which parameters are input and which output A straightforward
-automatic approach for distinguishing input parameters from the output ones is an iteration starting
-from the simple invariants and taking into account types of parameters already distinguished from the
-previous iterations The approach starts with the process invariants having only single parameter Such
-a parameter must be an output one otherwise the invariant would not produce any knowledge and the
-above mentioned IRM-SA idea would not hold Examples of such invariants are requirements 1a and
-1b Next if a single attribute is present in multiple invariants it can be assumed that it serves as an
-input parameter Nevertheless this is only an assumption and thus a fully automated approach is hard to
-achieve A possible solution is to use an assisted iterative approach in which a tool identies input and
-output parameters and the human designer conrmsreverts the decisions
-In some cases computation associated with an abstract invariant may not have all the parameters
-precisely specied as the particular parameters are unknown yet They may be specied in the child
-invariants and from the view of the higher-level invariant they can be seen as an implementation detail
-In such cases we use the notation V to mark that the component V participates in the invariant but
-the specic attribute is specied later in a child invariant The nal assignment of the parameter is up to
-the designer
-Invariant renement and composition
-In EBCS communication between components is implicit via their knowledge sharing which is con-
-veyed via ensembles An ensemble is thus specied via a condition determining when components are
-part of the particular ensemble and via knowledge that has to be interchanged
-Let us again assume the requirement 1d with the parameter abstraction
-Venergy VPOI Pavailability - Vplan
-As the parameters come from different components V and P but the computation can be performed only
-in a single component it is clear that the invariant has to be rened as a composition of several invariants
-from which at least one is an exchange invariant in the implementation the exchange invariants results
-in the ensemble denition Such situations can be rather easily detected automatically based on the
-parameters owners
-Nevertheless renement and composition of the abstract invariants is more difcult as they repre-
-sent high-level goals and can intentionally abstract from some implementation details ie omit some
-attributes For example in Figure 1 composition of the invariants 5 and 6 means that the trip plan
-is computed rst without any knowledge about availability of the parking places the output parame-
-ter VplanFeasibility in the invariant 5 and then it is made more specic with information about
-the availability the invariant 6 Different composition of the lower-level invariants would lead to a
-completely different behavior
-Another issue in the automatic composition of invariants is a reasoning about situation-specic re-
-quirements which have to be grouped together according to a requirement they belong to The grouping
-is performed based on their output parameters and can result in duplication of invariant subtrees How-
-ever identication of the right subtree to be duplicated is not straightforward Both these issues are very
-hard to solve automatically and we plan to further investigate possibilities of their automation in more
-detail
-Towards an Automated Requirements-driven Development of sCPS
-36 Model validation
-With the abstraction of invariants described in 34 the IRM-SA model can be automatically validated
-according to the knowledge ow In particular following checks can be performed
- Congurations with missing input parameters can be discovered ie an invariant producing the
-particular attribute is not included in the conguration due to a missing dependency relation
- Congurations with multiple invariants writing to the same attribute can be detected
- Also detection of unused output parameters or unused attributes can be performed
-All of these checks may point to aws in the model andor specication and discover them early
-4 Related work
-As far as we know there are no attempts to automatize requirements processing for EBCS design Never-
-theless a related approach is described in 3 in which authors propose an approach called NPL-KAOS
-that can automatically obtain a KAOS model from large volume of literature KAOS 9 is a goal-oriented
-requirement engineering method and it was one of inspirations for the IRM-SA method With the use
-of natural language processing tools and text mining techniques they process abstracts of scientic pub-
-lications First they detect goal-oriented keywords and then they use the Stanford parser to tag semantic
-structures From obtained semantic trees they extract goals and nally organize them into taxonomies
-The taxonomies are used to dene relations between goals and this way they simulate the process of
-renement Similarly to our approach the authors try to automatically derive a model from textual data
-which would serve for purposes of requirements engineering However their problem is different Their
-main goal is to help requirements engineer during the early stages of goal elicitation by extraction of main
-concepts from the large body of research abstracts Although the extraction process may miss some goals
-in the single abstract with large number of abstracts they can count on the fact that the goal will be at
-the end noticed Contrary our method is intended to process a single specication and therefore cannot
-reckon on this effect
-In 5 the authors semi-automatically derive a UML model and OCL constraints from a specica-
-tion and test cases which are both written in natural language They employ formal methods to verify
-correctness of the derived design First grammatical analysis is used to derive UML class diagrams from
-the test cases Then the behavior of test cases is inspected and the UML sequence diagrams are derived
-In the next step OCL constraints are deduced from the requirements and test cases Finally verication
-of static aspects UML class diagrams and OCL invariants and dynamic aspects satisfaction of speci-
-ed method pre-conditions and post-conditions is checked As in our approach authors use the Stanford
-parser to get dependencies from the sentences They also employ WordNet in their case to distinguish
-components of the system and actors The main difference is that we directly target sCPS design and
-EBCS and therefore include an identication of process and exchange invariants adaptability etc
-5 Conclusion
-In the paper we have analyzed the IRM-SA design method with respect to its possible automation with
-the help of natural language processing methods and tools We have identied steps that can be automated
-and sketched solutions As the automated natural language understanding is generally still a challenging
-J Vinarek P Hnetynka
-issue the full automation is hard and in many cases impossible to achieve Thus we target a semi-
-automated system that guides the human designer recommends solutions and validates the designers
-actions
-Currently we plan to implement all the identied proposed solutions to integrate them to the existing
-IRM-SA editor and to validate the resulting system on a real-life case-study
-Even though the proposed approaches are tailored to IRM-SA which is currently tied with the
-DEECo component model they can be reused in different contexts The IRM-SA method itself can
-be without changes applied to another ensemble-based component model eg Helena 7 and the ap-
-proaches proposed in this paper can be applied in tools for the KAOS method or similar ones
-6 Acknowledgement
-This work was partially supported by the project no LD15051 from COST CZ LD programme by
-the Ministry of Education Youth and Sports of the Czech Republic and partially supported by Charles
-University institutional funding SVV-2016-260331
-References
-1 Tomas Bures Ilias Gerostathopoulos Petr Hnetynka Jaroslav Keznikl Michal Kit  Frantisek Plasil 2013
-DEECO An Ensemble-based Component System In Proceedings of CBSE 2013 Vancouver Canada ACM
-pp 8190 doi10114524654492465462
-2 Tomas Bures Ilias Gerostathopoulos Petr Hnetynka Jaroslav Keznikl Michal Kit  Frantisek Plasil 2015
-The Invariant Renement Method In Software Engineering for Collective Autonomic Systems LNCS 8998
-Springer pp 405428 doi101007978-3-319-16310-9 12
-3 E Casagrande S Woldeamlak WL Woon HH Zeineldin  D Svetinovic 2014 NLP-KAOS for Systems
-Goal Elicitation Smart Metering System Case Study IEEE Transactions on Software Engineering 4010
-pp 941956 doi101109TSE20142339811
-4 William W Cohen Pradeep Ravikumar  Stephen E Fienberg 2003 A comparison of string distance
-metrics for name-matching tasks In Proceedings of IIWeb-03 Acapulco Mexico pp 7378
-5 Rolf Drechsler Mathias Soeken  Robert Wille 2012 Formal Specication Level Towards verication-
-driven design based on natural language processing In Proceedings of FDL 2012 Vienna Austria IEEE
-pp 5358
-6 Ilias Gerostathopoulos Tomas Bures Petr Hnetynka Jaroslav Keznikl Michal Kit Frantisek Plasil  Noel
-Plozeau 2015 Self-Adaptation in Cyber-Physical Systems from System Goals to Architecture Congura-
-tions Technical Report D3S-TR-2015-02 Charles University in Prague Faculty of Mathematics and Physics
-Department of Distributed and Dependable Systems
-7 Rolf Hennicker  Annabelle Klarl 2014 Foundations for Ensemble Modeling  The Helena Approach
-In Specication Algebra and Software LNCS 8373 Springer pp 359381 doi101007978-3-642-54624-
-8 Matthias Holzl Axel Rauschmayer  Martin Wirsing 2008 Software Engineering for Ensembles
-Software-Intensive Systems and New Computing Paradigms LNCS 5380 Springer Berlin Heidelberg pp
-4563 doi101007978-3-540-89437-7 2
-9 Axel van Lamsweerde 2008 Requirements Engineering From Craft to Discipline
-In Proceedings of
-SIGSOFT08FSE-16 Atlanta USA ACM pp 238249 doi10114514531011453133
-10 Craig Larman 2004 Applying UML and patterns an introduction to object-oriented analysis and design
-and the unied proces 3rd edition Prentice-Hall
-Towards an Automated Requirements-driven Development of sCPS
-11 Christopher D Manning Mihai Surdeanu John Bauer Jenny Finkel Steven J Bethard  David McClosky
-2014 The Stanford CoreNLP Natural Language Processing Toolkit
-In Proceedings of 52nd Annual
-Meeting of the Association for Computational Linguistics System Demonstrations Baltimore Maryland
-pp 5560 doi103115v1P14-5010
-12 George A Miller 1995 WordNet A Lexical Database for English Communications of the ACM 3811
-pp 3941 doi101145219717219748
-13 Brice Morin Franck Fleurey  Olivier Barais 2015 Taming Heterogeneity and Distribution in sCPS In
-Proceedings of SEsCPS 2015 Firenze Italy ACM pp 4043 doi101109SEsCPS201515
-14 Ivan Ruchkin Bradley Schmerl  David Garlan 2015 Architectural Abstractions for Hybrid Programs
-In Proceedings of CBSE 2015 Montreal Canada ACM pp 6574 doi10114527371662737167
-15 Viliam Simko David Hauzar Petr Hnetynka Tomas Bures  Frantisek Plasil 2014 Formal Verication of
-Annotated Textual Use-Cases The Computer Journal 587 pp 14951529 doi101093comjnlbxu068
-16 Viliam Simko Petr Hnetynka  Tomas Bures 2010 From Textual Use-Cases to Component-Based Appli-
-cations In In proceedings of SNPD 2010 London UK SCI 295 Springer pp 2337 doi101007978-3-
-642-13265-0 3
-17 Viliam Simko Petr Kroha  Petr Hnetynka 2013 Implemented Domain Model Generation Technical
-Report D3S-TR-2013-03 Charles University in Prague Faculty of Mathematics and Physics Department of
-Distributed and Dependable Systems
-18 Jiri Vinarek Petr Hnetynka Viliam Simko  Petr Kroha 2014 Recovering Traceability Links Between
-Code and Specication Through Domain Model Extraction In Proceedings of EOMAS 2014 Thessaloniki
-Greece LNBIP 191 Springer pp 187201 doi101007978-3-662-44860-1 11
+An   Empirical Study of Immune System Based On Bipartite 
+Network   
+Sheng-Rong   Zou     Yu-Jing Peng   
+Zhong-Wei Guo Ta ZhouChang-gui Gu Da-Ren He 
+Yangzhou University Yangzhou 225002 P R China 
+Many complex systems use networks as their backbone   Complex Network is a more effective method to describe 
+                                                 
+ABSTRACT 
+Motivation  In this paper we present an immune model with bipartite graphs theory We collect data through 
+COPE database and construct an immune cytokine network  The act degree distribution of   this network is 
+proved to be power-lawwith index of 18 The network is scale-free with  assortativity of 027 and similarity of 
+013 The results show that this model could describe the cytokine-cytokine interaction preferably The basic 
+attributes of this network is well consistent to our preknowledge of immune system 
+Introduction   
+complex systems In particular in biological systems studies it is increasingly recognized the role played by the 
+topology of cellular networks the intricate web of interaction among genes proteins and other molecules regulating 
+cell activity in unveiling the function and the evolution of living organismsJeong et al 2000 Wagner and Fell 2001 
+Jeong et al 2001 Maslov and Sneppen 2002 Milo et al 2002
+descriptions on immune system IS IS is the most important defense system to resist human pathogens This system 
+consists of immune organs immune cells and immune molecules Each cell plays an important role in immune system 
+The function of many cells in immune system mediated by a group of protein is called cytokines Cytokines are rapidly 
+produced by immune cells in response to tissue injury infection or inflammation The overproduction of cytokines 
+mediates tissue damage and physiological and molecular mechanisms have evolved to control their production and to 
+prevent the injury during the host response In addition to regulate cellular interactions cytokines are the molecular 
+players that signal the brain to respond to the danger of viruses bacteria fungi and parasites through an elaborated 
+coordination67 So we have necessary to find some important immune cells and cytokines  
+1-5  It is interesting to investigate the network 
+Although many details of cytokine interactions have been elucidated and the effects of cytokines on a myriad of 
+cellular functions have been described 8 practically nothing is known about the network topological structure of the 
+system as a whole   All cytokine interaction exhibit nonlinear behaviors9 In fact they act in a complex intermingled 
+network where one cytokine can influence the production of and response to many other cytokines So we believe that 
+IS should be more effectively described by complex network 
+In this paper we suggest an immune model with complex network theory 1011 The paper is organized as follows   
+In section two we shall present our model and method   In section three we shall present some results In the last 
+section we make a conclusion   
+  METHODS 
+Other authors have modeled the immune system with a variety of approaches and areas of emphasis 712 But many 
+essential features of this complex system are still not understood PTieri has presented a method to quantifying the 
+relevance of different mediators in the human immune cell network He draw the cumulative relevance distribution of 
+  We collect immune data through 
+the immune weighted network  which followed power- law with index of 28 
+COPE database and built an immune cytokine network 
+11     Bipartite network 
+Here we use bipartite graphs to built our network Bipartite network is a graph which connects two distinct sets or 
+partitions of nodes which we will refer to as the top and the bottom set An edge in the network runs between a pair of 
+a top and a bottom node but never between a pair of top or a pair of bottom nodes 13 see Fig1 Typical examples of 
+this type of networks include collaboration networks 14 Such as the movie-actor article-author and board-director 
+network In the movie-actor network for instance the movies and actors are the elements of the top and the bottom set 
+respectively and an edge between an actor a and a movie m indicates that a has acted in m The actors a and   
+a are collaborators if both have participated in the same movie ie if both are connected to the same node    m
+13 The concept of collaboration can be extended to include so diverse phenomena represented by bipartite 
+networks as the city people network in which an edge between a person and a city indicates that the person has visited 
+that particular city the word-sentence 1516 bank-company 17 or donor-acceptor network which accounts for injection 
+and merging of magnetic field  lines 1819 
+As described above is the bipartite network on the knowledge  Next we used the method of     bipartite network to 
+build our immune system Because the immune system we discuss in this paper have two distinct sets of nodes the 
+edges between the top nodes and the bottom nodes in our immune system indicates secretion relation 
+FIG 1 a An example of bipartite graphs b The one-mode projection of the network in  a    
+12 Our   immune network  
+The immune bipartite network we consider is constituted by two kinds of nodes one is immune cell types the other 
+is mediators  In this view the mediators s role is uniquely one element in a network of mediators interaction We 
+consider these immune cells   mediated by soluble molecules such as cytokines chemokines hormones In the immune 
+system model we construct with 44 top nodes 1640 bottom nodes 5391 links We can also considered top nodes and 
+bottom nodes respectively as act and actor These data are small compared to other bipartite networks such as the 
+Hollywood actors collaboration network and scientists  collaboration network but it represents a network of very 
+different origin There have been studies of small-size networks such as the Jazz instrumentalists collaboration network 
+17 the underground railway routes network in Boston 18 the airline networks of China and US 19 the power grid 
+network of China and US 420 the Indian railway network and the company board member collaboration network 
+222 One can still obtain valuable statistics about these networks if the analysis of the data is done properly 
+2  RESULTS 
+According to our immune network which we have built we obtain some results as follows using some 
+algorithm 
+21     Act     Degree   Distribution 
+The act degree is an important geometric properties of the complex network Act degree stand for an actor take 
+part in how many act In our immune system act degree can be understood as how many cells secret the same mediator 
+Fig 2 shows the act degree distribution of the immune system the distribution can be well described using power law 
+with index of 18  It reveal that there are some nodes with high degree The biggest act degree is 25 The act degree of 
+two mediators are 25 They are TNF-alpha and IL-8 This shows that 25 kinds of cells can secret the two mediators 
+The act degree of four kinds mediators is 24 They are TNF-alpha receptors CCL5 IL-6IL-2 receptors The act degree 
+of five kinds mediators is 23 They are TNF-beta receptors TNF-betaIL-4 receptorsIL-1 beta CD54 These mediators 
+are very important in the regulation of immune activity For example
+inflammatory response which is produced by infection TGF-beta IL-6 and so on promote tumor cell 
+growth and metastasis IL-2 and IFN- mediated naturalization reactivity CCL5 attract immune cells to the 
+local immune response and involved in immune regulation and immunopathological response 
+  TNF-alpha IL-6 IL-8 take part in the 
+22  Dyad Act Degree 
+Dyad act degree is another important properties for bipartite network Dyad is that two actors and the relationship 
+of them 
+Dyad act degree is that a dyad take part in how many act In our system we can understood as two mediators can be 
+secreted by how many cells Fig3 shows dyad act degree distribution of the immune system the distribution can be 
+well described by typical SPLshift power law 14 functions The biggest dyad act degree is 22 
+23  Assortativity 
+In 2002 Newman raised another important parameter of complex network which is assortativity
+20 using a 
+parameter r in between -1 and 1 to describe Assortativity is that the nodes of the network is whether establish edge 
+links with most similar type other nodes of the network When r is greater than zero nodes establish edge links with 
+similar type other nodes of the network the network is called assortative matching When r is less than zero  nodes 
+establish edge links with most unsimilar type other nodes of the network the Network is called disassortative matching 
+In our Immune System we draw single assortativity with -0278609 While multiple edges is counted we draw 
+multiassortative with 0143845 The results is consistent to the empirical studies of other system For example 
+Newman had the view that social networks are assortative mixing and non-social are disassortative mixing Some other 
+draw that single assortative of non-social network is lesser than zero and   multiassortative is greater than zero   
+In this paper we propose a new similarity definition Similarity of the immune network is the possibilities which each 
+two cells have the common mediators  Its formula is defined as   
+Similarity 
+Eij is the adjacency matrix of immune system  I and  I  are cells and j is mediator N is the total nodes of the 
+immune system Ki is the degree of   I   cell The value of s is between 0 and 1 If s is equal to 1 then the function of 
+all cells are the same If s is equal to 0 then the function of all cells are not identical By our computation the similarity 
+of our immune system is 013 It reveals that the possibility of every two different cells secreting the same mediators is 
+only 013 This is consisted with our actual immune system For example accessory cells only secret Stem Cell Factor 
+and A549 cells secret Eotaxin and CCL11 This confirmed our guess which any two different cells secreting the same 
+mediators have low possibility Of course low possibility does not mean that there is no possibility Some very 
+important cells can secret the same mediators and those mediators are also very important in immune system Such as 
+IL-2 IL-10 ect 
+Fig 2    The graph shows the result of the act degree distribution of immune system The solid lines represent the least square fitting 
+of the data 
+Fig 3  The   graph shows the result of the Dyad act degree distribution of    immune system The solid lines represent the least 
+square fitting of the data 
+3  Conclusion 
+   From our above analysis we found that some mediators with high degree are very important mediators in the process 
+of regulating immune activity For example like TNF-alpha IL-8 TNF-alpha receptors CCL5 IL-6 IL-2 receptors 
+TNF-beta receptors TNF-beta IL-4 receptors IL-1 beta CD54 ect These mediators are important in immune system 
+to regulate their activity We also found that the assortative of the immune system are negative It reveals that our 
+immune system is non-social network Finally we found each two cells similar to a small extent It reveals that each cell 
+has its unique features For example like T cells and B cells they are all belong to lymphocytes and are main 
+force of non-specific immune system But the role they played is not the same  T cells implement cellular 
+immunity and B cells implement humoral immunity  The results are well consistent to our preknowledge of 
+immune system 
+     The work which we have done is just the beginning We hope to find more properties of the immune system by 
+complex network analysis 
+ACKNOWLEDGEMENTS 
+The research is supported by National Natural Science Foundation of China under the grant No 70671089 and 
+10635040 
+References 
+1JeongH TomborB AlbertR OltvaiZN BarabasiAL 2000 The large-scale organization of metabolic 
+networks Nature 407 651654 
+2JeongH MasonSP BarabasiAL OltvaiZN 2001 Lethality and centrality in protein networks Nature 
+411 4142 
+3MaslovS SneppenK 2002 Specificity and stability in topology of protein networks 
+Science 296 910913 
+4MiloR Shen-OrrS ItzkovitzS KashtanN ChklovskiiD AlonU 2002 Networks motifs simple 
+building blocks of complex networks Science 298 824827 
+5WagnerSA FellDA 2001 The small world inside large metabolic networks Proc RSoc London 
+B268 1803-1810 
+6 AbbasAK LichtmanAH PoberJS 2003 Cellular and Molecular Immunology W BSaunders 
+Company Philadelphia 
+7JanewayCA TraversP WalportM ShlomchikM 2001 Immunobiology Garland Publishing New 
+8 Shengrong Zou Formally     Specifying T-cell Cytokine Networks         with   B   Method
+LNCS  3314     
+9 Callard C Geprage AJT Stark J Cytokine chaos and complexity  Immunity 199911507-13 
+10 A L Barabasi and R Albert Emergence of scaling in random networks Science 286 1999 509-512   
+11   H   Chang   B-B   Su  Y   He   P-P   Zhang  Y-P   Zhou   D-R  He   Evolution   and   
+assortativity   of generalized collaboration networks preprint   
+12PTieriSValensinVlatoraGccastellaniMMarchioriDRemondini and CFranceschiQuantifying the 
+relevance of different mediators in the human cell networkBioinformatics211639 
+13 Jun Ohkubo Kazuyuki Tanaka Tsuyoshi Horiguchi Generation of complex bipartite graphs by using a 
+preferential rewiring process PHYSICAL REVIEW E 72 036120 2005 
+14 Pei-Pei ZhangKan ChenYue HeTao ZhouBei-Bei SuYingdi Jinc Hui ChangYue-Ping ZhouLi-Cheng 
+SunBing-Hong Wange Da-Ren He Model and empirical study on some collaboration networks Physica A 
+360 2006 599616 
+15 Ferrer i Cancho R and Sole R V Proceedings of the Royal Society of London B268 2261 2001 
+16 Guillaume J-L and Latapy M Information Process-ing Letters 90 215 2004 
+17 Souma W Fujiwara Y and Aoyama H Physica A 324 396 2003 
+18 Sneppen K Rosvall M Trusina A and and Minnhagen P Europhys Lett 67 349 2004 
+19Fernando Peruani Monojit Choudhury Animesh Mukherjee and Niloy Ganguly  
+  Emergence of a 
+ CIS  2004 
+non-scaling degree distribution in bipartite networks a numerical and analytical study 
+20Newman MEJ Assortative mixing in networks PhysRevLett892002208701 

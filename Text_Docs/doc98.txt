@@ -1,936 +1,505 @@
-Natural Language Object Retrieval
-Ronghang Hu1 Huazhe Xu2 Marcus Rohrbach13
-Jiashi Feng4 Kate Saenko5
-Trevor Darrell1
-1University of California Berkeley
-4National University of Singapore
-2Tsinghua University
-5University of Massachusetts Lowell
-3ICSI Berkeley
-ronghang rohrbach trevoreecsberkeleyedu xhz12mailstsinghuaeducn
-elefjianusedusg saenkocsumledu
+Distilled Single Cell Genome Sequencing and De Novo
+Assembly for Sparse Microbial Communities
+Zeinab Taghavi1 Narjes S Movahedi1 Sorin Draghici12 and Hamidreza Chitsaz1
+1Department of Computer Science Wayne State University Detroit MI 48202
+2Department of Obstetrics and Gynecology Wayne State University Detroit MI 48202
+May 24 2013
 Abstract
-In this paper we address the task of natural language
-object retrieval to localize a target object within a given
-image based on a natural language query of the object Nat-
-ural language object retrieval differs from text-based image
-retrieval task as it involves spatial information about ob-
-jects within the scene and global scene context To address
-this issue we propose a novel Spatial Context Recurrent
-ConvNet SCRC model as scoring function on candidate
-boxes for object retrieval integrating spatial congurations
-and global scene-level contextual information into the net-
-work Our model processes query text local image de-
-scriptors spatial congurations and global context features
-through a recurrent network outputs the probability of the
-query text conditioned on each candidate box as a score for
-the box and can transfer visual-linguistic knowledge from
-image captioning domain to our task Experimental results
-demonstrate that our method effectively utilizes both local
-and global information outperforming previous baseline
-methods signicantly on different datasets and scenarios
-and can exploit large scale vision and language datasets
-for knowledge transfer
-1 Introduction
-Signicant progress has been made in object detection
-in recent years with the help of Convolutional Neural Net-
-works CNNs it is possible to detect a predened set of
-object categories with high accuracy 8 7 and the num-
-ber of categories in object detection has grown over 10K to
-100K with the help of domain adaptation 12 and hashing
-2 However in practical application scenarios instead of
-using a predened xed set of object categories one would
-often prefer to refer to an object with natural language rather
-than use a predened category label Such natural language
-query can include different types of phrases such as cat-
-egories attributes spatial congurations and interactions
-with other objects such as the young lady in a white dress
-Figure 1 Overview of our method Given an input image a text
-query and a set of candidate locations eg from object proposal
-methods a recurrent neural network model is used to score can-
-didate locations based on local descriptors spatial congurations
-and global context The highest scoring candidate is retrieved
-sitting on the left or white car on the right in Figure 1
-In this paper we address the problem of natural language
-object retrieval given an image and a natural language de-
-scription of an object as query we want to retrieve the ob-
-ject by localizing the object in the image Natural language
-object retrieval can be seen as a generalization of generic
-object detection and has a wide range of applications such
-as handling natural language commands in robotics where
-the user may ask to a robot to pick up the TV remote con-
-candidate location setinput imagelocal descriptorspatial configurationglobal contextnatural language querywhite car on the rightobject proposalSpatial Context Recurrent ConvNetcandidate scores054007028015042output object retrieval resulttop score candidatetrol on the shelf
-We frame natural language object retrieval as a retrieval
-task on a set of candidate locations in a given image in this
-paper as shown in Figure 1 where candidate locations can
-come from object proposal methods such as EdgeBox 33
-We observe that simply applying text-based image retrieval
-systems on the image regions cropped from candidate loca-
-tions for this task leads to inferior performance as natural
-language object retrieval involves spatial congurations of
-objects and the global scene as context For example to de-
-cide how likely an object in a scene corresponds to the man
-in a blue jacket sitting on the right in front of the house one
-needs to look at both the object to determine whether it is
-the man category in blue jacket attribute and sit-
-ting action and its spatial conguration within the scene
-to determine whether it is on the right and the whole im-
-age as global contextual information to determine whether
-it is in front of the house Although both text-based im-
-age retrieval and natural language object retrieval involve
-jointly modeling images and text they are different vision
-and language domains with domain shift from whole im-
-ages to bounding boxes
-To address these issues we propose the Spatial Context
-Recurrent ConvNet SCRC model to learn a scoring func-
-tion that takes the text query candidate regions their spa-
-tial congurations and global context as input and outputs
-scores for candidate regions Inspired by the Long-term Re-
-current Convolutional Network LRCN 4 an effective re-
-current architecture for both image captioning and image re-
-trieval we use a two-layer LSTM network structure where
-the embedded text sequence and visual features serve as
-input to the rst layer and the second layer respectively
-However we note that it is possible to build our model on
-other recurrent network architectures such as 24 30
-Compared with other types of visual-linguistic models
-such as bag-of-words 26 one of the advantages of us-
-ing a recurrent neural network as scoring function is that
-the whole model can be easily learned end-to-end via sim-
-ple back propagation allowing visual feature extraction
-and text sequence embedding to be adapted to each other
-and we show that it signicantly outperforms a previous
-method using bag-of-words Another advantage is that it
-is easy to utilize relatively large scale image-text datasets
-from other domains like image captioning eg MSCOCO
-22 to learn a vision-language model by rst pretraining
-the model on the image captioning task and then adapting it
-to natural language object retrieval task through ne-tuning
-One of the main challenges for natural language object re-
-trieval is the lack of large scale datasets with annotated ob-
-ject bounding box and description pairs To address this
-issue we show that it allows us to transfer visual-linguistic
-knowledge learned from the former task to the latter one
-by rst pretraining on the image caption domain and then
-adapting it to the natural language object retrieval domain
-This pretraining and adaptation procedure improves the per-
-formance and avoids over-tting especially when the object
-retrieval training dataset is small
-2 Related work
-Natural language object retrieval grounding image cap-
-tioning and image retrieval can be seen as different direc-
-tions of the same super-task of jointly modeling a text se-
-quence and image content so it is natural to consider trans-
-ferring knowledge learned from one task to another domain
-In this work we transfer knowledge from image captioning
-to natural language object retrieval by rst pretraining our
-model on image captioning datasets to learn an initial pa-
-rameter set for word embedding and word sequence predic-
-tion based on visual features In the following we discuss
-these related areas
-Natural language object retrieval Based on a bag of
-words sentence model and embeddings derived from Ima-
-geNET classiers 10 addresses a similar problem as ours
-and localizes an object within an image based on a text
-query Given a set of candidate object regions 10 gener-
-ates text from those candidates represented as bag-of-words
-using category names predicted from a large scale pre-
-trained classier and compares the word bags to the query
-text Other methods generate visual features from query text
-and match them to image regions eg through a text-based
-image search engine 1 or learn a joint embedding of text
-phrases and visual features Concurrent with our work 23
-also proposes a recurrent network model to localize objects
-from given descriptions
-Grounding Objects from Image Descriptions Given
-an image and its description sentence 17 aligns sentence
-fragments to image regions by embedding the detection re-
-sults from a pretrained object detector and the dependency
-tree from a parser with a ranking loss 16 builds on 17
-and replaces the dependency tree with a bidirectional RNN
-Canonical Correlation Analysis CCA is used in 25 to
-learn a joint embedding of image regions and text snippets
-to localize each object mentioned in the caption 21 uses
-a structure prediction model to align text to image and rea-
-sons about object co-reference in text for 3D scene parsing
-Concurrent with this paper 27 uses an attention model to
-ground referential phrases in image descriptions by attend-
-ing to regions where the phrases can be best reconstructed
-Image captioning methods take
-an input image and generate a text caption describing
-it Recently methods based on recurrent neural networks
-31 30 24 4 have shown to be effective on this task
-LRCN 4 is one of these recent successful methods and in-
-volves a two-layer LSTM network with the embedded word
-sequence and image features as input at each time step We
-use LRCN as our base network architecture in this work and
-Image Captioning
-Figure 2 Our Spatial Context Recurrent ConvNet SCRC for natural language object retrieval The recurrent network in our model
-contains three LSTM units Two CNNs are used to extract local image descriptors and global scene-level contextual feature respectively
-Parameters in word embedding word prediction and three LSTM units are initialized by pretraining on image captioning dataset
-incorporate spatial congurations and global context into
-the recurrent model for natural language object retrieval
-Image Retrieval Text-based image retrieval systems se-
-lect from a set of images an image that best matches the
-query text In image retrieval a ranking function is learned
-through a recurrent neural network 24 4 metric learning
-13 correlation analysis 20 and other methods 6 19
-It was shown in 4 that a probabilistic image captioning
-model such as LRCN can also be used as an image retriever
-by using the probability of the query text sequence condi-
-tioned on the image pSqueryI generated by image cap-
-tioning model as a score for retrieval
-3 Our model
-In this section we describe our Spatial Context Recur-
-rent ConvNet SCRC model for natural language object
-retrieval and the training procedure in details At test time
-an image a natural language object query and a set of can-
-didate bounding boxes eg from object proposal methods
-such as EdgeBox 33 are provided The system needs to
-select from the candidate set a subset of bounding boxes
-that match the query text
-31 Spatial Context Recurrent ConvNet
-Inspired by the architecture of LRCN 4 our Spatial
-Context Recurrent ConvNet SCRC model for natural lan-
-guage object retrieval consists of several components as il-
-lustrated in Figure 2 The model has three Long Short-Term
-Memory LSTM 11 units denoted by LSTMlanguage
-LSTMlocal and LSTMglobal a local and a global Convo-
-lutional Neural Network CNN a word embedding layer
-and a word prediction layer At test time given an image
-I a query text sequence S and a set of candidate bounding
-boxes bi in I the network outputs a score si for the i-th
-candidate box bi based on local image descriptors xbox on
-bi spatial conguration xspatial of the box with respect to
-the scene and global contextual feature xcontext
-In this work the local descriptor xbox is extracted by
-CNNlocal from local region Ibox on bi and we use feature
-extracted by another network CNNglobal on the whole im-
-age Iim as scene-level contextual feature xcontext The spa-
-tial conguration of bi is an 8-dimensional representation
-xspatial  xmin ymin xmax ymax xcenter ycenter wbox hbox
-where wbox and hbox are the width and height of bi We nor-
-malize image height and width to be 2 and place the origin
-at the image center so that coordinates range from 1 to 1
-The words wt in the query text sequence S are rep-
-resented as one-hot vectors and embedded through a lin-
-ear word embedding matrix as Ewt and processed by
-LSTMlanguage as the input time sequence At each time
-step t LSTMlocal takes in ht
-language xbox xspatial con-
-catenation of the three vectors where ht
-language is the hid-
-den state from LSTMlanguage and LSTMglobal takes in
-global
-a word prediction layer predicts the conditional probability
-distribution of the next word based on local image region
-Ibox whole image Iim spatial conguration xspatial and
-all previous words it have seen so far as
-language xcontext Finally based on ht
-local and ht
-pwt1wt  w1 Ibox Iim xspatial
-local  Wglobalht
- SoftmaxWlocalht
-global  r 2
-where Wlocal and Wglobal are weight matrices for word pre-
-diction and r is a bias vector Softmax is a softmax func-
-tion over a vector to output a probability distribution
-CNNword embeddingword predictionSman in middle with blue shirt and blue shortsscoreboxpSman in middle with blue shirt and blue shorts  Ibox Iim xspatialCNNIboxIimxspatialqueryman in middle with blue shirt and blue shortsLSTMlocalLSTMglobalLSTMlanguagespatial configurationlocalglobalWe note that when setting Wlocal  0 in Eqn 2 our
-Spatial Context Recurrent ConvNet SCRC model is equiv-
-alent to the LRCN model 4 for image captioning and im-
-age retrieval by only modeling pSIim to predict a text se-
-quence S based on the whole image Iim while ignoring Ibox
-and xspatial This makes it possible to pretrain the model on
-the image captioning in Section 32 to obtain a good param-
-eter initialization for visual-linguistic modeling and trans-
-fer knowledge from large image captioning datasets
-We use VGG-16 net 29 trained on ILSVRC-2012
-dataset 28 as the CNN architecture for CNNlocal and
-CNNglobal and extract 1000-dimensional fc8 outputs as
-xbox and xcontext and use the same LSTM implementation
-as in 4 where the gates are computed as
-it  Wxixt  Whiht1  bi
-ft  Wxf xt  Whf ht1  bf 
-ot  Wxoxt  Whoht1  bo
-gt  tanhWxgxt  Whght1  bg
-All the three LSTM units have 1000-dimensional state ht
-At test time given an input image I a query text S and
-a set of candidate bounding boxes bi the query text S
-is scored on i-th candidate box using the likelihood of S
-conditioned on the local image region the whole image and
-the spatial conguration of the box computed as
-s  pSIbox Iim xspatial
-pwtwt1  w1 Ibox Iim xspatial7
-cid89
-and the highest scoring candidate boxes are retrieved
-32 Knowledge transfer from image captioning
-To exploit paired image-text data in image captioning
-datasets and to learn a good initialization of parameters in
-word embedding word prediction and three LSTM units
-we rst pretrain our model on an image captioning dataset
-by restricting Wlocal  0 in Eqn 2 which is equivalent
-to training a LRCN model 4 We follow the procedure in
-4 for pretraining on image captioning During pretraining
-the probability of ground truth image caption pSgtIim is
-maximized over the training image-sentence pairs and the
-whole network is optimized with standard Stochastic Gra-
-dient Descent SGD We refer to 4 for the training details
-on image captioning
-Since we restrict Wlocal  0 in Eqn 2 during pretrain-
-ing the parameters in LSTMlocal are not learned To obtain
-a good initialization of this unit we copy those weights in
-Eqn 3  6 from LSTMglobal to LSTMlocal The weights
-over the extra 8 dimensions of xspatial are initialized with
-zero We also copy Wglobal to Wlocal to initialize word pre-
-diction weights
-After pretraining on the image captioning task the pa-
-rameters in our model already encode useful knowledge
-of word embedding and decoding and sequence prediction
-based on image features The knowledge is transferred to
-the natural language object retrieval task in Section 33
-33 Training for object retrieval
-After pretraining we adapt the SCRC model to natu-
-In this paper we assume
-ral language object retrieval
-that the training dataset consists of N images with each
-image containing Mi i  1  N annotated objects
-and each object annotated by a bounding box and Kij
-i  1  N j  1  Mi text descriptions an ob-
-ject can be described more than once with different descrip-
-tions At training time each instance is an image-bounding
-box-description tuple Ii bij Sijk where Ii is the whole
-image bij  xmin ymin xmax ymax is the bounding box
-of the j-th object and Sijk is a description text in natural
-language such as the black and white cat
-Our model for natural language object retrieval can be
-trained via maximizing the probability of the object de-
-scription text in ground truth annotations conditioned on the
-local image region Ibox and the whole image Iim as con-
-text which is analogous to training a generic object detec-
-tion system Many state-of-the-art generic object detectors
-8 7 are built by turning object detection into a classica-
-tion problem on candidate bounding boxes produced either
-from a sliding window or an object proposal mechanism
-and a classier is trained by maximizing the probability of
-ground truth object category label In natural language ob-
-ject retrieval the description text of an object can be seen
-as a generalized label of the object and maximizing its
-conditional probability is similar to training a generalized
-classier whose output is a sequence of word labels rather
-than a single category label
-Given a natural language object retrieval dataset we con-
-struct all tuples Ii bij Sijk from the ground truth anno-
-tations as training instances multiple tuples are constructed
-if there are multiple descriptions for the same object For
-each annotated object in the training set an image patch
-Ibox is cropped from the whole image Iim based on bound-
-ing box of that object region with its spatial conguration
-xspatial constructed through Eqn 1 We dene the loss
-function during training as
-L   Ncid88
-Micid88
-Kijcid88
-logpSijkIboxij Iimi xspatialij
-where N is the number of images Mi is the number of
-annotated objects in i-th image Kij is the number of nat-
-ural language descriptions associated with the j-th object
-in that image and pSijkIboxij Iimi xspatialij is com-
-puted by Eqn 7
-During training the model parameters are initialized
-from the pretrained network in Section 32 and ne-tuned
-using SGD with a smaller learning rate allowing the net-
-work to adapt to natural language object retrieval domain
-The whole network is trained end-to-end via back propaga-
-tion Our model is implemented using Caffe 15 and our
-code and data are available at httpronghanghu
-comtextobjretrieval
-4 Experiments
-We evaluate our method on different datasets from small
-scale to relatively large scale Since 10 solves a similar
-problem to our paper we adopt it as our baseline In 10
-a large scale ne-grained classier of 7K object classes is
-trained on ImageNET 3 Each box in the candidate set is
-classied into one of the 7K classes and a bag of words
-is extracted from the predicted object class based on its
-ImageNET 3 synset containing category name and syn-
-onyms Then the word bag is projected to a vector space
-and matched to the projected query text using cosine dis-
-tance to obtain a score The sentence projection embed-
-ding in 10 is predened and the only training involved
-in training the 7K object classier Note that 10 also pro-
-poses an instance match model that relies on online APIs
-at test time As in this work we assume a self-contained
-system without resorting to other APIs we only use the cat-
-egory model CAFFE-7K in 10 as our baseline
-As our recurrent architecture is inspired by LRCN 4
-which is shown to be effective for both image captioning
-and image retrieval we also compare our model to LRCN
-We use the LRCN model trained on MSCOCO 22 for im-
-age captioning task as an object retriever by evaluating it
-on candidate bounding boxes Given an image I with a set
-of candidate boxes and a query text Squery we compute
-pSqueryIbox the probability of the query text Squery con-
-ditioned on the local image region Ibox outputted by LRCN
-as a score for each box in the candidate set and retrieve
-highest scoring candidates
-41 Object retrieval evaluation on ReferIt dataset
-The ReferIt dataset 18 is the biggest publicly avail-
-able dataset containing image regions with descriptions at
-the time of writing It contains 20000 images from IAPR
-TC-12 dataset 9 together with segmented image regions
-from SAIAPR-12 dataset 5 and 120K annotated descrip-
-tions for the image regions collected in a two-player game
-that aims to make the image region identiable from the
-annotation The ReferIt dataset also contains some am-
-biguous eg anywhere and mistakenly annotated ex-
-amples where the annotation does not correspond to any
-object To evaluate on this dataset we split the 20000
-images together with their annotations into 10000 for
-training and validation and 10000 for test and construct
-image-bounding box-description tuples on all annotated im-
-age regions as training instances There are 59976 image
-bounding box description tuples in the trainval set and
-60105 in the test set In our experiments on this dataset
-we only use the bounding boxes of annotated regions during
-training and evaluation The bounding boxes are obtained
-from the segmentation regions in SAIAPR-12 dataset cor-
-responding to the clicks by annotators Note that although
-18 introduces the ReferIt dataset it does not propose a
-baseline method for object retrieval based on text query
-As described in Section 3 we rst pretrain a SCRC
-model on MSCOCO dataset 22 for image captioning The
-training details such as hyper-parameters of SGD follow
-4 After pretraining we copy the weights in LSTM and
-the word prediction layer to the local part of the network as
-mentioned in Section 32 Then the pretrained SCRC model
-is adapted to the natural language object retrieval task fol-
-lowing the procedure in Section 33 The model is ne-
-tuned on image-bounding box-description tuples in ReferIt
-trainval set with back propagation
-Ablations To test the effect of incorporating spatial
-congurations xspatial and scene-level contextual feature
-xcontext we evaluate different setups during ne-tuning on
-ReferIt By setting xspatial and Wglobal to 0 during ne-
-tuning and testing the model can only learn to score a
-box based on local image descriptors xbox from candidate
-boxes denoted by SCRC wo context spatial Similarly
-by setting Wglobal to 0 the model can learn a scoring func-
-tion on xbox and xspatial but cannot utilize scene-level con-
-text denoted by SCRC wo context
-As a comparison we directly trained a SCRC model
-on ReferIt without rst pretraining on MSCOCO and set
-xspatial and Wglobal to 0 during training and testing de-
-noted by SCRC wo context spatial transfer The CNN
-parameters in the model are initialized from VGG-16 net
-29 and other parameters are randomly initialized In all
-the training above the whole SCRC model is trained end-
-to-end with SGD allowing visual feature extraction and tex-
-tual sequence prediction to be optimized jointly
-At test time all the 4 SCRC models mentioned above
-the bag-of-words model CAFFE-7K in 10 and LRCN
-4 as an object retriever on candidate boxes are compared
-on the ReferIt test set The LRCN model is trained on
-MSCOCO dataset for image captioning as described in 4
-to learn a probabilistic generative model pSI and we use
-it to score a candidate region Ibox based on a text query
-Squery by computing the probability of the text conditioned
-on the local region ie pSqueryIbox as a baseline
-We evaluate with two testing scenarios In the rst sce-
-nario similar to the experiment in 10 given an image and a
-text query the model is asked to retrieve the corresponding
-image region from all annotated regions in that image In
-the second scenario which is a harder task but closer to real
-Method
-CAFFE-7K 10
-LRCN 4
-SCRC wo context spatial transfer
-SCRC wo context spatial
-SCRC wo context
-Table 1 Top-1 precision of our method compared with baselines
-on annotated bounding boxes in ReferIt dataset See Section 41
-for details
-applications given a text query the model retrieves an image
-region from a set of candidate bounding boxes produced by
-object proposal methods A retrieved region is considered
-as correct if it overlaps with ground truth bounding box by
-at least 50 IoU In this experiment we use top 100 pro-
-posals from EdgeBox 33 as our candidate box set
-Results Table 1 shows the top-1 precision the percent-
-age of the highest-scoring region being correct in the rst
-scenario where the candidate set is all annotated boxes in
-the image Note that CAFFE-7K cannot return informative
-results when none of the words in query are in its category
-names leading to an empty bag and same score for all re-
-gions whereas our SCRC model can always return deter-
-ministic result since it can represent unknown words with
-unk Similar to 10 we evaluate with P1-NR
-corresponding to non-random top-1 precision computed on
-the those informative results and P1 corresponding to
-top-1 precision on all cases including non-informative re-
-sults where random guess is used Results show that our
-full SCRC model achieves the highest top-1 precision In
-Table 1 it can be seen that pretraining on image captioning
-adding spatial conguration and adding scene-level context
-all improve the performance with adding spatial congu-
-ration xspatial leading to the most signicant performance
-boost This is no surprise as spatial conguration not only
-benets in cases where spatial relationship is directly in-
-volved in the query eg the man on the left but also
-enables the network to learn a prior distribution of object
-locations eg sky is usually at the top of the scene while
-ground is usually at the bottom
-Table 2 shows the result of the second scenario on 100
-EdgeBox proposals where R1 is the recall of the high-
-est scoring box the percentage of the highest scoring box
-being correct and R10 is the percentage of at least one
-of the 10 highest scoring proposals being correct We also
-report Oracle or equivalently R100 the percentage
-of at least one of all 100 proposals being correct as an
-upper-bound of all object retrieval systems in this scenario
-It can be seen that results in Table 2 follow the same trend as
-in Table 1 with our full SCRC model achieving the highest
-recall Figure 5 shows examples of correctly retrieved ob-
-jects at top-1 using 100 EdgeBox proposals where the high-
-CAFFE-7K 10
-LRCN 4
-SCRC wo context spatial transfer
-SCRC wo context spatial
-SCRC wo context
-1038 2620
-859 3186
-1453 4072
-1578 4254
-1768 4477
-1793 4527
-5938 5938
-Table 2 Performance of our method compared with baselines on
-100 EdgeBox proposals in ReferIt dataset See Section 41 for
-details
-est scoring candidate region from our SCRC model overlaps
-with ground truth annotation by at least 50 IoU and Fig-
-ure 6 shows some failure cases where retrieved top-1 can-
-didate region fails to match ground truth
-By comparing SCRC wo context
-spatial and
-SCRC wo context spatial transfer in Table 1 and Ta-
-ble 2 it can also be seen that the pretraining and adaptation
-procedure described in Section 3 outperforms directly train-
-ing on retrieval dataset showing that pretraining allows the
-model to transfer useful visual-linguistic knowledge from
-image captioning dataset
-Also our SCRC model outperforms the bag-of-words
-CAFFE-7K model and LRCN model signicantly Com-
-pared with our model CAFFE-7K method suffers from in-
-formation loss by rst projecting image region to category
-names and limited vocabulary drawn from predened object
-category names and is not end-to-end trainable Although
-LRCN model trained on MSCOCO for image captioning
-task is effective for text-based image retrieval as shown in
-4 directly running it as an object retriever on a set of can-
-didate boxes results in inferior performance This is because
-object retrieval and image retrieval are different domains
-and LRCN model as a object retriever does not encode spa-
-tial conguration or global context
-Retrieval on object descriptions in context In reality
-people usually describe an object based on both the object
-itself and other objects plus the whole scene as context To
-distinguish a specic object from others in a scene espe-
-cially when there are multiple objects of the same category
-a description needs to contain not only the category name
-but also other discriminative information such as locations
-or attributes
-Figure 3 shows an example of this where one cannot re-
-fer to a person simply using category name person since
-there are three people in the scene but needs to use a de-
-scription based on the environment as query Our SCRC
-model can handle such context-based descriptions by incor-
-porating spatial congurations and scene-level context into
-the recurrent network Figure 7 shows some retrieval exam-
-ples on multiple objects within the same image on ReferIt
-18 dataset where objects are described in context
-a scene with three people queryman far right
-queryleft guy
-querycyclist
-Figure 3 An example image in ReferIt dataset where objects are described based on other objects in the scene When referring to one of
-the three people in the image expressions based on both the object and the context are used to make the description discriminative Our
-model can handle such object descriptions in context by incorporating these information into the recurrent neural network In the images
-above yellow boxes are ground truth and green boxes are correctly retrieved results by our model using highest scoring candidate from
-100 EdgeBox proposals
-Object vs stuff The ReferIt dataset contains annota-
-tions on both object regions and stuff regions In com-
-puter vision the term object is usually used to refer to en-
-tities with closed boundary and well-dened shape such as
-car person and laptop On the other hand stuff is
-used for entities without a regular shape such as grass
-road and sky
-Given an input image and a natural language query our
-SCRC model is not only capable of retrieving object re-
-gions but can also be applied to stuff regions Figure 8
-shows some examples of stuff retrieval on ReferIt dataset
-Generating descriptions for objects Although our
-SCRC model is designed for natural language object re-
-trieval
-it can also be applied in another task to gen-
-erate descriptions for the objects in an image Given
-an image Iim and the bounding box of an object a
-text description Sdes can be generated for the object
-as Sdes  arg maxS pSIbox Iim xspatial using beam
-search where Iim is the local image region of the object
-and xspatial is its spatial conguration Figure 9 shows
-some object descriptions generated by our SCRC model on
-ReferIt dataset
-42 Object retrieval evaluation on Kitchen dataset
-We also evaluate and compare our method with the base-
-line model 10 on the same Kitchen dataset as used in
-10 Kitchen is a dataset with 606 images sampled from
-the kitchenhousehold sub-tree of ImageNET hierarchy 3
-with 10 different descriptions annotated for each image
-Since objects in this dataset almost occupy the entire im-
-ages instead of using retrievals on candidate object propos-
-als boxes in 10 the performance of the object retrieval
-is evaluated at image-level During testing for each query
-text the candidate set consists of 11 images with ground
-truth and 10 distractors The distractors are sampled ei-
-CAFFE-7K 10
-LRCN 4
-SCRC wo context spatial transfer
-SCRC wo context spatial
-ImageNet
-Kitchen
-6162 8115
-Table 3 Performance of different methods on the Kitchen dataset
-See Section 42 for details
-ther from the same Kitchen dataset Kitchen experiment
-or from the whole ImageNET ImageNET experiment
-with the latter being an easier task Performance of object
-retrieval is evaluated using top-1 precision
-To evaluate our method on this dataset we split the
-dataset into two parts with 300 images as trainval set and
-306 images as test set Similar to Section 41 we rst pre-
-train a SCRC model on MSCOCO dataset 22 for image
-captioning and then ne-tune the model on the trainval
-set The our model is tested through image-level retrieval
-on the candidate set of ground truth and 10 distractors
-where we use the feature extracted from the entire image
-as xbox Since the dataset involves no spatial congurations
-or scene-level contextual information we set xspatial and
-Wglobal in Eqn 2 to zero during ne-tuning and testing so
-the model can only learn to score a candidate based xbox As
-this dataset is a much smaller than ReferIt we observe that
-transferring knowledge from MSCOCO signicantly boosts
-the performance and avoids overtting
-Results Table 3 shows the top-1 precision P1 of
-our method together with the baseline on the test set The
-rst column Kitchen corresponds to sampling the 10 dis-
-tractors from the same Kitchen dataset while the second
-column corresponds to sampling distractors from the whole
-ImageNET 7K dataset 3 Similar to Section 41 LRCN
-refers to directly running LRCN model on the candidate im-
-querywhisk with red tipped handle
-querymobile phone the pink color
-Figure 4 Correctly retrieved examples in Kitchen dataset where the highest scoring object green matches ground truth
-ages as a retriever SCRC wo context spatial transfer
-refers to the SCRC model directly trained on the trainval
-part of the Kitchen dataset with convolutional layer initial-
-ized from VGG-16 net and LSTM unit word embedding
-and word prediction weights randomly initialized SCRC
-wo context spatial corresponds to rst pretraining on
-MSCOCO and then ne-tuning on Kitchen trainval set as
-described in Section 3 As the dataset contains no spatial
-conguration or scene-level context information we cannot
-test our full SCRC model on it It can be seen from Table
-3 that in both scenarios pretraining on image captioning
-and ne-tune on natural language object retrieval leads to
-the best performance outperforming the baseline bag-of-
-words model CAFFE-7K and LRCN Figure 4 shows some
-correctly retrieved object examples from Kitchen dataset
-where the highest scoring candidate matches the ground
-truth Both the ground truth and the 10 distractor images
-are sampled from the same Kitchen dataset in Figure 4
-Moreover as Kitchen dataset has only 606 objects and is
-more than 100 times smaller than ReferIt dataset SCRC
-wo context spatial has signicantly higher accuracy
-than SCRC wo context spatial transfer This shows
-that pretraining on MSCOCO for image captioning dataset
-improves the performance of natural language object re-
-trieval signicantly on this relatively smaller dataset by
-transferring the visual-linguistic knowledge from the for-
-mer task to the latter task As a reference we note that
-10 also uses an instance model and achieves higher over-
-all performance The instance model sends the query and
-candidate image regions to online APIs such as Google Im-
-age Search and FreeBase on the y at test time As in this
-work we assume a self-contained system that can be applied
-without resorting to Internet APIs on the y we only com-
-pare with the category model CAFFE-7K in 10
-43 Object retrieval evaluation on Flickr30K Enti-
-ties dataset
-We also train and evaluate our method on the Flickr30K
-Entities dataset 25 for natural language object retrieval
-which contains 31783 images and 275775 annotated
-bounding boxes The object-level annotations in this dataset
-CCA 25
-253 597
-278 629
-769 769
-Table 4 Performance of our method compared with Canonical
-Correlation Analysis CCA baseline on 100 EdgeBox proposals
-in Flickr30K Entities dataset Oracle corresponds to the highest
-possible recall on all 100 proposals for any retrieval method
-are derived from existing scene-level captions in Flickr30K
-We train our model on the referential expressions in the
-Flickr30K dataset using the same top-100 EdgeBox 33
-proposals same as in 25 On this dataset our SCRC model
-achieves higher recall than the Canonical Correlation Anal-
-ysis CCA method in 25 as is shown in Table 4
+Identication of every single genome present in a microbial sample is an important and
+challenging task with crucial applications It is challenging because there are typically millions
+of cells in a microbial sample the vast majority of which elude cultivation The most accurate
+method to date is exhaustive single cell sequencing using multiple displacement amplication
+which is simply intractable for a large number of cells However there is hope for breaking this
+barrier as the number of dierent cell types with distinct genome sequences is usually much
+smaller than the number of cells
+Here we present a novel divide and conquer method to sequence and de novo assemble
+all distinct genomes present in a microbial sample with a sequencing cost and computational
+complexity proportional to the number of genome types rather than the number of cells The
+method is implemented in a tool called Squeezambler We evaluated Squeezambler on simulated
+data The proposed divide and conquer method successfully reduces the cost of sequencing in
+comparison with the nave exhaustive approach
+Availability Squeezambler and datasets are available under
+httpcompbiocswayneedusoftwaresqueezambler
+Introduction
+Critical applications including the Human Microbiome Project Methe et al 2012 biothreat
+detection and combating antibiotic resistant pathogens necessitate identication of all distinct
+genome sequences in a bacterial sample When prior knowledge is available about which organ-
+isms may be present in the sample ow cytometry and 16S rRNA gene sequencing may be used
+However metagenomics is usually used for analyzing the genomics of relatively abundant microbes
+when no prior knowledge is given Metagenomics consists in the study of the variation of species
+in a complex microbial sample Since the vast majority of environmental bacteria elude cultiva-
+tion metagenomics investigates microbial communities by sequencing sampled genome fragments
+To whom correspondence should be addressed
+ztaghaviwayneedu
+nargeswayneedu
+sorinwayneedu
+chitsazwayneedu
+A11 cid22 A12
+A12 cid22 A11
+A31 cid22 A34
+A33 cid22 A34
+Figure 1 The divide and conquer algorithm for an example with 10 cells and 3 distinct genomes
+shown in dierent colors Each row corresponds to one sequencing round The number of barcodes
+in each round is the number of blue boxes in the corresponding row
+without the need for culturing Such a heterogeneous pool of sequencing reads can also be assem-
+bled to yield a superposition of highly abundant genomes in the sample Treangen et al 2013
+There are two problems with metagenomics i the resulting assembly contains multiple genomes
+superimposed and ii only highly abundant genomes survive the sampling process
+Advances in DNA amplication technology have enabled whole genome sequencing directly
+from individual cells without requiring growth in culture Single cell sequencing methods have en-
+abled investigation of novel uncultured microbes Kvist et al 2007 Mussmann et al 2007 These
+culture-independent single cell studies are a powerful alternative to metagenomics studies Genomic
+sequencing from single bacterial genomes was rst demonstrated with cells isolated by ow cytom-
+etry Raghunathan et al 2005 using multiple displacement amplication MDA Dean et al
+2002 2001 Hosono et al 2003 MDA is now the preferred method for whole genome amplica-
+tion from single cells Lasken 2007 Ishoey et al 2008 The rst attempt to assemble a complete
+bacterial genome from one cell Zhang et al 2006 further explored the challenges of assembly from
+amplied DNA including amplication bias and chimeric DNA rearrangements Amplication bias
+results in orders of magnitude dierence in coverage Raghunathan et al 2005 and absence of
+coverage in some regions Chimera formation occurs during the DNA branching process by which
+the 29 DNA polymerase generates DNA amplication in MDA Lasken and Stockwell 2007 Sub-
+sequent studies continued to improve single cell assemblies Marcy et al 2007 Podar et al 2007
+Hongoh et al 2008 Rodrigue et al 2009 Woyke et al 2009 A nearly full potential of single cell
+genome assembly has recently been realized by the work of Chitsaz et al 2011 followed by those
+of Bankevich et al 2012 and Peng et al 2012
+Due to recent progress in single cell DNA amplication techniques and de novo assembly al-
+gorithms the genomes of all bacterial species in a sample can be captured one cell at a time
+However there are often millions of cells per sample in which case the nave deep sequencing of
+every cell becomes prohibitively costly Moreover it is expected that deep sequencing of every cell
+is often not necessary as the majority of biologically important samples are sparse in the sense that
+many cells are biological replicates Compressed Candes and Tao 2005 2006 Donoho 2006 and
+distilled adaptive sampling-and-renement sensing methods Haupt et al 2011 Wei and Hero
+2012 have been proposed in the last decade to exploit sparsity for reducing the cost of sens-
+ing and reconstructing signals in various spaces ranging from Banach spaces to Boolean algebras
+Erlich et al 2010 Stobbe and Krause 2012 Inspired by those advances we give an algorithm
+in this paper that exploits sample sparsity to reduce the cost of sequencing without compromising
+the accuracy of identication of all distinct genomes even the ones that are minimally represented
+in the sample
+2 Approach
+A nave approach to solve the problem which we call single cell co-assembly strategy is to amplify
+the genome of each cell barcode them individually pool them sequence in one sequencing run
+and demultiplex based on the barcode In this approach each cell should be isolated and its DNA
+extracted and amplied using multiple displacement amplication Although there is currently
+no high throughput device to perform these processes one could envision automated microuidic
+devices that will be capable of high throughput separation DNA extraction amplication and
+barcoding of single cells in the near future The output sequencing reads could then be co-assembled
+using our tool HyDA Movahedi et al 2012 In HyDA the read dataset of each cell is assigned a
+unique color All the colors are co-assembled in one colored de Bruijn graph This approach requires
+enough unique barcodes to tag the fragments of each cell Also barcodes attached to each fragment
+are sequenced which imposes additional sequencing cost Fabrication of so many unique barcodes
+becomes prohibitively expensive for a large number of cells and therefore this nave approach will
+not work
+The number of distinct genomes in a microbial community is often much less than the number
+of cells For example Qin et al 2010 estimated the number of detected distinct species in the
+human gut to be in the order of 1000 while the number of microbial cells in a human body
+most of which reside in the gut is in the order of 100 trillion We call this eect the sparsity
+of distinct genomes in a sizable microbial population The nave approach does not exploit the
+sparsity to reduce the cost of sequencing Here we proposed to exploit the spareness by adopting
+a divide and conquer strategy to reduce the amount of required barcodes and sequencing After
+isolation of each cell and extraction of the DNA every DNA is amplied and stored separately
+eg in a microuidic droplet The main idea is to sample the amplied DNAs adaptively which is
+essentially allocating sequencing and barcoding resources dynamically over the course of multiple
+sensing iterations Initially the algorithm has one group of cells which is the entire sample In each
+iteration each group is divided into two equally-sized subgroups A small amount of DNA from
+each cell in a subgroup is sampled pooled and sequenced In practice one barcode per subgroup
+is used to multiplex and demultiplex the sequencing in one run The amount of sampling from each
+cell is computed based on the results of previous iterations This is called resource allocation and
+is similar to the one proposed by Haupt et al 2011 and Wei and Hero 2012 The resulting read
+datasets one per subgroup are then co-assembled and compared using HyDA to decide pairwise
+subsumption of subgroups The cells in those subgroups that are subsumed by other subgroups
+even in previous iterations are eliminated from further analysis This procedure is continued until
+each remaining group contains only one cell The resulting non-redundant single element groups
+capture all of the distinct genome sequences
+3 Methods
+Although distinct genomes are often identied as dierent species there are numerous cases where
+distinct genomes are categorized as varied instances of the same species or even the same strain
+Instead of identication of strains and species which are currently phenotypic notions the goal
+of our approach is to nd all distinct genomes in a sample We dene two genome sequences to
+be distinct if the ratio of their dierences over the whole genome size is above a threshold That
+threshold is input by the user and controls a trade-o between sensitivity and specicity
+Co-assembly and comparison of multiple input read datasets lie at the core of both approaches
+we take in this paper While there are assembly tools for single cell genomic data such as SPAdes
+Bankevich et al 2012 and IDBA-UD Peng et al 2012 and also co-assembly tools for normal
+multicell genomic data such as Cortex Iqbal et al 2012 we use HyDA which is the only tool to
+date that has both functionalities Movahedi et al 2012 However the novel ideas proposed here
+can also be implemented using other assemblers For the sake of completeness HyDA algorithm is
+summarized in the following
+31 Co-assembly Algorithm
+311 Construction and Condensation of the Colored De Bruijn Graph
+The colored de Bruijn graph a variation of the standard de Bruijn graph is a combinatorial
+structure that can be used to assemble a number of input read datasets each represented by a
+color superimposed on a single de Bruin graph Iqbal et al 2012 The output of such assembly
+methods is a number of assembled sequences contigs and the corresponding average multiplicity
+in each color Our de Bruijn graph of the input reads is stored in a hashed collection of splay
+trees whose vertices are k-mers with an array of multiplicity counts one entry per color in- and
+out-edges and internal ags A 1-in 1-out chain of k-mers is condensed into an equivalent long
+sequence which is called a unitig A maximal unitig which cannot be extended further due to
+a branch in the graph is a contig Note that in HyDA our condensation is solely based on the
+topology of the graph without any attention to the colored multiplicities Ignoring multiplicities
+for condensation is purposefully done and constitutes the feature that allows the assembler to deal
+with black out regions in single cell multiple displacement amplication Chitsaz et al 2011
+Contigs with low coverage are often caused by sequencing error The low coverage contig
+removal process is iterated with an increased cuto in each round In each iteration those contigs
+whose maximum coverage over all colors is less than the cuto are eliminated and the remaining
+graph is recondensed This causes some contigs to merge into larger ones with recomputed average
+coverages This process is similar to Velvet-SCs low coverage contig removal but instead of
+considering one average coverage per contig HyDA considers the maximum of average coverages
+for all the colors of each contig Chitsaz et al 2011 In this case only those contigs that have
+low coverage in all colors are considered erroneous and removed Another possible approach is to
+eliminate those contigs for which the mean of average coverages for all colors is less than the cuto
+However if we were to follow this approach a contig that is well covered in one color but is poorly
+covered or absent in hundreds of colors would be lost since the mean would dilute the eect of
+coverage in one color among hundreds of colors This approach would not work for us here because
+our goal is to be able to preserve rare contigs
+312 Redundancy Removal
+To remove redundant genomes we dene a relation that is reminiscent of subset relation on the set of
+contigs for each color Note that our goal here is to remove redundant genomes which are collections
+of contigs rather than to remove individually redundant contigs Let A  a1 a2     ar be the
+set of remaining contigs after iterative error removal Let Mjai denote the average coverage of
+contig ai in color j for 1  i  r and 1  j  s where s is the number of colors Pick   0 and let
+Aj  ai  A  Mjai    A be the set of contigs for each color j The parameter  determines
+the trade-o between specicity and sensitivity We chose   0 in this study but a non-zero 
+might be needed if there are erroneous or contaminant k-mers in one color that also occur in the
+true genomic sequence of another color
+We dene D Ai Aj   R on the set F  A1 A2     As as
+D Ai Aj   
+kAiAjk
+in which AiAj  a  Aia  Aj and k  k denotes the total assembly size We dene
+Ai cid22 Aj i 0  D Ai Aj
+in which   0 Particularly cid220 becomes the subset relation and can be used to detect and remove
+redundant collections of contigs ie
+those that are subsumed by a larger collection However
+in reality the mathematical subset relation is not adequate as there are various types of noise
+including sequencing errors intrastrain variations such as SNPs and indels contaminations added
+in the amplication and sequencing process and lack of coverage in some regions caused by the
+MDA Hence the denition of subset should be loosened by choosing a small but nonzero value
+for   Beside  the value of  gives a trade-o between specicity and sensitivity of recognizing
+distinct genomes If  is small the algorithm detects two equivalent genomes as distinct and if
+ is large distinct genomes are declared equivalent To see how  is chosen refer to Sections 32
+and 42 The results are shown in Table 3 Finally we compute a non-redundant set of assemblies
+E  Ai1  Ai2     Ait  F such that for every distinct pair 1  a b  t Aia 6cid22 Aib and
+Aib 6cid22 Aia
+32 Divide and Conquer Strategy Exploiting Sparsity
+Let n be the number of cells in the sample and denote the cells by Si i  1     n Our algorithm
+aims to assemble all of the distinct genomes and identify at least one cell per distinct genome To
+reach this goal our algorithm iteratively pools samples of amplicons from dierent cells tags each
+pool with a unique barcode mixes the barcoded pools and has the result sequenced The objective
+is to minimize the total number of bases required to be sequenced as well as the number of dierent
+barcodes needed
+In the rst iteration we divide the n cells S1     Sn into two sets
+I11  S1     Sn2
+I12  Sn21     Sn
+Our algorithm samples equal amount of amplicons from each cell in I11 and I12 The amplicons in
+each set are pooled and tagged by two distinct barcodes The barcoded amplicons are sequenced
+to reach a desired number of base pairs This number is an input parameter of our algorithm
+We dene the total number of base pairs sequenced from I1i to be b1i for i  1 2 The two
+NCBI ID
+NC 0046631 Bacteroides thetaiotaomicron VPI-5482 chromosome
+NC 0096141 Bacteroides vulgatus ATCC 8482 chromosome
+NC 0096151 Parabacteroides distasonis ATCC 8503 chromosome
+NC 0085321
+NC 0167761 Bacteroides fragilis 638R
+FP9290461
+FP9290511
+FP9290531
+FP9290551
+Faecalibacterium prausnitzii SL33
+Ruminococcus bromii L2-63
+Ruminococcus sp SR15
+Ruminococcus torques L2-14
+Streptococcus thermophilus LMD-9
+Table 1 The 9 chosen species for our simulation
+Ref Status
+complete
+complete
+complete
+complete
+complete
+Size bps No of Cells
+read datasets are co-assembled by HyDA using two colors The result is two sets of contigs for each
+color A11 and A12 We calculate D1A11 A12 and D1 A12 A11 as dened in 1 in which
+1    maxj I1j  is an input parameter and    is the set cardinality We choose  to be the
+maximum allowable dierence between the assembly of two single cells from the same strain Based
+on these values we decide if the relations A11 cid221 A12 and A12 cid221 A11 hold If A11 is a subset
+of A12 then all of the distinct genomes in I11 are present in I12 therefore the cells in I11 do not
+need further sampling This applies to I12 too if A12 is a subset of A11 If both relations hold
+one of I11 or I12 is eliminated arbitrarily from further analysis Each remaining set I1 is divided
+into two subsets for analysis in the second iteration Fig 1 depicts an example of 10 cells with 3
+distinct genomes shown in dierent colors
+The same splitting process occurs in the subsequent iterations Assume Ii1     Iimi are the
+remaining sets in iteration i Each set Iij is sampled to produce bij base pairs barcoded uniquely
+pooled and sequenced All of the new sequence datasets and those obtained in all previous iterations
+are co-assembled In the co-assembly the previous datasets help to improve the assembly of the new
+ones The resulting contig set of Iij is denoted by Aij For all j k  1    mi the relations Aij cid22i
+Aik are evaluated where i is a threshold whose calculation will be explained below The cells in
+those Iij whose assemblies are subsumed will be removed from further analysis All the remaining
+ones are partitioned into two disjoint subsets Denote the new subsets by Ii11     Ii1mi1 Note
+that in iteration i mi unique barcodes are needed Therefore
+m  max
+is the maximum number of barcodes required for the entire algorithm
+Parameters bij play a key role in the algorithm We propose an adaptive calculation of bij to
+minimize without losing accuracy the total base pairs sequenced
+Assume Iij is a set that is created by dividing the set Ii1k in iteration i  1 into two We are
+motivated to choose the total number of sequenced base pairs from cells in Iij to be proportional
+to the total assembly size kAi1kk ie
+where c is an input parameter indicating the estimated average coverage of each iteration We say
+Aij are accurate enough if the partial order relation cid22i can be assessed accurately If c is large
+bij  c  kAi1kk
+and the assembly of iteration i  1 is accurate enough then in iteration i adequate base pairs are
+sequenced to allow an accurate enough assembly of set Iij
+Another factor that aects accuracy of the assessment of these relations is the choice of i
+The threshold i in the ith iteration is used to detect cells with similar genomes in spite of small
+dierences in their assemblies We propose to use the following threshold
+max1jmi Iij
+Recall that  is the maximum allowable dierence between the assembly of two single cells with
+similar genome sequences To account for the worst possible case it is assumed that there are Iij
+distinct genomes in each group Iij Therefore max1jmi Iij captures the maximum number
+of distinct genomes in Iij from any Iik With these assumptions i is a conservative threshold
+This threshold will guarantee that two distinct genomes are detected but it has the possibility
+of detecting similar genomes as distinct In the last iteration of the algorithm when every group
+consists of one cell the threshold is   Note that the number of iterations which is the number of
+sequencing rounds is always log2 n
+Implementation
+We implemented our algorithm in a tool called Squeezambler 10 in C Our tool and datasets
+are available under httpcompbiocswayneedusoftwaresqueezambler
+4 Results
+Since we did not have access to real data we tested our algorithm using simulated data We
+used our tool MDAsim 10 Taghavi and Draghici 2012 to simulate 100 multiple displacement
+amplication processes one process per cell from 9 distinct genomes The output of MDAsim 10
+was fed into an Illumina read generator ART Huang et al 2012 to generate Illumina reads with
+realistic errors from the simulated amplicons The set of generated reads for each cell were treated
+like a microuidic droplet from which samples without replacement are extracted in each iteration
+of Squeezambler 10 We assume that MDA products are contamination free which requires a
+contaminant free automated microuidic cell sorting amplication and sampling device
+41 Datasets
+Totally 115 MDAs were simulated from 9 distinct genomes chosen from the list of species found
+in a gut metagenomics study Qin et al 2010 that have a complete or draft reference genome
+Recall that we are simulating MDA from a reference genome therefore we needed a reference
+genome for the chosen species Table 1 summarizes the NCBI ID name size reference status
+complete or draft and the number of cells we have simulated The number of cells is approximately
+proportional to the abundance mean of the corresponding species in Qin et al 2010 We ran
+MDAsim 10 with a diverse set of parameters one for each cell to capture the diverse nature of
+MDA coverage bias ART an Illumina read generator was then deployed to generate 100 bps
+Illumina reads from the simulated amplicons The amplication gain of MDAsim 10 was 300
+and that of ART was 8 from which 18 were selected randomly to obtain a total gain of 300
+We assembled the dataset of each cell individually with HyDA 10 and the resulting assemblies
+have between 01 and 42 missing reference bases measured by Gage Salzberg et al 2012
+which is similar to the real world situation with a successful MDA reaction Chitsaz et al 2011
+We made an error prole that matches the error statistics of Illumina HiSeq 2000 for ART Using
+our prole ART injects on average 1 error into the reads because of which we need to eliminate
+erroneous contigs in the assembler HyDA 10 and also its predecessor Velvet-SC have an iterative
+algorithm to remove low coverage contigs which is explained in Section 311 In each iteration
+Squeezambler 10 provides HyDA 10 with a coverage cuto as a percentage of the mean coverage
+of each color That percentage is constant in all iterations
+We designed three collections of cells the statistics of which are summarized in Table 2 In the
+rst collection there are 62 cells with 6 distinct genomes In this collection we put 22 dierent MDA
+results from NC 0046631 and 22 from FP9290511 to play the role of highly abundant genomes in a
+sample as well as 1 from NC 0167761 and 2 from NC 0085321 to represent low abundance genomes
+in the same sample In the rst collection the number of distinct genomes is approximately one
+tenth of the number of cells but with a wide range of abundances The second collection is the
+sparsest collection among the three where the number of distinct genomes is approximately one
+twentieth of the number of cells The third collection is the most diverse of the three where the
+number of distinct genomes is approximately one sixteenth of the number of cells
+Table 2 Our simulation setups i 62 cells 6 species ii 97 cells 5 species and iii 112 cells 7
+species
+NCBI ID
+NC 0046631
+NC 0096141
+NC 0096151
+NC 0085321
+NC 0167761
+FP9290461
+FP9290511
+FP9290531
+FP9290551
+62 cells 6 species
+Abundance 
+97 cells 5 species
+112 cells 7 species
+42 Simulation Results
+We ran Squeezambler 10 for the three collections described above the results of which are sum-
+marized in Table 3 Most of the Squeezambler 10 parameters were the same for all three collec-
+tions The assembly inclusion threshold constant per cell was chosen   02 which means at most
+20 of the assembly can vary among multiple instances of the same genome Taking into account
+the genomic sequence loss caused by the MDA sampling of the amplicons and sequencing errors
+20 is a reasonable choice This is not an optimized value and is chosen based on the authors
+intuition We chose  conservatively in this work so that distinct genomes are not lost but some
+equivalent genomes are detected as distinct Finding the optimal value for  needs a thorough
+study which is beyond the scope of this paper
+The k-mer size for HyDA 10 was chosen to be k  55 which is a common choice for the chosen
+Illumina error prole Chitsaz et al 2011 The coverage cuto as a percentage of the coverage
+mean was chosen to be 100 and the minimum contig length was 100 bps for HyDA 10 The
+coverage mean is estimated based on the assembly size in the rst iteration which is often larger
+than the actual genome size due to a myriad of erroneous low coverage k-mers This causes the
+initially estimated coverage mean to be a small fraction of the nal coverage mean after error
+removal
+Table 3 Squeezambler 10 results for the three setups summarized in Table 2 For some methods
+we report the results for two dierent values of initial sequencing coverage per cell
+Sequencing
+Iterations
+per Cell in the
+Sequencing Barcodes
+1st Iteration
+Predicted
+Distinct
+Genomes
+single cell co-assembly
+divide and conquer
+single cell co-assembly
+single cell co-assembly
+divide and conquer
+divide and conquer
+single cell co-assembly
+single cell co-assembly
+divide and conquer
+62 cells
+6 distinct
+genomes
+97 cells
+5 distinct
+genomes
+112 cells
+7 distinct
+genomes
+b1j I1j 
+b in 4
+m in 3
+Squeezambler 10 has an option to choose the number of initial groups in the rst iteration
+g If g is chosen to be equal to the number of cells then Squeezambler 10 simulates the single
+cell co-assembly of all the cells If g  2 then Squeezambler 10 simulates the divide and conquer
+algorithm described in Section 32 Although experimenting with dierent g values may improve
+the results we do not have data for it
+Before any sequencing is done the algorithm has no idea about the genome sizes various distinct
+genomes and abundance of each genome Therefore an unbiased algorithm has to sequence from
+each cell exactly the same amount right in the 1st iteration That amount in our algorithm denoted
+by b1jI1j  is an input parameter to Squeezambler 10 which was chosen to be between 1 Mbps
+and 63 Mbps as reported in the third column of Table 3 In our setup the size of the 9 distinct
+genomes varies between 18 Mbps and 63 Mbps see Table 1 Therefore 1 Mbps sequencing
+provides between 16 and 12 coverage and 63 Mbps sequencing provides between 10 and
+35 coverage
+The input parameter c which controls the amount of sequencing in subsequent rounds was
+chosen to be c  10 which means 10 expected coverage from each genome in each collection We
+observed that in practice 10 coverage of each distinct genome provides sucient information for
+reliable evaluation of cid22 This is consistent with the Lander and Waterman 1988 analysis in which
+the statistics of gaps and contigs in terms of coverage is characterized Based on that analysis 10
+coverage yields the entire genome without gap with high probability
+Our divide and conquer algorithm exhibits signicant improvement in maximum barcodes and
+in most cases the total number of base pairs sequenced over the single cell co-assembly method
+For the 97 cells 5 distinct genomes collection our divide and conquer algorithm requires only 29
+Gbps sequencing and 10 barcodes in comparison to 30 Gbps sequencing and 97 barcodes consumed
+by the single cell co-assembly method Similarly for the 62 cells 6 distinct genomes collection our
+divide and conquer algorithm requires only 30 Gbps sequencing and 10 barcodes in comparison to
+39 Gbps sequencing and 62 barcodes required by the single cell co-assembly method Even though
+for the 112 cells 7 distinct genomes collection our divide and conquer algorithm outperforms single
+cell co-assembly in terms of the number of barcodes by 33 vs 112 it requires 71 Gbps sequencing
+which is more than that used by single cell co-assembly 35 Gbps
+In all of our experiments all distinct genomes were correctly detected Therefore our results
+exhibit ultimate sensitivity However in some experiments multiple cells with similar genomes
+were identied as distinct which is not an issue for our problem because based on the results of
+Squeezambler 10 those cells that are identied as with distinct genomes can be deeply sequenced
+and assembled afterwards For the 62 cells 6 distinct genomes collection the number of detected
+distinct genomes was between 6 and 8 For the 97 cells 5 distinct genomes collection that number
+was between 5 and 11 and for the 112 cells 7 distinct genomes collection that was between 7 and
+14 This specicity is reported in the sixth column of Table 3 Note that the number of sequencing
+rounds iterations for single cell co-assembly is always 1 and for divide and conquer with g  2
+it is log2 n
+Due to the computational intensity of MDAsim 10 HyDA 10 and Squeezambler 10 we
+report our results for only small examples in order to provide a proof of concept We also chose
+our parameters conservatively and without optimization so that we do not compromise accuracy
+Moreover our examples have in the order of 100 cells and 6 distinct genomes whereas real world
+samples are much sparser as the number of cells may be in the order of billions and the number of
+distinct genomes at most in the order of thousands Therefore we expect the reduction in the total
+sequencing and maximum barcodes to be higher for real world applications than what we report
+in this paper
 5 Conclusion
-In this paper we address natural language object re-
-trieval with Spatial Context Recurrent ConvNet SCRC a
-recurrent neural network model that scores a candidate box
-based on local image descriptors spatial congurations and
-global scene-level context We show that incorporation of
-spatial conguration and global context improves the per-
-formance of natural language object retrieval signicantly
-The recurrent network model used in our method leads to an
-end-to-end trainable scoring function which signicantly
-outperforms baseline methods
-Also we demonstrate that natural language object re-
-trieval can benet from transferring knowledge learned on
-image captioning through pretraining and adaptation As
-one of the difculties for natural language object retrieval
-systems is the lack of large datasets with object-level an-
-notation we show that this problem can be alleviated by
-exploiting datasets with image-level annotations which are
-often easier to collect than object-level descriptions As fol-
-low up to this work we show successful results by encoding
-the phrase rather than scoring it 27 and also predicting im-
-age segmentations instead of bounding boxes 14
-queryman squatting
-querystanding guy
-querybike wheels
-querywhite hat
-queryWindow with closed curtains
-queryright lake
-querybird on the left
-queryleaves of left tree
-querypillar building in the middle
-Figure 5 Correctly localized examples IoU  05 on ReferIt with EdgeBox Ground truth in yellow and correctly retrieved box in green
-queryman on right blue gloves
-querythe piece with no shadows
-queryface
-queryrock
-querywater on the right only
-querydirt patch next to car right side
-Figure 6 Failure cases IoU  05 on ReferIt with EdgeBox Ground truth in yellow and incorrectly retrieved box in red Some failures
-cases are caused by ambiguity of the query and some due to wrong annotations in the dataset
-queryfar right person
-querylady very back with white shirts
-on next to man in hat
-querylady in black shirt
-querybottom left window
-queryfenced window left of center door
-querywindow upper right
-query2 people on left
-querydude center with backpack blue
-queryguy with the tan pants and
-backpack
-querychair left
-querynice plush chair
-querylamp
-querypicture 2nd from left
-querythird picture from left
-querypicture second from right
-Figure 7 Examples on multiple objects in the same image in ReferIt showing the highest scoring candidate box correct in green incorrect
-in red from 100 EdgeBox proposals and ground truth yellow Our model retrieves the objects by taking their local descriptors spatial
-congurations and scene-level contextual information into account
-queryriver
-querysky between ags
-querygrass upper right
-querycity
-querybig gray roof at bottom
-queryrocky wall directly to the right
-of people
-queryroad in front of biking dude
-queryhill
-queryleft white sky just above dark
-mountain
-querygrass to the right of the right
-front tire
-querylake underneath the mountain
-on the left
-querymountain left side above peo-
-ples head
-querythe smoke
-querywater in the center bottom
-querysand
-Figure 8 Examples on stuff regions in ReferIt showing the highest scoring candidate box correct in green incorrect in red from 100
-EdgeBox proposals and ground truth yellow
-generated descriptionbed on left
-generated descriptionyellow car
-generated descriptionhorse
-generated descriptionman in blue shirt
-generated descriptionred backpack
-generated descriptionsnow
-generated descriptiontree on the left
-generated descriptiondoor
-generated descriptionclouds
-generated
-woman in red
-descriptionhat
-generated descriptiondesk in front of
-kid with red shirt
-generated descriptionplant in front of
-pink vase
-generated descriptionsun
-generated descriptionsky
-generated descriptiontree trunk left
-Figure 9 Generated object descriptions by our model on ReferIt The bounding box of the object is shown in yellow
-Acknowledgments
-The authors are grateful to Lisa Hendricks Jeff Don-
-ahue Subhashini Venugopalan and Coline Devin for help-
-ful feedback on drafts M Rohrbach was supported by
-a fellowship within the FITweltweit-Program of the Ger-
-man Academic Exchange Service DAAD J Feng was
-supported by NUS startup grant R263000C08133 This
-work was supported by DARPA AFRL DoD MURI
-award N000141110688 NSF awards IIS-1427425 and IIS-
-1212798 and the Berkeley Vision and Learning Center
+We presented an adaptive divide and conquer algorithm for distilled sequencing and de novo as-
+sembly of distinct genomes in a bacterial community eg human gut microbiome Samples derived
+from such communities are often sparse in the sense that the number of distinct genomes is much
+less than the number of cells Our algorithm exploits sparsity to decrease the amount of sequencing
+and the number of multiplexing barcodes needed for single cell sequencing and de novo assembly
+We implemented our algorithm in a tool which we call Squeezambler and performed simulation
+experiments to demonstrate its power Our results show that i the number of required barcodes
+with our divide and conquer algorithm is less than that required by the nave approach and that
+ii the amount of sequencing needed remains the same or decreases Due to the computational
+intensity of the problem only small examples with low sparsity were studied in this work Real
+world samples are much sparser  1000 species in  1014 cells than the examples here  5 species
+in  100 cells Also the parameters used to run our tool were chosen conservatively and without
+optimization Therefore we expect the improvement of our algorithm to be higher than what we
+reported in this paper in real world situations Squeezambler 10 identies all distinct genomes
+in the sample which are candidates for dierent strainsspecies Those cells that are identied
+as having distinct genomes need to be subsequently deeply sequenced and assembled in order to
+obtain a more detailed assembly
+Acknowledgement
+This work has been partially supported by the following grants NIH RO1 DK089167 NIH STTR
+R42GM087013 and NSF DBI-0965741 to SD Any opinions ndings and conclusions or rec-
+ommendations expressed in this material are those of the authors and do not necessarily represent
+the views of any of the funding agencies
 References
-1 R Arandjelovic and A Zisserman Multiple queries for large
-scale specic object retrieval In Proceedings of the British
-Machine Vision Conference BMVC pages 111 2012 2
-2 T Dean M Ruzon M Segal J Shlens S Vijaya-
-narasimhan J Yagnik et al Fast accurate detection of
-In Computer
-100000 object classes on a single machine
-Vision and Pattern Recognition CVPR 2013 IEEE Confer-
-ence on pages 18141821 IEEE 2013 1
-3 J Deng W Dong R Socher L-J Li K Li and L Fei-
-Imagenet A large-scale hierarchical image database
-In Computer Vision and Pattern Recognition 2009 CVPR
-2009 IEEE Conference on pages 248255 IEEE 2009 5
-4 J Donahue L Anne Hendricks
-S Guadarrama
-M Rohrbach S Venugopalan K Saenko and T Dar-
-rell Long-term recurrent convolutional networks for visual
-In Proceedings of the IEEE
-recognition and description
-Conference on Computer Vision and Pattern Recognition
-pages 26252634 2015 2 3 4 5 6 7
-5 H J Escalante C A Hernandez J A Gonzalez A Lopez-
-Lopez M Montes E F Morales L E Sucar L Villasenor
-and M Grubinger The segmented and annotated iapr tc-
-12 benchmark Computer Vision and Image Understanding
-1144419428 2010 5
-6 A Frome G S Corrado J Shlens S Bengio J Dean
-T Mikolov et al Devise A deep visual-semantic embed-
-ding model In Advances in Neural Information Processing
-Systems pages 21212129 2013 3
-7 R Girshick Fast R-CNN In International Conference on
-Computer Vision ICCV 2015 1 4
-8 R Girshick J Donahue T Darrell and J Malik Rich fea-
-ture hierarchies for accurate object detection and semantic
-segmentation In Computer Vision and Pattern Recognition
-CVPR 2014 IEEE Conference on pages 580587 IEEE
-2014 1 4
-9 M Grubinger P Clough H Muller and T Deselaers The
-iapr tc-12 benchmark A new evaluation resource for visual
-information systems In International Workshop OntoImage
-pages 1323 2006 5
-10 S Guadarrama E Rodner K Saenko N Zhang R Farrell
-J Donahue and T Darrell Open-vocabulary object retrieval
-In Robotics Science and Systems 2014 2 5 6 7 8
-11 S Hochreiter and J Schmidhuber Long short-term memory
-Neural computation 9817351780 1997 3
-12 J Hoffman S Guadarrama E S Tzeng R Hu J Donahue
-R Girshick T Darrell and K Saenko Lsda Large scale
-detection through adaptation In Advances in Neural Infor-
-mation Processing Systems pages 35363544 2014 1
-13 S C Hoi W Liu M R Lyu and W-Y Ma Learning dis-
-tance metrics with contextual constraints for image retrieval
-In Computer Vision and Pattern Recognition 2006 IEEE
-Computer Society Conference on volume 2 pages 2072
-2078 IEEE 2006 3
-14 R Hu M Rohrbach and T Darrell Segmentation from nat-
-ural language expressions arXiv preprint arXiv160306180
-2016 8
-15 Y Jia E Shelhamer J Donahue S Karayev J Long R B
-Girshick S Guadarrama and T Darrell Caffe Convolu-
-tional architecture for fast feature embedding In ACM Mul-
-timedia volume 2 page 4 2014 5
-16 A Karpathy and L Fei-Fei Deep visual-semantic align-
-In Proceedings
-ments for generating image descriptions
-of the IEEE Conference on Computer Vision and Pattern
-Recognition CVPR 2015 2
-17 A Karpathy A Joulin and L Fei-Fei Deep fragment em-
-beddings for bidirectional image sentence mapping In Ad-
-vances in Neural Information Processing Systems NIPS
-2014 2
-18 S Kazemzadeh V Ordonez M Matten and T L Berg
-Referitgame Referring to objects in photographs of natural
-scenes In Proceedings of the 2014 Conference on Empirical
-Methods in Natural Language Processing EMNLP pages
-787798 2014 5 6
-19 R Kiros R Salakhutdinov and R S Zemel Unifying
-visual-semantic embeddings with multimodal neural lan-
-guage models Transactions of the Association for Compu-
-tational Linguistics TACL 2015 3
-20 B Klein G Lev G Sadeh and L Wolf Fisher vectors
-derived from hybrid gaussian-laplacian mixture models for
-image annotation arXiv preprint arXiv14117399 2014 3
-21 C Kong D Lin M Bansal R Urtasun and S Fidler What
-are you talking about text-to-image coreference In Com-
-puter Vision and Pattern Recognition CVPR 2014 IEEE
-Conference on pages 35583565 IEEE 2014 2
-22 T-Y Lin M Maire S Belongie J Hays P Perona D Ra-
-manan P Dollar and C L Zitnick Microsoft coco Com-
-In Computer VisionECCV 2014
-mon objects in context
-pages 740755 Springer 2014 2 5 7
-23 J Mao J Huang A Toshev O Camburu A Yuille and
-K Murphy Generation and comprehension of unambiguous
-object descriptions Computer Vision and Pattern Recogni-
-tion CVPR 2016 IEEE Conference on 2016 2
-24 J Mao W Xu Y Yang J Wang Z Huang and A Yuille
-Deep captioning with multimodal recurrent neural networks
-m-rnn In Proceedings of the International Conference on
-Learning Representations 2015 2 3
-25 B Plummer L Wang C Cervantes J Caicedo J Hock-
-enmaier and S Lazebnik
-Flickr30k entities Collect-
-ing region-to-phrase correspondences for richer image-to-
-sentence models In Proceedings of the IEEE International
-Conference on Computer Vision ICCV 2015 2 8
-26 M Ren R Kiros and R Zemel Image question answering
-A visual semantic embedding model and a new dataset In
-Advances in Neural Information Processing Systems NIPS
-2015 2
-27 A Rohrbach M Rohrbach R Hu T Darrell and
-B Schiele Grounding of textual phrases in images by re-
-construction arXiv preprint arXiv151103745 2015 2 8
-28 O Russakovsky J Deng H Su J Krause S Satheesh
-S Ma Z Huang A Karpathy A Khosla M Bernstein
-et al Imagenet large scale visual recognition challenge In-
-ternational Journal of Computer Vision pages 142 2014
-29 K Simonyan and A Zisserman Very deep convolutional
-networks for large-scale image recognition arXiv preprint
-arXiv14091556 2014 4 5
-30 O Vinyals A Toshev S Bengio and D Erhan Show and
-tell A neural image caption generator In Proceedings of the
-IEEE Conference on Computer Vision and Pattern Recogni-
-tion pages 31563164 2015 2
-31 K Xu J Ba R Kiros A Courville R Salakhutdinov
-R Zemel and Y Bengio Show attend and tell Neural im-
-age caption generation with visual attention Proceedings of
-the International Conference on Machine Learning ICML
-2015 2
-32 P Young A Lai M Hodosh and J Hockenmaier From im-
-age descriptions to visual denotations New similarity met-
-rics for semantic inference over event descriptions Transac-
-tions of the Association for Computational Linguistics 267
-78 2014 8
-33 C L Zitnick and P Dollar Edge boxes Locating object pro-
-posals from edges In Proceedings of the European Confer-
-ence on Computer Vision ECCV pages 391405 Springer
-2014 2 3 6 8
+Bankevich A et al 2012 SPAdes A New Genome Assembly Algorithm and Its Applications
+to Single-Cell Sequencing J Comput Biol 195 455477
+Candes E and Tao T 2005 Decoding by linear programming IEEE Transactions on Informa-
+tion Theory 5112 42034215
+Candes E and Tao T 2006 Near-optimal signal recovery from random projections Universal
+encoding strategies IEEE Transactions on Information Theory 5212 54065425
+Chitsaz H et al 2011 Ecient de novo assembly of single-cell bacterial genomes from short-read
+data sets Nature Biotech 2910 915921
+Dean F B et al 2001 Rapid amplication of plasmid and phage DNA using Phi 29 DNA
+polymerase and multiply-primed rolling circle amplication Genome Res 11 10951099
+Dean F B et al 2002 Comprehensive human genome amplication using multiple displacement
+amplication Proc Natl Acad Sci USA 99 52615266
+Donoho D 2006 Compressed sensing Information Theory IEEE Transactions on 524 1289
+1306
+Erlich Y et al 2010 Compressed genotyping Information Theory IEEE Transactions on
+562 706 723
+Haupt J et al 2011 Distilled sensing Adaptive sampling for sparse detection and estimation
+IEEE Transactions on Information Theory 579 62226235
+Hongoh Y et al 2008 Complete genome of the uncultured Termite Group 1 bacteria in a single
+host protist cell Proc Natl Acad Sci USA 105 55555560
+Hosono S et al 2003 Unbiased whole-genome amplication directly from clinical samples
+Genome Res 13 954964
+Huang W et al 2012 ART a next-generation sequencing read simulator Bioinformatics
+284 593594
+Iqbal Z et al 2012 De novo assembly and genotyping of variants using colored de bruijn graphs
+Nat Genetics 44 226  232
+Ishoey T et al 2008 Genomic sequencing of single microbial cells from environmental samples
+Curr Opin Microbiol 11 198204
+Kvist T et al 2007 Specic single-cell isolation and genomic amplication of uncultured
+microorganisms Appl Microbiol Biotechnol 74 926935
+Lander E S and Waterman M S 1988 Genomic mapping by ngerprinting random clones a
+mathematical analysis Genomics 2 231239
+Lasken R S 2007 Single-cell genomic sequencing using Multiple Displacement Amplication
+Curr Opin Microbiol 10 510516
+Lasken R S and Stockwell T B 2007 Mechanism of chimera formation during the Multiple
+Displacement Amplication reaction BMC Biotechnol 7 19
+Marcy Y et al 2007 Dissecting biological dark matter with single-cell genetic analysis of rare
+and uncultivated TM7 microbes from the human mouth Proc Natl Acad Sci USA 104
+1188911894
+Methe B A et al 2012 A framework for human microbiome research Nature 4867402
+215221
+Movahedi N S et al 2012 De novo co-assembly of bacterial genomes from multiple single cells
+In IEEE Conference on Bioinformatics and Biomedicine pages 561565
+Mussmann M et al 2007 Insights into the genome of large sulfur bacteria revealed by analysis
+of single laments PLoS Biol 5 e230
+Peng Y et al 2012 IDBA-UD a de novo assembler for single-cell and metagenomic sequencing
+data with highly uneven depth Bioinformatics 2811 14201428
+Podar M et al 2007 Targeted access to the genomes of low-abundance organisms in complex
+microbial communities Appl Environ Microbiol 73 32053214
+Qin J et al 2010 A human gut microbial gene catalogue established by metagenomic sequenc-
+ing Nature 4647285 5965
+Raghunathan A et al 2005 Genomic DNA amplication from a single bacterium Appl
+Environ Microbiol 71 33423347
+Rodrigue S et al 2009 Whole genome amplication and de novo assembly of single bacterial
+cells PLoS ONE  4 e6864
+Salzberg S L et al 2012 GAGE A critical evaluation of genome assemblies and assembly
+algorithms Genome Res 223 557567
+Stobbe P and Krause A 2012 Learning fourier sparse set functions Journal of Machine
+Learning Research - Proceedings Track  22 11251133
+Taghavi Z and Draghici S 2012 Mdasim A multiple displacement amplication simulator In
+IEEE Conference on Bioinformatics and Biomedicine pages 575578
+Treangen T J et al 2013 MetAMOS a modular and open source metagenomic assembly and
+analysis pipeline Genome Biol 141 R2
+Wei D and Hero A 2012 Multistage adaptive estimation of sparse signals In IEEE Statistical
+Signal Processing Workshop SSP pages 153156
+Woyke T et al 2009 Assembling the marine metagenome one cell at a time PLoS ONE  4
+Zhang K et al 2006 Sequencing genomes from single cells by polymerase cloning Nat Biotech-
+nol 24 680686
