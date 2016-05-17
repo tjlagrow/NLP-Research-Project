@@ -36,7 +36,15 @@ def searching():
         with open(os.path.join("Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
-            tokens = nltk.word_tokenize(raw)
+            mod_raw = []
+            for character in raw:
+                if character.isalnum() or character == " ":
+                    mod_raw.append(character)
+
+            new_raw = ""
+            new_raw = new_raw.join(mod_raw)
+            tokens = nltk.word_tokenize(new_raw)
+
             # print(len(tokens))
             # print(tokens[:10])
 
@@ -57,17 +65,6 @@ def searching():
             keys = fdist.keys()
             stopwords = nltk.corpus.stopwords.words('english')
             clean = []
-            '''
-            for bigram in keys:
-                if bigram[0] not in stopwords:
-                    if bigram[1] not in stopwords:
-                        if bigram[2] not in stopwords:
-                            if bigram[3] not in stopwords and bigram[3] in interesting_words:
-                                if bigram[4] not in stopwords:
-                                    if bigram[5] not in stopwords:
-                                        if bigram[6] not in stopwords:
-                                            clean.append(bigram)
-            '''
 
             for bigram in keys:
                 if bigram[6] in interesting_words or bigram[5] in interesting_words or bigram[7] in interesting_words:
