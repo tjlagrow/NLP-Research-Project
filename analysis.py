@@ -63,16 +63,16 @@ def searching():
             trigrams = nltk.ngrams(text, n=15)
             fdist = nltk.FreqDist(trigrams)
             keys = fdist.keys()
-            stopwords = nltk.corpus.stopwords.words('english')
             clean = []
 
             for bigram in keys:
                 if bigram[6] in interesting_words or bigram[5] in interesting_words or bigram[7] in interesting_words:
                     clean.append(bigram)
-            clean = clean[:20]
             print("Ngrams")
             print(clean)
             print(fdist.most_common(20))
+            with open("ngram-intermediate.txt", "w") as outputty:
+                outputty.write('\n'.join('{} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14]) for x in clean))
 
             for word in interesting_words:
                 print(word)
