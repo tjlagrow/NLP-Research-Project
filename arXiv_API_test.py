@@ -31,9 +31,13 @@ links_file = open('links_for_pdfs.txt', 'w')
 base_url = 'http://export.arxiv.org/api/query?';
 
 # Search parameters
-search_query = 'galaxy+evolution&in=grp_physics' # search for electron in all fields
+search_query = 'natural+language+processing&in=grp_cs' #cs 355
+#search_query = 't+cell+receptor+genome&in=grp_q-bio' #biology 231
+#search_query = 'galaxy+evolution&in=grp_physics' #pysucs 231
+#search_query = 'hawkes+processes&in=grp_math' #math 166
+
 start = 0                     # retreive the first 5 results
-max_results = 365
+max_results = 100
 
 query = 'search_query=%s&start=%i&max_results=%i' % (search_query,
                                                      start,
