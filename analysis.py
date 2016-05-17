@@ -52,7 +52,7 @@ def searching():
                             }).execute()
             ### End Example #####
 
-            trigrams = nltk.trigrams(text)
+            trigrams = nltk.ngrams(text, n=7)
             fdist = nltk.FreqDist(trigrams)
             keys = fdist.keys()
             stopwords = nltk.corpus.stopwords.words('english')
@@ -61,11 +61,17 @@ def searching():
             for bigram in keys:
                 if bigram[0] not in stopwords:
                     if bigram[1] not in stopwords:
-                        clean.append(bigram)
+                        if bigram[2] not in stopwords:
+                            if bigram[3] not in stopwords:
+                                if bigram[4] not in stopwords:
+                                    if bigram[5] not in stopwords:
+                                        if bigram[6] not in stopwords:
+                                            clean.append(bigram)
 
             clean = clean[:20]
-            print("Trigrams")
+            print("Ngrams")
             print(clean)
+            print(fdist.most_common(20))
 
             for word in interesting_words:
                 print(word)

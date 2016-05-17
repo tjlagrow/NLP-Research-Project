@@ -2,6 +2,10 @@ __author__ = 'jacob'
 
 
 import os
+import nltk
+import peewee
+import pdfminer.pdfinterp
+
 
 os.system("python2 arXiv_API_test.py")
 os.system("python2 download_pdf.py")
