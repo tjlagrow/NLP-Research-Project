@@ -138,7 +138,7 @@ def noun_parsing():
                     output.write("{}\n".format(entry[0]))
         with open("wordcloud.txt", "r") as input:
             text = input.read()
-            wordcloud_make(text, "astrophysics", "helix.png")
+            wordcloud_make(text, "astrophysics", "volanic-eruption-clipart-1.jpg")
         print(nounsDic)
         with open("Final.txt", "a") as file:
                 file.write("{}{}".format(nounsDic, "\n"))
