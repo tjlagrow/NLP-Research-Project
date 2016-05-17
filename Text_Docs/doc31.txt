@@ -1,0 +1,1224 @@
+Natural Language Semantics and Computability
+Richard Moot1 and Christian Retore2
+1 CNRS LaBRI
+2 Universite de Montpellier  LIRMM
+Abstract This paper is a reexion on the computability of natural language se-
+mantics It does not contain a new model or new results in the formal semantics
+of natural language it is rather a computational analysis of the logical models
+and algorithms currently used in natural language semantics dened as the map-
+ping of a statement to logical formulas  formulas because a statement can be
+ambiguous We argue that as long as possible world semantics is left out one can
+compute the semantic representations of a given statement including aspects of
+lexical meaning We also discuss the algorithmic complexity of this process
+Introduction
+In the well-known Turing test for articial intelligence a human interrogator needs
+to decide via a question answering session with two terminals which of his two inter-
+locutors is a man and which is a machine Turing 1950 Although early systems like
+Eliza based on matching word patterns may seem clever at rst sight
+they clearly do
+not pass the test One often forgets that in addition to reasoning and access to knowl-
+edge representation passing the Turing test presupposes automated natural language
+analysis and generation which despite signicant progress in the eld has not yet been
+fully achieved These natural language processing components of the Turing test are of
+independent interest and used in computer programs for question answering and trans-
+lation however since both of these tasks are generally assumed to be AI-complete it is
+unlikely that a full solution for these problems would be simpler than a solution for the
+Turing test itself
+If we dene the semantics of a sequence of sentences  as the mapping to a
+representation    that can be used by a machine for natural language processing
+tasks two very different ideas of semantics come to mind
+1 One notion of semantics describes what the sentences speaks about The domi-
+nant model for this type of semantics represents meaning using word vectors only
+involving referentialfull words nouns adjectives verbs adverbs    and not gram-
+matical words which represent what  speaks about This is clearly computable
+One must x a thesaurus of n words that acts as a vector basis Usually words not in
+the thesaurus or basis are expanded into their denition with words in the thesaurus
+By counting occurrences of words from the thesaurus in the text substituting words
+not in the thesaurus with their denition and turning this into a n-dimensional vec-
+tor reduced to be of euclidian norm 1 we obtain word meanings in the form of
+n-dimensional vectors This notion of semantics provides a useful measure of se-
+mantic similarity between words and texts typical applications include exploring
+Big Data and nding relevant pages on the internet This kind of semantics models
+what a word or a text speaks about
+2 The other notion of semantics the one this paper is about is of a logical nature It
+models what is asserted refuted    assumed by the sentences According to this
+view computational semantics is the mapping of sentences to logical formulas
+This is usually done compositionally according to Freges principle the meaning
+of a compound expression is a function of the meaning of its components to which
+Montague added and of its syntactic structure This paper focuses on this logical
+and compositional notion of semantics and its extension by us and others to lexical
+semantics these extensions allow us to conclude from a sentence like I started a
+book that the speaker started reading or depending on the context writing a
+We should comment that in our view semantics is a computable function from
+sentences to logical formulae since this viewpoint is not so common in linguistics
+ Cognitive sciences also consider the language faculty as a computational device
+and insist on the computations involved in language analysis and production Ac-
+tually there are two different views of this cognitive and computational view one
+view promoted by authors such as Pinker 1994 claims that there is a specic
+cognitive function for language a language module in the mind while others
+like Langacker 2008 think that our language faculty is just our general cognitive
+abilities applied to language
+ In linguistics and above all in philosophy of language many people think that sen-
+tences cannot have any meaning without a context such a context involving both
+linguistic and extra-linguistic information Thus according to this view the input
+of our algorithm should include context Our answer is rstly that linguistic context
+is partly taken into account since we are able to produce in addition to formulae
+discourse structures Regarding the part of context that we cannot take into account
+be it linguistic or not our answer is that it is not part of semantics but rather an
+aspect of pragmatics And as argued by Corblin 2013 if someone is given a few
+sentences on a sheet of paper without any further information he starts imagining
+situations may infer other statements from what he reads     and such thoughts
+are the semantics of the sentence
+ The linguistic tradition initiated by Montague 1974 lacks some coherence regard-
+ing computability On the one hand Montague gives an algorithm for parsing sen-
+tences and for computing their meaning as a logical formula On the other hand he
+asserts that the meaning of a sentence is the interpretation of the formula in possible
+worlds but these models are clearly uncomputable Furthermore according to him
+each intermediate step including the intensionalmodal formulae should be forgot-
+ten and the semantics is dened as the set of possible worlds in which the semantic
+formula is true this cannot even be nitely described except by these intermediate
+formulas a fortiori it cannot be computed Our view is different for at least three
+reasons from the weakest to the strongest
+ Models for higher order logic as in Montague are not as simple as is some-
+times assumed and they do not quite match the formulas completeness fails
+This means that a model and even all models at once contains less information
+than the formula itself
+ We do not want to be committed to any particular interpretation Indeed there
+are alternative relevant interpretations of formulas as the following non ex-
+haustive list shows dialogical interpretations that are the sets of proofs andor
+refutations game theoretic semantics and ludics related to the former style
+of interpretation set of consequences of the formula structures inhabited by
+their normal proofs as in intuitionistic logic
+ Interpreting the formulas is no longer related to linguistics although some
+interpretations might useful for some applications Indeed once you have a a
+formula interpreting it in your favourite way is a purely logical question De-
+ciding whether it is true or not in a model computing all its proofs or all its
+refutations dening game strategies computing its consequences or the cor-
+responding structure has nothing to do with the particular natural language
+statement you started with
+1 Computational semantics a la Montague
+We shall rst present the general algorithm that maps sentences to logical formulae
+returning to lexical semantics in Section 2 The rst step is to compute a syntactic
+analysis that is rich and detailed enough to enable the computation of the semantics
+in the form of logical formulae The second step is to incorporate the lexical lambda
+terms and to reduce the obtained lambda term  this step possibly includes the choice
+of some lambda terms from the lexicon that x the type mismatches
+11 Categorial syntax
+In order to express the process that maps a sentence to its semantic interpretations
+in the form of logical formulae we shall start with a categorial grammar This is not
+strictly necessary Montague 1974 used a context free grammar augmented with a
+mechanism for quantier scope but if one reads between the lines at some points he
+converts the phrase structure into a categorial derivation so we shall following Moot 
+Retore 2012 directly use a categorial analysis Although richer variants of categorial
+grammars are possible and used in practice we give here an example with Lambek
+grammars and briey comment on variants later
+Categories are freely generated from a set of base categories for example np noun
+phrase n common noun S sentence by two binary operators  and  AB and
+B A are categories whenever A and B are categories A category AB intuitively looks
+for a category A to its left in order to form a B Similarly a category B A combines
+with an A to its right to form a B The full natural deduction rules are shown in Figure 1
+A lexicon provides for each word w of the language a nite set of categories lexw
+We say a sequence of words w1    wn is of type C whenever ici  lexwi c1    cn cid96
+C Figure 2 shows an example lexicon top and a derivation of a sentence bottom
+  cid96 B
+ cid96 A  cid96 AB e
+ cid96 B A  cid96 A e
+  cid96 B
+A cid96 B i
+ cid96 AB
+ A cid96 B i
+ cid96 B A
+Fig 1 Natural deduction proof rules for the Lambek calculus
+Word Syntactic Type
+cartoon n
+watched npS np
+every S npS n
+a S npS n
+S npS n
+S npS
+watched
+npS np
+npS e
+S npS n
+cartoon
+S npS e
+Fig 2 Lexicon and example derivation
+12 From syntactic derivation to typed linear lambda terms
+Categorial derivations being a proper subset of derivations in multiplicative intu-
+itionistic linear logic correspond to simply typed linear lambda terms This makes the
+connection to Montague grammar particularly transparent
+Denoting by e the set of entities or individuals and by t the type for propositions
+these can be either true or false hence the name t one has the following mapping from
+syntactic categories to semanticlogical types
+Syntactic type  Semantic type
+S  t
+np  e
+n  e  t
+a sentence is a proposition
+a noun phrase is an entity
+a noun is a subset of the set of entities maps entities
+to propositions
+AB  B A  A  B extends easily to all syntactic categories
+Using this translation of categories into types which forgets the non commutativity
+the Lambek calculus proof of Figure 2 is translated to the linear intuitionistic proof
+shown in Figure 3 we have kept the order of the premisses unchanged to highlight the
+similarity with the previous proof Such a proof can be viewed as a simply typed lambda
+term with the two base types e and t
+aetett cartoonet  yeeveryetett kidet watchedeet y
+e  t  e  t  t
+e  t  t
+e  t e
+t i1
+e  t
+watched
+e  e  t
+e  t e
+e  t  e  t  t
+e  t  t e
+cartoon
+e  t e
+Fig 3 The multiplicative linear logic proof corresponding to Figure 2
+As observed by Church 1940 the simply typed lambda calculus with two types e
+and t is enough to express higher order logic provided one introduces constants for the
+logical connectives and quantiers that is a constants  and  of type e  t  t
+and constants   et  of type t  t  t
+In addition to the syntactic lexicon there is a semantic lexicon that maps any word
+to a simply typed lambda term with atomic types e and t and whose type is the transla-
+tion of its syntactic formula Figure 4 presents such a lexicon for our current example
+For example the word every is assigned formula S npS n According to the
+translation function above we know the corresponding semantic term must be of type
+e  t  e  t  t as it is in Figure 3 The term we assign in in the seman-
+tic lexicon is the following both the type and the term are standard in a Montagovian
+setting
+ Pet  Qet ett  xettt P xQ x
+Unlike the lambda terms computed for proof the lexical entries in the semantic lexicon
+need not be linear the lexical entry above is not a linear lambda term since the single
+abstraction binds two occurrences of x
+Similarly the syntactic type of a the formula S npS n has corresponding
+semantic type e  t  e  t  t though syntactically different a subject and
+an object generalized quantier have the same semantic type and the following lexical
+meaning recipe
+ Pet  Qet ett  xetttP xQ x
+Finally kid cartoon and watched are assigned the constants kidet
+cartoonet and watchedeet respectively
+syntactic type u
+semantic type u
+semantics -term of type u
+S npS n subject
+e  t  e  t  t
+ Pet  Qet ett  xettt P xQ x
+S npS n object
+e  t  e  t  t
+ Pet  Qet ett  xetttP xQ x
+e  t
+ xekidet x
+e  t
+ xecartoonet x
+watched npS np
+e  e  t
+ ye  xe watchedeet x y
+cartoon n
+Fig 4 Semantic lexicon for our example grammar
+Because the types of these lambda terms are the same as those of the words in
+the initial lambda term we can take the linear lambda term associated with the sen-
+tence and substitute for each word its corresponding lexical meaning transforming the
+derivational semantics in our case the following3
+aetett cartoonet  yeeveryetett kidet watchedeet y
+into an unreduced representation of the meaning of the sentence
+ Pet  Qet ett  xetttP xQ x cartoon
+et xwatched
+ ye Pet  Qet ett  xettt P xQ x kid
+3 There are exactly two non-equivalent proofs of this sentence The second proof using the
+same premisses corresponds to the second more prominent reading of the sentence whose
+lambda term is every kid xea cartoon yewatched y x
+et 
+eety
+The above term reduces to
+ett  xetttcartoon xett  zettt kid zwatched xz
+that is4 xcartoonxzkidz  watchedzx
+The full algorithm to compute the semantics of a sentence as a logical formula is
+shown in Figure 5
+multiplicative intuitionistic linear logic proof
+Lambek calculus proof
+Curry-Howard
+linear lambda term
+Substitute the lexical simply typed
+but not necessarily linear lambda terms
+Target language
+Higher-Order Logic HOL as Montague
+Fig 5 The standard categorial grammar method for computing meaning
+2 Adding sorts coercions and uniform operations
+Montague as Frege only used a single type for entities e But it is much better to
+have many sorts in order to block the interpretation of some sentences
+1  The table barked
+2 The dog barked
+The sergeant barked
+is correctly rejected one gets barkdogt the tableartifact and dog cid54 artifact
+As dictionaries say barked can be said from animals usually dogs The rst one
+However we need to enable the last example barkdogt the sergeanthuman and
+in this case we use coercions Bassac et al 2010 Retore 2014 the lexical entry for the
+verb barked which only applies to the sort of dogs provides a coercion c  human 
+dog from human to dog The revised lexicon provides each word with the lambda
+term that we saw earlier typed using some of the several sorts  base type and some
+optional lambda terms that can be used if needed to solve type mismatches
+Such coercions are needed to understand sentences like
+4 We use the standard convention to translate a term pyx into a predicate pxy
+4 This book is heavy
+5 This book is interesting
+6 This book is heavy and interesting
+7 Washington borders the Potomac
+8 Washington attacked Iraq
+9  Washington borders the Potomac and attacked Iraq
+multiplicative intuitionistic linear logic proof
+Lambek calculus proof
+Curry-Howard
+linear lambda term
+coercions
+Substitute the lexical Tyn terms
+Solve type mismatches by the coercions provided by the lexicon
+Target language
+Higher-Order Logic HOL as Montague
+Fig 6 Computing meaning in a framework with coercion
+The rst two sentences will respectively use a coercions from book to physical ob-
+ject and a coercion from books to information Any time an object has several related
+meanings one can consider the conjunction of properties referring to those particular
+aspects For these operations and others acting uniformly on types we exploit poly-
+morphically typed lambda terms system F When the related meanings of a word are
+incompatible this is usually the case the corresponding coercions are declared to be in-
+compatible in the lexicon one is declared as rigid This extended process is described
+in Figure 6 Some remarks on our use of system F
+ We use it for the syntax of semantics aka metalogic glue logic
+ The formulae of semantics are the usual ones many sorted as in Tyn
+ We have a single constant for operations that act uniformly on types like quantiers
+or conjunction over predicates that apply to different facets of a given word
+3 Complexity of the syntax
+As we remarked before when computing the formal semantics of a sentence in
+the Montague tradition we at least implicitly construct a categorial grammar proof
+Therefore we need to study the complexity of parsingtheorem proving in categorial
+grammar rst The complexity generally studied in this context is the complexity of de-
+ciding about the existence of a proof a parse for a logical statement a natural language
+sentence as a function of the number of words in this sentence5
+Perhaps surprisingly the simple product-free version of the Lambek calculus we
+have used for our examples is already NP-complete Savateev 2009 However there is
+a notion of order which measures the level of nesting of the implications as dened
+orderp  0
+orderAB  orderBA  maxorderA orderB  1
+As an example the order of formula npSnp is 1 whereas the order of for-
+mula SnpS is 2 For the Lambek calculus the maximum order of the formulas in a
+grammar is a good indication of its complexity Grammars used for linguistic purposes
+generally have formulas of order 3 or at most 4 We know that once we bound the order
+of formulas in the lexicon of our grammars to be less than a xed n parsing becomes
+polynomial for any choice of n Pentus 20106
+The NP-completeness proof of Savateev 2009 uses a reduction from SAT where
+a SAT problem with c clauses and v variables produces a Lambek grammar of order
+3  4c with 2c  13v  1 atomic formulas
+The notion of order therefore provides a neat indicator of the complexity the NP-
+completeness proof requires formulas of order 7 and greater whereas the formulas used
+for linguistic modelling are of order 4 or less
+Even though the Lambek calculus is a nice and simple system we know that the
+Lambek calculus generates only context-free languages Pentus 1995 and there is
+good evidence that at least some constructions in natural language require a slightly
+larger class of languages Shieber 1985 One inuential proposal for such a larger class
+of languages are the mildly context-sensitive languages Joshi 1985 characterised as
+follows
+ contains the context-free languages
+ limited cross-serial dependencies ie includes anbncn but maybe not anbncndnen
+ semilinearity a language is semilinear iff there exists a regular language to which
+it is equivalent up to permutation
+ polynomial xed recognition7
+5 For many algorithms the complexity is a function of the number of atomic subformulas of the
+formulas in the sentence Empirically estimation shows the number of atomic formulas is a bit
+over twice the number of words in a sentence
+6 For the algorithm of Pentus 2010 the order appears as an exponent in the worst-case com-
+plexity for a grammar of order n there is a multiplicative factor of 25n1 So though polyno-
+mial this algorithm is not necessarily efcient
+7 The last two items are sometimes stated as the weaker condition constant growth instead
+of semilinearity and the stronger condition of polynomial parsing instead of polynomial xed
+recognition Since all other properties are properties of formal languages we prefer the formal
+language theoretic notion of polynomial xed recognition
+There are various extensions of the Lambek calculus which generate mildly context-
+sensitive languages while keeping the syntax-semantics interface essentially the same
+as for the Lambek calculus Currently little is known about upper bounds of the classes
+of formal languages generated by these extensions of the Lambek calculus Though
+Moot 2002 shows that multimodal categorial grammars generate exactly the context-
+sensitive languages Buszkowski 1997 underlines the difculty of adapting the result
+of Pentus 1995 to extensions of the Lambek calculus8
+Besides problems from the point of view of formal language theory it should be
+noted that the goal we set out at the start of this paper was not just to generate the
+right string language but rather to generate the right string-meaning pairs This poses
+additional problems For example a sentence with n quantied noun phrases has up to
+n readings Although the standard notion of complexity for categorial grammars is the
+complexity deciding whether or not a proof exists formal semanticists at least since
+Montague 1974 want their formalisms to generate all and only the correct readings
+for a sentence we are not only interested in whether or not a proof exists but since
+different natural deduction proofs correspond to different readings also in what the
+different proofs of a sentence are9
+When we look at the example below
+10 Every representative of a company saw most samples
+it has ve possible readings instead of 3  6 since the reading
+xrepresentative ofxy  mostz samplez  ycompanyy  seexz
+has an unbound occurrence of y the leftmost occurrence The Lambek calculus anal-
+ysis has trouble with all readings where a company has wide scope over at least one
+of the two other quantiers We can of course remedy this by adding new more com-
+plex types to the quantier a but this would increase the order of the formulas and
+there is in principle no bound on the number of constructions where a medial quanti-
+er has wide scope over a sentence A simple counting argument shows that Lambek
+calculus grammars cannot generate the n readings required for quantier scope of an n-
+quantier sentence the number of readings for a Lambek calculus proof is proportional
+to the Catalan numbers and this number is in on10 in other words given a Lambek
+8 We can side-step the need for a Pentus-like proof by looking only at fragments of order 1 but
+these fragments are insufcient even for handling quantier scope
+9 Of course when our goal is to generate subsets of n different proofs rather than a single
+proof if one exists then we are no longer in NP though it is unknown whether an algorithm
+exists which produces a sort of shared representation for all such subsets such that 1 the
+algorithm outputs no when the sentence is ungrammatical 2 the algorithm has a fairly trivial
+algorithm say of a low-degree polynomial at worst for recovering all readings from the shared
+representation 3 the shared structure is polynomial in the size of the input
+10 We need to be careful here the number of readings for a sentence with n quantiers is  n
+whereas the maximum number of Lambek calculus proofs is Occ2n
+0 Cc1c2n for constants c0
+c1 c2 which depend on the grammar c0 is the maximum number of formulas for a single
+word c1 is the maximum number of negative atomic subformulas for a single formula and c2
+represent the minimum number of words needed to add a generalized quantier to a sentence
+calculus grammar the number of readings of a sentence with n quantiers grows much
+faster than the number of Lambek calculus proofs for this sentence hence the grammar
+fails to generate many of the required readings
+Since the eighties many variants and extensions of the Lambek calculus have been
+proposed each with the goal of overcoming the limitations of the Lambek calculus
+Extensionsvariations of the Lambek calculus  which include multimodal categorial
+grammars Moortgat 1997 the Displacement calculus Morrill et al 2011 and rst-
+order linear logic Moot  Piazza 2001  solve both the problems of formal lan-
+guage theory and the problems of the syntax-semantics interface For example there
+are several ways of implementing quantiers yielding exactly the ve desired readings
+for sentence 10 without appealing to extra-grammatical mechanisms Carpenter 1994
+gives many examples of the advantages of this logical approach to scope notably its
+interaction with other semantic phenomena like negation and coordination
+Though these modern calculi solve the problems with the Lambek calculus they
+do so without excessively increasing the computational complexity of the formalism
+multimodal categorial grammars are PSPACE complete Moot 2002 whereas most
+other extensions are NP-complete like the Lambek calculus
+Even the most basic categorial grammar account of quantier scope requires for-
+mulas of order 2 while in contrast to the Lambek calculus the only known polynomial
+fragments of these logics are of order 1 Hence the known polynomial fragments have
+very limited appeal for semantics
+Is the NP-completeness of our logics in conict with the condition of polyno-
+mial xed recognition required of mildly context-sensitive formalisms Not necessarily
+since our goals are different we are not only interested in the string language gener-
+ated by our formalism but also in the string-meaning mappings Though authors have
+worked on using mildly context-sensitive formalisms for semantics they generally use
+one of the two following strategies for quantier scope 1 an external mechanism for
+computing quantier scope eg Cooper storage Cooper 1975 or 2 an underspeci-
+cation mechanism for representing quantier scope Fox  Lappin 2010
+For case 1 Cooper 1975 a single syntactic structure is converted into up to n se-
+mantic readings whereas for case 2 though we represent all possible readings in a sin-
+gle structure even deciding whether the given sentence has a semantic reading at all be-
+comes NP-complete Fox  Lappin 2010 hence we simply shift the NP-completeness
+from the syntax to the syntax-semantics interface11 Our current understanding there-
+fore indicates that NP-complete is the best we can do when we want to generate the
+semantics for a sentence We do not believe this to be a bad thing since pragmatic
+and processing constraints rule out many of the complex readings and enumerating
+all readings of sentences like sentence 10 above and more complicated examples is
+a difcult task There is a trade-off between the work done in the syntax and in the
+syntax-semantics interface where the categorial grammar account incorporates more
+ie c2n is the number of words required to produce an n-quantier sentence and Occ2n
+is in on
+0 Cc1c2n
+11 In addition Ebert 2005 argues that underspecication languages are not expressive enough
+to capture all possible readings of a sentence in a single structure So underspecication does
+not solve the combinatorial problem but at best reduces it
+than the traditional mildly context-sensitive formalisms It is rather easy to set up a cat-
+egorial grammar parser in such a way that it produces underspecied representations in
+time proportional to n2 Moot 2007 However given that such an underspecied rep-
+resentation need not have any associated semantics such a system would not actually
+qualify as a parser We believe following Carpenter 1994 and Jacobson 2002 that
+giving an integrated account of the various aspects of the syntax-semantics interface is
+the most promising path
+Our grammatical formalisms are not merely theoretical tools but also form the ba-
+sis of several implementations Morrill  Valentn 2015 Moot 2015 with a rather
+extensive coverage of various semantic phenomena and their interactions including
+quantication gapping ellipsis coordination comparative subdeletion etc
+4 Complexity of the semantics
+The complexity of the syntax discussed in the previous section only considered the
+complexity of computing unreduced lambda terms as the meaning of a sentence Even
+in the standard simply typed Montagovian framework normalizing lambda terms is
+known to be of non-elementary complexity Schwichtenberg 1982 essentially due to
+the possibility of recursive copying In spite of this forbidding worst-time complex-
+ity normalization does not seem to be a bottleneck in the computation of meaning for
+practical applications Bos et al 2004 Moot 2010
+Is there a deeper reason for this We believe that natural language semantics uses a
+restricted fragment of the lambda calculus soft lambda calculus This calculus restricts
+recursive copying and has been shown to characterize the complexity class P exactly
+Lafont 2004 Baillot  Mogbil 2004 Hence this would explain why even naive im-
+plementations of normalization perform well in practice
+The question of whether soft linear logic sufces for our semantic parser may ap-
+pear hard to answer however it an obvious although tedious result To show that all
+the semantic lambda terms can be typed in soft linear logic we only need to verify
+that every lambda in the lexicon is soft There is a nite number of words with only a
+nite number of lambda terms per word Furthermore words from open classes nouns
+verbs adjectifs manner adverbs in which speakers may introduce new words about
+200000 inected word forms are the most numerous and all have soft and often even
+linear lambda terms Thus only closed class words grammatical words such as pro-
+nouns conjunctions auxiliary verbs and some complex adverbs such as too may
+potentially need a non-soft semantic lambda term there are less than 500 such words
+so it is just a matter of patience to prove they all have soft lambda terms Of course
+nding deep reasons cognitive linguistic for semantic lambda terms to be soft in any
+language would be much more difcult and much more interesting
+When adding coercions as in Section 2 the process becomes a bit more compli-
+cated However the system of Lafont 2004 includes second-order quantiers hence re-
+duction stays polynomial once coercions have been chosen Their choice as the choice
+of the syntactic category increases complexity when there is a type mismatch gAX uB
+one needs to chose one of the coercions of type B  A provided by the entries of the
+words in the analysed phrase with the requirement that when a rigid coercion is used
+all other coercions provided by the same word are blocked hence rigid coercions as op-
+posed to exible coercions decrease the number of choices for other type mismatches
+Finally having computed a set of formulas in higher-order logic corresponding to
+the meaning of a sentence though of independent interest for formal semanticists is
+only a step towards using these meaning representations for concrete applications Typ-
+ical applications such as question answering automatic summarization etc require
+world knowledge and common sense reasoning but also a method for deciding about
+entailment that is given a set of sentences can we conclude that another sentence is
+true This question is of course undecidable already in the rst-order case However
+some recent research shows that even higher-order logic formulas of the type produced
+by our analysis can form the basis of effective reasoning mechanisms Chatzikyriakidis
+ Luo 2014 Mineshima et al 2015 and we leave it as an interesting open question to
+what extent such reasoning can be applied to natural language processing tasks
+5 Conclusion
+It is somewhat surprising that in constrast to the well-developed theory of the al-
+gorithmic complexity of parsing little is known about semantic analysis even though
+computational semantics is an active eld as the recurring conferences with the same
+title as well as the number of natural language processing applications show In this
+paper we simply presented remarks on the computability and on the complexity of this
+process The good news is that semantics at least dened as a set of logical formula
+is computable This was known but only implicitly Montague gave a set of instruction
+to compute the formula and to interpret it in a model but he never showed that when
+computing such logical formulas
+ the process he dened stops with a normal lambda terms of type proposition t
+ eta-long normal lambda terms with constants being either logical connectives or
+constants of a rst or higher order logical language are in bijective correspondence
+with formulas of this logical language this is more or less clear in the work of
+Church 1940 on simple type theory
+ the complexity of the whole process has a known complexity class in particular the
+beta-reduction steps which was only discovered years after his death Schwichten-
+berg 1982
+A point that we did not discuss is that we considered worst case complexity viewed
+as a function from the number of words in a sentence a logical formula Both aspects
+of our point of view can be challenged in practice grammar size is at least as impor-
+tance as sentence length and average case complexity may be more appropriate than
+worst case complexity Though the high worst case complexity shows that computing
+the semantics of a sentence is not always efcient we nevertheless believe conrmed
+by actual practice that statistical models of a syntactic or semantic domain improve
+efciency considerably by providing extra information as a useful though faillible or-
+acle for many of the difcult choices Indeed human communication and understand-
+ing are very effective in general but from time to time we misunderstand eachother or
+need to ask for clarications For computers the situation is almost identical most sen-
+tences are analysed quickly while some require more time or even defeat the software
+Even though it is quite difcult to obtain the actual probability distribution on sentence-
+meaning pairs we can simply estimate such statistics empirically by randomly selecting
+manually annotated examples from a corpus The other aspect the sentence length is
+as opposed to what is commonly assumed in complexity theory not a very sasfactory
+empirical measure of performance indeed the average number of words per sentence is
+around 10 in spoken language and around 25 in written language Sentences with more
+than 100 words are very rare12 Furthermore lengthy sentences tend to have a simple
+structure because otherwise they would quickly become incomprehensible and hard
+to produce as well Experience with parsing shows that in many cases the grammar
+size is at least as important as sentence length for the empirical complexity of parsing
+algorithms Joshi 1997 Sarkar 2000 Gomez-Rodrguez et al 2006 Grammar size
+though only a constant factor in the complexity tends to be a big constant for realistic
+grammars grammars with between 10000 and 20000 rules are common
+We believe that the complexity of computing the semantics and of reasoning with
+the semantic representations are some of the most important reasons that the Turing test
+is presently out of reach
+12 To given an indication the TLGbank contains more than 14000 French sentences and has a
+median of 26 words per sentence 99 of sentences having less than 80 words with outliers
+at 190 and at 266 the maximum sentence length in the corpus
+Bibliography
+Baillot P  Mogbil V 2004 Soft lambda-calculus a language for polynomial
+time computation in Foundations of software science and computation structures
+Springer pp 2741
+Bassac C Mery B  Retore C 2010 Towards a type-theoretical account of lexical
+semantics Journal of Logic Language and Information 192 229245
+Bos J Clark S Steedman M Curran J R  Hockenmaier J 2004 Wide-
+coverage semantic representation from a CCG parser in Proceedings of COLING-
+2004 pp 12401246
+Buszkowski W 1997 Mathematical linguistics and proof theory in J van Benthem
+ A ter Meulen eds Handbook of Logic and Language Elsevier chapter 12
+pp 683736
+Carpenter B 1994 Quantication and scoping A deductive account in The Pro-
+ceedings of the 13th West Coast Conference on Formal Linguistics
+Chatzikyriakidis S  Luo Z 2014 Natural language inference in Coq Journal of
+Logic Language and Information 234 441480
+Church A 1940 A formulation of the simple theory of types Journal of Symbolic
+Logic 52 5668
+Cooper R 1975 Montagues Semantic Theory and Transformational Grammar PhD
+thesis University of Massachusetts
+Corblin F 2013 Cours de semantique Introduction Armand Colin
+Ebert C 2005 Formal Investigations of Underspecied Representations PhD thesis
+Kings College University of London
+Fox C  Lappin S 2010 Expressiveness and complexity in underspecied seman-
+tics Linguistic Analysis 3614 385417
+Gomez-Rodrguez C Alonso M A  Vilares M 2006 On the theoretical and prac-
+tical complexity of TAG parsers in Proceedings of Formal Grammar FG 2006
+pp 87101
+Jacobson P 2002 The disorganization of the grammar 25 years Linguistics and
+Philosophy 255-6 601626
+Joshi A 1985 Tree adjoining grammars How much context-sensitivity is required
+to provide reasonable structural descriptions in Natural Language Parsing Cam-
+bridge University Press pp 206250
+Joshi A 1997 Parsing techniques in R A Cole J Mariani H Uszkoreit A Zaenen
+ V Zue eds Survey of the State of the Art in Human Language Technology
+Cambridge University Press and Giardini chapter 114 pp 351356
+Lafont Y 2004 Soft linear logic and polynomial time Theoretical Computer Sci-
+Langacker R 2008 Cognitive Grammar  A Basic Introduction Oxford University
+ence 3181 163180
+Mineshima K Martnez-Gomez P Miyao Y  Bekki D 2015 Higher-order logi-
+cal inference with compositional semantics in Proceedings of EMNLP pp 2055
+Montague R 1974 The proper treatment of quantication in ordinary English in
+R Thomason ed Formal Philosophy Selected Papers of Richard Montague Yale
+University Press
+Moortgat M 1997 Categorial type logics in J van Benthem  A ter Meulen eds
+Handbook of Logic and Language ElsevierMIT Press chapter 2 pp 93177
+Moot R 2002 Proof Nets for Linguistic Analysis PhD thesis Utrecht Institute of
+Linguistics OTS Utrecht University
+Moot R 2007 Filtering axiom links for proof nets in L Kallmeyer P Monachesi
+G Penn  G Satta eds Proccedings of Formal Grammar 2007
+Moot R 2010 Wide-coverage French syntax and semantics using Grail in Proceed-
+ings of Traitement Automatique des Langues Naturelles TALN Montreal System
+Moot R 2015 Linear one A theorem prover for rst-order linear logic
+httpsgithubcomRichardMootLinearOne
+Moot R  Piazza M 2001 Linguistic applications of rst order multiplicative lin-
+ear logic Journal of Logic Language and Information 102 211232
+Moot R  Retore C 2012 The Logic of Categorial Grammars A Deductive Ac-
+count of Natural Language Syntax and Semantics Springer
+Morrill G  Valentn O 2015 Computational coverage of TLG The Montague test
+in Proceedings CSSP 2015 Le onzieme Colloque de Syntaxe et Semantique a Paris
+pp 6368
+Morrill G Valentn O  Fadda M 2011 The displacement calculus Journal of
+Logic Language and Information 201 148
+Pentus M 1995 Lambek grammars are context free in Proceedings of Logic in
+Computer Science pp 429433
+Pentus M 2010 A polynomial-time algorithm for Lambek grammars of bounded
+order Linguistic Analysis 3614 441471
+Pinker S 1994 The Language Instinct Penguin Science
+Retore C 2014 The Montagovian Generative Lexicon Tyn a Type Theoretical
+Framework for Natural Language Semantics in Proceedings of TYPES pp 202
+Sarkar A 2000 Practical experiments in parsing using tree adjoining grammars in
+Proceeding of TAG 5
+Savateev Y 2009 Product-free Lambek calculus is NP-complete in Symposium on
+Logical Foundations of Computer Science LFCS 2009 pp 380394
+Schwichtenberg H 1982 Complexity of normalization in the pure typed lambda-
+calculus in The L E J Brouwer Centenary Symposium North-Holland pp 453
+Shieber S 1985 Evidence against the context-freeness of natural language Lin-
+guistics  Philosophy 8 333343
+Turing A 1950 Computing machinery and intelligence Mind 49 433460
+Natural Language Semantics and Computability
+Richard Moot1 and Christian Retore2
+1 CNRS LaBRI
+2 Universite de Montpellier  LIRMM
+Abstract This paper is a reexion on the computability of natural language se-
+mantics It does not contain a new model or new results in the formal semantics
+of natural language it is rather a computational analysis of the logical models
+and algorithms currently used in natural language semantics dened as the map-
+ping of a statement to logical formulas  formulas because a statement can be
+ambiguous We argue that as long as possible world semantics is left out one can
+compute the semantic representations of a given statement including aspects of
+lexical meaning We also discuss the algorithmic complexity of this process
+Introduction
+In the well-known Turing test for articial intelligence a human interrogator needs
+to decide via a question answering session with two terminals which of his two inter-
+locutors is a man and which is a machine Turing 1950 Although early systems like
+Eliza based on matching word patterns may seem clever at rst sight
+they clearly do
+not pass the test One often forgets that in addition to reasoning and access to knowl-
+edge representation passing the Turing test presupposes automated natural language
+analysis and generation which despite signicant progress in the eld has not yet been
+fully achieved These natural language processing components of the Turing test are of
+independent interest and used in computer programs for question answering and trans-
+lation however since both of these tasks are generally assumed to be AI-complete it is
+unlikely that a full solution for these problems would be simpler than a solution for the
+Turing test itself
+If we dene the semantics of a sequence of sentences  as the mapping to a
+representation    that can be used by a machine for natural language processing
+tasks two very different ideas of semantics come to mind
+1 One notion of semantics describes what the sentences speaks about The domi-
+nant model for this type of semantics represents meaning using word vectors only
+involving referentialfull words nouns adjectives verbs adverbs    and not gram-
+matical words which represent what  speaks about This is clearly computable
+One must x a thesaurus of n words that acts as a vector basis Usually words not in
+the thesaurus or basis are expanded into their denition with words in the thesaurus
+By counting occurrences of words from the thesaurus in the text substituting words
+not in the thesaurus with their denition and turning this into a n-dimensional vec-
+tor reduced to be of euclidian norm 1 we obtain word meanings in the form of
+n-dimensional vectors This notion of semantics provides a useful measure of se-
+mantic similarity between words and texts typical applications include exploring
+Big Data and nding relevant pages on the internet This kind of semantics models
+what a word or a text speaks about
+2 The other notion of semantics the one this paper is about is of a logical nature It
+models what is asserted refuted    assumed by the sentences According to this
+view computational semantics is the mapping of sentences to logical formulas
+This is usually done compositionally according to Freges principle the meaning
+of a compound expression is a function of the meaning of its components to which
+Montague added and of its syntactic structure This paper focuses on this logical
+and compositional notion of semantics and its extension by us and others to lexical
+semantics these extensions allow us to conclude from a sentence like I started a
+book that the speaker started reading or depending on the context writing a
+We should comment that in our view semantics is a computable function from
+sentences to logical formulae since this viewpoint is not so common in linguistics
+ Cognitive sciences also consider the language faculty as a computational device
+and insist on the computations involved in language analysis and production Ac-
+tually there are two different views of this cognitive and computational view one
+view promoted by authors such as Pinker 1994 claims that there is a specic
+cognitive function for language a language module in the mind while others
+like Langacker 2008 think that our language faculty is just our general cognitive
+abilities applied to language
+ In linguistics and above all in philosophy of language many people think that sen-
+tences cannot have any meaning without a context such a context involving both
+linguistic and extra-linguistic information Thus according to this view the input
+of our algorithm should include context Our answer is rstly that linguistic context
+is partly taken into account since we are able to produce in addition to formulae
+discourse structures Regarding the part of context that we cannot take into account
+be it linguistic or not our answer is that it is not part of semantics but rather an
+aspect of pragmatics And as argued by Corblin 2013 if someone is given a few
+sentences on a sheet of paper without any further information he starts imagining
+situations may infer other statements from what he reads     and such thoughts
+are the semantics of the sentence
+ The linguistic tradition initiated by Montague 1974 lacks some coherence regard-
+ing computability On the one hand Montague gives an algorithm for parsing sen-
+tences and for computing their meaning as a logical formula On the other hand he
+asserts that the meaning of a sentence is the interpretation of the formula in possible
+worlds but these models are clearly uncomputable Furthermore according to him
+each intermediate step including the intensionalmodal formulae should be forgot-
+ten and the semantics is dened as the set of possible worlds in which the semantic
+formula is true this cannot even be nitely described except by these intermediate
+formulas a fortiori it cannot be computed Our view is different for at least three
+reasons from the weakest to the strongest
+ Models for higher order logic as in Montague are not as simple as is some-
+times assumed and they do not quite match the formulas completeness fails
+This means that a model and even all models at once contains less information
+than the formula itself
+ We do not want to be committed to any particular interpretation Indeed there
+are alternative relevant interpretations of formulas as the following non ex-
+haustive list shows dialogical interpretations that are the sets of proofs andor
+refutations game theoretic semantics and ludics related to the former style
+of interpretation set of consequences of the formula structures inhabited by
+their normal proofs as in intuitionistic logic
+ Interpreting the formulas is no longer related to linguistics although some
+interpretations might useful for some applications Indeed once you have a a
+formula interpreting it in your favourite way is a purely logical question De-
+ciding whether it is true or not in a model computing all its proofs or all its
+refutations dening game strategies computing its consequences or the cor-
+responding structure has nothing to do with the particular natural language
+statement you started with
+1 Computational semantics a la Montague
+We shall rst present the general algorithm that maps sentences to logical formulae
+returning to lexical semantics in Section 2 The rst step is to compute a syntactic
+analysis that is rich and detailed enough to enable the computation of the semantics
+in the form of logical formulae The second step is to incorporate the lexical lambda
+terms and to reduce the obtained lambda term  this step possibly includes the choice
+of some lambda terms from the lexicon that x the type mismatches
+11 Categorial syntax
+In order to express the process that maps a sentence to its semantic interpretations
+in the form of logical formulae we shall start with a categorial grammar This is not
+strictly necessary Montague 1974 used a context free grammar augmented with a
+mechanism for quantier scope but if one reads between the lines at some points he
+converts the phrase structure into a categorial derivation so we shall following Moot 
+Retore 2012 directly use a categorial analysis Although richer variants of categorial
+grammars are possible and used in practice we give here an example with Lambek
+grammars and briey comment on variants later
+Categories are freely generated from a set of base categories for example np noun
+phrase n common noun S sentence by two binary operators  and  AB and
+B A are categories whenever A and B are categories A category AB intuitively looks
+for a category A to its left in order to form a B Similarly a category B A combines
+with an A to its right to form a B The full natural deduction rules are shown in Figure 1
+A lexicon provides for each word w of the language a nite set of categories lexw
+We say a sequence of words w1    wn is of type C whenever ici  lexwi c1    cn cid96
+C Figure 2 shows an example lexicon top and a derivation of a sentence bottom
+  cid96 B
+ cid96 A  cid96 AB e
+ cid96 B A  cid96 A e
+  cid96 B
+A cid96 B i
+ cid96 AB
+ A cid96 B i
+ cid96 B A
+Fig 1 Natural deduction proof rules for the Lambek calculus
+Word Syntactic Type
+cartoon n
+watched npS np
+every S npS n
+a S npS n
+S npS n
+S npS
+watched
+npS np
+npS e
+S npS n
+cartoon
+S npS e
+Fig 2 Lexicon and example derivation
+12 From syntactic derivation to typed linear lambda terms
+Categorial derivations being a proper subset of derivations in multiplicative intu-
+itionistic linear logic correspond to simply typed linear lambda terms This makes the
+connection to Montague grammar particularly transparent
+Denoting by e the set of entities or individuals and by t the type for propositions
+these can be either true or false hence the name t one has the following mapping from
+syntactic categories to semanticlogical types
+Syntactic type  Semantic type
+S  t
+np  e
+n  e  t
+a sentence is a proposition
+a noun phrase is an entity
+a noun is a subset of the set of entities maps entities
+to propositions
+AB  B A  A  B extends easily to all syntactic categories
+Using this translation of categories into types which forgets the non commutativity
+the Lambek calculus proof of Figure 2 is translated to the linear intuitionistic proof
+shown in Figure 3 we have kept the order of the premisses unchanged to highlight the
+similarity with the previous proof Such a proof can be viewed as a simply typed lambda
+term with the two base types e and t
+aetett cartoonet  yeeveryetett kidet watchedeet y
+e  t  e  t  t
+e  t  t
+e  t e
+t i1
+e  t
+watched
+e  e  t
+e  t e
+e  t  e  t  t
+e  t  t e
+cartoon
+e  t e
+Fig 3 The multiplicative linear logic proof corresponding to Figure 2
+As observed by Church 1940 the simply typed lambda calculus with two types e
+and t is enough to express higher order logic provided one introduces constants for the
+logical connectives and quantiers that is a constants  and  of type e  t  t
+and constants   et  of type t  t  t
+In addition to the syntactic lexicon there is a semantic lexicon that maps any word
+to a simply typed lambda term with atomic types e and t and whose type is the transla-
+tion of its syntactic formula Figure 4 presents such a lexicon for our current example
+For example the word every is assigned formula S npS n According to the
+translation function above we know the corresponding semantic term must be of type
+e  t  e  t  t as it is in Figure 3 The term we assign in in the seman-
+tic lexicon is the following both the type and the term are standard in a Montagovian
+setting
+ Pet  Qet ett  xettt P xQ x
+Unlike the lambda terms computed for proof the lexical entries in the semantic lexicon
+need not be linear the lexical entry above is not a linear lambda term since the single
+abstraction binds two occurrences of x
+Similarly the syntactic type of a the formula S npS n has corresponding
+semantic type e  t  e  t  t though syntactically different a subject and
+an object generalized quantier have the same semantic type and the following lexical
+meaning recipe
+ Pet  Qet ett  xetttP xQ x
+Finally kid cartoon and watched are assigned the constants kidet
+cartoonet and watchedeet respectively
+syntactic type u
+semantic type u
+semantics -term of type u
+S npS n subject
+e  t  e  t  t
+ Pet  Qet ett  xettt P xQ x
+S npS n object
+e  t  e  t  t
+ Pet  Qet ett  xetttP xQ x
+e  t
+ xekidet x
+e  t
+ xecartoonet x
+watched npS np
+e  e  t
+ ye  xe watchedeet x y
+cartoon n
+Fig 4 Semantic lexicon for our example grammar
+Because the types of these lambda terms are the same as those of the words in
+the initial lambda term we can take the linear lambda term associated with the sen-
+tence and substitute for each word its corresponding lexical meaning transforming the
+derivational semantics in our case the following3
+aetett cartoonet  yeeveryetett kidet watchedeet y
+into an unreduced representation of the meaning of the sentence
+ Pet  Qet ett  xetttP xQ x cartoon
+et xwatched
+ ye Pet  Qet ett  xettt P xQ x kid
+3 There are exactly two non-equivalent proofs of this sentence The second proof using the
+same premisses corresponds to the second more prominent reading of the sentence whose
+lambda term is every kid xea cartoon yewatched y x
+et 
+eety
+The above term reduces to
+ett  xetttcartoon xett  zettt kid zwatched xz
+that is4 xcartoonxzkidz  watchedzx
+The full algorithm to compute the semantics of a sentence as a logical formula is
+shown in Figure 5
+multiplicative intuitionistic linear logic proof
+Lambek calculus proof
+Curry-Howard
+linear lambda term
+Substitute the lexical simply typed
+but not necessarily linear lambda terms
+Target language
+Higher-Order Logic HOL as Montague
+Fig 5 The standard categorial grammar method for computing meaning
+2 Adding sorts coercions and uniform operations
+Montague as Frege only used a single type for entities e But it is much better to
+have many sorts in order to block the interpretation of some sentences
+1  The table barked
+2 The dog barked
+The sergeant barked
+is correctly rejected one gets barkdogt the tableartifact and dog cid54 artifact
+As dictionaries say barked can be said from animals usually dogs The rst one
+However we need to enable the last example barkdogt the sergeanthuman and
+in this case we use coercions Bassac et al 2010 Retore 2014 the lexical entry for the
+verb barked which only applies to the sort of dogs provides a coercion c  human 
+dog from human to dog The revised lexicon provides each word with the lambda
+term that we saw earlier typed using some of the several sorts  base type and some
+optional lambda terms that can be used if needed to solve type mismatches
+Such coercions are needed to understand sentences like
+4 We use the standard convention to translate a term pyx into a predicate pxy
+4 This book is heavy
+5 This book is interesting
+6 This book is heavy and interesting
+7 Washington borders the Potomac
+8 Washington attacked Iraq
+9  Washington borders the Potomac and attacked Iraq
+multiplicative intuitionistic linear logic proof
+Lambek calculus proof
+Curry-Howard
+linear lambda term
+coercions
+Substitute the lexical Tyn terms
+Solve type mismatches by the coercions provided by the lexicon
+Target language
+Higher-Order Logic HOL as Montague
+Fig 6 Computing meaning in a framework with coercion
+The rst two sentences will respectively use a coercions from book to physical ob-
+ject and a coercion from books to information Any time an object has several related
+meanings one can consider the conjunction of properties referring to those particular
+aspects For these operations and others acting uniformly on types we exploit poly-
+morphically typed lambda terms system F When the related meanings of a word are
+incompatible this is usually the case the corresponding coercions are declared to be in-
+compatible in the lexicon one is declared as rigid This extended process is described
+in Figure 6 Some remarks on our use of system F
+ We use it for the syntax of semantics aka metalogic glue logic
+ The formulae of semantics are the usual ones many sorted as in Tyn
+ We have a single constant for operations that act uniformly on types like quantiers
+or conjunction over predicates that apply to different facets of a given word
+3 Complexity of the syntax
+As we remarked before when computing the formal semantics of a sentence in
+the Montague tradition we at least implicitly construct a categorial grammar proof
+Therefore we need to study the complexity of parsingtheorem proving in categorial
+grammar rst The complexity generally studied in this context is the complexity of de-
+ciding about the existence of a proof a parse for a logical statement a natural language
+sentence as a function of the number of words in this sentence5
+Perhaps surprisingly the simple product-free version of the Lambek calculus we
+have used for our examples is already NP-complete Savateev 2009 However there is
+a notion of order which measures the level of nesting of the implications as dened
+orderp  0
+orderAB  orderBA  maxorderA orderB  1
+As an example the order of formula npSnp is 1 whereas the order of for-
+mula SnpS is 2 For the Lambek calculus the maximum order of the formulas in a
+grammar is a good indication of its complexity Grammars used for linguistic purposes
+generally have formulas of order 3 or at most 4 We know that once we bound the order
+of formulas in the lexicon of our grammars to be less than a xed n parsing becomes
+polynomial for any choice of n Pentus 20106
+The NP-completeness proof of Savateev 2009 uses a reduction from SAT where
+a SAT problem with c clauses and v variables produces a Lambek grammar of order
+3  4c with 2c  13v  1 atomic formulas
+The notion of order therefore provides a neat indicator of the complexity the NP-
+completeness proof requires formulas of order 7 and greater whereas the formulas used
+for linguistic modelling are of order 4 or less
+Even though the Lambek calculus is a nice and simple system we know that the
+Lambek calculus generates only context-free languages Pentus 1995 and there is
+good evidence that at least some constructions in natural language require a slightly
+larger class of languages Shieber 1985 One inuential proposal for such a larger class
+of languages are the mildly context-sensitive languages Joshi 1985 characterised as
+follows
+ contains the context-free languages
+ limited cross-serial dependencies ie includes anbncn but maybe not anbncndnen
+ semilinearity a language is semilinear iff there exists a regular language to which
+it is equivalent up to permutation
+ polynomial xed recognition7
+5 For many algorithms the complexity is a function of the number of atomic subformulas of the
+formulas in the sentence Empirically estimation shows the number of atomic formulas is a bit
+over twice the number of words in a sentence
+6 For the algorithm of Pentus 2010 the order appears as an exponent in the worst-case com-
+plexity for a grammar of order n there is a multiplicative factor of 25n1 So though polyno-
+mial this algorithm is not necessarily efcient
+7 The last two items are sometimes stated as the weaker condition constant growth instead
+of semilinearity and the stronger condition of polynomial parsing instead of polynomial xed
+recognition Since all other properties are properties of formal languages we prefer the formal
+language theoretic notion of polynomial xed recognition
+There are various extensions of the Lambek calculus which generate mildly context-
+sensitive languages while keeping the syntax-semantics interface essentially the same
+as for the Lambek calculus Currently little is known about upper bounds of the classes
+of formal languages generated by these extensions of the Lambek calculus Though
+Moot 2002 shows that multimodal categorial grammars generate exactly the context-
+sensitive languages Buszkowski 1997 underlines the difculty of adapting the result
+of Pentus 1995 to extensions of the Lambek calculus8
+Besides problems from the point of view of formal language theory it should be
+noted that the goal we set out at the start of this paper was not just to generate the
+right string language but rather to generate the right string-meaning pairs This poses
+additional problems For example a sentence with n quantied noun phrases has up to
+n readings Although the standard notion of complexity for categorial grammars is the
+complexity deciding whether or not a proof exists formal semanticists at least since
+Montague 1974 want their formalisms to generate all and only the correct readings
+for a sentence we are not only interested in whether or not a proof exists but since
+different natural deduction proofs correspond to different readings also in what the
+different proofs of a sentence are9
+When we look at the example below
+10 Every representative of a company saw most samples
+it has ve possible readings instead of 3  6 since the reading
+xrepresentative ofxy  mostz samplez  ycompanyy  seexz
+has an unbound occurrence of y the leftmost occurrence The Lambek calculus anal-
+ysis has trouble with all readings where a company has wide scope over at least one
+of the two other quantiers We can of course remedy this by adding new more com-
+plex types to the quantier a but this would increase the order of the formulas and
+there is in principle no bound on the number of constructions where a medial quanti-
+er has wide scope over a sentence A simple counting argument shows that Lambek
+calculus grammars cannot generate the n readings required for quantier scope of an n-
+quantier sentence the number of readings for a Lambek calculus proof is proportional
+to the Catalan numbers and this number is in on10 in other words given a Lambek
+8 We can side-step the need for a Pentus-like proof by looking only at fragments of order 1 but
+these fragments are insufcient even for handling quantier scope
+9 Of course when our goal is to generate subsets of n different proofs rather than a single
+proof if one exists then we are no longer in NP though it is unknown whether an algorithm
+exists which produces a sort of shared representation for all such subsets such that 1 the
+algorithm outputs no when the sentence is ungrammatical 2 the algorithm has a fairly trivial
+algorithm say of a low-degree polynomial at worst for recovering all readings from the shared
+representation 3 the shared structure is polynomial in the size of the input
+10 We need to be careful here the number of readings for a sentence with n quantiers is  n
+whereas the maximum number of Lambek calculus proofs is Occ2n
+0 Cc1c2n for constants c0
+c1 c2 which depend on the grammar c0 is the maximum number of formulas for a single
+word c1 is the maximum number of negative atomic subformulas for a single formula and c2
+represent the minimum number of words needed to add a generalized quantier to a sentence
+calculus grammar the number of readings of a sentence with n quantiers grows much
+faster than the number of Lambek calculus proofs for this sentence hence the grammar
+fails to generate many of the required readings
+Since the eighties many variants and extensions of the Lambek calculus have been
+proposed each with the goal of overcoming the limitations of the Lambek calculus
+Extensionsvariations of the Lambek calculus  which include multimodal categorial
+grammars Moortgat 1997 the Displacement calculus Morrill et al 2011 and rst-
+order linear logic Moot  Piazza 2001  solve both the problems of formal lan-
+guage theory and the problems of the syntax-semantics interface For example there
+are several ways of implementing quantiers yielding exactly the ve desired readings
+for sentence 10 without appealing to extra-grammatical mechanisms Carpenter 1994
+gives many examples of the advantages of this logical approach to scope notably its
+interaction with other semantic phenomena like negation and coordination
+Though these modern calculi solve the problems with the Lambek calculus they
+do so without excessively increasing the computational complexity of the formalism
+multimodal categorial grammars are PSPACE complete Moot 2002 whereas most
+other extensions are NP-complete like the Lambek calculus
+Even the most basic categorial grammar account of quantier scope requires for-
+mulas of order 2 while in contrast to the Lambek calculus the only known polynomial
+fragments of these logics are of order 1 Hence the known polynomial fragments have
+very limited appeal for semantics
+Is the NP-completeness of our logics in conict with the condition of polyno-
+mial xed recognition required of mildly context-sensitive formalisms Not necessarily
+since our goals are different we are not only interested in the string language gener-
+ated by our formalism but also in the string-meaning mappings Though authors have
+worked on using mildly context-sensitive formalisms for semantics they generally use
+one of the two following strategies for quantier scope 1 an external mechanism for
+computing quantier scope eg Cooper storage Cooper 1975 or 2 an underspeci-
+cation mechanism for representing quantier scope Fox  Lappin 2010
+For case 1 Cooper 1975 a single syntactic structure is converted into up to n se-
+mantic readings whereas for case 2 though we represent all possible readings in a sin-
+gle structure even deciding whether the given sentence has a semantic reading at all be-
+comes NP-complete Fox  Lappin 2010 hence we simply shift the NP-completeness
+from the syntax to the syntax-semantics interface11 Our current understanding there-
+fore indicates that NP-complete is the best we can do when we want to generate the
+semantics for a sentence We do not believe this to be a bad thing since pragmatic
+and processing constraints rule out many of the complex readings and enumerating
+all readings of sentences like sentence 10 above and more complicated examples is
+a difcult task There is a trade-off between the work done in the syntax and in the
+syntax-semantics interface where the categorial grammar account incorporates more
+ie c2n is the number of words required to produce an n-quantier sentence and Occ2n
+is in on
+0 Cc1c2n
+11 In addition Ebert 2005 argues that underspecication languages are not expressive enough
+to capture all possible readings of a sentence in a single structure So underspecication does
+not solve the combinatorial problem but at best reduces it
+than the traditional mildly context-sensitive formalisms It is rather easy to set up a cat-
+egorial grammar parser in such a way that it produces underspecied representations in
+time proportional to n2 Moot 2007 However given that such an underspecied rep-
+resentation need not have any associated semantics such a system would not actually
+qualify as a parser We believe following Carpenter 1994 and Jacobson 2002 that
+giving an integrated account of the various aspects of the syntax-semantics interface is
+the most promising path
+Our grammatical formalisms are not merely theoretical tools but also form the ba-
+sis of several implementations Morrill  Valentn 2015 Moot 2015 with a rather
+extensive coverage of various semantic phenomena and their interactions including
+quantication gapping ellipsis coordination comparative subdeletion etc
+4 Complexity of the semantics
+The complexity of the syntax discussed in the previous section only considered the
+complexity of computing unreduced lambda terms as the meaning of a sentence Even
+in the standard simply typed Montagovian framework normalizing lambda terms is
+known to be of non-elementary complexity Schwichtenberg 1982 essentially due to
+the possibility of recursive copying In spite of this forbidding worst-time complex-
+ity normalization does not seem to be a bottleneck in the computation of meaning for
+practical applications Bos et al 2004 Moot 2010
+Is there a deeper reason for this We believe that natural language semantics uses a
+restricted fragment of the lambda calculus soft lambda calculus This calculus restricts
+recursive copying and has been shown to characterize the complexity class P exactly
+Lafont 2004 Baillot  Mogbil 2004 Hence this would explain why even naive im-
+plementations of normalization perform well in practice
+The question of whether soft linear logic sufces for our semantic parser may ap-
+pear hard to answer however it an obvious although tedious result To show that all
+the semantic lambda terms can be typed in soft linear logic we only need to verify
+that every lambda in the lexicon is soft There is a nite number of words with only a
+nite number of lambda terms per word Furthermore words from open classes nouns
+verbs adjectifs manner adverbs in which speakers may introduce new words about
+200000 inected word forms are the most numerous and all have soft and often even
+linear lambda terms Thus only closed class words grammatical words such as pro-
+nouns conjunctions auxiliary verbs and some complex adverbs such as too may
+potentially need a non-soft semantic lambda term there are less than 500 such words
+so it is just a matter of patience to prove they all have soft lambda terms Of course
+nding deep reasons cognitive linguistic for semantic lambda terms to be soft in any
+language would be much more difcult and much more interesting
+When adding coercions as in Section 2 the process becomes a bit more compli-
+cated However the system of Lafont 2004 includes second-order quantiers hence re-
+duction stays polynomial once coercions have been chosen Their choice as the choice
+of the syntactic category increases complexity when there is a type mismatch gAX uB
+one needs to chose one of the coercions of type B  A provided by the entries of the
+words in the analysed phrase with the requirement that when a rigid coercion is used
+all other coercions provided by the same word are blocked hence rigid coercions as op-
+posed to exible coercions decrease the number of choices for other type mismatches
+Finally having computed a set of formulas in higher-order logic corresponding to
+the meaning of a sentence though of independent interest for formal semanticists is
+only a step towards using these meaning representations for concrete applications Typ-
+ical applications such as question answering automatic summarization etc require
+world knowledge and common sense reasoning but also a method for deciding about
+entailment that is given a set of sentences can we conclude that another sentence is
+true This question is of course undecidable already in the rst-order case However
+some recent research shows that even higher-order logic formulas of the type produced
+by our analysis can form the basis of effective reasoning mechanisms Chatzikyriakidis
+ Luo 2014 Mineshima et al 2015 and we leave it as an interesting open question to
+what extent such reasoning can be applied to natural language processing tasks
+5 Conclusion
+It is somewhat surprising that in constrast to the well-developed theory of the al-
+gorithmic complexity of parsing little is known about semantic analysis even though
+computational semantics is an active eld as the recurring conferences with the same
+title as well as the number of natural language processing applications show In this
+paper we simply presented remarks on the computability and on the complexity of this
+process The good news is that semantics at least dened as a set of logical formula
+is computable This was known but only implicitly Montague gave a set of instruction
+to compute the formula and to interpret it in a model but he never showed that when
+computing such logical formulas
+ the process he dened stops with a normal lambda terms of type proposition t
+ eta-long normal lambda terms with constants being either logical connectives or
+constants of a rst or higher order logical language are in bijective correspondence
+with formulas of this logical language this is more or less clear in the work of
+Church 1940 on simple type theory
+ the complexity of the whole process has a known complexity class in particular the
+beta-reduction steps which was only discovered years after his death Schwichten-
+berg 1982
+A point that we did not discuss is that we considered worst case complexity viewed
+as a function from the number of words in a sentence a logical formula Both aspects
+of our point of view can be challenged in practice grammar size is at least as impor-
+tance as sentence length and average case complexity may be more appropriate than
+worst case complexity Though the high worst case complexity shows that computing
+the semantics of a sentence is not always efcient we nevertheless believe conrmed
+by actual practice that statistical models of a syntactic or semantic domain improve
+efciency considerably by providing extra information as a useful though faillible or-
+acle for many of the difcult choices Indeed human communication and understand-
+ing are very effective in general but from time to time we misunderstand eachother or
+need to ask for clarications For computers the situation is almost identical most sen-
+tences are analysed quickly while some require more time or even defeat the software
+Even though it is quite difcult to obtain the actual probability distribution on sentence-
+meaning pairs we can simply estimate such statistics empirically by randomly selecting
+manually annotated examples from a corpus The other aspect the sentence length is
+as opposed to what is commonly assumed in complexity theory not a very sasfactory
+empirical measure of performance indeed the average number of words per sentence is
+around 10 in spoken language and around 25 in written language Sentences with more
+than 100 words are very rare12 Furthermore lengthy sentences tend to have a simple
+structure because otherwise they would quickly become incomprehensible and hard
+to produce as well Experience with parsing shows that in many cases the grammar
+size is at least as important as sentence length for the empirical complexity of parsing
+algorithms Joshi 1997 Sarkar 2000 Gomez-Rodrguez et al 2006 Grammar size
+though only a constant factor in the complexity tends to be a big constant for realistic
+grammars grammars with between 10000 and 20000 rules are common
+We believe that the complexity of computing the semantics and of reasoning with
+the semantic representations are some of the most important reasons that the Turing test
+is presently out of reach
+12 To given an indication the TLGbank contains more than 14000 French sentences and has a
+median of 26 words per sentence 99 of sentences having less than 80 words with outliers
+at 190 and at 266 the maximum sentence length in the corpus
+Bibliography
+Baillot P  Mogbil V 2004 Soft lambda-calculus a language for polynomial
+time computation in Foundations of software science and computation structures
+Springer pp 2741
+Bassac C Mery B  Retore C 2010 Towards a type-theoretical account of lexical
+semantics Journal of Logic Language and Information 192 229245
+Bos J Clark S Steedman M Curran J R  Hockenmaier J 2004 Wide-
+coverage semantic representation from a CCG parser in Proceedings of COLING-
+2004 pp 12401246
+Buszkowski W 1997 Mathematical linguistics and proof theory in J van Benthem
+ A ter Meulen eds Handbook of Logic and Language Elsevier chapter 12
+pp 683736
+Carpenter B 1994 Quantication and scoping A deductive account in The Pro-
+ceedings of the 13th West Coast Conference on Formal Linguistics
+Chatzikyriakidis S  Luo Z 2014 Natural language inference in Coq Journal of
+Logic Language and Information 234 441480
+Church A 1940 A formulation of the simple theory of types Journal of Symbolic
+Logic 52 5668
+Cooper R 1975 Montagues Semantic Theory and Transformational Grammar PhD
+thesis University of Massachusetts
+Corblin F 2013 Cours de semantique Introduction Armand Colin
+Ebert C 2005 Formal Investigations of Underspecied Representations PhD thesis
+Kings College University of London
+Fox C  Lappin S 2010 Expressiveness and complexity in underspecied seman-
+tics Linguistic Analysis 3614 385417
+Gomez-Rodrguez C Alonso M A  Vilares M 2006 On the theoretical and prac-
+tical complexity of TAG parsers in Proceedings of Formal Grammar FG 2006
+pp 87101
+Jacobson P 2002 The disorganization of the grammar 25 years Linguistics and
+Philosophy 255-6 601626
+Joshi A 1985 Tree adjoining grammars How much context-sensitivity is required
+to provide reasonable structural descriptions in Natural Language Parsing Cam-
+bridge University Press pp 206250
+Joshi A 1997 Parsing techniques in R A Cole J Mariani H Uszkoreit A Zaenen
+ V Zue eds Survey of the State of the Art in Human Language Technology
+Cambridge University Press and Giardini chapter 114 pp 351356
+Lafont Y 2004 Soft linear logic and polynomial time Theoretical Computer Sci-
+Langacker R 2008 Cognitive Grammar  A Basic Introduction Oxford University
+ence 3181 163180
+Mineshima K Martnez-Gomez P Miyao Y  Bekki D 2015 Higher-order logi-
+cal inference with compositional semantics in Proceedings of EMNLP pp 2055
+Montague R 1974 The proper treatment of quantication in ordinary English in
+R Thomason ed Formal Philosophy Selected Papers of Richard Montague Yale
+University Press
+Moortgat M 1997 Categorial type logics in J van Benthem  A ter Meulen eds
+Handbook of Logic and Language ElsevierMIT Press chapter 2 pp 93177
+Moot R 2002 Proof Nets for Linguistic Analysis PhD thesis Utrecht Institute of
+Linguistics OTS Utrecht University
+Moot R 2007 Filtering axiom links for proof nets in L Kallmeyer P Monachesi
+G Penn  G Satta eds Proccedings of Formal Grammar 2007
+Moot R 2010 Wide-coverage French syntax and semantics using Grail in Proceed-
+ings of Traitement Automatique des Langues Naturelles TALN Montreal System
+Moot R 2015 Linear one A theorem prover for rst-order linear logic
+httpsgithubcomRichardMootLinearOne
+Moot R  Piazza M 2001 Linguistic applications of rst order multiplicative lin-
+ear logic Journal of Logic Language and Information 102 211232
+Moot R  Retore C 2012 The Logic of Categorial Grammars A Deductive Ac-
+count of Natural Language Syntax and Semantics Springer
+Morrill G  Valentn O 2015 Computational coverage of TLG The Montague test
+in Proceedings CSSP 2015 Le onzieme Colloque de Syntaxe et Semantique a Paris
+pp 6368
+Morrill G Valentn O  Fadda M 2011 The displacement calculus Journal of
+Logic Language and Information 201 148
+Pentus M 1995 Lambek grammars are context free in Proceedings of Logic in
+Computer Science pp 429433
+Pentus M 2010 A polynomial-time algorithm for Lambek grammars of bounded
+order Linguistic Analysis 3614 441471
+Pinker S 1994 The Language Instinct Penguin Science
+Retore C 2014 The Montagovian Generative Lexicon Tyn a Type Theoretical
+Framework for Natural Language Semantics in Proceedings of TYPES pp 202
+Sarkar A 2000 Practical experiments in parsing using tree adjoining grammars in
+Proceeding of TAG 5
+Savateev Y 2009 Product-free Lambek calculus is NP-complete in Symposium on
+Logical Foundations of Computer Science LFCS 2009 pp 380394
+Schwichtenberg H 1982 Complexity of normalization in the pure typed lambda-
+calculus in The L E J Brouwer Centenary Symposium North-Holland pp 453
+Shieber S 1985 Evidence against the context-freeness of natural language Lin-
+guistics  Philosophy 8 333343
+Turing A 1950 Computing machinery and intelligence Mind 49 433460

@@ -1,0 +1,792 @@
+A Scale-Space Theory for Text
+Shuang Hong Yang
+College of Computing
+Georgia Tech
+shygatechedu
+Abstract
+Scale-space theory has been established pri-
+marily by the computer vision and signal pro-
+cessing communities as a well-founded and
+promising framework for multi-scale process-
+ing of signals eg images By embedding
+an original signal into a family of gradually
+coarsen signals parameterized with a contin-
+uous scale parameter
+it provides a formal
+framework to capture the structure of a signal
+at different scales in a consistent way In this
+paper we present a scale space theory for text
+by integrating semantic and spatial lters and
+demonstrate how natural language documents
+can be understood processed and analyzed at
+multiple resolutions and how this scale-space
+representation can be used to facilitate a vari-
+ety of NLP and text analysis tasks
+1 Introduction
+Physical objects in the world appear differently
+depending on the scale of observationmeasurement
+Take the tree as an example meaningful obser-
+vations range from molecules at
+the scale of
+nanometers to leaves at centimeters to branches at
+meters and to forest at kilometers This inherent
+property is ubiquitous and holds equally true for
+natural language On the one hand concepts are
+meaningful only at the right resolution for instance
+named entities usually range from unigram eg
+new to bigram eg New York to multigram
+eg New York Times and even to a whole
+long sequence eg a song name  Another Lonely
+Night In New York On the other hand our under-
+standing of natural language depends critically on
+the scale at which it is examined for example de-
+pending on how much detailed we would like to get
+1st submitted Jan 15 2012 revised Mar 28 2012
+into a document our knowledge could range from
+a collection of keywords
+to a sentence sketch
+named title
+to a paragraph summary named
+abstract to a page long introduction and nally
+to the entire content The notion of scale is funda-
+mental to the understanding of natural language yet
+it was largely ignored by existing models for text
+representation which include simple bag-of-word
+BOW or unigram language model LM n-gram
+or higher order LMs and other more advanced
+textlanguage models
+Iyer and Ostendorf 1996
+Manning and Schuetze 1999
+Metzler and Croft 2005
+One key problem
+with many of these models is their inexibility 
+they capture the semantic structure rather rigidly
+at only a single resolution eg n-gram with a
+single xed value of n However which scale is
+appropriate for a specic task is usually unknown
+a priori and in many cases even not homogeneous
+eg a document may contain named entities of
+different length making it impossible to capture
+the right meanings with a xed single scale
+Scale space theory is a well-established and
+promising framework for multi-resolution represen-
+tation developed primarily by the computer vision
+and signal processing communities with compli-
+mentary motivations from physics and bio-vision
+The key idea is to embed a signal into the scale
+space ie to represent it as a family of progres-
+sively smoothed signals parameterized by a continu-
+ous variable of scale where ne-resolution detailed
+structures are progressively suppressed by the con-
+volution of the original signal with a smoothing ker-
+nel ie a low pass lter with certain properties
+Witkin 1983 Lindeberg 1994
+In this paper we adapt the scale-space model
+from image to text signals proposing a novel frame-
+work that enables multi-resolution representation for
+documents The adaptation poses substantial chal-
+lenges as the structure of the semantic domain is
+nontrivially complicated than the spatial domains in
+traditional image scale space We show how this
+can be made possible with a set of assumptions and
+simplications The scale-space model for text not
+only provides new perspectives for how text analy-
+sis tasks can be formulated and addressed but also
+enables well-established computer vision tools to be
+adapted and applied to text processing eg match-
+ing segmentation description interests points de-
+tection and classication To stimulate further in-
+vestigation in this promising direction we initiate
+a couple of instantiations to demonstrate how this
+model can be used in a variety of NLP and text anal-
+ysis tasks to make things easier better and most im-
+portantly scale-invariant
+  2
+with initial condition x 0  f x where  de-
+notes the Laplace operator which in a 2-dimensional
+spatial space corresponds to  2
+ If we view
+ as a heat distribution the equation essentially de-
+scribes how it diffuses from initial value f  in a ho-
+mogeneous media with uniform conductivity over
+time s As we can imagine the distribution will
+gradually approach uniform and consequently the
+ne-scale structure of f will be lost
+Scale-space theory provides a formal framework
+for handling the multi-scale nature of both the phys-
+ical world and the human perception Since its in-
+troduction in 1980s it has become the foundation of
+many computer vision techniques and been widely
+applied to a large variety of visionimage processing
+tasks In this paper we show how this powerful tool
+can be adapted and applied to natural language texts
+2 Scale Space Representation
+3 Scale Space Model for Text
+The notion of scale space is applicable to signals of
+arbitrary dimensions Let us consider the most com-
+mon case where it is applied to 2-dimensional sig-
+nals such as images Given an image f x1 x2 its
+scale-space representation x1 x2 s is dened by
+f x1  u1 x2  u2u1 u2 sdu1du2
+x1 x2 s  f x1 x2  x1 x2 s
+where  denotes the convolution operator and  
+R2 R  R is a smoothing kernel ie a low pass
+lter with a set of desired properties ie the scale-
+space axioms Lindeberg 1994 The bandwidth
+parameter s is referred to as scale parameter since
+as s increases the derived image will become grad-
+ually smoother ie blurred and consequently more
+and more ne-scale structures will be suppressed
+It has been shown that the Gaussian kernel is the
+unique option that satises the conditions for linear
+scale space
+x s 
+2s
+ex2
+The resultant
+linear scale space representation
+x1 x2 s can be obtained equivalently as a solu-
+tion to the diffusion heat equation
+s 
+31 Word-level 2D Image Analogy of Text
+A straightforward step towards textual sale space
+would be to represent texts in the way as image sig-
+nal In this section we show how this can be made
+possible Other alternative signal formulations will
+be discussed in the followed section
+Let V  v1 v2     vM be our vocabulary con-
+sisting of M words given a document d comprised
+of a nite N-word sequence d  w1w2    wN 
+without any information loss we can characterize d
+as a 2D N  M binary matrix f  with the x y-
+th entry f x y indicates whether or not the y-th
+vocabulary word vy is observed at the x-th posi-
+tion ie f x y  wx vy where a b  1
+if a  b and 0 otherwise Hereafter we will re-
+fer to the x-axis as spatial domain ie positions in
+the document x  X  1     N and y-axis
+as the semantic axis ie indices in the vocabulary
+y  Y  V This representation provides an image
+analogy to text ie a document f is equivalent to a
+black-and-white image except that here we have one
+spatial and one semantic domains x y instead of
+two spatial domains x1 x2
+Interestingly scale-space representation can also
+be motivated by this binary model from a slightly
+different perspective as a way of robust density es-
+timation We have the following denition
+DEFINITION 1 A 2D text model f  RNM
+a probabilistic distribution over the joint spatial-
+semantic space X  Y  R 0 6 f x y 6 1
+RxRy f x ydxdy  1
+This 2D text model denes the probability of ob-
+serving a semantic word y at a spatial position x
+The binary matrix representation after normaliza-
+tion can be understood as an estimation of f with
+kernel density estimators
+wx  wiex 
+vy  vjey
+fx 
+f y 
+where ei
+is the i-th column vector of an iden-
+fx denotes the x-th row vector
+tity matrix
+and f y the y-th column vector Note that
+here the Dirac impulse kernels  is used
+words are unrelated either spatially or semanti-
+This contradicts the common knowledge
+since neighboring words in text are highly corre-
+lated both semantically Mei et al 2008 and spa-
+tially Lebanon et al 2007 For instance observ-
+ing the word New indicates a high likelihood
+of seeing the other word York at the next posi-
+tion As a result it motivates more reliable esti-
+mate of f by using smooth kernels such as Gaussian
+Witkin 1983 Lindeberg 1994 which as we will
+see leads exactly to the Gaussian ltering used in
+the linear scale-space theory
+32 Textual Signals
+The 2D binary matrix described above is not the only
+option we can work with in scale space Generally
+speaking any vector matrix or even tensor represen-
+tation of a document can be used as a signal upon
+which scale space ltering can be applied In partic-
+ular we use the following in the current paper
+ Word-level 2D signal f x y is the binary ma-
+trix we described in 31 It records the spatial
+position for each word and is dened on the
+joint spatial-semantic domains
+ Bag-of-word 1D signal is the BOW represen-
+tation f y  Px f x y ie the 2D matrix
+is collapsed to a 1D vector Since the spatial
+axis is wiped out this signal is dened on the
+semantic domain alone
+ Sentence-level 2D signal is a compromise be-
+tween word-level 2D and the BOW signals In-
+stead of collapsing the spatial dimension for the
+whole document we do it for each sentence
+As a result this signal f x y records the po-
+sition of each sentence for a xed position x0
+f x  x0 y records the BOW of the corre-
+sponding sentence
+ Topic 1D signal fx is composed of the topic
+embedding of each sentence and dened on the
+spatial domain only Assume we have trained
+a topic model eg Latent Dirichlet Alloca-
+tion on a universal corpus in advance this sig-
+nal is obtained by applying topic inference to
+each sentence and recording the topic embed-
+ding x  Rk where k  M is the dimen-
+sionality of the topic space Topic embedding
+is benecial since it endows us the ability to ad-
+dress synonyms and polysemy Also note that
+the semantic correlation may have been elimi-
+nated and consequently semantic smoothing is
+no longer necessary In other words although
+fx is a matrix we would rather treat it as a
+vector-variate 1D signal
+All these textual signals involve either a semantic
+domain or both semantic and spatial domains In the
+following we investigate how scale-space ltering
+can be applied to these domains respectively
+33 Spatial Filtering
+explored
+Witkin 1983
+recently
+Spatial ltering has long been popularized in signal
+Lindeberg 1994
+processing
+and was
+Lebanon et al 2007 Yang and Zha 2010
+can be achieved by convolution of the signal with a
+low-pass spatial lter ie x s  f x  x s
+For texts this amounts to borrowing the occurrence
+of words at one position from its neighbor-
+ing positions similar to what was done by a
+cache-based language model Jelinek et al 1991
+Beeferman et al 1999
+In order not to introduce spurious information the
+lter  need to satisfy a set of scale-space axioms
+Lindeberg 1994 If we view the positions in a text
+as a spatial domain the Gaussian kernel x s 
+12s
+expx22s or its discrete counterpart
+n s  esIns
+are singled out as the unique options that satisfy
+the set of axioms1 leading to the linear scale space
+where Int denotes the modied Bessel functions
+of integer order Alternatively if we view the po-
+sition x as a time variable as in the Markov lan-
+guage models a Poisson kernel n s  essnn
+is more appropriate as it retains temporal causality
+ie inaccessibility of future data
+34 Semantic Filtering
+Semantic ltering attempts to smooth the probabil-
+ities of seeing words that are semantically corre-
+In contrast to the spatial domain the se-
+mantic domain has some unique properties The
+rst thing we notice is that as semantic coordi-
+nates are nothing but indices to the dictionary we
+can permute them without changing the seman-
+tic meaning of the representation We refer to
+this property as permutation invariance Semantic
+smoothing has been extensively explored in natural
+language processing Manning and Schuetze 1999
+Zhai and Lafferty 2004
+smoothing
+methods eg Laplacian and Dirichlet smoother
+usually shrink the original distributions to a prede-
+ned reference distribution Recent advances ex-
+plored local smoothing where correlated words are
+smoothed according to their interrelations dened
+by a semantic network Mei et al 2008
+Classical
+Given a semantic graph Gv where two correlated
+words vy and vz are connected with weight yz se-
+mantic smoothing can be formulated as solving a
+graph-based optimization problem
+expd2
+Compared with spatial ltering semantic lter-
+ing is however more challenging
+In particular
+the semantic domain is heterogeneous and not shift-
+invariant  the degree of correlation yz depends on
+both coordinates y and z rather than their difference
+y  z As a result kernels that provably satisfy
+scale-space axioms are no longer feasible To this
+end we simply set aside these requirements and de-
+ne kernels in terms of the dissimilarity dyz between
+a pair of words y and z rather than their direct differ-
+ence y  z that is yy z s  xdyz s where
+we use y to denote semantic kernel to distinguish
+from spatial kernels x For Gaussian this means
+yy z s  12s
+35 Text Scale Space
+Scale is vital for the understanding of natural lan-
+guage yet it is nontrivial to determine which scale is
+appropriate for a specic task at hand in advance As
+a matter of fact the best choice usually varies from
+task to task and from document to document Even
+within one document it could be heterogeneous
+varying from paragraph to paragraph and sentence
+to sentence For the purpose of automatic modeling
+there is no way to decide a priori which scale ts
+the best More importantly it might be impossible
+to capture all the right meanings at a single scale
+Therefore the only reasonable way is to simulta-
+neously represent the document at multiple scales
+which is exactly the notion of scale space
+yz2s
+Scale space representation embeds a textual sig-
+nal into a continuous scale-space ie by a family
+of progressively smoothed signals parameterized by
+continuous scale parameters In particular for a 2D
+textual signal f x y we have
+1  XM
+yy  fy2
+yzy  z2
+x y sx sy  f x y  x y sx sy
+where the 2D smoothing kernel  is separable be-
+tween spatial and semantic domains ie
+where 0 6  6 1 denes the tradeoff y weights
+the importance of the node vy Interestingly the so-
+lution to Eqn7 is simply the convolution of the
+original signal with a specic kernel2 ie   f 
+1Including linearity shift-invariance semi-group structure
+non-enhancement of local extrema ie monotonicity scale-
+invariance etc see Lindeberg 1994 for details and proofs
+2This can be proven by the rst-order optimality of Eq7
+x y sx sy  xx sxyy sy
+Note that we have two continuous scale parameters
+the spatial scale sx  R and the semantic scale
+sy  R The case for 1D signals are even simpler
+as they only involve one type of kernels spatial or
+semantic For a 1D spatial signal f x we have  
+x and for a semantic signal f y   y And if
+Figure 1 Samples from the scale space representation of
+the example text New York Times offers free iPhone 3G
+as gifts for new customers in New York at scales from
+left to right s  0 0 1 1 4 4 and 64 64
+f is a vector-variate signal we just apply smoothing
+to each of its dimensions independently
+Example As an example Figure 1 shows four sam-
+ples x y s  si i  1 2 3 4 from the
+scale-space representation x y s of a synthetic
+short text New York Times offers free iPhone 3G
+as gifts for new customers in New York where s 
+sx sy the two scales are set equal sx  sy for ease
+of explanation and  is obtained based on the word-
+level 2D signal We use a vocabulary containing
+12 words in order new york time free
+iPhone gift customer apple egg city
+service and coupon where the last four words
+are chosen because of their strong correlations with
+those words that appear in this text The semantic
+graph is constructed based on pairwise mutual in-
+formation scores estimated on the RCV1-V2 corpus
+as well as a large set of Web search queries The
+00-scale sample or the original signal is a 1210
+binary matrix recording precisely which word ap-
+pears at which position The smoothed signals at
+11 22 and 88-scales on the other hand cap-
+ture not only short-range spatial correlations such as
+bi-gram tri-gram and even higher orders eg the
+named entities New York and New York Times
+but also long-range semantic dependencies as they
+progressively boost the probability of latent but se-
+mantically related topics eg iPhone  ap-
+ple customer  service free and gift 
+coupon new and iPhone  egg due to the
+online electronics store neweggcom
+4 Scale Space Applications
+The scale-space representation creates a new dimen-
+sion for text analysis Besides providing a multi-
+scale representation that allows texts to be analyzed
+in a scale-invariant fashion
+it also enables well-
+established computer vision tools to be adapted and
+applied to analyzing texts The scale space model
+can be used in NLP and text mining in a variety of
+ways To stimulate further research in this direction
+we initiate a couple of instantiations
+41 Scale-Invariant Text Classication
+In this section we show how to make text classi-
+cation scale-invariant by exploring the notion of
+scale-invariant text kernel SITK Given a pair of
+documents d and d at any xed scale s the repre-
+sentation  induces a single-scale kernel ksd d 
+hs si where hi denotes any inner product
+eg Frobenius product Gaussian RBF similarity
+Jensen-Shannon divergence This kernel can be
+made scale-invariant via the expectation
+kd d  E
+qksd d  Z 
+ksd dqsds
+where q is a probabilistic density over the scale
+space R with 0 6 qs 6 1 and R 0 qsds  1
+which in essence characterizes the distribution of the
+most appropriate scale q can be learned from data
+via a EM procedure or in a Bayesian framework if
+our belief about the scale can be encoded into a prior
+distribution q0s As an example we show below
+one possible formulation
+Given a training corpus D  di yin
+i1 where d
+is a document and y its label our goal in text clas-
+sication is to minimize the expected classication
+error To simplify matters we assume a paramet-
+ric form for q Particularly we use the Gamma dis-
+tribution qs k   ksk1esk due to its
+exibility Moreover we propose a formulation that
+eliminates the dependence on the choice of the clas-
+sier which approximately minimizes the Bayes er-
+ror rate Yang and Hu 2008  ie
+Eqhis
+i sdi dh
+maxk Xn
+where his  sdi dm
+i  is a heuris-
+tic margin dh
+i  called nearest-hit is the nearest
+neighbor of di with the same class label whereas
+i  the nearest-miss is the nearest neighbor of di
+with a different label and the distance sd d 
+This above
+pksd d  ksd d  2ksd d
+formulation can be solved via a EM procedure Al-
+ternatively we can discretize the scale space prefer-
+ably in log-scale ie S  s1     sm and opti-
+mize a discrete distribution qj  qsj directly from
+the same formulation In particular if we regularize
+the 2-norm of q Eq11 will become a convex opti-
+mization with a close-form solution that is extremely
+efcient to obtain
+q  hh
+the scale-invariant
+where q  q1     qm the average margin vector
+h  h1     hm with entry hj  1
+i1 hisj
+and  denotes the positive-part operator
+Experiments We test
+kernels SITK on the RCV1-v2 corpus with fo-
+cus on the 161311 documents from ten leaf-
+node topics C11 C24 C42 E211 E512
+GJOB GPRO M12 M131 and M142 Each
+text is stop-worded and stemmed The top 20K
+words with the highest DFs document frequencies
+are selected as vocabulary all other words are dis-
+carded The semantic network is constructed based
+on pairwise mutual information scores estimated on
+the whole RCV1 corpus as well as a large scale
+repository of web search queries and further spar-
+sied with a cut-off threshold We implemented the
+sentence-level 2D the LDA 1D signals and BOW
+1D for this task For the rst two the documents are
+normalized to the length of the longest one in the
+corpus via bi-linear interpolation
+We examined the classication performance of
+the SVM classiers that are trained on the one-vs-
+all splits of the training data where three types of
+kernels ie linear Frobenius RBF Gaussian and
+Jensen-Shannon kernels were considered The av-
+erage test accuracy ie Micro-averaged F1 scores
+are reported in Table 1 As a reference the re-
+sults by BOW representations with TF or TFIDF at-
+tributes are also included For all the three kernel
+options the scale-space based SITK models signi-
+cantly according to t-test at 001 level outperform
+the two BOW baselines while the sentence level
+SITK performs substantially the best with 78 ac-
+curacy improvement ie 56 error reduction
+42 Scale-Invariant Document Retrieval
+Capturing users information need from their in-
+put queries is crucially important to information re-
+trieval yet notoriously challenging because the in-
+formation conveyed by a short query is far more
+vague and subtle than a BOW model can capture It
+Table 1 Text classication test accuracy We compared
+ve models the bag-of-word vector space models with
+TF or TFIDF attributes and the scale-invariant text ker-
+nels with BOW 1D SITKBOW LDA 1D SITKLDA
+and Sentence-level 2D SITKSentence textual signal
+Best results are highlighted in bold
+ModelKernel
+SITKBOW
+SITKLDA
+SITKSentence
+is therefore desirable to base search on more effec-
+tive text representations than BOW We show here
+how scale space model together with interest point
+detection techniques can be used to make a retrieval
+model scale-invariant and more effective
+Given a set of documents d and a query Q our
+goal is to rank the documents according to their rel-
+evance wrt Q The key to text retrieval is a rele-
+vance model rQ d We dene r in the same spirit
+as we develop the SITK In particular if we normal-
+ize the representations of Q and d to the same di-
+mension eg via bi-linear interpolations3 then at
+any xed scale s the scale space model induces a
+relevance function rQ ds  hQ di eg via
+KL-divergence Jessen-Shannon score This rele-
+vance model can be made scale invariant by dening
+a distribution q over the scale space and using
+rQ d  EqrQ ds
+which is referred to as scale-invariant
+language
+model SILM As in 41 q can be learned through
+a Bayesian framework or via a EM procedure As
+an example assume q is again a Gamma distribution
+with parameter k  Moreover assume we have
+a training corpus containing a set of queries Q
+and for each Q a set of documents dQ
+j  along with
+their relevance judgements We have the following
+pairwise preference learning formulation
+q XQ XdQ
+i dQ
+EqhQ i js
+3In the case of the sentence-level 2D or LDA 1D signals Q
+is a vector and d is a matrix this simply amounts to replicat-
+ing Q to the same dimension as d or equivalently applying a
+sentence-level sliding-window to d calculating r at each point
+and summating the relevance scores
+i  dQ
+j s and dQ
+the pairwise margin hQ i js
+i s  rQ dQ
+j means dQ
+rQ dQ
+is more relevant to Q than dQ
+j  This formulation can
+be solved efciently via a similar EM procedure
+and again in the discrete case with 2-regularization
+has an efcient close-form solution
+q  hh
+i dQ
+where the average margin h  h1     hm with
+hl  PQ PdQ
+hQ i jsl l  1     m
+More interestingly scale-space model can also be
+used together with techniques for interest point de-
+tection Lowe 2004 to address passage retrieval
+PR in a scale-invariant manner ie to determine
+not only which documents are relevant but also
+which parts of them are relevant PR is partic-
+ularly advantageous when documents are substan-
+tially longer than queries or when they span a large
+variety of topic areas for example when retrieving
+books A key challenge in PR is how to effectively
+narrow our attention to a small part of a long docu-
+ment Existing approaches mostly employ a sliding-
+window style exhaustive search ie scan through
+every possible passage compute relevance scores
+and rank all of them Tellex et al 2003 These ap-
+proaches suffer from computational efciency issues
+since the number of possible passages could be quite
+large for long documents Here we propose a new
+idea which employs interest point detection IPD
+algorithms to quickly focus our attentions to a small
+set of potentially relevant passages In particularly
+for a given Q d pair we rst apply IPD without
+normalization to both Q and d in scale space then
+match them locally between region pairs centered at
+each interest point and calculate the relevance scores
+Experiments We evaluated SILM on a text re-
+trieval task based on the OHSUMED data set a
+collection of 348566 documents 106 queries and
+16140 relevance judgements Similar preprocess-
+ing steps as in 41 were implemented For SILM
+standard Kullback-Leibler divergence was used as
+relevance function For comparison the unigram
+language model ie 1-LM was used as baselines
+The results are reported in Table 2 in terms of three
+standard IR evaluation measures
+ie the Mean-
+Average-Precision MAP Precision at N with N5
+Table 2 Text retrieval performance We evaluate four
+models the Unigram Language Model 1-LM and the
+Scale-Invariant Language Models with three textual sig-
+nal options referred to as SILMBOW SILMLDA and
+SILMSentence respectively
+ModelMeasure MAP
+SILMBOW
+SILMLDA
+SILMSentence
+and 10 ie P5 and P10 We observe that
+SILM models outperform the uni-gram LM amaz-
+ingly by up to 15 in terms of MAP 13 in P5
+and 10 in P10 All these improvements are sig-
+nicant based on a Wilcoxon test at the level of
+001 Again the best performance is obtained by
+the sentence-level 2D based SILM model
+43 Hierarchical Document Keywording
+The extrema ie maxima and minima of a signal
+and its rst a few derivatives contain important infor-
+mation for describing the structure of the signal eg
+patches of signicance boundaries corners ridges
+and blobs in an image Scale space model provides
+a convenient framework to obtain the extrema of a
+signal at different scales In particular the extrema
+in the k 1-th derivative of a signal is given by the
+zero-crossing in the k-the derivative which can be
+obtained at any scale in the scale space conveniently
+via the convolution of the original signal with the
+derivative of the Gaussian kernel ie
+xk   f 
+xk 
+Since Gaussian kernel is innitely differentiable the
+scale-space model makes it possible to obtain lo-
+cal extremaderivatives of a signal to arbitrary or-
+ders even when the signal itself is undifferentiable
+Moreover due to the non-enhancement of local ex-
+trema property local extrema are created monoton-
+ically as we decrease the scale parameter s In this
+section we show how this can be used to detect
+keywords from a document in a hierarchical fash-
+ion The idea is to work with the word-level 2D sig-
+nal other options are also possible and track the
+extrema ie patterns of signicance of the scale-
+space model  through the zero-crossing of its rst
+derivative   0 to see how extrema progressively
+emerge as the scale s goes from coarse to ner lev-
+els This process reduces the scale-space represen-
+tation to a simple ternary tree in the scale space ie
+the so-called interval tree in Witkin 1983 Since
+f denes a probability over the spatial-semantic
+space it is straightforward to interpret the identi-
+ed intervals as keywords This algorithm therefore
+yields a keyword tree that denes topics we could
+perceive at different levels of granularities from the
+document
+Experiments As an illustrative example we ap-
+ply the hierarchical keywording algorithm described
+above to the current paper The keywords that
+emerged in order are as follows scale space 
+kernel signal text  smoothing spatial
+semantic domains Gaussian lter text
+analysis natural language word     
+44 Hierarchical Text Segmentation
+In the previous section we show how semantic key-
+words can be extracted from a text in a hierarchi-
+cal way by tracking the extrema of its scale space
+model  In the same spirit here we show how topic
+boundaries in a text can be identied by tracking the
+extrema of the rst derivative 
+Text segmentation is an important
+topic in
+NLP and has been extensively investigated previ-
+ously Beeferman et al 1999 Many existing ap-
+proaches however are only able to identify a at
+structure ie all the boundaries are identied at a
+at level A more challenging task is to automat-
+ically identify a hierarchical table-of-content style
+structure for a text that is to organize boundaries
+of different text units in a tree structure according
+to their topic granularities eg chapter boundaries
+at the top-level followed in order by boundaries of
+sections subsections paragraphs and sentences as
+the level of depth increases This can be achieved
+conveniently by the interval tree and coarse-to-ne
+tracking idea presented in Witkin 1983 In partic-
+ular if we keep tracking the extrema of the 1st order
+derivatives ie rate of changes by looking at the
+points satisfying
+  0 while
+ 6 0
+position
+position
+Figure 2 Hierarchical text segmentation in scale space
+Due to the monotonicity nature of scale space repre-
+sentation such contours are closed above but open
+below in the scale space They naturally illustrate
+how topic boundaries appear progressively as scale s
+goes ner And the exact localization of a boundary
+can be obtained by tracking back to the scale s  0
+Also note that this algorithm unlike many existing
+ones does not require any supervision information
+Experiments As an example we apply the hierar-
+chical segmentation algorithm to the current paper
+We use the sentence level 2D signal Let x sx
+denote the vector x sx sy  C where the se-
+mantic scale sy is xed to a constant C and the se-
+mantic index y enumerates through the whole vo-
+cabulary y  v1     vM We identify hier-
+archical boundaries by tracking the zero contours
+  2
+x2 x sx2  0 where 2 denotes 2-norm
+to the scale s  0 where the length of the projec-
+tion in scale space ie the vertical span reects
+each contour lines topic granularity as plotted in
+Figure 2 top As a reference the velocity mag-
+nitude curve bottom  
+x x sx2 and the true
+boundaries of sections red-dashed vertical lines in
+top gure and subsections green-dashed are also
+plotted As we can see the predictions match the
+ground truths with satisfactorily high accuracy
+5 Summary
+This paper presented scale-space theory for text
+adapting concepts formulations and algorithms that
+were originally developed for images to address the
+unique properties of natural language texts We also
+show how scale-space models can be utilized to fa-
+cilitate a variety of NLP tasks There are a lot of
+promising topics along this line for example al-
+gorithms that scale up the scale-space implementa-
+Zhai and Lafferty2004 C Zhai and J Lafferty 2004 A
+study of smoothing methods for language models ap-
+plied to information retrieval ACM TOIS 222179
+tions towards massive corpus structures of the se-
+mantic networks that enable efcient or even close-
+form scale-space kernelrelevance model and effec-
+tive scale-invariant descriptors eg named entities
+topics semantic trends in text for texts similar to
+the SIFT feature for images Lowe 2004
+References
+Beeferman et al1999 D Beeferman A Berger and
+J Lafferty 1999 Statistical models for text segmen-
+tation Machine Learning 34177210
+Iyer and Ostendorf1996 R
+Iyer and M Ostendorf
+1996 Modeling long distance dependence in lan-
+guage Topic mixtures vs dynamic cache models
+IEEE Transactions on Speech and Audio Processing
+713039
+Jelinek et al1991 F Jelinek B Merialdo S Roukos
+and M Strauss 1991 A dynamic language model
+for speech recognition HLT 1991 pages 293295
+Lebanon et al2007 G Lebanon Y Mao and J Dillon
+2007 The locally weighted bag of words framework
+for document representation JMLR 824052441
+Lindeberg1994 T Lindeberg 1994 Scale-space the-
+ory A basic tool for analysing structures at different
+scales Journal of Applied Statistics 212224270
+Lowe2004 D Lowe 2004 Distinctive image features
+from scale-invariant keypoints IJCV 60291110
+Manning and Schuetze1999 C
+Manning
+Foundations of Statistical
+H Schuetze
+Natural Language Processing MIT Press
+Mei et al2008 Q Mei D Zhang and C Zhai 2008
+A general optimization framework for smoothing lan-
+guage models on graph structures
+In SIGIR 2008
+pages 611618
+Metzler and Croft2005 D Metzler and W Croft 2005
+A markov random eld model for term dependencies
+In SIGIR 2005
+Tellex et al2003 S Tellex B Katz J Lin A Fernan-
+des and G Marton 2003 Quantitative evaluation
+of passage retrieval algorithms for question answering
+In SIGIR 2003
+Witkin1983 A Witkin 1983 Scale-space ltering In
+IJCAI 1983 pages 10191022
+Yang and Hu2008 S Yang and B Hu 2008 Feature
+selection by nonparametric bayes error minimization
+In PAKDD 2008 pages 417428
+Yang and Zha2010 S Yang and H Zha 2010 Lan-
+guage pyramid and multi-scale text analysis In CIKM
+2010 pages 639648

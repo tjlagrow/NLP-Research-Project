@@ -1,0 +1,2094 @@
+Graph Interpolation Grammars
+a rule-based approach to the incremental parsing of
+natural languages
+John Larcheveque
+March 1998
+Abstract
+Graph Interpolation Grammars are a declarative formalism with an operational
+semantics Their goal is to emulate salient features of the human parser and notably
+incrementality The parsing process dened by GIGs incrementally builds a syntactic
+representation of a sentence as each successive lexeme is read A GIG rule species
+a set of parse congurations that trigger its application and an operation to perform
+on a matching conguration Rules are partly context-sensitive furthermore they
+are reversible meaning that their operations can be undone which allows the parsing
+process to be nondeterministic These two factors confer enough expressive power to
+the formalism for parsing natural languages
+1 Introduction
+11 Characteristics and rationale
+A graph interpolation grammar is a grammar formalism with an operational semantics
+A rule in a graph interpolation grammar species not only syntactic relations but also
+an elementary parsing operation
+Rules are lexicalized in the sense that each rule describes the combinatory properties
+of a lexical item Parsing a sentence consists in matching each lexeme in the input string
+with a rule in the grammar and applying this rule to the current parse representation
+GIG-driven parsing was designed with incrementality and exibility in mind so as
+to emulate some features of the human parsing capability in particular incremental
+processing error tolerance and handling of complex word orders
+In a complete model of discourse understanding incremental parsing would be
+shown to work in tandem with some form of composition between partial semantic
+representations It is to be thought that the collaboration between syntax and seman-
+tics in natural discourse understanding is fairly close and that backtracking in the
+parser is frequently initiated by a clash found between semantic features This report
+however will not attempt to give even the roughest idea of what semantic represen-
+tations should look like and will therefore exclusively focus on syntactic phenomena
+sometimes at the cost of simplifying the phenomena at hand
+12 Plan of the report
+The rst two sections give a fairly complete presentation of the concepts and processes
+involved in parsing with a Graph Interpolation Grammar The syntactic structures
+generated when parsing with a GIG are described in Section 2 while the grammar
+rules and the parsing process are described in Section 3
+The next few sections apply the formalism to selected problems Section 4 com-
+pares the handling of a simple expression language using a Context Free Grammar and
+a Graph Interpolation Grammar and Section 5 analyzes Dutch Cross-Serial Depen-
+dencies
+Finally the conclusion indicates topics for further research and related works
+2 Syntactic structures
+21 Phrases
+A phrase is made up of a head and its complements It will be represented by a graph
+with a root and one labelled edge from the root to each nonroot node
+The root represents the head of the phrase the other nodes represent its comple-
+ments and the edge labels represent grammatical functions
+211 Ordering relations
+In addition nodes in a phrase graph are connected through ordering edges
+simplest case the eect of ordering edges is to align graph nodes from left to right
+For example the sentence
+She gave me an apple
+contains a phrase the head of which is a ditransitive verb with three complements the
+subject the indirect object and the direct object This phrase can be represented by
+the following graph in which V for verb and NP for noun phrase
+precedes
+subject
+precedes
+indirectObject
+precedes
+Figure 1 A phrase graph
+Since this is a case in which a total left-to-right alignment of nodes can be dened
+ordering edges can be omitted and the ordering represented by the relative positions
+of the nodes in the diagram as in Figure 2 Explicit orderings will not be used in this
+report for a strict total ordering of phrase constituents exists in all examples given
+At any rate the possibility exists of specifying sophisticated order constraints as long
+as these constraints are local to a phrase
+object
+subject
+indirectObject
+Figure 2 The same phrase graph with implicit ordering
+212 Phrase head
+The criteria for distinguishing a head in a phrase are both syntactic and semantic
+From a syntactic point of view the head determines the presence and functions of
+its complements From a semantic point of view the head acts as a predicate of
+its complements adding semantic features to them while the complements generally
+contribute to rooting these features into a specic situation
+On the basis of these criteria an attributive adjective forms the head of a phrase
+made up of an adjective and a noun such as red leaf Indeed the occurrence of the
+adjective implies the occurrence of a single noun whereas the presence of the noun
+does not require or limit the number of attributive adjectives On the other hand
+though evidence for this type of criterion is not so easy to adduce the adjective adds
+semantic features to the noun as is shown in particular by its capacity to function as a
+predicate in a clause Figure 3 illustrates a phrase headed by an attributive adjective
+Adj stands for adjective
+subject
+Figure 3 A modifying phrase
+Considering the adjective as the head of such a phrase can be counterintuitive
+insofar as the phrase in question functions as a noun
+It is however necessary to
+distinguish the internal structure of a phrase as described by its phrase graph
+from its function with respect to other phrases In order to bring out this distinction
+a structure that interrelates phrase graphs must be dened The next section denes
+a structure of this type the parse graph
+22 Parse graphs
+Consider for example the phrase good old days
+A parse graph is a structure in which phrase graphs are related through parent-of edges
+It contains the phrase old days
+which has old as its head but functions as a noun and is itself modied by the adjective
+good in the larger phrase good old days The containment relation just outlined can be
+rendered by drawing a parent-of edge between the noun node of the enclosing phrase
+and the head of the embedded phrase Graphically this can be represented as in
+Figure 4
+From now on in parse graph representations vertical edges will be assumed to be
+directed downward and represent parent-of edges
+subject
+parentof
+subject
+Figure 4 A parse graph
+On the other hand a parent-of edge can also connect a phrase node to a lexical
+item A complete parse graph for a phrase or sentence can thus be dened as a parse
+graph with a root node and such that every path leads to a lexical item These facts
+give rise to the following principle and denition
+Principle 1 A lexical node can occur in a parse graph as the destination of a parent-of
+Denition 1 A complete parse graph is a parse graph with a root node ie a node
+from which every node is reachable and such that every path leads to a lexical node
+Figure 5 shows the complete parse graph for the phrase the good old days Det
+stands for determiner
+determiner
+subject
+subject
+Figure 5 A complete parse graph
+Such a graph can be mapped to a tree in such a way that members of a phrase graph
+including the head are mapped to sibling nodes Although the graph contains more
+information and is better adapted to incremental construction that its tree counterpart
+it will often prove useful to apply tree terminology to parse graphs For example the
+terms descendant ancestor or frontier are to be understood with respect to the tree
+counterpart of a parse graph Likewise a dangling node is to be understood as a non-
+lexical node that occupies a terminal position in the tree counterpart of an incomplete
+parse graph For further reference here is the denition that justies this terminology
+Denition 2 The summary tree of a parse graph is a connected graph that contains
+the same set of nodes as the parse graph and such that each path of the parse graph
+consisting of either a parent-of edge or a parent-of edge followed by a functional edge
+is mapped to a parent-of edge of the summary tree
+Figure 6 Summary tree for the parse graph on Figure 5
+23 Subtyping in node labels
+The classication of lexical items can be made according to several possible criteria
+For example the can be categorized as an article and thus be distinguished from this
+On the other hand both of the and this are denite determiners and as such can be
+usefully grouped under one category This suggests that lexical categories are usefully
+viewed as sets of syntactic properties such as determiner article denite etc
+Furthermore some of these properties are visible in ancestors of lexical items in a parse
+graph For example the presence of a denite determiner confers to a Noun Phrase
+the status of a denite description A simple way of modeling this consists in labelling
+each node of a parse graph with a set of property names rather than an atomic name
+Thus the label of a node dominating the is a set containing the names determiner
+article and denite and the label of an NP determined by the this a genitive
+NP or any other denite determiner is a set containing the name denite
+For simplicity most of the graphs and rules given as examples have atomic node
+labels even when some node types could be shown to subsume or share properties
+with other symbols However Section 42 shows how multi-valued node labels can
+contribute to the expressive power of a grammar
+3 Building parse graphs
+Parse graphs as just dened can be incrementally built by scanning an input ow
+of lexemes and performing a building step as each lexeme is read A building step is
+formally described by a composition rule which adds to the graph under construction
+a subgraph associated with the current lexeme
+31 Form of a composition rule
+Suppose that i the phrase being parsed is a robin ii somehow see Section 35
+the parse graph on Figure 7 was built on encountering the determiner a and iii the
+current lexeme is robin
+determiner
+Figure 7 An NP context
+The presence of the dangling ie childless noun node to the right of the previous
+lexeme namely a materializes the anticipation of a noun Singular common nouns are
+generally inserted in just such a context and so we can dene a rule for the lexeme
+robin that stipulates i that the linear successor of the previous lexeme ie a in the
+parse graph should be a dangling noun node ii that the new subgraph to integrate
+consists of a noun node dominating the lexeme robin and iii that this new subgraph
+is to be substituted for the dangling noun node A graphic representation of this rule
+is given on Figure 8 in section 32
+More generally let the context be the parse graph obtained by parsing the input
+string up to the current lexeme a composition rule consists of
+1 a pattern to match against the context known as the context pattern and
+2 a subgraph to integrate into the context known as the addendum
+Or more formally
+Denition 3 A composition rule is a pair made up of a context pattern and an ad-
+dendum
+This denition in turn relies on the denitions of a context pattern and an adden-
+dum The following denition of a context pattern is somewhat simplied and will be
+enriched later Denition 11 Section 310
+Denition 4 A context pattern is a parse graph with one distinguished node called
+the context anchor and an indication of whether the context anchor is an ancestor or
+immediate linear successor of the previous lexeme
+To proceed in depth-rst order here is the denition that explains the term linear
+successor
+Denition 5 When all phrase constituents in a parse graph are strictly ordered from
+left to right a linear order over the parse graph is given by the left-to-right ordering of
+nodes in the frontier of the summary tree Denition 2 Section 22 It is therefore a
+partial ordering of parse graph nodes under which only terminal nodes of the summary
+tree are comparable
+The context pattern indicates what the parse graph obtained so far must look like
+in order for the rule to be applicable A context matches a context pattern if it is a
+supergraph of the pattern and it contains a node whose location and label match the
+anchor specications
+Section 372 on free word order examines the consequences of having several
+possible linearizations of the parse graph This has computational implications but
+does not impact the above denitions in any essential way
+Denition 6 An addendum is a parse graph with one or two distinguished nodes called
+addendum anchors and exactly one lexical node
+A rule is found applicable when the current lexeme matches the addendum lexeme
+and the context matches the context pattern The conjunction of context and current
+lexeme forms a parse conguration
+Denition 7 A parse conguration is a pair made up of a context and a current
+lexeme
+Beside a parse conguration what a rule species is an operation to modify this
+conguration This operation called an interpolation is specied by means of the
+context anchor and the addendum
+When the addendum contains a single anchor such as the noun node in our ex-
+ample the interpolation is performed by substituting the addendum anchor for the
+context anchor This particular type of interpolation will sometimes be called an in-
+sertion by opposition to a proper interpolation which is characterized by the presence
+of two distinct anchors in the addendum
+When the addendum contains two anchors they delimit a path that is substituted
+for the context anchor Since a single anchor can be viewed as a path of length 0 this
+case subsumes insertion
+No formal denition of interpolation will be attempted at present Let it simply be
+clear that interpolation involves in fact two operations
+1 the substitution of a path of the addendum for the context anchor
+2 the disjoint union of the addendum with the context
+These notions will be treated in more detail in Section 371
+Insertion example
+An example of insertion is the example given informally above The rule can be repre-
+sented as on Figure 8
+In a graphic representation of a composition rule the context pattern and the
+addendum appear on either side of an implies    sign with the addendum on the
+right and the anchoring specications are materialized by placing a mark next to each
+anchor This mark is an asterisk  next to an addendum anchor Next to the context
+anchor it is a double down arrow  or a left arrow  according as the context
+anchor is an ancestor or an immediate successor of the previous lexeme The notion
+of immediate successor is dened with respect to the linear order indicated through
+Figure 8 An insertion rule
+the ordering edges present in addenda Its applicability to free word-order languages
+is discussed in Section 372
+Applying the insertion rule on Figure 8 to the parse graph on Figure 7 results in
+the parse graph on Figure 9
+determiner
+Figure 9 Result of applying the above insertion rule
+33 Proper interpolation example
+Figure 10 illustrates path-to-node anchoring The composition rule interpolates a
+prepositional phrase into a noun phrase to produce a qualied noun phrase as in a
+bird on a tree PP stands for Prepositional Phrase and Prep for preposition
+subject
+Figure 10 A proper interpolation rule
+The sign next to the context anchor indicates that it is to be found above the
+previous lexeme rather than immediately after it The diagram on Figure 11 shows the
+context to which this rule could apply and the resulting context after its application
+An application diagram follows the following pattern
+context  addendum  new context
+subject
+subject
+Figure 11 An application of the preceding rule
+34 Anchor matching
+The preceding examples have shown that the context anchor can be an ancestor or an
+immediate linear successor of the previous lexeme The rst case occurs typically with
+a proper interpolation and the second with an insertion This is of course just the
+typical case Section 372 gives general criteria for locating the context anchor
+341 Matching an immediate successor anchor
+No attempt to deal with free word order will be made until Section 372 Until then
+we can rely on a strict left-to-right ordering of all phrase constituents Therefore the
+previous lexeme always has a unique immediate linear successor which is its immediate
+successor in the frontier of the summary tree Denition 2 Section 22
+342 Matching an ancestor anchor
+Ancestor positions are also dened with respect to the summary tree of the parse graph
+Denition 2 Section 22 On the other hand for a node to match an ancestor anchor
+there is an additional condition beside location and label match It can be stated as
+follows
+Principle 2 A context anchor in ancestor position can only be matched by the root of
+a complete parse graph see Denition 1 Section 22
+For example an NP cannot be postmodied if it is incomplete ie if the frontier
+of its summary tree contains nonlexical nodes
+343 Incidence of node subtyping on anchor matching
+If node labels are sets of symbols label matching requires that all symbols attached to
+the context anchor be present in the node to match For example a context pattern
+could contain the information that the anchor is a denite determiner and any node
+that has at least the type atoms denite and determiner will satisfy label matching
+In other words for a node to match a context anchor its type must be a subtype
+of the type of the context anchor On the other hand this means that the formulation
+of a rule and notably the addendum must involve a special device to mention the
+full type of the node that matched the anchor so as not to lose information Indeed
+a rule is allowed to change the type of the anchor as explained in Section 35 and
+illustrated on Figure 13 Accordingly the special symbol  can be used to assign to
+an addendum anchor the exact type of the node matching the context anchor
+An example of a grammar that uses subtyping is given in Section 42
+35 Parser initialization
+To begin with there is no context or rather the context consists of a single node with
+a generic label that subsumes all phrases with which an utterance is likely to start1 No
+lexeme has been integrated to the context yet but for technical purposes the initial
+node can be considered to follow the previous lexeme In other words a rule with
+an immediate-successor  mark next to the context anchor will match the initial
+context
+Suppose a sentence begins with the phrase a robin then the initial lexeme a can
+be integrated using the following insertion rule
+determiner
+Figure 12 Insertion rule for a
+This rule simply means that a can be considered as the beginning of a Noun Phrase
+It does not say that a could be the beginning of a sentence Yet most utterances are
+sentences so it would seem that this rule is generally inappropriate It is not however
+if one considers that the denition of an interpolation that was informally given in
+Section 31 does not require the two ends of an interpolation path to bear the same
+label And indeed should a phrase like a robin be followed with a verb such as ew
+the rule shown on Figure 13 can apply to make the root of the parse graph an S-node
+Dir stands for directional phrase
+subject
+Figure 13 Interpolation rule for ew
+1Label subsumption is discussed in Section 23
+36 Backtracking
+Matching a rule often involves making a prediction on the continuation of the utterance
+For example the rule on Figure 13 predicts that a directional phrase follows the verb
+ew When several predictions are possible as will often be the case a trial-and-error
+approach is adopted
+A prediction conict appears when several rules are available for a given context
+and current lexeme ie a given parse conguration It is supposed that the rules
+associated with each lexeme are totally ordered by priority and each rule is tried in
+priority order until a successful parse is obtained2
+For example when the current lexeme is ew and an NP node dominates the
+previous lexeme there could be two rules with higher priority on the rule on Figure 13
+and lower priority on the following rule which makes ew an intransitive verb
+subject
+Figure 14 An alternative rule for ew
+Given these two rules the sentence a robin ew swiftly would rst be mapped to the
+parse graph on Figure 15 then on realizing that by the end of the sentence the parse
+graph is still incomplete one would have to reconsider the choices made Supposing
+there is a single analysis available for swiftly the parser would then backtrack on ew
+and try the second rule which would eventually lead to a successful parse
+swiftly
+Figure 15 Graph built before backtracking
+Backtracking involves undoing some of the rules applied so far This supposes
+that track is kept of the list of rules applied and more importantly that each rule is
+reversible As a matter of fact rules as dened are reversible owing to Principle 4
+2If the selection process parallels a similar process in the human mind a simple hypothesis would correlate
+rule priority with statistical eciency alternately or complementarily there could be structural criteria that
+correlated priority with simplicity or canonicity
+Section 371 In order to undo the eect of a rule the addendum is to be removed and
+the interpolation path replaced back by the context anchor If rules were not reversible
+then it would be necessary to keep track of at least the last few parse congurations
+Of course backtracking does not always take place after reading the whole input
+string It takes place whenever no further rule can be triggered and the parse graph is
+incomplete
+For another example consider the sentence he gave trouble to us and suppose that
+The edge label iObj stands for
+the highest-priority rule for gave is the following
+indirect object
+Figure 16 Default rule for gave
+Then on encountering to no rule will match the context in which an object NP
+is expected thus leading the parser to backtrack on trouble then gave and select the
+following rule which will eventually lead to a successful parse A to-Prep is a category
+that contains only the preposition to and unto in archaic dialects
+toPP
+toPrep
+Figure 17 Alternate rule for gave
+Interpolation and anchor matching
+This section revisits concepts introduced in Section 31 giving more precise formula-
+tions and adding details that were initially overlooked
+371 Addendum incorporation
+In all the examples given so far an insertion consists in replacing a dangling node
+with a node with a child and a proper interpolation consists in interpolating a path
+whose rst edge is a parent-of edge so that the destination of the interpolation path
+dominates its source
+With interpolations of this type merging an addendum into the context is a fairly
+straightforward process which has not been explicated so far but only illustrated
+through examples
+However the concept of interpolation allows more exibility than has been hitherto
+suggested and in order to consider further varieties of interpolation it is important
+to bring out the graph invariants implicitly used and preserved during addendum in-
+corporation
+Invariant 1 In a phrase graph there cannot be distinct edges with the same label
+Invariant 2 In a parse graph any node except the root has exactly one incoming edge
+Invariant 3 In a parse graph there cannot be more than one parent-of edge from any
+According to invariant 2 an interpolation path can be dened as the unique oriented
+path that connects two addendum anchors With respect to this path there is a source
+anchor and a destination anchor
+Invariant 2 also implies that the source anchor
+inherits the incoming edge of the context anchor as a result of an interpolation
+Furthermore when one looks at the way the outgoing edges of the context anchor
+are distributed between the addendum anchors of an interpolation invariant 3 can be
+seen to prevail in that the parent-of edge in the examples seen so far is transmitted
+to the destination anchor The underlying principle can be stated as follows
+Principle 3 All edges of the context anchor are inherited by the source of the in-
+terpolation path except for edges present in the addendum which are shifted to the
+destination of the interpolation path
+Principle 3 itself presupposes that the addendum and the context form disjoint
+graphs This principle is well worth spelling out for it allows rules to be easily reversible
+in the sense of Section 36
+Principle 4 In a composition rule the sets of nodes of the addendum and the context
+have an empty intersection
+Indeed if the graph union that is specied by a rule is a disjoint union then no
+information beyond the list of rules applied is necessary to undo the eect of these
+On the other hand Principle 3 presupposes that if the context anchor is a head
+then the addendum anchors must both be capable of inheriting functional edges ie
+be phrase heads as well Conversely if the context anchor is not a head substituting
+a head for it would create a second head within one phrase which is ruled out by
+denition These considerations can be summarized by the following principle
+Principle 5 The head status of the context anchor must be matched by the addendum
+anchors
+This principle does not directly govern addendum incorporation for it has to be
+built into the grammar rules It is especially useful as a prerequisite of Principle 3
+Nonstandard interpolation To see how Principle 3 applies to a nonstandard
+case of proper interpolation ie a case in which the interpolation path does not start
+with a parent-of edge consider the rule on Figure 18 The box represents an empty
+category or gap the symbol that-Cnj informally denotes a subcategory whose main
+representative is the conjunction that
+thought
+thatCnj
+thatCl
+Figure 18 A nonstandard case of proper interpolation
+Although the context anchor which is a verb is a dangling node an empty ob-
+ject NP ie an object gap has been predicted typically owing to the presence of
+a preceding object pronoun ie a relative or interrogative pronoun or a topicalized
+object NP The occurrence of a verb that governs a sentence rather an object NP
+pushes the predicted object gap further Since the object gap does not appear in the
+addendum owing to Principle 4 its position in the graph after the rule has applied is
+not specied explicitly but can be inferred from Principle 3 Indeed since the object
+edge from the context anchor is redundant with the object edge that emanates from the
+source anchor of the addendum it is inherited by the destination anchor Therefore
+after addendum incorporation the context will contain the following subgraph
+thought
+thatCnj
+thatCl
+Figure 19 Subgraph obtained after addendum incorporation
+Nonstandard insertion A standard insertion substitutes a node with an outgoing
+parent-of edge for a dangling node But it is also conceivable to substitute a node with
+arbitrary nonredundant outgoing edges for a node with descendants
+A practical use of nonstandard interpolation could be the handling of optional
+complements For example supposing the rule that handles the by-complement of a
+passive were the one represented on FigurepassiveAgentg there would be no necessity
+to anticipate the presence of a by-complement on encountering a passive and so no
+backtracking would be involved to handle its optionality3
+passiveV
+passiveV
+byPP
+byPrep
+Figure 20 Rule for the by-complement of a passive
+372 Anchor matching
+The principles assumed so far for matching the context anchor have to be stated ex-
+plicitly and possibly extended this is necessary on the one hand to predict the anchor
+position for any arbitrary interpolation including a nonstandard one and on the other
+hand to cater for variations in word order
+Section 34 specied two possible positions for the context anchor as ancestor or
+immediate linear successor of the previous lexeme But no principle to nd out whether
+a given interpolation should take place at an ancestor or successor position has yet been
+stated As a matter of fact a simple principle underlies the examples given so far
+Principle 6 If the addendum lexeme linearly follows either endpoint of the interpola-
+tion path the context anchor is an ancestor of the previous lexeme In all other cases
+the context anchor is the immediate linear successor of the previous lexeme
+This principle is analogous to Principle 2 in that it prevents the occurrence of
+dangling nodes among the linear predecessors of the current lexeme So it is a practical
+consequence of a more general principle
+Principle 7 A valid interpolation cannot leave or create dangling nodes that linearly
+precede the lexeme it integrates
+Another consequence of Principle 7 on the form of rules is the following
+Principle 8 An addendum cannot contain dangling nodes that linearly precede the
+anchor that inherits the parent-of edge of the context anchor
+3The directional complement of the verb y used to illustrate backtracking in Section 36 could be
+handled in this way unless there were good reasons to distinguish the two constructions from the point of
+view of lexical semantics
+Under strict word order the form of rules can be controlled through Principles 8
+and 6 to enforce Principle 7 When alternative orderings are allowed the matching
+process itself may have to take this principle into account for rules may have to admit
+addenda that may violate Principle 7 or 8 under conditions that can only be checked
+dynamically
+To see Principle 6 in application compare the rule on Figure 21 which represents
+a premodication to the rule on Figure 22 which represents a postmodication
+Figure 21 Premodication by the adjective red
+swiftly
+Figure 22 Postmodication by the adverb swiftly
+It is now apparent that word order plays a key role in anchor choice during rule
+design and in anchor matching during rule application So it is interesting to see what
+extensions to the principles just brought out are necessary in order to accommodate
+greater freedom in word order than has been presupposed up till now
+Complex phrase ordering Under a strict ordering of phrase nodes a parse graph
+can be linearized by considering the frontier of the summary tree Denition 2 Sec-
+tion 22 Then in a given parse conguration the previous lexeme has a unique
+immediate successor However when several possible orders are allowed there may be
+more than one linear successor to the previous lexeme
+Consequently several context nodes may be found to match the context anchor of
+an applicable rule This introduces a degree of indeterminacy which is compounded
+with the indeterminacy resulting from rule conicts ie
+the availability of several
+matching rules for a given lexeme
+Not only does this type of indeterminacy arise in the presence of free word order but
+it is also liable to arise in a xed-order framework if several nodes along a parent-of path
+are allowed to bear the same label Indeed this situation could result in several nodes
+matching an ancestor anchor and a principle that ruled it out would be no more than
+an ad hoc feature that reduced the formalisms expressive power without reducing its
+indeterminacy in any essential way Therefore indeterminacy due to anchor matching
+has to be handled somehow
+Once again a trial-and-error approach seems to be the natural path to follow The
+mechanism used to solve rule conicts can be applied here too provided competing
+anchor matches are somehow ordered by priority As far as ancestor conicts are
+concerned proximity to the previous lexeme ie depth seems to correlate simply and
+naturally with priority As far as successor conict is concerned however it would
+seem that no natural solution is available unless even when the placement of nodes in
+a phrase graph is relatively free there is an underlying preferred order
+In addition to the possibility of nding multiple anchor matches free word order also
+complicates the process of identifying context anchors for context nodes do not stand in
+a simple topological relation with respect to the previous lexeme From an algorithmic
+point of view the solution seems to consist in updating the set of successors of the
+previous lexeme after each interpolation as described in Procedure 1 Appendix A
+38 Coreference links
+Incremental left-to-right parsing as outlined forms phrases exclusively from adjacent
+lexemes However immediate syntactic relations between distant constituents do exist
+in natural languages Interrogative and relative clauses in English provide such exam-
+ples For example in the following sentence the pronoun who somehow functions as
+the subject of to win although these two constituents occupy distant positions in the
+input stream
+Who do you want to win
+This diculty will be solved through a now classic device in syntactic theory namely
+coindexing of phrases This consists in linking coreferential phrases together typically
+by assigning to them equal referent indices In the above example the interrogative
+pronoun who and the empty subject of to win whose presence is concretized by the
+unacceptability of Who dyou wanna win as a spoken realization are coindexed
+In fact in order to reconcile the fact that the parsing model under discussion can
+only establish immediate syntactic relations between neighbouring constituents and
+the fact that various ordering constraints or rhetorical phenomena may separate phrase
+constituents we will rely on coreference links A coreference link is somewhat more
+general than NP coindexing is that it may apply to any part of speech rather than just
+noun phrases
+Nodes related by a coreference links have just one counterpart in the semantic
+interpretation to be derived from the parse graph This means that all members of a
+coreference chain denote the same object in the universe of discourse Syntactically
+this entails that members of a coreference chain of NPs share gender and number
+characteristics and members of a coreference chain of verbs share complements For
+example one member will have a subject another member no subject but a direct
+object and a third an indirect object thus forming three instances of a single verb
+with subject object and indirect object
+Many phenomena in natural languages suggest that the human parser prohibits
+to a large extent the splitting of a phrase across distant lexemes but uses coindexing
+to handle the sharing of constituents between phrases and rhetorical disruptions to
+standard phrasal order
+Such disruptions are typically attenuated by the use of resumptive pronouns in
+spoken French as in the following example
+Il est bizarre ton chapeau
+It is weird is your hat
+Here the main verb nds its subject where the parser expects it but this subject
+is only a pronoun coreferenced with the real subject which for intonational eect
+is relegated to a secondary tone unit so as to allow full emphasis on the predicate
+When no overt pronoun shows the existence of a coreference chain it is sometimes
+necessary to postulate the existence of empty lexemes as in the interrogative clause
+cited above
+In Section 5 an analysis of Dutch cross serial dependencies will be attempted in
+terms of covert coreference chains
+The introduction of coreference links gives rise to the following denitions
+Denition 8 An augmented parse graph is a parse graph augmented with coreference
+Denition 9 A coreference link is an undirected edge that relates two nodes standing
+in an equivalence relation Links that can be inferred such as the link from any node
+to itself do not need to appear in the representation of an augmented parse graph
+The equivalence relations represented in an augmented parse graph are coreferentiality
+relations
+Denition 10 A coreferentiality is an equivalence relation over parse graph nodes
+bearing a specied label Coreferentialities found useful are NP coreferentiality and
+verb coreferentiality
+This denes a graph hierarchy with phrase graphs at the bottom and augmented
+parse graphs at the top
+39 Multiple interpolation
+Coreference links make it meaningful to dene parallel interpolations operating simul-
+taneously on several context anchors Multiple interpolation seems useful only when
+the context anchors are located with respect to a coreference chain Figure 23 shows
+an example of a double interpolation
+This example is purely formal but concrete examples will be given in Section 5
+on Dutch Cross-Serial Dependencies Nonetheless it illustrates an important feature
+of multiple interpolation namely the fact that the rule albeit multiple adds a single
+lexeme to the parse graph Typically it anticipates a Y -gap coreferential with this
+Figure 23 A double interpolation
+lexeme Gaps do not count as lexemes in so far as they are not physically present in
+the input string
+Furthermore the formulation of multiple interpolation makes it necessary to dene
+a third possible location for the context anchor namely linear successor denoted by a
+double left arrow  as opposed to immediate linear successor denoted by a simple
+left arrow 
+Implicit reexive-transitive closure in patterns
+The denition of coreferentiality as an equivalence relation Denition 10 yields some-
+what unsuspected power to the occurrence of coreferential links in context patterns
+To see that consider the example of adjectival denite descriptions in English as
+found in the wealthy the inuential etc Leaving semantic features aside one impor-
+tant syntactic requirement for forming such NPs is that the determiner be denite
+This is captured by the rule on Figure 24 Def stands for denite determiner
+wealthy
+Figure 24 Restrictive rule for adjectival denite descriptions
+Coreference links are created because the structure being built is a modication
+structure not because of the presence of a noun gap4 The modication examples
+given so far did not contain coreference links simply because extended parse graphs
+had not been dened
+This rule requires that the noun node that is to be replaced by an adjective and
+an empty noun be immediately preceded by a denite determiner Therefore it will
+4This gap does not play a pronominal role but rather represents a semantically empty noun A precise
+notation would include the name Pro in the label of real gaps such as those used in Section 5
+not apply to a noun which is itself premodied by an adjective as in the idle rich
+On the other hand one cannot devise a rule covering specically a string of the form
+Def Adj Adj for the premodication can be iterated as in the outrageous idle rich
+Consider therefore the rule on Figure 25
+wealthy
+Figure 25 Comprehensive rule for adjectival denite descriptions
+This rule allows the context anchor to be separated from the NP head by any
+number of premodication stages including zero For example the last interpolation
+to be applied when parsing the outrageous idle rich can be represented by the diagram
+on 265
+outrageous
+outrageous
+Figure 26 Last interpolation performed when parsing the outrageous idle rich
+The existence of rules in which an anchor is related to the rest of the context by a
+coreference link leads to the following denition of a context pattern
+Denition 11 A context pattern is a subgraph of an augmented parse graph with one
+or several distinguished nodes called anchors Anchor location with respect to the previ-
+ous lexeme takes one of the three values ancestor immediate successor and successor
+5This diagram represents a derivation step as explained in Section 412
+4 A simple expression grammar
+To show the specicities of Graph Interpolation Grammars even in the absence of
+context-sensitivity in rules this section applies them to the classical problem of a simple
+arithmetic expression language with two precedence levels and left associativity
+41 Deriving an GIG from a CFG
+This section will derive as simply as possible a Graph Interpolation Grammar from the
+Context Free Grammar given in Figure 27 This kind of derivation could conceivably
+be performed automatically in order to benet from the incrementality of GIG-driven
+parsing for existing context-free grammars For example in a language-based editor
+the incremental building of parse representations as each token is read could be used
+to implement syntax-sensitive editing functions
+E  E  T
+E  T
+T  T  F
+T  F
+F   E 
+F  0
+F  1
+Figure 27 Context-Free Grammar for a simple expression language
+411 Numbers
+Moving from a CFG to a GIG involves lexicalization This means that every rule is
+to be matched by a lexeme and contains a representation of the contexts in which this
+lexeme is likely to occur As far as numbers are concerned they can function either as
+factors terms or expressions Therefore each number will have three associated rules
+Figure 28 shows the three rules associated with the number 0
+Figure 28 GIG rules associated with the lexeme 0
+412 Sum
+A sum is identied on scanning the lexeme  By representing a sum as an interpolation
+into an E the fact that  is the lowest-priority operator is captured Accordingly the
+rule for  is as represented on Figure 29
+Figure 29 Rule to be matched on encountering a 
+Since the addendum lexeme follows the destination of the interpolation path ie
+the rst operand of the sum the context anchor is stipulated to be an ancestor of the
+previous lexeme Principle 6
+The fact that the second operand is a term T rather than an expression E
+forces left associativity This can be veried by unwinding the GIG derivation for the
+string 0  0  0 This derivation up to the insertion of the last zero is represented on
+Figure 30
+Figure 30 The derivation for 0  0
+A step in a GIG derivation consists in the marking of a context anchor in the
+result of the preceding step and a representation of the parse graph as modied by
+the interpolation applied
+413 Product
+The rule for a product is entirely analogous to the rule for a sum except that it is
+allowed to apply to a term rather than an expression This fact gives it precedence
+over sum for essentially the same reason as in the original context-free grammar
+Figure 31 shows the rule for the product operator and Figure 32 shows the deriva-
+tion for 1  1  0 up to the insertion of the lexeme 0 It illustrates the relative priorities
+of sum and product
+Product
+Figure 31 The rule for 
+Product
+Figure 32 The derivation for 1  1
+414 Parentheses
+A rule for a left parenthesis is an insertion that announces an expression and a right
+parenthesis in a context where an expression a term or a factor could be expected
+As a right parenthesis is not supposed to occur unless it has been announced by a left
+parenthesis its rule is a simple lexical insertion Accordingly only the rules for the left
+parenthesis are shown on Figure 33
+Note that nonterminals RPar and Rpar are necessary according to principle 1
+Section 22
+Applying these rules to the parsing of 1  1  0 one obtains the derivation whose
+main steps are shown on Figure 34
+Figure 33 The rules for the left parenthesis
+42 A more idiomatic approach
+The existence of three rules to insert a number or a left parenthesis is the translation
+of a CFG idiom for handling precedence The native GIG device for solving this type
+of problem relies on node subtyping
+For the expression language considered we can have tree type atoms N for num-
+ber P for product and S for sum They form two hierarchies that meet at the
+universal type NPS as shown on Figure 35
+If we ignore preterminal labels such as Sum or LPar an NPS matches any
+anchor so it is an expression in a broad sense It occurs typically as the initial parse
+graph and between parentheses An NP is any expression except a sum so it occurs
+as the right operand of a sum to enforce left association Likewise an N is exclusively
+a number or a parenthesized expression such as occurs as the right operand of a
+product As far as the right-hand branch of the hierarchy is concerned a PS can
+occur as the left operand of a product or sum while an S can occur only as the left
+operand of a sum These enforce the relative precedence of sum and product
+421 Numbers
+There is a single rule for inserting a number It requires the atom N in the context
+anchor and does not modify its type The symbol  that is used as the label of the
+addendum anchor indicates that this label is inherited as is from the node matching
+the context anchor The rule for zero is represented on gure 36
+422 Sum
+The rule for the operator  is represented on Figure 37
+A sum can be interpolated only at a node whose type contains the type atom S To
+guard against the interpolation of a product on top of a sum the type S is assigned
+to the root of the addendum To guard against right association of additions the type
+NP is assigned to the right operand The left operand cannot be the object of further
+interpolations and simply inherits the type of the node matching the context anchor
+Figure 38 derives 0  0  0 up to the last insertion to show that left associativity is
+enforced
+Product
+Figure 34 Main steps in the derivation for 1  1  0
+Figure 35 Type hierarchy for the expression grammar
+Figure 36 The rule for zero
+Figure 37 The rule for 
+Figure 38 The derivation for 0  0
+When the second occurrence of  is encountered only one of the ancestors of the
+previous lexeme has a type which contains S
+423 Product
+The rule for the operator  exactly parallels the rule for the sum operator It requires
+the anchor type to contain the atom P assigns the type PS to the addendum root
+and assigns the type N to the right operand It is represented on Figure 39
+Product
+Figure 39 The rule for the product operator
+The fact that the root node of the addendum is a PS rather than an S gives priority
+to multiplication over addition Figure 40 outlines the derivations for 1  1 and 0  1
+Product
+Figure 40 Derivation outlines for 1  1 and 0  1
+If the current lexeme after parsing 1  1 is  only the closest ancestor of the
+previous lexeme will have a matching type On the other hand if the current lexeme
+after parsing 0  1 is a plus only the root of the parse graph will have a matching type
+424 Parentheses
+The rule for the left parenthesis is given on Figure 41
+Once it has applied only an insertion at the linear successor of the left parenthesis
+is possible due to Principle 2 This could be the insertion of a number or a left
+parenthesis So the supertype N as phrase head would also work but no particular
+constraint is necessary here which is why the most permissive type is indicated The
+same remark holds for the initial context In fact the type NPS makes the grammar
+more open to future evolutions but could be replaced by N without impairing its
+operation
+Figure 41 The rule for the left parenthesis
+5 Dutch Cross-Serial Dependencies
+In Dutch a few conjunctions such as dat that or omdat because introduce a clause
+in which the verb comes after its object NP Now with perceptual and causative verbs
+ie verbs which syntactically take both an NP object and an innitive clause object a
+double order prevails all object NPs occur before the nite verb in order of increasing
+nesting level as in German for instance and innitive verbs occur after the nite verb
+in order of increasing nesting level which reects a right-branching construction for
+clausal objects quite unlike German in which the verbs occur in order of decreasing
+nesting level thus inviting a recursive analysis
+In several papers on DCSDs examples revolve around hippopotami The example
+given below taken from Ren94 does not depart from this tradition The indices
+relate each verb to its preceding NP object
+ dat ik Henk1 haar2 de nijlpaarden3
+ that I Henk1
+that I saw Henk help her feed the hippopotamus
+her2 the hippopotamus3 saw1 help2
+zag1 helpen2 voeren3
+The analysis that will be attempted is based on the principle that when a verb in a
+dat-clause has an NP object and a clause object the NP object is constrained to occur
+before the verb and the clause object is constrained to occur immediately after it
+In itself however the existence of dierent positional requirements on the NP object
+and the clausal indirect object would not seem to require a special syntactic device
+when the ditransitive verb governs an ordinary transitive verb Thus in the light of
+the principle just outlined one could expect the following incorrect construction to
+  dat ik haar zag de nilparden voeren
+In fact there seems to be an additional constraint that amounts to forbidding any
+object in a dat-clause to occur before the nite verb So the correct construction is
+instead as follows
+ dat ik haar1 de nilparden2 zag1 voeren2
+To recapitulate the constraints at work to produce this construction are the fol-
+lowing
+1 The NP object of any verb in a dat-clause or a clause nested therein occurs before
+it to form an inverted verb phrase
+2 The clausal indirect object of a perceptual or causative verb which is an innitive
+clause with a subject gap occurs after it
+3 In a dat-clause no direct NP object whatever the nesting level at which it occurs
+occurs before the nite verb
+Now the conjunction of the third constraint with the existence of a double order on
+the construction of perceptual and causative verbs in dat-clauses produces a rift in
+the construction as a result of which a ditransitive verb may be separated from its
+preceding direct object by a theoretically arbitrary distance In order to govern two
+complements across a rift a verb in the general framework adopted here is in fact
+realized as two graph nodes one of which is a verb gap To see that the representation
+below shows the phenomenon with one level of nesting Verb gaps are represented by
+square boxes
+ dat ik haar 1 de nijlpaarden 2 zag1 voeren2
+This representation postulates that haar and de nijlpaarden occur in inverted VPs
+headed by verb gaps and that the verb gaps are coindexed with lexical verbs occurring
+in a right-branching construction governed by the nite verb
+If extended one additional nesting level the representation that is obtained is the
+following
+ dat ik Henk 1 haar 2 de nijlpaarden 3 zag1 helpen2 voeren3
+Furthermore each non-nite lexical verb heads a clause whose subject is a gap
+Each such NP gap is coindexed with the NP object of the superordinate verb The
+coreference pattern for NPs is the following
+ dat ik Henk1 haar2 de nijlpaarden zag 1 helpen 2 voeren
+In order to capture these hypotheses as GIG rules one will have to consider three
+cases i a dat-clause headed by a perception or causative verb ii a non-nite clause
+with an inverted VP whose head is a perception or causative verb and iii a non-nite
+clause with an inverted VP whose head is a monotransitive verb
+51 Complex dat-clause
+When the conjunction dat is encountered one generally has no way of guessing that
+its verb will impose a cross-serial construction So the rule on Figure 42 will be used
+only on backtracking after realizing that no rule can integrate the second object NP
+haar if the verb that is expected is an ordinary transitive verb
+The inverted verb phrase split-inv-VP that heads the sentence is split into an
+instance that governs the direct object inv-VP and an instance that governs the
+clausal indirect object iObj-VP Since neither of these half-instances qualies as a
+head an empty coordination conjunction is postulated to relate them This empty
+conjunction represents the barrier between the left-branching construction for NPs
+and the right-branching construction for verbs
+Given our example the lexemes whose occurrence is anticipated by this rule are
+i the subject of the split-inv-VP namely ik ii the direct object of its inv-VP
+datCl
+datCnj
+datCl
+invS
+splitinvVP
+invVP
+iObjVP
+complexV
+nonfinS
+nonfinV
+Figure 42 The rule for a dat-clause with a complex ditransitive
+instance namely Henk iii the complex-V namely zag and iv the verb of its clausal
+object namely helpen which is labelled as nonn-V
+The labels given to nodes here are more precise than required by the operation of
+the rules But this precision hopefully helps legibility
+52 Complex nonnite clause
+Just as in the case of the previous rule the decision to trigger the rule for an embedded
+complex verb cannot be taken the rst time its object is encountered but only after
+backtracking on the following NP
+The rule represented on Figure 43 is a double interpolation which acts simultane-
+ously on both instances of a split VP A relation of coordination is supposed between
+the inverted verb phrases on the left top interpolation for there is no clause hierar-
+chy among them The use of double interpolation on two graph areas connected by a
+coreference link allows these areas to lie at an arbitrary distance from each other
+Supposing the lexemes ik and Henk were inserted into the output of the rule rep-
+resented on Figure 42 the eect of the last rule would be to produce the graph on
+Figure 44
+53 Simple nonnite clause
+With a simple transitive verb the verb gap that is created is simply coreferenced to
+its counterpart in the context so the bottom interpolation does not create any node
+The presence of an article in the context specied on Figure 45 announces a transitive
+verb and so no rollbacking need be involved to trigger the rule that is represented
+invVP
+invVP
+invVP
+invVP
+complexV
+nonfinS
+ complexnonfinV
+nonfinS
+nonfinV
+nonfinV
+Figure 43 The rule for a nested verb of the helpen type
+This rule adds an NP node to the left of the syntactic rift this node is the object
+of an inv-VP containing an anticipatory verb gap coindexed with the second context
+anchor which itself anticipates the occurrence of the verb voeren to the right of the
+rift In short the top interpolation adds a direct object and the bottom interpolation
+connects it to the cascade of clausal objects after zag
+6 Conclusion
+This report has dened a form of grammar called Graph Interpolation Grammar
+which produces parse graphs by simple derivation from an initial graph consisting of
+one node Since derivation integrates input lexemes left-to-right a GIG derivation is
+an incremental parse of an input sentence
+The basic operation graph interpolation which combines path substitution and
+disjoint graph union has been described at some length Two classic problems one
+from the eld of parsing arithmetic expressions and one from the eld of linguis-
+tics Dutch cross-serial dependencies have been selected to illustrate problem-solving
+through GIG design
+The essential hopefully has been stated but much remains to be done to improve
+the formalism and explore its potentialities Areas for further research are presented
+in Section 62
+On the other hand the GIG model shares intuitions with several other syntactic
+formalisms which are briey reviewed in Section 61
+datCnj
+datCl
+invS
+splitinvVP
+invVP
+iObjVP
+complexV
+nonfinS
+invVP
+invVP
+complexnonfinV
+nonfinS
+nonfinV
+invVP
+invVP
+invVP
+invVP
+complexV
+nonfinS
+ nonfinV
+nonfinV
+Figure 45 The rule for a nested monotransitive verb
+61 Related works
+Graph interpolation can be viewed as an extension of tree adjunction to parse graphs
+And indeed TAGs JLT75 by introducing a 2-dimensional formalism into computa-
+tional linguistics have made a decisive step towards designing a syntactic theory that
+is both computationally tractable and linguistically realistic In this respect it is an
+obligatory reference for any syntactic theory intent on satisfying these criteria
+The basic intuition in GIGs however that of incrementally connecting lexemes by
+looking up their combinatory properties can be found in link grammars ST95 Link
+grammars are mathematically interesting but do not easily interface with a semantic
+component
+Categorial grammars Ste86 Ste88 have a similar rationale They use binary com-
+binators on function types that represent grammatical categories The parse structures
+generated which are binary trees reecting the order of combinator application can
+be somewhat counterintuitive from a semantic point of view
+In Lexical Functional Grammars Bre85 grammatical functions are loosely coupled
+with phrase structure which seems to be just the opposite of what is done in a GIG
+in which functional edges are part of the phrase structure Nonetheless these two
+approaches share the concern of bringing out a functional structure even if much of
+what enters into an f-structure ie a functional structure in LFG is to be addressed
+by the semantic component a topic for further research in GIG
+62 Further research
+621 Linguistic phenomena
+Important categories of phenomena to analyze include ellipsis notably under coordi-
+nation and word scrambling
+Furthermore the discussion of free word order in this report has hovered at an
+uncomfortable level of abstraction It is necessary to return to this issue with concrete
+examples
+On the other hand the interface with a scanner and morphological analyzer has
+yet to be stated explicitly Phenomena to account for include idioms phrasal lexical
+items agglutinative morphology and scanning ambiguities
+622 Psycholinguistic considerations
+The main natural feature embodied in Graph Interpolation Grammars is incremen-
+tal left-to-right parsing which is expected to provide a basis for incremental semantic
+evaluation of discourse a feature in favour of which there seems to be conclusive ex-
+perimental evidence
+Processing time The formalism would be particularly satisfactory as a model of
+human parsing if the computational complexity it predicts correlated with observed
+processing time in humans What is mainly at stake here is the plausibility of the
+backtracking mechanism that has been described
+Garden-path sentences GIG parsing involves backtracking for sentences that hu-
+mans do not identify as garden-path sentences A hypothesis to test against further
+evidence is that the human analyzer is garden-pathed only when semantic interpreta-
+tion has to be revised not when purely structural adjustments are taking place A
+thorough discussion of this question requires that a working model be proposed for the
+semantic component
+Error tolerance The capacity to pick up meaning from ill-formed utterances is a
+capability of the human language processor that does not seem beyond the reach of
+GIG-based modelling The model could involve some form of partial match of context
+patterns to resort to when the parser is stymied
+Evolutionary aspect Languages undergo idiolectal variations and historical changes
+A constant adjustment of rules takes place when language is used If GIGs were en-
+dowed with the error recovery device delineated in the previous paragraph a model of
+evolution could then be worked out to promote heavily activated near-matches to full
+matches possibly at the detriment of competing weakly activated full matches which
+could disappear in the process
+623 Mathematical properties
+Expressive power GIGs are at least as expressive as TAGs for graph interpolation
+can be used to express tree adjunction or tree substitution This means that the
+formalism is at least mildly context-sensitive Furthermore multiple interpolation
+adds expressive power comparable to that found in Multi-Component TAGs KJ87
+GIGs do seem to provide the right amount of context-sensitiveness but this remains
+to be precisely quantied
+Complexity The backtracking mechanism induces a worst-case exponential com-
+plexity On realistic grammars however both the base of the exponential ie the
+number of lexemes past which it makes sense to backtrack and the exponent ie the
+number of competing rules for a given lexeme seem to have very low upper bounds
+What is a realistic grammar could be characterized precisely by determining such
+bounds by collecting linguistic facts Beside quantied bounds it is to be thought that
+some barrier eect makes it pointless to backtrack beyond certain syntactic barriers
+On the other hand the backtracking mechanism itself could be reconsidered to reduce
+its computational complexity for example by allowing backtracking to skip back to
+a privileged place either through links built while parsing or using a form of pattern
+matching
+Automatic generation of GIG rules Section 4 suggests that a Graph Interpo-
+lation Grammar could be automatically derived from a Context Free Grammar mostly
+for the purpose of using existing LR grammars
+The feasibility of converting automatically from other formalisms and particularly
+Lexical Functional Grammars seems worth exploring as well
+Linearized syntax for rules From a practical point of view however GIGs are
+not to be seen as a low-level formalism to be generated automatically from higher-
+level formalisms But for GIG writing to be practical what could be needed is i a
+linearized syntax to type rules quickly rather than draw graphs and ii a WYSIWYG
+tool that showed incrementally the graphic aspect of what is being typed This tool
+could of course be implemented on top of a GIG engine
+A linearized syntax could involve a frame-like notation in which an augmented parse
+graph were a set of slots with a phrases slot that pointed via slot values to phrases
+with an optional pre-dened parent slot and user-dened functional slots
+For example a linearized version of the addendum in Figure 25 could look like the
+frame expression on Figure 46 Predened slot names are boldfaced Slot references
+are slash-separated paths starting at the parent of the slot being dened A double
+dot  moves up one level in the slot hierarchy
+On the other hand many grammar designers would probably not feel frustrated by
+the lack of a linear syntax given an ecient graphic tool
+References
+Bre85 Joan Bresnan The mental representation of grammatical relations MIT
+Press series on cognitive theory and mental representation MIT Press 1985
+Collected articles
+JLT75 A K Joshi L S Levy and M Takahashi Tree adjunct grammars Journal
+of Computer and System Sciences 1013663 1975
+addendum 
+phrases 
+0  head N 
+parent 0head
+head Adj
+subj N
+parent 1subj
+head Gap
+lexeme 
+parent phrases1head
+spelling wealthy
+anchors 
+source phrases0
+destination source
+coreferences 
+0 phrases0head
+1 phrases1subj
+Figure 46 A linearized addendum
+KJ87 Anthony Kroch and Aravind K Joshi Analyzing extraposition in a tree
+adjoining grammar In G Huck and A Ojeda editors Discontinuous con-
+stituents syntax and semantics Academic Press 1987
+Ren94 Gerrit Rentier Dutch cross serial dependencies in HPSG Computation and
+Language archive cmp-lg9410016 US National Science Foundation ITK
+Tilburg University October 1994
+ST95 Daniel D K Sleator and Davy Temperley Parsing english with a link
+grammar Technical Report CMU-CS-TR-91-126 Carnegie Mellon Univer-
+sity 1995 Available in the Computation and Language archive under cmp-
+lg9508004
+Ste86 Mark Steedman Combinatory grammars and human language processing
+Technical Report DAI-RP-279 University of Edinburgh 1986
+Ste88 Mark Steedman Combinators and grammars In Richard T Oehrle E Bach
+and D Wheeler editors Categorial Grammars and Natural Language Struc-
+tures pages 417442 Redel Dordrecht 1988 paper to the Conference on
+Categorial Grammar Tucson AR June 1985
+A Anchor location procedures
+The following procedure can be used to update the set of possible linear successors of
+the current lexeme after an interpolation It is operational even when several linear
+orders are allowed
+Procedure 1
+1 Based on ordering relations in the addendum one identies the set of possible
+linear successors of the current lexeme which is here the lexeme just inserted
+2 The possible linear successors of the previous lexeme as recorded when it was
+inserted minus the node that matched the context anchor are added to the set
+found in step 1
+Note that since the addendum and the context are disjoint the second step cannot
+add potential successors already added by the rst step This observation is important
+to determine whether rule application remains reversible in the presence of free word
+Indeed undoing a rule with respect to the set of potential successors of the
+current lexeme can be done as follows
+Procedure 2
+1 Based on ordering relations in the addendum one identies a subset of possible
+the lexeme on which to backtrack
+linear successors to the current lexeme ie
+and subtracts this subset from the set of possible successors
+2 Once the insertion itself has been undone the context anchor for this insertion
+is added to the set obtained in the previous step and this set becomes the set of
+potential successors of the previous lexeme
+Graph Interpolation Grammars
+a rule-based approach to the incremental parsing of
+natural languages
+John Larcheveque
+March 1998
+Abstract
+Graph Interpolation Grammars are a declarative formalism with an operational
+semantics Their goal is to emulate salient features of the human parser and notably
+incrementality The parsing process dened by GIGs incrementally builds a syntactic
+representation of a sentence as each successive lexeme is read A GIG rule species
+a set of parse congurations that trigger its application and an operation to perform
+on a matching conguration Rules are partly context-sensitive furthermore they
+are reversible meaning that their operations can be undone which allows the parsing
+process to be nondeterministic These two factors confer enough expressive power to
+the formalism for parsing natural languages
+1 Introduction
+11 Characteristics and rationale
+A graph interpolation grammar is a grammar formalism with an operational semantics
+A rule in a graph interpolation grammar species not only syntactic relations but also
+an elementary parsing operation
+Rules are lexicalized in the sense that each rule describes the combinatory properties
+of a lexical item Parsing a sentence consists in matching each lexeme in the input string
+with a rule in the grammar and applying this rule to the current parse representation
+GIG-driven parsing was designed with incrementality and exibility in mind so as
+to emulate some features of the human parsing capability in particular incremental
+processing error tolerance and handling of complex word orders
+In a complete model of discourse understanding incremental parsing would be
+shown to work in tandem with some form of composition between partial semantic
+representations It is to be thought that the collaboration between syntax and seman-
+tics in natural discourse understanding is fairly close and that backtracking in the
+parser is frequently initiated by a clash found between semantic features This report
+however will not attempt to give even the roughest idea of what semantic represen-
+tations should look like and will therefore exclusively focus on syntactic phenomena
+sometimes at the cost of simplifying the phenomena at hand
+12 Plan of the report
+The rst two sections give a fairly complete presentation of the concepts and processes
+involved in parsing with a Graph Interpolation Grammar The syntactic structures
+generated when parsing with a GIG are described in Section 2 while the grammar
+rules and the parsing process are described in Section 3
+The next few sections apply the formalism to selected problems Section 4 com-
+pares the handling of a simple expression language using a Context Free Grammar and
+a Graph Interpolation Grammar and Section 5 analyzes Dutch Cross-Serial Depen-
+dencies
+Finally the conclusion indicates topics for further research and related works
+2 Syntactic structures
+21 Phrases
+A phrase is made up of a head and its complements It will be represented by a graph
+with a root and one labelled edge from the root to each nonroot node
+The root represents the head of the phrase the other nodes represent its comple-
+ments and the edge labels represent grammatical functions
+211 Ordering relations
+In addition nodes in a phrase graph are connected through ordering edges
+simplest case the eect of ordering edges is to align graph nodes from left to right
+For example the sentence
+She gave me an apple
+contains a phrase the head of which is a ditransitive verb with three complements the
+subject the indirect object and the direct object This phrase can be represented by
+the following graph in which V for verb and NP for noun phrase
+precedes
+subject
+precedes
+indirectObject
+precedes
+Figure 1 A phrase graph
+Since this is a case in which a total left-to-right alignment of nodes can be dened
+ordering edges can be omitted and the ordering represented by the relative positions
+of the nodes in the diagram as in Figure 2 Explicit orderings will not be used in this
+report for a strict total ordering of phrase constituents exists in all examples given
+At any rate the possibility exists of specifying sophisticated order constraints as long
+as these constraints are local to a phrase
+object
+subject
+indirectObject
+Figure 2 The same phrase graph with implicit ordering
+212 Phrase head
+The criteria for distinguishing a head in a phrase are both syntactic and semantic
+From a syntactic point of view the head determines the presence and functions of
+its complements From a semantic point of view the head acts as a predicate of
+its complements adding semantic features to them while the complements generally
+contribute to rooting these features into a specic situation
+On the basis of these criteria an attributive adjective forms the head of a phrase
+made up of an adjective and a noun such as red leaf Indeed the occurrence of the
+adjective implies the occurrence of a single noun whereas the presence of the noun
+does not require or limit the number of attributive adjectives On the other hand
+though evidence for this type of criterion is not so easy to adduce the adjective adds
+semantic features to the noun as is shown in particular by its capacity to function as a
+predicate in a clause Figure 3 illustrates a phrase headed by an attributive adjective
+Adj stands for adjective
+subject
+Figure 3 A modifying phrase
+Considering the adjective as the head of such a phrase can be counterintuitive
+insofar as the phrase in question functions as a noun
+It is however necessary to
+distinguish the internal structure of a phrase as described by its phrase graph
+from its function with respect to other phrases In order to bring out this distinction
+a structure that interrelates phrase graphs must be dened The next section denes
+a structure of this type the parse graph
+22 Parse graphs
+Consider for example the phrase good old days
+A parse graph is a structure in which phrase graphs are related through parent-of edges
+It contains the phrase old days
+which has old as its head but functions as a noun and is itself modied by the adjective
+good in the larger phrase good old days The containment relation just outlined can be
+rendered by drawing a parent-of edge between the noun node of the enclosing phrase
+and the head of the embedded phrase Graphically this can be represented as in
+Figure 4
+From now on in parse graph representations vertical edges will be assumed to be
+directed downward and represent parent-of edges
+subject
+parentof
+subject
+Figure 4 A parse graph
+On the other hand a parent-of edge can also connect a phrase node to a lexical
+item A complete parse graph for a phrase or sentence can thus be dened as a parse
+graph with a root node and such that every path leads to a lexical item These facts
+give rise to the following principle and denition
+Principle 1 A lexical node can occur in a parse graph as the destination of a parent-of
+Denition 1 A complete parse graph is a parse graph with a root node ie a node
+from which every node is reachable and such that every path leads to a lexical node
+Figure 5 shows the complete parse graph for the phrase the good old days Det
+stands for determiner
+determiner
+subject
+subject
+Figure 5 A complete parse graph
+Such a graph can be mapped to a tree in such a way that members of a phrase graph
+including the head are mapped to sibling nodes Although the graph contains more
+information and is better adapted to incremental construction that its tree counterpart
+it will often prove useful to apply tree terminology to parse graphs For example the
+terms descendant ancestor or frontier are to be understood with respect to the tree
+counterpart of a parse graph Likewise a dangling node is to be understood as a non-
+lexical node that occupies a terminal position in the tree counterpart of an incomplete
+parse graph For further reference here is the denition that justies this terminology
+Denition 2 The summary tree of a parse graph is a connected graph that contains
+the same set of nodes as the parse graph and such that each path of the parse graph
+consisting of either a parent-of edge or a parent-of edge followed by a functional edge
+is mapped to a parent-of edge of the summary tree
+Figure 6 Summary tree for the parse graph on Figure 5
+23 Subtyping in node labels
+The classication of lexical items can be made according to several possible criteria
+For example the can be categorized as an article and thus be distinguished from this
+On the other hand both of the and this are denite determiners and as such can be
+usefully grouped under one category This suggests that lexical categories are usefully
+viewed as sets of syntactic properties such as determiner article denite etc
+Furthermore some of these properties are visible in ancestors of lexical items in a parse
+graph For example the presence of a denite determiner confers to a Noun Phrase
+the status of a denite description A simple way of modeling this consists in labelling
+each node of a parse graph with a set of property names rather than an atomic name
+Thus the label of a node dominating the is a set containing the names determiner
+article and denite and the label of an NP determined by the this a genitive
+NP or any other denite determiner is a set containing the name denite
+For simplicity most of the graphs and rules given as examples have atomic node
+labels even when some node types could be shown to subsume or share properties
+with other symbols However Section 42 shows how multi-valued node labels can
+contribute to the expressive power of a grammar
+3 Building parse graphs
+Parse graphs as just dened can be incrementally built by scanning an input ow
+of lexemes and performing a building step as each lexeme is read A building step is
+formally described by a composition rule which adds to the graph under construction
+a subgraph associated with the current lexeme
+31 Form of a composition rule
+Suppose that i the phrase being parsed is a robin ii somehow see Section 35
+the parse graph on Figure 7 was built on encountering the determiner a and iii the
+current lexeme is robin
+determiner
+Figure 7 An NP context
+The presence of the dangling ie childless noun node to the right of the previous
+lexeme namely a materializes the anticipation of a noun Singular common nouns are
+generally inserted in just such a context and so we can dene a rule for the lexeme
+robin that stipulates i that the linear successor of the previous lexeme ie a in the
+parse graph should be a dangling noun node ii that the new subgraph to integrate
+consists of a noun node dominating the lexeme robin and iii that this new subgraph
+is to be substituted for the dangling noun node A graphic representation of this rule
+is given on Figure 8 in section 32
+More generally let the context be the parse graph obtained by parsing the input
+string up to the current lexeme a composition rule consists of
+1 a pattern to match against the context known as the context pattern and
+2 a subgraph to integrate into the context known as the addendum
+Or more formally
+Denition 3 A composition rule is a pair made up of a context pattern and an ad-
+dendum
+This denition in turn relies on the denitions of a context pattern and an adden-
+dum The following denition of a context pattern is somewhat simplied and will be
+enriched later Denition 11 Section 310
+Denition 4 A context pattern is a parse graph with one distinguished node called
+the context anchor and an indication of whether the context anchor is an ancestor or
+immediate linear successor of the previous lexeme
+To proceed in depth-rst order here is the denition that explains the term linear
+successor
+Denition 5 When all phrase constituents in a parse graph are strictly ordered from
+left to right a linear order over the parse graph is given by the left-to-right ordering of
+nodes in the frontier of the summary tree Denition 2 Section 22 It is therefore a
+partial ordering of parse graph nodes under which only terminal nodes of the summary
+tree are comparable
+The context pattern indicates what the parse graph obtained so far must look like
+in order for the rule to be applicable A context matches a context pattern if it is a
+supergraph of the pattern and it contains a node whose location and label match the
+anchor specications
+Section 372 on free word order examines the consequences of having several
+possible linearizations of the parse graph This has computational implications but
+does not impact the above denitions in any essential way
+Denition 6 An addendum is a parse graph with one or two distinguished nodes called
+addendum anchors and exactly one lexical node
+A rule is found applicable when the current lexeme matches the addendum lexeme
+and the context matches the context pattern The conjunction of context and current
+lexeme forms a parse conguration
+Denition 7 A parse conguration is a pair made up of a context and a current
+lexeme
+Beside a parse conguration what a rule species is an operation to modify this
+conguration This operation called an interpolation is specied by means of the
+context anchor and the addendum
+When the addendum contains a single anchor such as the noun node in our ex-
+ample the interpolation is performed by substituting the addendum anchor for the
+context anchor This particular type of interpolation will sometimes be called an in-
+sertion by opposition to a proper interpolation which is characterized by the presence
+of two distinct anchors in the addendum
+When the addendum contains two anchors they delimit a path that is substituted
+for the context anchor Since a single anchor can be viewed as a path of length 0 this
+case subsumes insertion
+No formal denition of interpolation will be attempted at present Let it simply be
+clear that interpolation involves in fact two operations
+1 the substitution of a path of the addendum for the context anchor
+2 the disjoint union of the addendum with the context
+These notions will be treated in more detail in Section 371
+Insertion example
+An example of insertion is the example given informally above The rule can be repre-
+sented as on Figure 8
+In a graphic representation of a composition rule the context pattern and the
+addendum appear on either side of an implies    sign with the addendum on the
+right and the anchoring specications are materialized by placing a mark next to each
+anchor This mark is an asterisk  next to an addendum anchor Next to the context
+anchor it is a double down arrow  or a left arrow  according as the context
+anchor is an ancestor or an immediate successor of the previous lexeme The notion
+of immediate successor is dened with respect to the linear order indicated through
+Figure 8 An insertion rule
+the ordering edges present in addenda Its applicability to free word-order languages
+is discussed in Section 372
+Applying the insertion rule on Figure 8 to the parse graph on Figure 7 results in
+the parse graph on Figure 9
+determiner
+Figure 9 Result of applying the above insertion rule
+33 Proper interpolation example
+Figure 10 illustrates path-to-node anchoring The composition rule interpolates a
+prepositional phrase into a noun phrase to produce a qualied noun phrase as in a
+bird on a tree PP stands for Prepositional Phrase and Prep for preposition
+subject
+Figure 10 A proper interpolation rule
+The sign next to the context anchor indicates that it is to be found above the
+previous lexeme rather than immediately after it The diagram on Figure 11 shows the
+context to which this rule could apply and the resulting context after its application
+An application diagram follows the following pattern
+context  addendum  new context
+subject
+subject
+Figure 11 An application of the preceding rule
+34 Anchor matching
+The preceding examples have shown that the context anchor can be an ancestor or an
+immediate linear successor of the previous lexeme The rst case occurs typically with
+a proper interpolation and the second with an insertion This is of course just the
+typical case Section 372 gives general criteria for locating the context anchor
+341 Matching an immediate successor anchor
+No attempt to deal with free word order will be made until Section 372 Until then
+we can rely on a strict left-to-right ordering of all phrase constituents Therefore the
+previous lexeme always has a unique immediate linear successor which is its immediate
+successor in the frontier of the summary tree Denition 2 Section 22
+342 Matching an ancestor anchor
+Ancestor positions are also dened with respect to the summary tree of the parse graph
+Denition 2 Section 22 On the other hand for a node to match an ancestor anchor
+there is an additional condition beside location and label match It can be stated as
+follows
+Principle 2 A context anchor in ancestor position can only be matched by the root of
+a complete parse graph see Denition 1 Section 22
+For example an NP cannot be postmodied if it is incomplete ie if the frontier
+of its summary tree contains nonlexical nodes
+343 Incidence of node subtyping on anchor matching
+If node labels are sets of symbols label matching requires that all symbols attached to
+the context anchor be present in the node to match For example a context pattern
+could contain the information that the anchor is a denite determiner and any node
+that has at least the type atoms denite and determiner will satisfy label matching
+In other words for a node to match a context anchor its type must be a subtype
+of the type of the context anchor On the other hand this means that the formulation
+of a rule and notably the addendum must involve a special device to mention the
+full type of the node that matched the anchor so as not to lose information Indeed
+a rule is allowed to change the type of the anchor as explained in Section 35 and
+illustrated on Figure 13 Accordingly the special symbol  can be used to assign to
+an addendum anchor the exact type of the node matching the context anchor
+An example of a grammar that uses subtyping is given in Section 42
+35 Parser initialization
+To begin with there is no context or rather the context consists of a single node with
+a generic label that subsumes all phrases with which an utterance is likely to start1 No
+lexeme has been integrated to the context yet but for technical purposes the initial
+node can be considered to follow the previous lexeme In other words a rule with
+an immediate-successor  mark next to the context anchor will match the initial
+context
+Suppose a sentence begins with the phrase a robin then the initial lexeme a can
+be integrated using the following insertion rule
+determiner
+Figure 12 Insertion rule for a
+This rule simply means that a can be considered as the beginning of a Noun Phrase
+It does not say that a could be the beginning of a sentence Yet most utterances are
+sentences so it would seem that this rule is generally inappropriate It is not however
+if one considers that the denition of an interpolation that was informally given in
+Section 31 does not require the two ends of an interpolation path to bear the same
+label And indeed should a phrase like a robin be followed with a verb such as ew
+the rule shown on Figure 13 can apply to make the root of the parse graph an S-node
+Dir stands for directional phrase
+subject
+Figure 13 Interpolation rule for ew
+1Label subsumption is discussed in Section 23
+36 Backtracking
+Matching a rule often involves making a prediction on the continuation of the utterance
+For example the rule on Figure 13 predicts that a directional phrase follows the verb
+ew When several predictions are possible as will often be the case a trial-and-error
+approach is adopted
+A prediction conict appears when several rules are available for a given context
+and current lexeme ie a given parse conguration It is supposed that the rules
+associated with each lexeme are totally ordered by priority and each rule is tried in
+priority order until a successful parse is obtained2
+For example when the current lexeme is ew and an NP node dominates the
+previous lexeme there could be two rules with higher priority on the rule on Figure 13
+and lower priority on the following rule which makes ew an intransitive verb
+subject
+Figure 14 An alternative rule for ew
+Given these two rules the sentence a robin ew swiftly would rst be mapped to the
+parse graph on Figure 15 then on realizing that by the end of the sentence the parse
+graph is still incomplete one would have to reconsider the choices made Supposing
+there is a single analysis available for swiftly the parser would then backtrack on ew
+and try the second rule which would eventually lead to a successful parse
+swiftly
+Figure 15 Graph built before backtracking
+Backtracking involves undoing some of the rules applied so far This supposes
+that track is kept of the list of rules applied and more importantly that each rule is
+reversible As a matter of fact rules as dened are reversible owing to Principle 4
+2If the selection process parallels a similar process in the human mind a simple hypothesis would correlate
+rule priority with statistical eciency alternately or complementarily there could be structural criteria that
+correlated priority with simplicity or canonicity
+Section 371 In order to undo the eect of a rule the addendum is to be removed and
+the interpolation path replaced back by the context anchor If rules were not reversible
+then it would be necessary to keep track of at least the last few parse congurations
+Of course backtracking does not always take place after reading the whole input
+string It takes place whenever no further rule can be triggered and the parse graph is
+incomplete
+For another example consider the sentence he gave trouble to us and suppose that
+The edge label iObj stands for
+the highest-priority rule for gave is the following
+indirect object
+Figure 16 Default rule for gave
+Then on encountering to no rule will match the context in which an object NP
+is expected thus leading the parser to backtrack on trouble then gave and select the
+following rule which will eventually lead to a successful parse A to-Prep is a category
+that contains only the preposition to and unto in archaic dialects
+toPP
+toPrep
+Figure 17 Alternate rule for gave
+Interpolation and anchor matching
+This section revisits concepts introduced in Section 31 giving more precise formula-
+tions and adding details that were initially overlooked
+371 Addendum incorporation
+In all the examples given so far an insertion consists in replacing a dangling node
+with a node with a child and a proper interpolation consists in interpolating a path
+whose rst edge is a parent-of edge so that the destination of the interpolation path
+dominates its source
+With interpolations of this type merging an addendum into the context is a fairly
+straightforward process which has not been explicated so far but only illustrated
+through examples
+However the concept of interpolation allows more exibility than has been hitherto
+suggested and in order to consider further varieties of interpolation it is important
+to bring out the graph invariants implicitly used and preserved during addendum in-
+corporation
+Invariant 1 In a phrase graph there cannot be distinct edges with the same label
+Invariant 2 In a parse graph any node except the root has exactly one incoming edge
+Invariant 3 In a parse graph there cannot be more than one parent-of edge from any
+According to invariant 2 an interpolation path can be dened as the unique oriented
+path that connects two addendum anchors With respect to this path there is a source
+anchor and a destination anchor
+Invariant 2 also implies that the source anchor
+inherits the incoming edge of the context anchor as a result of an interpolation
+Furthermore when one looks at the way the outgoing edges of the context anchor
+are distributed between the addendum anchors of an interpolation invariant 3 can be
+seen to prevail in that the parent-of edge in the examples seen so far is transmitted
+to the destination anchor The underlying principle can be stated as follows
+Principle 3 All edges of the context anchor are inherited by the source of the in-
+terpolation path except for edges present in the addendum which are shifted to the
+destination of the interpolation path
+Principle 3 itself presupposes that the addendum and the context form disjoint
+graphs This principle is well worth spelling out for it allows rules to be easily reversible
+in the sense of Section 36
+Principle 4 In a composition rule the sets of nodes of the addendum and the context
+have an empty intersection
+Indeed if the graph union that is specied by a rule is a disjoint union then no
+information beyond the list of rules applied is necessary to undo the eect of these
+On the other hand Principle 3 presupposes that if the context anchor is a head
+then the addendum anchors must both be capable of inheriting functional edges ie
+be phrase heads as well Conversely if the context anchor is not a head substituting
+a head for it would create a second head within one phrase which is ruled out by
+denition These considerations can be summarized by the following principle
+Principle 5 The head status of the context anchor must be matched by the addendum
+anchors
+This principle does not directly govern addendum incorporation for it has to be
+built into the grammar rules It is especially useful as a prerequisite of Principle 3
+Nonstandard interpolation To see how Principle 3 applies to a nonstandard
+case of proper interpolation ie a case in which the interpolation path does not start
+with a parent-of edge consider the rule on Figure 18 The box represents an empty
+category or gap the symbol that-Cnj informally denotes a subcategory whose main
+representative is the conjunction that
+thought
+thatCnj
+thatCl
+Figure 18 A nonstandard case of proper interpolation
+Although the context anchor which is a verb is a dangling node an empty ob-
+ject NP ie an object gap has been predicted typically owing to the presence of
+a preceding object pronoun ie a relative or interrogative pronoun or a topicalized
+object NP The occurrence of a verb that governs a sentence rather an object NP
+pushes the predicted object gap further Since the object gap does not appear in the
+addendum owing to Principle 4 its position in the graph after the rule has applied is
+not specied explicitly but can be inferred from Principle 3 Indeed since the object
+edge from the context anchor is redundant with the object edge that emanates from the
+source anchor of the addendum it is inherited by the destination anchor Therefore
+after addendum incorporation the context will contain the following subgraph
+thought
+thatCnj
+thatCl
+Figure 19 Subgraph obtained after addendum incorporation
+Nonstandard insertion A standard insertion substitutes a node with an outgoing
+parent-of edge for a dangling node But it is also conceivable to substitute a node with
+arbitrary nonredundant outgoing edges for a node with descendants
+A practical use of nonstandard interpolation could be the handling of optional
+complements For example supposing the rule that handles the by-complement of a
+passive were the one represented on FigurepassiveAgentg there would be no necessity
+to anticipate the presence of a by-complement on encountering a passive and so no
+backtracking would be involved to handle its optionality3
+passiveV
+passiveV
+byPP
+byPrep
+Figure 20 Rule for the by-complement of a passive
+372 Anchor matching
+The principles assumed so far for matching the context anchor have to be stated ex-
+plicitly and possibly extended this is necessary on the one hand to predict the anchor
+position for any arbitrary interpolation including a nonstandard one and on the other
+hand to cater for variations in word order
+Section 34 specied two possible positions for the context anchor as ancestor or
+immediate linear successor of the previous lexeme But no principle to nd out whether
+a given interpolation should take place at an ancestor or successor position has yet been
+stated As a matter of fact a simple principle underlies the examples given so far
+Principle 6 If the addendum lexeme linearly follows either endpoint of the interpola-
+tion path the context anchor is an ancestor of the previous lexeme In all other cases
+the context anchor is the immediate linear successor of the previous lexeme
+This principle is analogous to Principle 2 in that it prevents the occurrence of
+dangling nodes among the linear predecessors of the current lexeme So it is a practical
+consequence of a more general principle
+Principle 7 A valid interpolation cannot leave or create dangling nodes that linearly
+precede the lexeme it integrates
+Another consequence of Principle 7 on the form of rules is the following
+Principle 8 An addendum cannot contain dangling nodes that linearly precede the
+anchor that inherits the parent-of edge of the context anchor
+3The directional complement of the verb y used to illustrate backtracking in Section 36 could be
+handled in this way unless there were good reasons to distinguish the two constructions from the point of
+view of lexical semantics
+Under strict word order the form of rules can be controlled through Principles 8
+and 6 to enforce Principle 7 When alternative orderings are allowed the matching
+process itself may have to take this principle into account for rules may have to admit
+addenda that may violate Principle 7 or 8 under conditions that can only be checked
+dynamically
+To see Principle 6 in application compare the rule on Figure 21 which represents
+a premodication to the rule on Figure 22 which represents a postmodication
+Figure 21 Premodication by the adjective red
+swiftly
+Figure 22 Postmodication by the adverb swiftly
+It is now apparent that word order plays a key role in anchor choice during rule
+design and in anchor matching during rule application So it is interesting to see what
+extensions to the principles just brought out are necessary in order to accommodate
+greater freedom in word order than has been presupposed up till now
+Complex phrase ordering Under a strict ordering of phrase nodes a parse graph
+can be linearized by considering the frontier of the summary tree Denition 2 Sec-
+tion 22 Then in a given parse conguration the previous lexeme has a unique
+immediate successor However when several possible orders are allowed there may be
+more than one linear successor to the previous lexeme
+Consequently several context nodes may be found to match the context anchor of
+an applicable rule This introduces a degree of indeterminacy which is compounded
+with the indeterminacy resulting from rule conicts ie
+the availability of several
+matching rules for a given lexeme
+Not only does this type of indeterminacy arise in the presence of free word order but
+it is also liable to arise in a xed-order framework if several nodes along a parent-of path
+are allowed to bear the same label Indeed this situation could result in several nodes
+matching an ancestor anchor and a principle that ruled it out would be no more than
+an ad hoc feature that reduced the formalisms expressive power without reducing its
+indeterminacy in any essential way Therefore indeterminacy due to anchor matching
+has to be handled somehow
+Once again a trial-and-error approach seems to be the natural path to follow The
+mechanism used to solve rule conicts can be applied here too provided competing
+anchor matches are somehow ordered by priority As far as ancestor conicts are
+concerned proximity to the previous lexeme ie depth seems to correlate simply and
+naturally with priority As far as successor conict is concerned however it would
+seem that no natural solution is available unless even when the placement of nodes in
+a phrase graph is relatively free there is an underlying preferred order
+In addition to the possibility of nding multiple anchor matches free word order also
+complicates the process of identifying context anchors for context nodes do not stand in
+a simple topological relation with respect to the previous lexeme From an algorithmic
+point of view the solution seems to consist in updating the set of successors of the
+previous lexeme after each interpolation as described in Procedure 1 Appendix A
+38 Coreference links
+Incremental left-to-right parsing as outlined forms phrases exclusively from adjacent
+lexemes However immediate syntactic relations between distant constituents do exist
+in natural languages Interrogative and relative clauses in English provide such exam-
+ples For example in the following sentence the pronoun who somehow functions as
+the subject of to win although these two constituents occupy distant positions in the
+input stream
+Who do you want to win
+This diculty will be solved through a now classic device in syntactic theory namely
+coindexing of phrases This consists in linking coreferential phrases together typically
+by assigning to them equal referent indices In the above example the interrogative
+pronoun who and the empty subject of to win whose presence is concretized by the
+unacceptability of Who dyou wanna win as a spoken realization are coindexed
+In fact in order to reconcile the fact that the parsing model under discussion can
+only establish immediate syntactic relations between neighbouring constituents and
+the fact that various ordering constraints or rhetorical phenomena may separate phrase
+constituents we will rely on coreference links A coreference link is somewhat more
+general than NP coindexing is that it may apply to any part of speech rather than just
+noun phrases
+Nodes related by a coreference links have just one counterpart in the semantic
+interpretation to be derived from the parse graph This means that all members of a
+coreference chain denote the same object in the universe of discourse Syntactically
+this entails that members of a coreference chain of NPs share gender and number
+characteristics and members of a coreference chain of verbs share complements For
+example one member will have a subject another member no subject but a direct
+object and a third an indirect object thus forming three instances of a single verb
+with subject object and indirect object
+Many phenomena in natural languages suggest that the human parser prohibits
+to a large extent the splitting of a phrase across distant lexemes but uses coindexing
+to handle the sharing of constituents between phrases and rhetorical disruptions to
+standard phrasal order
+Such disruptions are typically attenuated by the use of resumptive pronouns in
+spoken French as in the following example
+Il est bizarre ton chapeau
+It is weird is your hat
+Here the main verb nds its subject where the parser expects it but this subject
+is only a pronoun coreferenced with the real subject which for intonational eect
+is relegated to a secondary tone unit so as to allow full emphasis on the predicate
+When no overt pronoun shows the existence of a coreference chain it is sometimes
+necessary to postulate the existence of empty lexemes as in the interrogative clause
+cited above
+In Section 5 an analysis of Dutch cross serial dependencies will be attempted in
+terms of covert coreference chains
+The introduction of coreference links gives rise to the following denitions
+Denition 8 An augmented parse graph is a parse graph augmented with coreference
+Denition 9 A coreference link is an undirected edge that relates two nodes standing
+in an equivalence relation Links that can be inferred such as the link from any node
+to itself do not need to appear in the representation of an augmented parse graph
+The equivalence relations represented in an augmented parse graph are coreferentiality
+relations
+Denition 10 A coreferentiality is an equivalence relation over parse graph nodes
+bearing a specied label Coreferentialities found useful are NP coreferentiality and
+verb coreferentiality
+This denes a graph hierarchy with phrase graphs at the bottom and augmented
+parse graphs at the top
+39 Multiple interpolation
+Coreference links make it meaningful to dene parallel interpolations operating simul-
+taneously on several context anchors Multiple interpolation seems useful only when
+the context anchors are located with respect to a coreference chain Figure 23 shows
+an example of a double interpolation
+This example is purely formal but concrete examples will be given in Section 5
+on Dutch Cross-Serial Dependencies Nonetheless it illustrates an important feature
+of multiple interpolation namely the fact that the rule albeit multiple adds a single
+lexeme to the parse graph Typically it anticipates a Y -gap coreferential with this
+Figure 23 A double interpolation
+lexeme Gaps do not count as lexemes in so far as they are not physically present in
+the input string
+Furthermore the formulation of multiple interpolation makes it necessary to dene
+a third possible location for the context anchor namely linear successor denoted by a
+double left arrow  as opposed to immediate linear successor denoted by a simple
+left arrow 
+Implicit reexive-transitive closure in patterns
+The denition of coreferentiality as an equivalence relation Denition 10 yields some-
+what unsuspected power to the occurrence of coreferential links in context patterns
+To see that consider the example of adjectival denite descriptions in English as
+found in the wealthy the inuential etc Leaving semantic features aside one impor-
+tant syntactic requirement for forming such NPs is that the determiner be denite
+This is captured by the rule on Figure 24 Def stands for denite determiner
+wealthy
+Figure 24 Restrictive rule for adjectival denite descriptions
+Coreference links are created because the structure being built is a modication
+structure not because of the presence of a noun gap4 The modication examples
+given so far did not contain coreference links simply because extended parse graphs
+had not been dened
+This rule requires that the noun node that is to be replaced by an adjective and
+an empty noun be immediately preceded by a denite determiner Therefore it will
+4This gap does not play a pronominal role but rather represents a semantically empty noun A precise
+notation would include the name Pro in the label of real gaps such as those used in Section 5
+not apply to a noun which is itself premodied by an adjective as in the idle rich
+On the other hand one cannot devise a rule covering specically a string of the form
+Def Adj Adj for the premodication can be iterated as in the outrageous idle rich
+Consider therefore the rule on Figure 25
+wealthy
+Figure 25 Comprehensive rule for adjectival denite descriptions
+This rule allows the context anchor to be separated from the NP head by any
+number of premodication stages including zero For example the last interpolation
+to be applied when parsing the outrageous idle rich can be represented by the diagram
+on 265
+outrageous
+outrageous
+Figure 26 Last interpolation performed when parsing the outrageous idle rich
+The existence of rules in which an anchor is related to the rest of the context by a
+coreference link leads to the following denition of a context pattern
+Denition 11 A context pattern is a subgraph of an augmented parse graph with one
+or several distinguished nodes called anchors Anchor location with respect to the previ-
+ous lexeme takes one of the three values ancestor immediate successor and successor
+5This diagram represents a derivation step as explained in Section 412
+4 A simple expression grammar
+To show the specicities of Graph Interpolation Grammars even in the absence of
+context-sensitivity in rules this section applies them to the classical problem of a simple
+arithmetic expression language with two precedence levels and left associativity
+41 Deriving an GIG from a CFG
+This section will derive as simply as possible a Graph Interpolation Grammar from the
+Context Free Grammar given in Figure 27 This kind of derivation could conceivably
+be performed automatically in order to benet from the incrementality of GIG-driven
+parsing for existing context-free grammars For example in a language-based editor
+the incremental building of parse representations as each token is read could be used
+to implement syntax-sensitive editing functions
+E  E  T
+E  T
+T  T  F
+T  F
+F   E 
+F  0
+F  1
+Figure 27 Context-Free Grammar for a simple expression language
+411 Numbers
+Moving from a CFG to a GIG involves lexicalization This means that every rule is
+to be matched by a lexeme and contains a representation of the contexts in which this
+lexeme is likely to occur As far as numbers are concerned they can function either as
+factors terms or expressions Therefore each number will have three associated rules
+Figure 28 shows the three rules associated with the number 0
+Figure 28 GIG rules associated with the lexeme 0
+412 Sum
+A sum is identied on scanning the lexeme  By representing a sum as an interpolation
+into an E the fact that  is the lowest-priority operator is captured Accordingly the
+rule for  is as represented on Figure 29
+Figure 29 Rule to be matched on encountering a 
+Since the addendum lexeme follows the destination of the interpolation path ie
+the rst operand of the sum the context anchor is stipulated to be an ancestor of the
+previous lexeme Principle 6
+The fact that the second operand is a term T rather than an expression E
+forces left associativity This can be veried by unwinding the GIG derivation for the
+string 0  0  0 This derivation up to the insertion of the last zero is represented on
+Figure 30
+Figure 30 The derivation for 0  0
+A step in a GIG derivation consists in the marking of a context anchor in the
+result of the preceding step and a representation of the parse graph as modied by
+the interpolation applied
+413 Product
+The rule for a product is entirely analogous to the rule for a sum except that it is
+allowed to apply to a term rather than an expression This fact gives it precedence
+over sum for essentially the same reason as in the original context-free grammar
+Figure 31 shows the rule for the product operator and Figure 32 shows the deriva-
+tion for 1  1  0 up to the insertion of the lexeme 0 It illustrates the relative priorities
+of sum and product
+Product
+Figure 31 The rule for 
+Product
+Figure 32 The derivation for 1  1
+414 Parentheses
+A rule for a left parenthesis is an insertion that announces an expression and a right
+parenthesis in a context where an expression a term or a factor could be expected
+As a right parenthesis is not supposed to occur unless it has been announced by a left
+parenthesis its rule is a simple lexical insertion Accordingly only the rules for the left
+parenthesis are shown on Figure 33
+Note that nonterminals RPar and Rpar are necessary according to principle 1
+Section 22
+Applying these rules to the parsing of 1  1  0 one obtains the derivation whose
+main steps are shown on Figure 34
+Figure 33 The rules for the left parenthesis
+42 A more idiomatic approach
+The existence of three rules to insert a number or a left parenthesis is the translation
+of a CFG idiom for handling precedence The native GIG device for solving this type
+of problem relies on node subtyping
+For the expression language considered we can have tree type atoms N for num-
+ber P for product and S for sum They form two hierarchies that meet at the
+universal type NPS as shown on Figure 35
+If we ignore preterminal labels such as Sum or LPar an NPS matches any
+anchor so it is an expression in a broad sense It occurs typically as the initial parse
+graph and between parentheses An NP is any expression except a sum so it occurs
+as the right operand of a sum to enforce left association Likewise an N is exclusively
+a number or a parenthesized expression such as occurs as the right operand of a
+product As far as the right-hand branch of the hierarchy is concerned a PS can
+occur as the left operand of a product or sum while an S can occur only as the left
+operand of a sum These enforce the relative precedence of sum and product
+421 Numbers
+There is a single rule for inserting a number It requires the atom N in the context
+anchor and does not modify its type The symbol  that is used as the label of the
+addendum anchor indicates that this label is inherited as is from the node matching
+the context anchor The rule for zero is represented on gure 36
+422 Sum
+The rule for the operator  is represented on Figure 37
+A sum can be interpolated only at a node whose type contains the type atom S To
+guard against the interpolation of a product on top of a sum the type S is assigned
+to the root of the addendum To guard against right association of additions the type
+NP is assigned to the right operand The left operand cannot be the object of further
+interpolations and simply inherits the type of the node matching the context anchor
+Figure 38 derives 0  0  0 up to the last insertion to show that left associativity is
+enforced
+Product
+Figure 34 Main steps in the derivation for 1  1  0
+Figure 35 Type hierarchy for the expression grammar
+Figure 36 The rule for zero
+Figure 37 The rule for 
+Figure 38 The derivation for 0  0
+When the second occurrence of  is encountered only one of the ancestors of the
+previous lexeme has a type which contains S
+423 Product
+The rule for the operator  exactly parallels the rule for the sum operator It requires
+the anchor type to contain the atom P assigns the type PS to the addendum root
+and assigns the type N to the right operand It is represented on Figure 39
+Product
+Figure 39 The rule for the product operator
+The fact that the root node of the addendum is a PS rather than an S gives priority
+to multiplication over addition Figure 40 outlines the derivations for 1  1 and 0  1
+Product
+Figure 40 Derivation outlines for 1  1 and 0  1
+If the current lexeme after parsing 1  1 is  only the closest ancestor of the
+previous lexeme will have a matching type On the other hand if the current lexeme
+after parsing 0  1 is a plus only the root of the parse graph will have a matching type
+424 Parentheses
+The rule for the left parenthesis is given on Figure 41
+Once it has applied only an insertion at the linear successor of the left parenthesis
+is possible due to Principle 2 This could be the insertion of a number or a left
+parenthesis So the supertype N as phrase head would also work but no particular
+constraint is necessary here which is why the most permissive type is indicated The
+same remark holds for the initial context In fact the type NPS makes the grammar
+more open to future evolutions but could be replaced by N without impairing its
+operation
+Figure 41 The rule for the left parenthesis
+5 Dutch Cross-Serial Dependencies
+In Dutch a few conjunctions such as dat that or omdat because introduce a clause
+in which the verb comes after its object NP Now with perceptual and causative verbs
+ie verbs which syntactically take both an NP object and an innitive clause object a
+double order prevails all object NPs occur before the nite verb in order of increasing
+nesting level as in German for instance and innitive verbs occur after the nite verb
+in order of increasing nesting level which reects a right-branching construction for
+clausal objects quite unlike German in which the verbs occur in order of decreasing
+nesting level thus inviting a recursive analysis
+In several papers on DCSDs examples revolve around hippopotami The example
+given below taken from Ren94 does not depart from this tradition The indices
+relate each verb to its preceding NP object
+ dat ik Henk1 haar2 de nijlpaarden3
+ that I Henk1
+that I saw Henk help her feed the hippopotamus
+her2 the hippopotamus3 saw1 help2
+zag1 helpen2 voeren3
+The analysis that will be attempted is based on the principle that when a verb in a
+dat-clause has an NP object and a clause object the NP object is constrained to occur
+before the verb and the clause object is constrained to occur immediately after it
+In itself however the existence of dierent positional requirements on the NP object
+and the clausal indirect object would not seem to require a special syntactic device
+when the ditransitive verb governs an ordinary transitive verb Thus in the light of
+the principle just outlined one could expect the following incorrect construction to
+  dat ik haar zag de nilparden voeren
+In fact there seems to be an additional constraint that amounts to forbidding any
+object in a dat-clause to occur before the nite verb So the correct construction is
+instead as follows
+ dat ik haar1 de nilparden2 zag1 voeren2
+To recapitulate the constraints at work to produce this construction are the fol-
+lowing
+1 The NP object of any verb in a dat-clause or a clause nested therein occurs before
+it to form an inverted verb phrase
+2 The clausal indirect object of a perceptual or causative verb which is an innitive
+clause with a subject gap occurs after it
+3 In a dat-clause no direct NP object whatever the nesting level at which it occurs
+occurs before the nite verb
+Now the conjunction of the third constraint with the existence of a double order on
+the construction of perceptual and causative verbs in dat-clauses produces a rift in
+the construction as a result of which a ditransitive verb may be separated from its
+preceding direct object by a theoretically arbitrary distance In order to govern two
+complements across a rift a verb in the general framework adopted here is in fact
+realized as two graph nodes one of which is a verb gap To see that the representation
+below shows the phenomenon with one level of nesting Verb gaps are represented by
+square boxes
+ dat ik haar 1 de nijlpaarden 2 zag1 voeren2
+This representation postulates that haar and de nijlpaarden occur in inverted VPs
+headed by verb gaps and that the verb gaps are coindexed with lexical verbs occurring
+in a right-branching construction governed by the nite verb
+If extended one additional nesting level the representation that is obtained is the
+following
+ dat ik Henk 1 haar 2 de nijlpaarden 3 zag1 helpen2 voeren3
+Furthermore each non-nite lexical verb heads a clause whose subject is a gap
+Each such NP gap is coindexed with the NP object of the superordinate verb The
+coreference pattern for NPs is the following
+ dat ik Henk1 haar2 de nijlpaarden zag 1 helpen 2 voeren
+In order to capture these hypotheses as GIG rules one will have to consider three
+cases i a dat-clause headed by a perception or causative verb ii a non-nite clause
+with an inverted VP whose head is a perception or causative verb and iii a non-nite
+clause with an inverted VP whose head is a monotransitive verb
+51 Complex dat-clause
+When the conjunction dat is encountered one generally has no way of guessing that
+its verb will impose a cross-serial construction So the rule on Figure 42 will be used
+only on backtracking after realizing that no rule can integrate the second object NP
+haar if the verb that is expected is an ordinary transitive verb
+The inverted verb phrase split-inv-VP that heads the sentence is split into an
+instance that governs the direct object inv-VP and an instance that governs the
+clausal indirect object iObj-VP Since neither of these half-instances qualies as a
+head an empty coordination conjunction is postulated to relate them This empty
+conjunction represents the barrier between the left-branching construction for NPs
+and the right-branching construction for verbs
+Given our example the lexemes whose occurrence is anticipated by this rule are
+i the subject of the split-inv-VP namely ik ii the direct object of its inv-VP
+datCl
+datCnj
+datCl
+invS
+splitinvVP
+invVP
+iObjVP
+complexV
+nonfinS
+nonfinV
+Figure 42 The rule for a dat-clause with a complex ditransitive
+instance namely Henk iii the complex-V namely zag and iv the verb of its clausal
+object namely helpen which is labelled as nonn-V
+The labels given to nodes here are more precise than required by the operation of
+the rules But this precision hopefully helps legibility
+52 Complex nonnite clause
+Just as in the case of the previous rule the decision to trigger the rule for an embedded
+complex verb cannot be taken the rst time its object is encountered but only after
+backtracking on the following NP
+The rule represented on Figure 43 is a double interpolation which acts simultane-
+ously on both instances of a split VP A relation of coordination is supposed between
+the inverted verb phrases on the left top interpolation for there is no clause hierar-
+chy among them The use of double interpolation on two graph areas connected by a
+coreference link allows these areas to lie at an arbitrary distance from each other
+Supposing the lexemes ik and Henk were inserted into the output of the rule rep-
+resented on Figure 42 the eect of the last rule would be to produce the graph on
+Figure 44
+53 Simple nonnite clause
+With a simple transitive verb the verb gap that is created is simply coreferenced to
+its counterpart in the context so the bottom interpolation does not create any node
+The presence of an article in the context specied on Figure 45 announces a transitive
+verb and so no rollbacking need be involved to trigger the rule that is represented
+invVP
+invVP
+invVP
+invVP
+complexV
+nonfinS
+ complexnonfinV
+nonfinS
+nonfinV
+nonfinV
+Figure 43 The rule for a nested verb of the helpen type
+This rule adds an NP node to the left of the syntactic rift this node is the object
+of an inv-VP containing an anticipatory verb gap coindexed with the second context
+anchor which itself anticipates the occurrence of the verb voeren to the right of the
+rift In short the top interpolation adds a direct object and the bottom interpolation
+connects it to the cascade of clausal objects after zag
+6 Conclusion
+This report has dened a form of grammar called Graph Interpolation Grammar
+which produces parse graphs by simple derivation from an initial graph consisting of
+one node Since derivation integrates input lexemes left-to-right a GIG derivation is
+an incremental parse of an input sentence
+The basic operation graph interpolation which combines path substitution and
+disjoint graph union has been described at some length Two classic problems one
+from the eld of parsing arithmetic expressions and one from the eld of linguis-
+tics Dutch cross-serial dependencies have been selected to illustrate problem-solving
+through GIG design
+The essential hopefully has been stated but much remains to be done to improve
+the formalism and explore its potentialities Areas for further research are presented
+in Section 62
+On the other hand the GIG model shares intuitions with several other syntactic
+formalisms which are briey reviewed in Section 61
+datCnj
+datCl
+invS
+splitinvVP
+invVP
+iObjVP
+complexV
+nonfinS
+invVP
+invVP
+complexnonfinV
+nonfinS
+nonfinV
+invVP
+invVP
+invVP
+invVP
+complexV
+nonfinS
+ nonfinV
+nonfinV
+Figure 45 The rule for a nested monotransitive verb
+61 Related works
+Graph interpolation can be viewed as an extension of tree adjunction to parse graphs
+And indeed TAGs JLT75 by introducing a 2-dimensional formalism into computa-
+tional linguistics have made a decisive step towards designing a syntactic theory that
+is both computationally tractable and linguistically realistic In this respect it is an
+obligatory reference for any syntactic theory intent on satisfying these criteria
+The basic intuition in GIGs however that of incrementally connecting lexemes by
+looking up their combinatory properties can be found in link grammars ST95 Link
+grammars are mathematically interesting but do not easily interface with a semantic
+component
+Categorial grammars Ste86 Ste88 have a similar rationale They use binary com-
+binators on function types that represent grammatical categories The parse structures
+generated which are binary trees reecting the order of combinator application can
+be somewhat counterintuitive from a semantic point of view
+In Lexical Functional Grammars Bre85 grammatical functions are loosely coupled
+with phrase structure which seems to be just the opposite of what is done in a GIG
+in which functional edges are part of the phrase structure Nonetheless these two
+approaches share the concern of bringing out a functional structure even if much of
+what enters into an f-structure ie a functional structure in LFG is to be addressed
+by the semantic component a topic for further research in GIG
+62 Further research
+621 Linguistic phenomena
+Important categories of phenomena to analyze include ellipsis notably under coordi-
+nation and word scrambling
+Furthermore the discussion of free word order in this report has hovered at an
+uncomfortable level of abstraction It is necessary to return to this issue with concrete
+examples
+On the other hand the interface with a scanner and morphological analyzer has
+yet to be stated explicitly Phenomena to account for include idioms phrasal lexical
+items agglutinative morphology and scanning ambiguities
+622 Psycholinguistic considerations
+The main natural feature embodied in Graph Interpolation Grammars is incremen-
+tal left-to-right parsing which is expected to provide a basis for incremental semantic
+evaluation of discourse a feature in favour of which there seems to be conclusive ex-
+perimental evidence
+Processing time The formalism would be particularly satisfactory as a model of
+human parsing if the computational complexity it predicts correlated with observed
+processing time in humans What is mainly at stake here is the plausibility of the
+backtracking mechanism that has been described
+Garden-path sentences GIG parsing involves backtracking for sentences that hu-
+mans do not identify as garden-path sentences A hypothesis to test against further
+evidence is that the human analyzer is garden-pathed only when semantic interpreta-
+tion has to be revised not when purely structural adjustments are taking place A
+thorough discussion of this question requires that a working model be proposed for the
+semantic component
+Error tolerance The capacity to pick up meaning from ill-formed utterances is a
+capability of the human language processor that does not seem beyond the reach of
+GIG-based modelling The model could involve some form of partial match of context
+patterns to resort to when the parser is stymied
+Evolutionary aspect Languages undergo idiolectal variations and historical changes
+A constant adjustment of rules takes place when language is used If GIGs were en-
+dowed with the error recovery device delineated in the previous paragraph a model of
+evolution could then be worked out to promote heavily activated near-matches to full
+matches possibly at the detriment of competing weakly activated full matches which
+could disappear in the process
+623 Mathematical properties
+Expressive power GIGs are at least as expressive as TAGs for graph interpolation
+can be used to express tree adjunction or tree substitution This means that the
+formalism is at least mildly context-sensitive Furthermore multiple interpolation
+adds expressive power comparable to that found in Multi-Component TAGs KJ87
+GIGs do seem to provide the right amount of context-sensitiveness but this remains
+to be precisely quantied
+Complexity The backtracking mechanism induces a worst-case exponential com-
+plexity On realistic grammars however both the base of the exponential ie the
+number of lexemes past which it makes sense to backtrack and the exponent ie the
+number of competing rules for a given lexeme seem to have very low upper bounds
+What is a realistic grammar could be characterized precisely by determining such
+bounds by collecting linguistic facts Beside quantied bounds it is to be thought that
+some barrier eect makes it pointless to backtrack beyond certain syntactic barriers
+On the other hand the backtracking mechanism itself could be reconsidered to reduce
+its computational complexity for example by allowing backtracking to skip back to
+a privileged place either through links built while parsing or using a form of pattern
+matching
+Automatic generation of GIG rules Section 4 suggests that a Graph Interpo-
+lation Grammar could be automatically derived from a Context Free Grammar mostly
+for the purpose of using existing LR grammars
+The feasibility of converting automatically from other formalisms and particularly
+Lexical Functional Grammars seems worth exploring as well
+Linearized syntax for rules From a practical point of view however GIGs are
+not to be seen as a low-level formalism to be generated automatically from higher-
+level formalisms But for GIG writing to be practical what could be needed is i a
+linearized syntax to type rules quickly rather than draw graphs and ii a WYSIWYG
+tool that showed incrementally the graphic aspect of what is being typed This tool
+could of course be implemented on top of a GIG engine
+A linearized syntax could involve a frame-like notation in which an augmented parse
+graph were a set of slots with a phrases slot that pointed via slot values to phrases
+with an optional pre-dened parent slot and user-dened functional slots
+For example a linearized version of the addendum in Figure 25 could look like the
+frame expression on Figure 46 Predened slot names are boldfaced Slot references
+are slash-separated paths starting at the parent of the slot being dened A double
+dot  moves up one level in the slot hierarchy
+On the other hand many grammar designers would probably not feel frustrated by
+the lack of a linear syntax given an ecient graphic tool
+References
+Bre85 Joan Bresnan The mental representation of grammatical relations MIT
+Press series on cognitive theory and mental representation MIT Press 1985
+Collected articles
+JLT75 A K Joshi L S Levy and M Takahashi Tree adjunct grammars Journal
+of Computer and System Sciences 1013663 1975
+addendum 
+phrases 
+0  head N 
+parent 0head
+head Adj
+subj N
+parent 1subj
+head Gap
+lexeme 
+parent phrases1head
+spelling wealthy
+anchors 
+source phrases0
+destination source
+coreferences 
+0 phrases0head
+1 phrases1subj
+Figure 46 A linearized addendum
+KJ87 Anthony Kroch and Aravind K Joshi Analyzing extraposition in a tree
+adjoining grammar In G Huck and A Ojeda editors Discontinuous con-
+stituents syntax and semantics Academic Press 1987
+Ren94 Gerrit Rentier Dutch cross serial dependencies in HPSG Computation and
+Language archive cmp-lg9410016 US National Science Foundation ITK
+Tilburg University October 1994
+ST95 Daniel D K Sleator and Davy Temperley Parsing english with a link
+grammar Technical Report CMU-CS-TR-91-126 Carnegie Mellon Univer-
+sity 1995 Available in the Computation and Language archive under cmp-
+lg9508004
+Ste86 Mark Steedman Combinatory grammars and human language processing
+Technical Report DAI-RP-279 University of Edinburgh 1986
+Ste88 Mark Steedman Combinators and grammars In Richard T Oehrle E Bach
+and D Wheeler editors Categorial Grammars and Natural Language Struc-
+tures pages 417442 Redel Dordrecht 1988 paper to the Conference on
+Categorial Grammar Tucson AR June 1985
+A Anchor location procedures
+The following procedure can be used to update the set of possible linear successors of
+the current lexeme after an interpolation It is operational even when several linear
+orders are allowed
+Procedure 1
+1 Based on ordering relations in the addendum one identies the set of possible
+linear successors of the current lexeme which is here the lexeme just inserted
+2 The possible linear successors of the previous lexeme as recorded when it was
+inserted minus the node that matched the context anchor are added to the set
+found in step 1
+Note that since the addendum and the context are disjoint the second step cannot
+add potential successors already added by the rst step This observation is important
+to determine whether rule application remains reversible in the presence of free word
+Indeed undoing a rule with respect to the set of potential successors of the
+current lexeme can be done as follows
+Procedure 2
+1 Based on ordering relations in the addendum one identies a subset of possible
+the lexeme on which to backtrack
+linear successors to the current lexeme ie
+and subtracts this subset from the set of possible successors
+2 Once the insertion itself has been undone the context anchor for this insertion
+is added to the set obtained in the previous step and this set becomes the set of
+potential successors of the previous lexeme

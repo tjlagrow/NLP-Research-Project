@@ -1,0 +1,366 @@
+Towards an Automated Requirements-driven Development of
+Smart Cyber-Physical Systems
+Position paper
+Jiri Vinarek
+Petr Hnetynka
+Charles University in Prague Faculty of Mathematics and Physics
+Department of Distributed and Dependable Systems
+Malostranske namesti 25 Prague Czech Republic
+vinarekd3smffcunicz
+hnetynkad3smffcunicz
+The Invariant Renement Method for Self Adaptation IRM-SA is a design method targeting de-
+velopment of smart Cyber-Physical Systems sCPS It allows for a systematic translation of the
+system requirements into the system architecture expressed as an ensemble-based component sys-
+tem EBCS However since the requirements are captured using natural language there exists the
+danger of their misinterpretation due to natural language requirements ambiguity which could even-
+tually lead to design errors Thus automation and validation of the design process is desirable In
+this paper we i analyze the translation process of natural language requirements into the IRM-SA
+model ii identify individual steps that can be automated andor validated using natural language
+processing techniques and iii propose suitable methods
+1 Introduction
+Smart Cyber-Physical Systems sCPS are complex distributed decentralized systems of cooperating
+mobile and stationary devices closely interacting with the physical environment Examples of sCPS
+include systems like smart home smart trafc management etc
+Designing and developing such a system is a quite complex task with many challenges Mobility
+and distribution bring the high level of dynamism to the system which has to be aware of changes in
+its environment Openness and open-endness are other challenging issues resulting in needs that the
+designed system has to be able to tackle unanticipated changes and participants unknown at design time
+The traditional software design and development techniques have been shown unsuitable for such
+systems and novel approaches 8 13 14 have been proposed to tackle with the challenges One of these
+promising approaches is Ensemble-Based Component Systems EBCS 1 Using EBCS the system is
+modeled and developed as a set of ensembles ie dynamic cooperation groups of software components
+Components are specied by their knowledge ie components attributes and by a set of processes
+manipulating the knowledge
+The Invariant Renement Method for Self Adaptation IRM-SA 2 is a design method targeting de-
+velopment of sCPS using EBCS IRM-SA allows for a systematic translation of the system requirements
+written in natural language into the system architecture expressed as components and ensembles Using
+IRM-SA a designer gradually renes the initial requirements and iteratively builds a model that con-
+sists of so-called invariants Invariants are then hierarchically decomposed and at the lowest level they
+directly correspond to an implementation in the DEECo component model 1 with which IRM-SA is
+currently tied
+J Kofron J Tumova B Buhnova Eds Formal Engineering
+Approaches to Software Components and Architectures FESCA16
+EPTCS 205 2016 pp 5968 doi104204EPTCS2055
+ccid13 J Vinarek P Hnetynka
+This work is licensed under the
+Creative Commons Attribution License
+Towards an Automated Requirements-driven Development of sCPS
+To speedup and ease the design process with IRM-SA the guide 1 and graphical editor 2 have been
+created The editor allows for editing of the constraints and performing several basic validations of the
+designed IRM-SA model Additionally skeletons of the implementation can be generated directly from
+the designed model Even though the guide and editor exist the whole process ie translation of re-
+quirements into the IRM-SA model is manual and it can be time-consuming and laborious Additionally
+as the requirements are expressed as a text in natural language there is a danger of ambiguity and misin-
+terpretation of them which can result in a suboptimal design Even more designers can unintentionally
+miss important requirements
+The goal of this paper is to analyze the IRM-SA design process and identify particular steps which
+can be fully or at least partially automated with the help of natural language processing tools To achieve
+the goal we use our experience gained with automated processing of textual use-cases their verication
+and transformation into an implementation 15 16 18
+The paper is structured as follows Section 2 explains the IRM-SA method and its inputs and outputs
+Section 3 discusses steps of the IRM-SA method from the perspective of their automation and proposes
+solutions for them Finally Section 4 discusses related work while Section 5 concludes the paper
+2 IRM-SA explained by example
+In this section we briey describe the IRM-SA method and its usage on an example for a detailed
+description please see the IRM-SA guide
+The experiment described in 6 proved that usage of IRM-SA represents a signicant help in EBCS
+design and development Participants of this experiment designed using IRM-SA an EBCS architecture
+with less errors than participants using another design method Even though the resulting architectures
+were not completely without errors especially thank to different understanding of the input requirements
+provided as a text in natural language and thus there is still space for improvements
+This is even more important as one of the outputs of the IRM-SA method  the IRM-SA model  can
+be used not only at design time but also during development and maintenance of the developed system
+In particular the IRM-SA model allows for traceability between purpose of each invariant requirement
+and its realization and therefore it is ideal for documentation and maintenance Plus as stated in 10
+it is a mistake to understand requirements specications as nal and unchangeable and thus keeping
+up-to-date traceability links to requirements is quite important
+Additionally the IRM-SA model is in the DEECo implementation employed for controlling self-
+adaptation of the system ie the model captures multiple alternatives of the system architecture and the
+appropriate one is chosen based on actual situation
+To sum up the IRM-SA model is one of the key artifacts of the developed system and its correctness
+is essential Therefore designersdevelopers would benet from a tool which not only allows for easy
+creation of the model the currently available editor allows for this but also which would be able to
+semiautomatically parse the textual requirements generate parts of the model from the requirements
+and validate individual actions performed by the designerdeveloper To provide such a tool natural
+language processing methods and tools have to be incorporated in the process
+1httpsvnpstifilmudeascensguideirm
+2httpsgithubcomd3scompIRM-SA
+J Vinarek P Hnetynka
+IRM-SA method and model
+The IRM-SA design method is an iterative top-down design approach A designer has to perform the
+following steps in order to built the IRM-SA model from the requirement specication
+1 Find the top-level goals of the system and specify the top-level abstract invariants
+2 Find the components of the system and their elds by asking which knowledge does each in-
+variant involve and where is this knowledge obtained from
+3 Decompose each invariant by asking how can this invariant be satised
+4 Separate the concerns of the abstract invariants into sub-invariants that correspond to abstract
+activities that can be done in isolation
+5 Compose invariants together by asking why do I need to satisfy these invariants
+6 In case of situation-specic requirements try rst to accurately capture the condition of being in
+one situation or another Use the assumptions to do that Then use OR decomposition to specify
+which invariants to satisfy in each situation
+Figure 1 IRM-SA model for e-cars system
+Figure 1 shows the IRM-SA model created for the electric car e-car navigation and parking system
+example its requirement specication is in Figure 2 Both the specication and model are overtaken
+ idavailabilityParking id POIpositionplanplanFeasibilityenergyavailabilityMapE-carINV-13 Distance of e-car from POI  5kmINV-2 Up-to-date Vplan is availableINV-5 VplanFeasibility is checkedINV-9 Venergy is monitored within 60 secsPTakes-rolerelationInvariantProcess invariantExchange invariantAssumptionANDdecompositionComponent  PXINV-6 Up-to-date Vplan wrt Pavailability and VplanFeasibility is availableINV-7 Vposition is determined within 60 secsINV-8 VplanFeasibility wrt VenergyVposition VPOI is determinedwithin 60 secsPPORdecompositionINV-12 VavailabilityMap of parking lots within a 100m distance from POI is up-to-date within 60 secsXINV-11 Up-to-date Vplan wrt VavailabilityMap and VplanFeasibility is available within 60 secsPINV-16 Distance of e-car from POI  5kmINV-15 VavailabilityMap of parking lots within a 100m distance from POI is up-to-date within 10 secsXINV-14 Up-to-date Vplan wrt VavailabilityMap and VplanFeasibility is available within 10 secsPINV-10 Pavailability is monitored within 10 secsP62
+Towards an Automated Requirements-driven Development of sCPS
+from the IRM-SA guide and they were also employed in the experiment mentioned above The model
+was created manually with the help of the IRM-SA model editor
+The highlighting and underlining in the requirements specication is included solely for the purpose
+of this paper and would not appear in an actual specication Meaning of the highlightingunderlining is
+as follows
+ Underlined text refers to components and their attributes double line for components single line
+for attributes Red color is used for the E-car component blue one for the Parking component
+ Highlighted text is related to a particular invariant colors correspond with colors in gure 1
+ Purple numbers in the requirements specication refer to corresponding invariants in the model
+Electric Car Navigation and Parking ECNP
+Summary
+The main objective of this system is to allow e-cars to coordinate with parking stations and have an adequately up-to-date view of the
+availability of parking spaces at each time point At the same time e-cars should monitor their battery level and choose a different
+trip plan eg which involves picking a parking place which is closer to the e-car if the existing plan is not possible to follow any more
+Requirements
+The general requirements for the ECNP are
+1 Every e-car has to arrive to its place of interest POI and park within a radius of 100 meters 2 In order to do that every car
+needs to 
+a Continuously monitor its energy level battery 9
+b Continuously monitor its position 7
+c Continuously assess whether its energy level would be enough to complete the trip based on the distance left to cover
+d Have a plan to follow which is based on its energy level and on the available parking slots in the parking places near the
+POI 11 14
+2 Every parking place has to continuously monitor its availability level eg in terms of available parking slots per time slot 10
+3 The information regarding the availability of the parking slots has to be exchanged with the appropriate e-cars 12 15
+The situation-specic requirements of the ECNP are
+4 When an e-car is more than 5km far from the POI 16 it should update its plan at least once per 60 seconds 14
+5 When an e-car is equal to or less than 5km far from the POI 13 it should update its plan at least every 10 seconds 11
+Figure 2 e-cars system requirements
+3 Automation of IRM-SA
+In this section we analyze the IRM-SA method from the perspective of its automation We identify in-
+dividual steps that can be automated using natural language processing techniques and propose suitable
+methods
+The individual goals of such an automation are i semiautomatically generate invariants in the
+IRM-SA model from the requirements document and thus make synchronization and traceability be-
+tween the requirements and IRM-SA model more robust and faster to obtain ii semiautomatically
+validate the resulting IRM-SA model
+J Vinarek P Hnetynka
+31 Component identication
+Components in EBCS design represent smart entities of the system In our example there are two
+types of components  E-Car and Parking Both components and also their attributes are several times
+mentioned in the requirements as well as in the summary Based on our experience with derivation of the
+domain model from textual specication 17 it seems possible to obtain a list of potential components
+in an automated fashion Also a similar approach is employed in 5 where authors retrieve UML class
+models from test cases
+Both names of the components and their attributes are in the requirement texts almost always repre-
+sented as noun phrases which in simple sentences appear as subjects or objects either direct or indirect
+To parse a sentence and identify its elements the Stanford CoreNLP toolkit 11 is an ideal tool For
+example with the usage of the Stanford dependency parser on the sentence Every car needs to contin-
+uously monitor its energy level battery we get the dependency graph showed in Figure 3 The parser
+returns a part-of-speech POS tag for each word eg VB for verb in base form NN for singular noun
+and dependency relations between the words eg nsubj for nominal subject or dobj for direct object
+The resulting list of potential names of components and attributes contains car nominal subject and
+energy level direct object Unfortunately this might not be sufcient not all of the subjectsobjects
+are componentsattributes A possible way to overcome this issue is to employ statistical classication
+techniques to learn the patterns from training data Similarly we have employed these techniques in 18
+Figure 3 Dependencies and POS tags obtained from Stanford dependency parser
+32 Component disambiguation
+Another issue with the list of candidates for componentattribute names is that it may be ambiguous
+Multiple noun phrases may refer to the same component eg in our e-cars system specication the
+words e-car and car refer to the same component Similarly parking station and parking place
+or energy level and battery These ambiguities can be a sign of a poorly written specication and
+their replacement with the same word or phrase is advisable On the other hand such a situation may
+happen especially if the specication is prepared by multiple authors andor it evolves over time and
+even more in some cases the use of different words for the same entity may be intentional eg in a case
+of abbreviations and noun phrase shortenings place of interest and POI or trip plan and plan
+A distinction of these cases is not always clear and we expect that user will have to be involved in a
+decision about these ambiguities
+For example the requirement in Figure 3 is written in a way which suggest that the phrase energy
+level and battery can be used interchangeably This relation can be deduced automatically as the
+EveryDTcarNNneedsVBZtoTOmonitorVBcontinuouslyRBlevelNNenergyNNitsPRPdetnsubjxcompmarkadvmoddobjnmodposscompoundbatteryNNappos64
+Towards an Automated Requirements-driven Development of sCPS
+word battery has been marked as appositional modier appos of the word level Another option for
+disambiguation might be employment of string distance metrics 43 to identify corresponding entities
+eg car and e-car
+Invariant type identication
+During applying the IRM-SA method sentences in the Requirements section of the specication are
+rather directly translated into invariants of the IRM-SA model However the issue is to identify whether
+the particular sentence relates to the abstract process exchange or assumption invariant It would be
+helpful if the IRM-SA editor could automatically propose the invariant type
+Assumption invariants should be included only in the situation-specic section of the requirements
+specication and thus is easier to locate them see the yellow highlighting in Figure 2 and the yellow
+invariants in Figure 1 Additionally the particular sentences express a condition which is necessary
+to detect and extract To extract it the dependency parser can be again utilized To support it tools
+for information extraction like Ollie4 or OpenIE5 can also be used as they are able to detect enabling
+conditions
+To distinguish between process and exchange invariants it is necessary to analyze the main verb
+of the sentence see the blue and green highlighting in Figure 2 and the blue and green invariants in
+Figure 1 With verbs such as exchange or propagate there is a high chance that the sentence
+corresponds to exchange invariant while verbs have monitor assess obtain acquire or de-
+termine usually denote a process invariant A direct solution would be a simple comparison of the
+particular verb with a predened set of verbs but it would be rather limiting Instead a suitable approach
+is to classify verbs according to their meaning which is taken from WordNet12 WordNet is a large
+lexical database of English nouns verbs adjectives and adverbs In the database synonyms are grouped
+together forming so-called synsets The synsets are interlinked according to their relations forming net-
+work of related words and concepts Multiple WordNet similarity measures were proposed and their
+implementation is available6 and can be used for the process and exchange invariants identication
+Finally sentences containing additional sub-requirements can be marked as abstract invariants the
+gray highlighting and the gray invariants in Figures 1 and 2
+34 Knowledge ow recognition
+One of the key IRM-SA ideas is that each invariant with the exception of assumption ones represents
+a computation that produces output knowledge given a particular input knowledge such that the invariant
+is satised as stated in 2
+For example in the invariant deduced from the requirement 1d in Figure 2 the energy level and POI
+of the vehicle and the available parking slots from the parking places serve as the input parameters for
+computation of the vehicles plan all possible parameters ie component attributes are already known
+as they were identied in the previous phases Schematically it can be written
+Venergy VPOI Pavailability - Vplan
+3an implementation available at httpsecondstringsourceforgenet
+4httpsgithubcomknowitallollie
+5httpsgithubcomknowitallopenie
+6httpsearchcpanorgdistWordNet-Similarity
+J Vinarek P Hnetynka
+Such an abstraction of the requirements to input and output parameters allows for easier reasoning about
+the invariants and it is employed in subsequent sections
+However an issue is how to identify which parameters are input and which output A straightforward
+automatic approach for distinguishing input parameters from the output ones is an iteration starting
+from the simple invariants and taking into account types of parameters already distinguished from the
+previous iterations The approach starts with the process invariants having only single parameter Such
+a parameter must be an output one otherwise the invariant would not produce any knowledge and the
+above mentioned IRM-SA idea would not hold Examples of such invariants are requirements 1a and
+1b Next if a single attribute is present in multiple invariants it can be assumed that it serves as an
+input parameter Nevertheless this is only an assumption and thus a fully automated approach is hard to
+achieve A possible solution is to use an assisted iterative approach in which a tool identies input and
+output parameters and the human designer conrmsreverts the decisions
+In some cases computation associated with an abstract invariant may not have all the parameters
+precisely specied as the particular parameters are unknown yet They may be specied in the child
+invariants and from the view of the higher-level invariant they can be seen as an implementation detail
+In such cases we use the notation V to mark that the component V participates in the invariant but
+the specic attribute is specied later in a child invariant The nal assignment of the parameter is up to
+the designer
+Invariant renement and composition
+In EBCS communication between components is implicit via their knowledge sharing which is con-
+veyed via ensembles An ensemble is thus specied via a condition determining when components are
+part of the particular ensemble and via knowledge that has to be interchanged
+Let us again assume the requirement 1d with the parameter abstraction
+Venergy VPOI Pavailability - Vplan
+As the parameters come from different components V and P but the computation can be performed only
+in a single component it is clear that the invariant has to be rened as a composition of several invariants
+from which at least one is an exchange invariant in the implementation the exchange invariants results
+in the ensemble denition Such situations can be rather easily detected automatically based on the
+parameters owners
+Nevertheless renement and composition of the abstract invariants is more difcult as they repre-
+sent high-level goals and can intentionally abstract from some implementation details ie omit some
+attributes For example in Figure 1 composition of the invariants 5 and 6 means that the trip plan
+is computed rst without any knowledge about availability of the parking places the output parame-
+ter VplanFeasibility in the invariant 5 and then it is made more specic with information about
+the availability the invariant 6 Different composition of the lower-level invariants would lead to a
+completely different behavior
+Another issue in the automatic composition of invariants is a reasoning about situation-specic re-
+quirements which have to be grouped together according to a requirement they belong to The grouping
+is performed based on their output parameters and can result in duplication of invariant subtrees How-
+ever identication of the right subtree to be duplicated is not straightforward Both these issues are very
+hard to solve automatically and we plan to further investigate possibilities of their automation in more
+detail
+Towards an Automated Requirements-driven Development of sCPS
+36 Model validation
+With the abstraction of invariants described in 34 the IRM-SA model can be automatically validated
+according to the knowledge ow In particular following checks can be performed
+ Congurations with missing input parameters can be discovered ie an invariant producing the
+particular attribute is not included in the conguration due to a missing dependency relation
+ Congurations with multiple invariants writing to the same attribute can be detected
+ Also detection of unused output parameters or unused attributes can be performed
+All of these checks may point to aws in the model andor specication and discover them early
+4 Related work
+As far as we know there are no attempts to automatize requirements processing for EBCS design Never-
+theless a related approach is described in 3 in which authors propose an approach called NPL-KAOS
+that can automatically obtain a KAOS model from large volume of literature KAOS 9 is a goal-oriented
+requirement engineering method and it was one of inspirations for the IRM-SA method With the use
+of natural language processing tools and text mining techniques they process abstracts of scientic pub-
+lications First they detect goal-oriented keywords and then they use the Stanford parser to tag semantic
+structures From obtained semantic trees they extract goals and nally organize them into taxonomies
+The taxonomies are used to dene relations between goals and this way they simulate the process of
+renement Similarly to our approach the authors try to automatically derive a model from textual data
+which would serve for purposes of requirements engineering However their problem is different Their
+main goal is to help requirements engineer during the early stages of goal elicitation by extraction of main
+concepts from the large body of research abstracts Although the extraction process may miss some goals
+in the single abstract with large number of abstracts they can count on the fact that the goal will be at
+the end noticed Contrary our method is intended to process a single specication and therefore cannot
+reckon on this effect
+In 5 the authors semi-automatically derive a UML model and OCL constraints from a specica-
+tion and test cases which are both written in natural language They employ formal methods to verify
+correctness of the derived design First grammatical analysis is used to derive UML class diagrams from
+the test cases Then the behavior of test cases is inspected and the UML sequence diagrams are derived
+In the next step OCL constraints are deduced from the requirements and test cases Finally verication
+of static aspects UML class diagrams and OCL invariants and dynamic aspects satisfaction of speci-
+ed method pre-conditions and post-conditions is checked As in our approach authors use the Stanford
+parser to get dependencies from the sentences They also employ WordNet in their case to distinguish
+components of the system and actors The main difference is that we directly target sCPS design and
+EBCS and therefore include an identication of process and exchange invariants adaptability etc
+5 Conclusion
+In the paper we have analyzed the IRM-SA design method with respect to its possible automation with
+the help of natural language processing methods and tools We have identied steps that can be automated
+and sketched solutions As the automated natural language understanding is generally still a challenging
+J Vinarek P Hnetynka
+issue the full automation is hard and in many cases impossible to achieve Thus we target a semi-
+automated system that guides the human designer recommends solutions and validates the designers
+actions
+Currently we plan to implement all the identied proposed solutions to integrate them to the existing
+IRM-SA editor and to validate the resulting system on a real-life case-study
+Even though the proposed approaches are tailored to IRM-SA which is currently tied with the
+DEECo component model they can be reused in different contexts The IRM-SA method itself can
+be without changes applied to another ensemble-based component model eg Helena 7 and the ap-
+proaches proposed in this paper can be applied in tools for the KAOS method or similar ones
+6 Acknowledgement
+This work was partially supported by the project no LD15051 from COST CZ LD programme by
+the Ministry of Education Youth and Sports of the Czech Republic and partially supported by Charles
+University institutional funding SVV-2016-260331
+References
+1 Tomas Bures Ilias Gerostathopoulos Petr Hnetynka Jaroslav Keznikl Michal Kit  Frantisek Plasil 2013
+DEECO An Ensemble-based Component System In Proceedings of CBSE 2013 Vancouver Canada ACM
+pp 8190 doi10114524654492465462
+2 Tomas Bures Ilias Gerostathopoulos Petr Hnetynka Jaroslav Keznikl Michal Kit  Frantisek Plasil 2015
+The Invariant Renement Method In Software Engineering for Collective Autonomic Systems LNCS 8998
+Springer pp 405428 doi101007978-3-319-16310-9 12
+3 E Casagrande S Woldeamlak WL Woon HH Zeineldin  D Svetinovic 2014 NLP-KAOS for Systems
+Goal Elicitation Smart Metering System Case Study IEEE Transactions on Software Engineering 4010
+pp 941956 doi101109TSE20142339811
+4 William W Cohen Pradeep Ravikumar  Stephen E Fienberg 2003 A comparison of string distance
+metrics for name-matching tasks In Proceedings of IIWeb-03 Acapulco Mexico pp 7378
+5 Rolf Drechsler Mathias Soeken  Robert Wille 2012 Formal Specication Level Towards verication-
+driven design based on natural language processing In Proceedings of FDL 2012 Vienna Austria IEEE
+pp 5358
+6 Ilias Gerostathopoulos Tomas Bures Petr Hnetynka Jaroslav Keznikl Michal Kit Frantisek Plasil  Noel
+Plozeau 2015 Self-Adaptation in Cyber-Physical Systems from System Goals to Architecture Congura-
+tions Technical Report D3S-TR-2015-02 Charles University in Prague Faculty of Mathematics and Physics
+Department of Distributed and Dependable Systems
+7 Rolf Hennicker  Annabelle Klarl 2014 Foundations for Ensemble Modeling  The Helena Approach
+In Specication Algebra and Software LNCS 8373 Springer pp 359381 doi101007978-3-642-54624-
+8 Matthias Holzl Axel Rauschmayer  Martin Wirsing 2008 Software Engineering for Ensembles
+Software-Intensive Systems and New Computing Paradigms LNCS 5380 Springer Berlin Heidelberg pp
+4563 doi101007978-3-540-89437-7 2
+9 Axel van Lamsweerde 2008 Requirements Engineering From Craft to Discipline
+In Proceedings of
+SIGSOFT08FSE-16 Atlanta USA ACM pp 238249 doi10114514531011453133
+10 Craig Larman 2004 Applying UML and patterns an introduction to object-oriented analysis and design
+and the unied proces 3rd edition Prentice-Hall
+Towards an Automated Requirements-driven Development of sCPS
+11 Christopher D Manning Mihai Surdeanu John Bauer Jenny Finkel Steven J Bethard  David McClosky
+2014 The Stanford CoreNLP Natural Language Processing Toolkit
+In Proceedings of 52nd Annual
+Meeting of the Association for Computational Linguistics System Demonstrations Baltimore Maryland
+pp 5560 doi103115v1P14-5010
+12 George A Miller 1995 WordNet A Lexical Database for English Communications of the ACM 3811
+pp 3941 doi101145219717219748
+13 Brice Morin Franck Fleurey  Olivier Barais 2015 Taming Heterogeneity and Distribution in sCPS In
+Proceedings of SEsCPS 2015 Firenze Italy ACM pp 4043 doi101109SEsCPS201515
+14 Ivan Ruchkin Bradley Schmerl  David Garlan 2015 Architectural Abstractions for Hybrid Programs
+In Proceedings of CBSE 2015 Montreal Canada ACM pp 6574 doi10114527371662737167
+15 Viliam Simko David Hauzar Petr Hnetynka Tomas Bures  Frantisek Plasil 2014 Formal Verication of
+Annotated Textual Use-Cases The Computer Journal 587 pp 14951529 doi101093comjnlbxu068
+16 Viliam Simko Petr Hnetynka  Tomas Bures 2010 From Textual Use-Cases to Component-Based Appli-
+cations In In proceedings of SNPD 2010 London UK SCI 295 Springer pp 2337 doi101007978-3-
+642-13265-0 3
+17 Viliam Simko Petr Kroha  Petr Hnetynka 2013 Implemented Domain Model Generation Technical
+Report D3S-TR-2013-03 Charles University in Prague Faculty of Mathematics and Physics Department of
+Distributed and Dependable Systems
+18 Jiri Vinarek Petr Hnetynka Viliam Simko  Petr Kroha 2014 Recovering Traceability Links Between
+Code and Specication Through Domain Model Extraction In Proceedings of EOMAS 2014 Thessaloniki
+Greece LNBIP 191 Springer pp 187201 doi101007978-3-662-44860-1 11

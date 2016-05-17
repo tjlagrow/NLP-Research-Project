@@ -1,0 +1,591 @@
+Sign Language Lexical Recognition With Propositional Dynamic
+Arturo Curiel 
+Universit Paul Sabatier
+118 route de Narbonne IRIT
+31062 Toulouse France
+Christophe Collet
+Universit Paul Sabatier
+118 route de Narbonne IRIT
+31062 Toulouse France
+curieliritfr
+colletiritfr
+Abstract
+This paper explores the use of Proposi-
+tional Dynamic Logic PDL as a suit-
+able formal framework for describing
+Sign Language SL the language of
+deaf people
+in the context of natu-
+ral language processing SLs are vi-
+sual complete standalone languages
+which are just as expressive as oral lan-
+guages Signs in SL usually correspond
+to sequences of highly specic body
+postures interleaved with movements
+which make reference to real world ob-
+jects characters or situations Here we
+propose a formal representation of SL
+signs that will help us with the analysis
+of automatically-collected hand track-
+ing data from French Sign Language
+FSL video corpora We further show
+how such a representation could help us
+with the design of computer aided SL
+verication tools which in turn would
+bring us closer to the development of an
+automatic recognition system for these
+languages
+Introduction
+Sign languages SL the vernaculars of deaf
+people are complete rich standalone commu-
+nication systems which have evolved in paral-
+lel with oral languages Valli and Lucas 2000
+However in contrast to the last ones research
+in automatic SL processing has not yet man-
+aged to build a complete formal denition ori-
+ented to their automatic recognition Cuxac
+and Dalle 2007 In SL both hands and non-
+manual features NMF eg
+facial muscles
+can convey information with their placements
+Supported by CONACYT Mexico scholarship
+program
+congurations and movements These particu-
+lar conditions can dicult the construction of
+a formal description with common natural lan-
+guage processing NLP methods since the ex-
+isting modeling techniques are mostly designed
+to work with one-channel sound productions
+inherent to oral languages rather than with
+the multi-channel partially-synchronized infor-
+mation induced by SLs
+Our research strives to address the formal-
+ization problem by introducing a logical lan-
+guage that lets us represent SL from the lowest
+level so as to render the recognition task more
+approachable For this we use an instance of
+a formal logic specically Propositional Dy-
+namic Logic PDL as a possible description
+language for SL signs
+For the rest of this section we will present a
+brief introduction to current research eorts in
+the area Section 2 presents a general descrip-
+tion of our formalism while section 3 shows
+how our work can be used when confronted
+with real world data Finally section 4 present
+our nal observations and future work
+Images for the examples where taken from
+DictaSign 2012 corpus
+11 Current Sign Language Research
+Extensive eorts have been made to achieve
+ecient automatic capture and representation
+of the subtle nuances commonly present in
+sign language discourse Ong and Ranganath
+2005 Research ranges from the development
+of hand and body trackers Dreuw et al 2009
+Gianni and Dalle 2009 to the design of high
+level SL representation models Lejeune 2004
+Lenseigne and Dalle 2006 Linguistic re-
+search in the area has focused on the character-
+ization of corporal expressions into meaning-
+ful transcriptions Dreuw et al 2010 Stokoe
+2005 or common patterns across SL Arono
+et al 2005 Meir et al 2006 Wittmann
+1991 so as to gain understanding of the un-
+derlying mechanisms of SL communication
+Works like Losson and Vannobel 1998 deal
+with the creation of a lexical description ori-
+ented to computer-based sign animation Re-
+port Filhol 2009 describes a lexical speci-
+cation to address the same problem Both pro-
+pose a thoroughly geometrical parametric en-
+coding of signs thus leaving behind meaning-
+ful information necessary for recognition and
+introducing data beyond the scope of recog-
+nition This complicates the reutilization of
+their formal descriptions Besides they dont
+take in account the presence of partial informa-
+tion Treating partiality is important for us
+since it is often the case with automatic tools
+that incomplete or unrecognizable information
+arises Finally little to no work has been di-
+rected towards the unication of raw collected
+data from SL corpora with higher level descrip-
+tions Dalle 2006
+2 Propositional Dynamic Logic for
+Propositional Dynamic Logic PDL is a multi-
+modal logic rst dened by Fischer and Lad-
+ner 1979 It provides a language for describ-
+ing programs their correctness and termina-
+tion by allowing them to be modal operators
+We work with our own variant of this logic
+the Propositional Dynamic Logic for Sign Lan-
+guage PDLSL which is just an instantiation
+of PDL where we take signers movements as
+programs
+Our sign formalization is based on the ap-
+proach of Liddell and Johnson 1989 and Fil-
+hol 2008 They describe signs as sequences of
+immutable key postures and movement transi-
+In general each key posture will be charac-
+terized by the concurrent parametric state of
+each body articulator over a time-interval For
+us a body articulator is any relevant body part
+involved in signing The parameters taken in
+account can vary from articulator to articula-
+tor but most of the time they comprise their
+congurations orientations and their place-
+ment within one or more places of articulation
+Transitions will correspond to the movements
+executed between xed postures
+21 Syntax
+We need to dene some primitive sets that will
+limit the domain of our logical language
+Denition 21 Sign Language primi-
+tives Let BSL  D W R L be the set of
+relevant body articulators for SL where D W
+R and L represent the dominant weak right
+and left hands respectively Both D and W
+can be aliases for the right or left hands but
+they change depending on whether the signer
+is right-handed or left-handed or even depend-
+ing on the context
+congurations for a hand
+dominant or weak hand in the following man-
+Let  be the two-dimensional projection of
+a human body skeleton seen by the front We
+dene the set of places of articulation for SL as
+SL  HEAD CHEST NEUTRAL    such that
+for each   SL  is a sub-plane of  as
+shown graphically in gure 1
+Let CSL be the set of possible morphological
+Let   cid37cid38cid46cid45 be the set
+of relative directions from the signers point of
+view where each arrow represents one of eight
+possible two-dimensional direction vectors that
+share the same origin For vector    we
+ as the same as  but with the
+dene vector
+   Let
+inverted abscissa axis such that
+vectorcid98 indicate movement with respect to the
+ner cid98 
+Finally let v1 and v2 be any two vectors with
+the same origin We denote the rotation angle
+between the two as v1v2
+Now we dene the set of atomic propositions
+that we will use to characterize xed states
+and a set of atomic actions to describe move-
+Denition 22 Atomic Propositions for
+SL Body Articulators SL The set of
+atomic propositions for SL articulators SL
+is dened as
+if D  R or W  L
+if D  L or W  R
+cid40
+SL  1
+2 1
+ T 1
+c  
+where 1 2  BSL      SL and
+c  CSL
+out changing its current place of articulation
+Denition 24 Action Language for SL
+Body Articulators ASL The action lan-
+guage for body articulators ASL is given by
+the following rule
+               
+where   SL
+Intuitively    indicates the concurrent
+execution of two actions while    means
+that at least one of two actions will be non-
+deterministically executed Action   de-
+scribes the sequential execution of two actions
+Finally action  indicates the reexive tran-
+sitive closure of 
+Denition 25 Language PDLSL  The
+formulae  of PDLSL are given by the following
+  cid62  p        
+where p  SL   ASL
+22 Semantics
+PDLSL formulas are interpreted over labeled
+transition systems LTS in the spirit of the
+possible worlds model introduced by
+tikka 1962 Models correspond to connected
+graphs representing key postures and transi-
+tions states are determined by the values of
+their propositions while edges represent sets
+of executed movements Here we present only
+a small extract of the logic semantics
+Denition 26 Sign Language Utterance
+Model USL A sign language utterance model
+USL is a tuple USL  S Rcid74cid75SLcid74cid75SL
+ S is a non-empty set of states
+ R is a transition relation R  SS where
+s  Sscid48  S such that s scid48  R
+mapping actions to the set of binary rela-
+ cid74cid75SL  SL  R denotes the function
+ cid74cid75SL  S  2SL maps each state to a
+set of atomic propositions
+Figure 1 Possible places of articulation in BSL
+Intuitively 1
+indicates that articulator 1
+is placed in relative direction  with respect
+to articulator 2 Let the current place of
+articulation of 2 be the origin point of 2s
+Cartesian system C2 Let vector
+1 de-
+scribe the current place of articulation of 1
+holds when v  
+in C2 Proposition 1
+1v 
+1   
+ asserts that articulator 1 is located in
+is active whenever articulator 1 physi-
+indicates that c is the morphological
+cally touches articulator 2
+Finally 
+conguration of articulator 1
+means that an articulator 1 is
+oriented towards direction    For hands
+will hold whenever the vector perpendicu-
+lar to the plane of the palm has the smallest
+rotation angle with respect to 
+Denition 23 Atomic Actions for SL
+Body Articulators SL The atomic ac-
+tions for SL articulators  SL are given by
+the following set
+SL  1 cid331
+where    and 1  BSL
+Let 1s position before movement be the ori-
+gin of 1s Cartesian system C1 and
+the position vector of 1 in C1 after moving
+Action 1 indicates that 1 moves in relative
+direction  in C1 if v   
+1  
+1v 
+Action cid331 occurs when articulator 1
+moves rapidly and continuously thrills with-
+We also need to dene a structure over se-
+quences of states to model internal dependen-
+cies between them nevertheless we decided to
+omit the rest of our semantics alongside satis-
+faction conditions for the sake of readability
+3 Use Case Semi-Automatic Sign
+Recognition
+We now present an example of how we can use
+our formalism in a semi-automatic sign recog-
+nition system Figure 2 shows a simple module
+diagram exemplifying information ow in the
+systems architecture We proceed to briey
+describe each of our modules and how they
+work together
+Formul
+formulas codify the information tracked in the
+previous part Detected movements are inter-
+preted as PDLSL actions between states
+cid33D  cid33G
+cid37L
+cid46L
+cid37L
+Rcid37
+RSIDEOFBODY
+LCONFIG
+FISTCONFIG
+LSIDEOFBODY
+RSIDEOFBODY
+KEYCONFIG
+KEYCONFIG
+CENTEROFBODY
+RSIDEOFHEAD
+BEAKCONFIG
+INDEXCONFIG
+LSIDEOFBODY
+RSIDEOFBODY
+OPENPALMCONFIG
+OPENPALMCONFIG
+Tracking
+and Seg-
+mentation
+postures 
+transitions
+Extraction
+Verication
+Proposals
+Figure 3 Example of modeling over four auto-
+matically identied frames as possible key pos-
+Figure 2 Information ow in a semi-automatic
+SL lexical recognition system
+31 Tracking and Segmentation
+The process starts by capturing relevant infor-
+mation from video corpora We use an exist-
+ing head and hand tracker expressly developed
+for SL research Gonzalez and Collet 2011
+This tool analyses individual video instances
+and returns the frame-by-frame positions of
+the tracked articulators By using this infor-
+mation the module can immediately calculate
+speeds and directions on the y for each hand
+The module further employs the method
+proposed by the authors in Gonzalez and
+Collet 2012 to achieve sub-lexical segmenta-
+tion from the previously calculated data Like
+them we use the relative velocity between
+hands to identify when hands either move at
+the same time independently or dont move at
+all With these we can produce a set of possi-
+ble key postures and transitions that will serve
+as input to the modeling module
+32 Model Extraction Module
+This module calculates a propositional state
+for each static posture where atomic PDLSL
+Figure 3 shows an example of the process
+Here each key posture is codied into propo-
+sitions acknowledging the hand positions with
+respect to each other R
+L  their place of artic-
+left hand oats over the torse
+ulation eg
+with 
+right
+TORSE their conguration eg
+hand is open with F R
+OPENPALMCONFIG and their
+movements eg left hand moves to the up-
+left direction with cid37L
+This module also checks that the generated
+graph is correct
+it will discard simple track-
+ing errors to ensure that the resulting LTS will
+remain consistent
+33 Verication Module
+First of all the verication module has to be
+loaded with a database of sign descriptions en-
+coded as PDLSL formulas These will charac-
+terize the specic sequence of key postures that
+morphologically describe a sign For exam-
+ple lets take the case for sign route in FSL
+shown in gure 4 with the following PDLSL
+formulation
+Example 31 ROUTEFSL formula
+FACE  
+FACE  L
+R  LL
+R  F R
+R  F R
+CLAMP  F L
+CLAMP  F L
+CLAMP  T R
+L  
+CLAMP  T R
+with 2D coordinates With these in mind we
+tried to design something exible that could
+be easily adapted by computer scientists and
+linguists alike Our primitive sets were inten-
+tionally dened in a very general fashion due
+to the same reason all of the perceived di-
+rections articulators and places of articulation
+can easily change their domains depending on
+the SL we are modeling or the technological
+constraints we have to deal with Proposi-
+tions can also be changed or even induced by
+existing written sign representation languages
+such as Zebedee Filhol 2008 or HamNoSys
+Hanke 2004 mainly for the sake of extend-
+ability
+From the application side we still need to
+create an extensive sign database codied in
+PDLSL and try recognition on other corpora
+with dierent tracking information For ver-
+ication and model extraction further opti-
+mizations are expected including the handling
+of data inconsistencies and repairing broken
+queries when verifying the graph
+issues
+theoretical
+Regarding our
+work will be centered in improving our lan-
+guage to better comply with SL research This
+includes adding new features
+like incorpo-
+rating probability representation to improve
+recognition We also expect to nish the deni-
+tion of our formal semantics as well as proving
+correction and complexity of our algorithms
+References
+Arono et al2005 Mark Arono Irit Meir and
+Wendy Sandler 2005 The paradox of sign lan-
+guage morphology Language 812301
+Cuxac and Dalle2007 Christian
+Problmatique des
+en traitement automatique des
+signes volume 48 of Traite-
+Lavoisier
+Patrice Dalle
+chercheurs
+langues des
+ment Automatique des Langues
+httpwwweditions-hermesfr October
+Dalle2006 Patrice Dalle 2006 High level models
+for sign language analysis by a vision system In
+Workshop on the Representation and Processing
+of Sign Language Lexicographic Matters and
+Didactic Scenarios LREC Italy ELDA page
+1720
+DictaSign2012 DictaSign
+httpwwwdictasigneu
+Dreuw et al2009 Philippe Dreuw Daniel Stein
+2009 Enhancing a sign
+and Hermann Ney
+Figure 4 ROUTEFSL production
+Formula 1 describes ROUTEFSL as a sign
+with two key postures connected by a two-
+hand simultaneous movement
+represented
+with operator 
+It also indicates the posi-
+tion of each hand their orientation whether
+they touch and their respective congurations
+in this example both hold the same CLAMP
+conguration
+The module can then verify whether a sign
+formula in the lexical database holds in any
+sub-sequence of states of the graph generated
+in the previous step Algorithm 1 sums up the
+process
+Algorithm 1 PDLSL Verication Algorithm
+Require SL model MSL
+Require connected graph GSL
+Require lexical database DBSL
+1 ProposalsForstateqty
+2 for state s  GSL do
+8 end for
+9 return ProposalsFor
+for sign   DBSL where s   do
+if MSL s   then
+ProposalsForsappend
+end for
+For each state the algorithm returns a set
+of possible signs Expert users or higher level
+algorithms can further rene the process by
+introducing additional information previously
+missed by the tracker
+4 Conclusions and Future Work
+We have shown how a logical language can
+be used to model SL signs for semi-automatic
+recognition albeit with some restrictions The
+traits we have chosen to represent were im-
+posed by the limits of the tracking tools we
+had to our disposition most notably working
+language translation system with vision-based
+features
+In Miguel Sales Dias Sylvie Gibet
+Marcelo M Wanderley and Rafael Bastos ed-
+itors Gesture-Based Human-Computer Inter-
+action and Simulation number 5085 in Lec-
+ture Notes in Computer Science pages 108113
+Springer Berlin Heidelberg January
+the Representation and Processing of Sign Lan-
+guages From SignWriting to Image Processing
+Information Lisbon Portugal 30 May
+Hintikka1962 Jaakko Hintikka
+1962 Knowl-
+edge and Belief Ithaca NYCornell University
+Dreuw et al2010 Philippe Dreuw Hermann Ney
+Gregorio Martinez Onno Crasborn Justus Pi-
+ater Jose Miguel Moya and Mark Wheatley
+2010 The SignSpeak project - bridging the gap
+between signers and speakers In Nicoletta Cal-
+zolari Conference Chair Khalid Choukri and
+et al editors Proceedings of the Seventh In-
+ternational Conference on Language Resources
+and Evaluation LREC10 Valletta Malta
+May European Language Resources Association
+ELRA
+Filhol2008 Michael Filhol 2008 Modle descrip-
+tif des signes pour un traitement automatique
+des langues des signes PhD thesis Universit
+Paris-sud Paris 11
+Filhol2009 Michael Filhol 2009 Zebedee a lexi-
+cal description model for sign language synthe-
+sis Internal LIMSI
+Fischer and Ladner1979 Michael J Fischer and
+Richard E Ladner 1979 Propositional dy-
+namic logic of regular programs
+Journal of
+Computer and System Sciences 182194211
+Gianni and Dalle2009 Frdric Gianni and Patrice
+Dalle 2009 Robust tracking for processing of
+videos of communications gestures Gesture-
+Based Human-Computer Interaction and Sim-
+ulation page 93101
+Gonzalez and Collet2011 Matilde Gonzalez and
+Christophe Collet 2011 Robust body parts
+tracking using particle lter and dynamic tem-
+In 2011 18th IEEE International Con-
+ference on Image Processing ICIP pages 529
+532 September
+Gonzalez and Collet2012 Matilde Gonzalez and
+Christophe Collet 2012 Sign segmentation us-
+ing dynamics and hand conguration for semi-
+automatic annotation of sign language corpora
+In Eleni Efthimiou Georgios Kouroupetroglou
+and Stavroula-Evita Fotinea editors Gesture
+and Sign Language in Human-Computer Inter-
+action and Embodied Communication number
+7206 in Lecture Notes in Computer Science
+pages 204215 Springer Berlin Heidelberg Jan-
+Hanke2004 Thomas Hanke
+NoSysRepresenting sign language data in lan-
+guage resources and language processing con-
+the Workshop on
+In Proceedings of
+Lejeune2004 Fanch Lejeune
+Analyse
+smantico-cognitive dnoncs en Langue des
+Signes Franccaise pour une gnration automa-
+tique de squences gestuelles PhD thesis PhD
+thesis Orsay University France
+Lenseigne and Dalle2006 Boris Lenseigne
+Patrice Dalle 2006 Using signing space as a
+representation for sign language processing In
+Sylvie Gibet Nicolas Courty and Jean-Franois
+Kamp editors Gesture in Human-Computer
+Interaction and Simulation number 3881 in
+Lecture Notes in Computer Science pages
+2536 Springer Berlin Heidelberg January
+Liddell and Johnson1989 S K Liddell and R E
+Johnson 1989 American sign language The
+phonological base Gallaudet University Press
+Washington DC
+Losson and Vannobel1998 Olivier Losson
+Jean-Marc Vannobel 1998 Sign language for-
+mal description and synthesis INTJOURNAL
+OF VIRTUAL REALITY 32734
+Meir et al2006 Irit Meir Carol Padden Mark
+Arono and Wendy Sandler 2006 Re-thinking
+sign language verb classes the body as subject
+In Sign Languages Spinning and Unraveling the
+Past Present and Future 9th Theoretical Issues
+in Sign Language Research Conference Floria-
+nopolis Brazil volume 382
+Ong and Ranganath2005 Sylvie C W Ong and
+Surendra Ranganath 2005 Automatic sign lan-
+guage analysis a survey and the future beyond
+lexical meaning IEEE Transactions on Pattern
+Analysis and Machine Intelligence 276873 
+891 June
+Stokoe2005 William C Stokoe 2005 Sign lan-
+guage structure An outline of the visual com-
+munication systems of the american deaf Jour-
+nal of Deaf Studies and Deaf Education 1013
+37 January
+Valli and Lucas2000 Clayton Valli and Ceil Lucas
+2000 Linguistics of American Sign Language
+Text 3rd Edition An Introduction Gallaudet
+University Press
+Wittmann1991 Henri Wittmann
+1991 Clas-
+sication linguistique des langues signes non
+vocalement Revue qubcoise de linguistique
+thorique et applique 10188

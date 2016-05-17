@@ -1,0 +1,2044 @@
+A Framework for Creating Natural Language User Interfaces
+for Action-Based Applications
+Stephen Chong
+Cornell University
+Ithaca NY 14853 USA
+schongcscornelledu
+Riccardo Pucella
+Cornell University
+Ithaca NY 14853 USA
+riccardocscornelledu
+Abstract
+In this paper we present a framework for creating natural language interfaces to action-based
+applications Our framework uses a number of reusable application-independent components
+in order to reduce the effort of creating a natural language interface for a given application
+Using a type-logical grammar we rst translate natural language sentences into expressions
+in an extended higher-order logic These expressions can be seen as executable specications
+corresponding to the original sentences The executable specications are then interpreted by
+invoking appropriate procedures provided by the application for which a natural language in-
+terface is being created
+1 Introduction
+The separation of the user interface from the application is regarded as a sound design principle A
+clean separation of these components allows different user interfaces such as GUI command-line
+and voice-recognition interfaces To support this feature an application would supply an applica-
+tion interface Roughly speaking an application interface is a set of hooks that an application
+provides so that user interfaces can access the applications functionality A user interface issues
+commands and queries to the application through the application interface the application executes
+these commands and queries and returns the results back to the user interface We are interested
+in applications whose interface can be described in terms of actions that modify the applications
+state and predicates that query the current state of the application We refer to such applications as
+action-based applications
+In this paper we propose a framework for creating natural language user interfaces to action-
+based applications These user interfaces will accept commands from the user in the form of natural
+language sentences We do not address how the user inputs these sentences by typing by speak-
+ing into a voice recognizer etc but rather focus on what to do with those sentences Intuitively
+we translate natural language sentences into appropriate calls to procedures available through the
+application interface
+A preliminary version of this paper appeared in the Proceedings of the Third International AMAST Workshop on
+Algebraic Methods in Language Processing TWLT Report 21 pp 83-98 2003
+Other UI 1
+Other UI 2
+Lexicon
+Interpreter
+Adapter
+Application
+Figure 1 Architecture
+ Application
+specific
+component
+ Application
+independent
+component
+Action Based
+Application
+As an example consider the application TOYBLOCKS It consists of a graphical representation
+of two blocks on a table that can be moved and put one on top of the other We would like to be
+able to take a sentence such as move block one on block two and have it translated into suitable calls
+to the TOYBLOCKS interface that would move block 1 on top of block 2 This requires that the
+interface of TOYBLOCKS supplies a procedure for moving blocks While this example is simple
+it already exposes most of the issues with which our framework must deal
+Our framework architecture is sketched in Figure 1 The diagram shows an application with
+several different user interfaces The box labeled NLUI represents the natural language user in-
+terface that our framework is designed to implement Our framework is appropriate for applications
+that provide a suitable application interface which is described in Section 2 We expect that most
+existent applications will not provide an interface conforming to our requirements Thus an adapter
+might be required as shown in the gure Other user interfaces can also build on this application
+interface The user interface labeled Other UI 1 for instance a command-line interface does just
+that The application may have some user interfaces that interact with the application through other
+means such as the user interface Other UI 2 for instance the native graphical interface of the
+application
+The translation from natural language sentences to application interface calls is achieved in
+two steps The rst step is to use a categorial grammar Carpenter 1997 to derive an intermediate
+representation of the semantics of the input sentence An interesting feature of categorial grammars
+is that the semantics of the sentence is compositionally derived from the meaning of the words in
+the lexicon The derived meaning is a formula of higher-order logic Andrews 1986 The key
+observation is that such a formula can be seen as an executable specication More precisely it
+corresponds to an expression of a simply-typed -calculus Barendregt 1981 The second step
+of our translation is to execute this -calculus expression via calls to procedures supplied by the
+application interface
+We implement the above scheme as follows A parser accepts a natural language sentence from
+the user and attempts to parse it using the categorial grammar rules and the vocabulary from the
+application-specic lexicon The parser fails if it is not able to provide a unique unambiguous
+parsing of the sentence Successful parsing results in a formula in our higher-order logic which
+corresponds to an expression in an action calculusa -calculus equipped with a notion of action
+This expression is passed to the action calculus interpreter which executes the expression by
+making appropriate calls to the application via the application interface The interpreter may report
+back to the screen the results of executing the actions
+The main advantage of our approach is its modularity This architecture contains only a few
+application-specic components and has a number of reusable components More precisely the
+categorial grammar parser and the action calculus interpreter are generic and reusable across differ-
+ent applications The lexicon on the other hand provides an application-specic vocabulary and
+describes the semantics of the vocabulary in terms of a specic application interface
+In Section 2 we describe our requirements for action-based applications We dene the notion
+of an application interface and provide a semantics for such an interface in terms of a model of the
+application In Section 3 we present an action calculus that can be used to capture the meaning of
+imperative natural language sentences The semantics of this action calculus are given in terms of
+an action-based application interface and application model these semantics permit us to evaluate
+expressions of the action calculus by making calls to the application interface Section 4 provides
+a brief introduction to categorial grammars Section 5 shows how these components action-based
+applications action calculus and categorial grammar are used in our framework We discuss some
+extensions to the framework in Section 6 and conclude in Section 7
+2 Action-Based Applications
+Our framework applies to applications that provide a suitable Application Programmer Interface
+API Roughly speaking such an interface provides procedures that are callable from external
+processes to drive the application
+In this section we describe in detail the kind of interface
+needed by our approach We also introduce a model of applications that will let us reason about the
+suitability of the whole framework
+21 Application Interface
+Our framework requires action-based applications to have an application interface that species
+which externally callable procedures exist in the application This interface is meant to specify
+procedures that can be called from programs written in fairly arbitrary programming languages To
+achieve this we assume only that the calling language can distinguish between objects the term
+object is used is a nontechnical sense to denote arbitrary data values and Boolean values tt true
+and ff false
+An application interface species the existence of a number of different kind of procedures
+1 Constants There is a set of constants representing objects of interest For TOYBLOCKS the
+constants are b1 b2 and table
+2 Predicates There is a set of predicates dened over the states of the application A predicate
+can be used to check whether objects satisfy certain properties dependent on the state of
+the application Predicates return truth values For TOYBLOCKS we consider the single
+predicate is onbl  pos that checks whether a particular block bl is in a particular position
+pos on another block or on the table Each predicate p has an associated arity indicating
+how many arguments it needs
+3 Actions Finally there is a set of actions dened by the application Actions essentially effect
+a state change Actions can be given arguments for example to effect a change to a particular
+object For TOYBLOCKS we consider a single action movebl pos  which moves block
+bl to position pos on another block or on the table As with predicates each action has an
+associated arity which may be 0 indicating that the action is parameterless
+We emphasize that the application interface simply gives the names of the procedures that are
+callable by external processes It does not actually dene an implementation for these procedures
+In order to prevent predicates and actions from being given inappropriate arguments we need
+some information about the actual kind of objects associated with constants and that the predicates
+and actions take as arguments We make the assumption that every object in the application belongs
+to at least one of many classes of objects Let C be such a set of classes Although this termi-
+nology evokes object-oriented programming we emphasize that an object-oriented approach is not
+necessary for such interfaces a number of languages and paradigms are suitable for implementing
+application interfaces
+We associate class information to every name in the interface via a map  More specically
+we associate with every constant c a set c  C representing the classes of objects that can be
+associated with c We associate with each predicate p a set p  Cn where n is the arity of the
+predicate indicating for which classes of objects the predicate is dened Similarly we associate
+with each action a a set a  Cn again where n is the arity of the action which in this case can
+be 0 As we will make clear shortly we only require that the application return meaningful values
+for objects of the right classes
+Formally an application interface is a tuple I  C P A C  where C is a set of constant
+names P is a set of predicate names A is a set of action names C is the set of classes of the
+application and  is the map associating every element of the interface with its corresponding class
+information The procedures in the interface provide a means for an external process to access
+the functionality of the application by presenting to the language a generally accessible version
+of the constants predicates and actions Of course in our case we are not interested in having
+arbitrary processes invoking procedures in the interface but specically an interpreter that interprets
+commands written in a natural language
+In a precise sense the map  describes typing information for the elements of the interface
+However because we do not want to impose a particular type system on the application for instance
+we do not want to assume that the application is object-oriented we instead assume a form of
+dynamic typing More precisely we assume that there is a way to check if an object belongs to
+a given class This can either be performed through special guard predicates in the application
+interface for instance a procedure is block that returns true if the supplied object is actually a
+block or a mechanism similar to Javas instanceOf operator
+Example 21 As an example consider the following interface IT for TOYBLOCKS Let IT 
+C P A C  where as we discussed earlier
+C  b1 b2 table
+P  is on
+A  move
+We consider only two classes of objects block  representing the blocks that can be moved and
+position representing locations where blocks can be located Therefore C  block  position 
+To dene  consider the way in which the interface could be used The constant b1 represents an
+object that is both a block that can be moved and a position to which the other block can be moved
+to since we can stack blocks on top of each other The constant b2 is similar The constant table
+represents an object that is a position only Therefore we have
+b1  block  position 
+b2  block  position 
+table  position
+Correspondingly we can derive the class information for is on and move
+is on  block  position
+move  block  position 
+22 Application Model
+In order to reason formally about the interface we provide a semantics to the procedures in the
+interface This is done by supplying a model of the underlying application We make a number of
+simplifying assumptions about the application model and discuss relaxing some of these assump-
+tions in Section 6
+Applications are modeled using four components
+1 Interface The interface as we saw in the previous section species the procedures that can
+be used to query and affect the application The interface also denes the set C of classes of
+objects in the application
+2 States A state is roughly speaking everything that is relevant to understand how the appli-
+cation behaves At any given point in time the application is in some state We assume that
+an applications state changes only through explicit actions
+3 Objects This denes the set of objects that can be manipulated or queried in the application
+As we already mentioned we use the term object in the generic sense without implying
+that the application is implemented through an object-oriented language Every object is
+associated with at least one class
+4 Interpretation An interpretation associates with every element of the interface a meaning
+in the application model As we shall see it associates with every constant an object of
+the model with every predicate a predicate on the model and with every action a state-
+transformation on the model
+Formally an application is a tuple M  I S O  where I in an interface that denes the
+constants predicates and actions of the application as well as the classes of the objects S is the
+set of states of the application O is the set of objects and  is the interpretation
+We extend the map  dened in the interface to also provide class information for the objects
+in O Specically we dene for every object o  O a set o  C of classes to which that object
+belongs An object can belong to more than one class
+The map  associates with every state and every element in the interface ie every constant
+predicate and action the appropriate interpretation of that element at that state Specically for a
+state s  S we have sc  O Therefore constants can denote different objects at different
+states of the applications For predicates sp is a partial function from O      O to truth
+values tt or ff  This means that predicates are pure in that they do not modify the state of an
+application they are simply used to query the state For actions sa is a partial function from
+O  O to S The interpretation  is subject to the following conditions For a given predicate p
+the interpretation sp must be dened on objects of the appropriate class Thus the domain of
+the partial function sp must at least consist of o1     on  o1  onp 6 
+Similarly for a given action a the domain of the partial function sa must at least consist of
+o1     on  o1      on  a 6  Furthermore any class associated with a constant
+must also be associated with the corresponding object In other words for all constants c we must
+have c  sc for all states s
+Example 22 We give a model MT for our sample TOYBLOCKS application to go with the inter-
+face IT dened in Example 21 Let MT  IT  S O  We will consider only three states in the
+application S  s1 s2 s3 which can be described variously
+in state s1 blocks 1 and 2 are on the table
+in state s2 block 1 is on block 2 and block 2 is on the table
+in state s3 block 1 is on the table and block 2 is on block 1
+We consider only three objects in the model O  b1 b2 t where b1 is block 1 b2 is block 2 and
+t is the table We extend the map  in the obvious way
+b1  block  position
+b2  block  position
+t  position 
+The interpretation for constants is particularly simple as the interpretation is in fact independent of
+the state in other words the constants refer to the same objects at all states
+sb1  b1
+sb2  b2
+stable  t
+The interpretation of the is on predicates is straightforward
+s1is onx cid26 tt
+s2is onx cid26 tt
+s3is onx cid26 tt
+if x  b1 t b2 t
+if x  b1 b1 b1 b2 b2 b1 b2 b2
+if x  b1 b2 b2 t
+if x  b1 t b1 b1 b2 b1 b2 b2
+if x  b1 t b2 b1
+if x  b1 b1 b1 b2 b2 t b2 b2
+The interpretation of move is also straightforward
+s1movex 
+s2movex cid26 s1
+s3movex cid26 s1
+if x  b1 b2
+if x  b2 b1
+if x  b1 t b1 b1 b2 t b2 b2
+if x  b1 t
+if x  b1 b1 b1 b2 b2 t b2 b1 b2 b2
+if x  b2 t
+if x  b1 t b1 b1 b1 b2 b2 b1 b2 b2
+If a block is unmovable that is if there is another block on it then the state does not change
+following a move operation
+3 An Action Calculus
+Action-based application interfaces are designed to provide a means for external processes to access
+the functionality of an application In this section we dene a powerful and exible language that
+can be interpreted as calls to an application interface The language we use is a simply-typed -
+calculus extended with a notion of action It is effectively a computational -calculus in the style
+of Moggi 1989 although we give a nonstandard presentation in order to simplify expressing the
+language semantics in terms of an application interface
+The calculus is parameterized by a particular application interface and application model The
+application interface provides the primitive constants predicates and actions that can be used to
+build more complicated expressions while the application model is used to dene the semantics
+31 Syntax
+Every expression in the language is given a type intuitively describing the kind of values that the
+expression produces The types used in this language are given by the following grammar
+1  2
+boolean
+function
+The types  correspond closely to the types required by the action-based application interfaces we
+dened in the previous section the type Bool is the type of truth values with constants true and
+false corresponding to the Boolean values tt and ff  and the type Obj is the type of generic objects
+The type Act is more subtle an expression of type Act represents an action that can be executed to
+change the state of the application This is an example of computational type as dened by Moggi
+1989 As we shall see shortly expressions of type Act can be interpreted as calls to the action
+procedures of the application interface
+The classes C dened by the application interface have no corresponding types in this language
+instead all objects have the type Obj Incorporating these classes as types is an obvious possible
+extension see Section 6
+The syntax of the language is a straightforward extension of that of the -calculus
+Syntax of Expressions
+true  false
+xe
+id pe1     en
+id ae1     en
+e1e2e3
+boolean
+function
+null action
+expression
+variable
+constant
+predicate
+application
+conditional
+action sequencing
+The expressions id c id pe1     en and id ae1     en correspond to the procedures respec-
+tively constants predicates and actions available in the application interface Constants are writ-
+ten id c as a visual reminder that they are essentially functions id c may yield different values at
+different states as the semantics will make clear So for TOYBLOCKS the constants are b1 b2
+and table the only predicate is is on and the only action is move The expression e1e2e3 is a
+conditional expression evaluating to e2 if e1 evaluates to true and e3 if e1 evaluates to false The
+expression e1 e2 when e1 and e2 are actions evaluates to an action corresponding to performing
+e1 followed by e2 The constant skip represents an action that has no effect
+Example 31 Consider the interface for TOYBLOCKS The expression b1 represents block 1
+while table represents the table The expression moveb1 table represents the action
+of moving block 1 on the table Similarly the action moveb1 table moveb2 b1
+represents the composite action of moving block 1 on the table and then moving block 2 on top of
+block 1
+32 Operational Semantics
+The operational semantics is dened with respect to the application model More precisely the
+semantics is given by a transition relation written s e  s e where s s are states of the
+application and e e are expressions Intuitively this represents the expression e executing in state
+s and making a one-step transition to a possibly different state s and a new expression e
+To accommodate the transition relation we need to extend the syntax of expressions to account
+for object values produced during the evaluation We also include a special value  that represents
+an exception raised by the code This exception is used to capture various errors that may occur
+during evaluation
+Additional Syntax of Expressions
+vo  O
+object value
+exception
+The transition relation is parameterized by the functions c p and p given below These
+functions provide a semantics to the constant predicate and action procedures respectively and
+are derived from the interpretation  in the application model The intuition is that evaluating
+these functions corresponds to making calls to the appropriate procedures on the given application
+interface and returning the result
+Reduction Rules for Interface Elements
+cs id c  sid c
+ps id p v1     vn cid26 sid pv1     vn
+as id a v1     vn cid26 sid av1     vn
+if v1      vn  id p 6 
+otherwise
+if v1      vn  id a 6 
+otherwise
+Note that determining whether or not a primitive throws an exception depends on being able to
+establish the class of an object via the map  We can thus ensure that we never call an action or
+predicate procedure on the application interface with inappropriate objects and so we guarantee a
+kind of dynamic type-safety with respect to the application interface
+Reduction Rules
+Red App 1
+Red App 2
+Red App 3
+s e1  s e
+s e1 e2  s e
+s e1  s 
+s e1 e2  s 
+s xe1 e2  s e1xe2
+Red OCon
+Red PCon 1
+s id c  s cs id c
+s id p    ei     s id p    e
+i   
+s ei  s e
+for some i  1n
+Red PCon 2
+s ei  s 
+for some i  1n
+Red PCon 3
+s id pe1     en  s 
+s id pv1     vn  s v
+ps id p v1     vn  v
+Red If 1
+Red If 2
+Red If 3
+s e1  s e
+s e1e2e3  s e
+1e2e3
+s e1  s 
+s e1e2e3  s 
+s vetrueefalse  s ev
+Red Seq 1
+Red Seq 2
+Red Seq 3
+s  e  s 
+s skip e  s e
+s e1  s e
+s e1 e2  s e
+Red ACon 1
+s ei  s e
+for some i  1n
+Red ACon 2
+s ei  s 
+for some i  1n
+s id a    ei     s id a    e
+i   
+s id ae1     en  s 
+Red ACon 3
+s id av1     vn  s skip
+as id a v1     vn  s
+Red ACon 4
+s id av1     vn  s 
+as id a v1     vn  
+The operational semantics is a combination of call-by-name and call-by-value semantics The
+language as a whole is evaluated in a call-by-name fashion In particular rule Red App 3 indicates
+that application is call-by-name Actions on the other hand are evaluated under what might be
+called call-by-value as indicated by rule Red Seq 1 Roughly the rst term of a sequencing
+operation e1 e2 is fully evaluated before e2 is evaluated
+Intuitively applications are evaluated
+under call-by-name because premature evaluation of actions could lead to action procedures in the
+application interface being called inappropriately For example under call-by-value semantics the
+evaluation of the following expression
+xActfalsexskip A
+would call the action procedure for A assuming A is an action in the application interface This
+does not agree with the intuitive interpretation of actions More importantly the mapping from nat-
+ural language sentences to expressions in our calculus naturally yields a call-by-name interpretation
+33 Type System
+We use type judgments to ensure that expressions are assigned types appropriately and that the
+types themselves are well-formed Roughly speaking a type is well-formed if it preserves the sepa-
+ration between pure computations computations with no side-effects and imperative computations
+computations that may have side-effects The type system enforces that pure computations do
+not change the state of the application This captures the intuition that declarative sentences
+corresponding to pure computations should not change the state of the world This correspon-
+dence between declarative sentences and pure computations is made clear in the next section The
+rules for the type well-formedness judgment   ok are given in the following table along with the
+auxiliary judgment   pure stating that a type  is a pure type evaluates without side effects
+Judgments   pure and   ok
+Pure Obj
+Pure Bool
+Pure Fun
+OK Fun Pure
+ 1 pure
+ 2 pure
+OK Fun Act
+ Obj pure
+ Bool pure
+ 1  2 pure
+ 1  2 ok
+   Act ok
+The judgment   e   assigns a type  to expression e in a well-formed environment 
+An environment  denes the types of all variables in scope An environment is of the form x1 
+1     xn  n and denes each variable xi to have type i We require that variables do not repeat
+in a well-formed environment The typing rules for expressions are essentially standard with the
+exception of the typing rule for functions which requires that function types     be well-formed
+Judgment   e  
+Typ Var
+Typ Obj
+Typ True
+Typ False
+Typ Exc
+ x    x  
+  vo  Obj
+  true  Bool
+  false  Bool
+    
+Typ App
+  e1        e2  
+Typ Fun
+ x    e   
+     ok
+  e1 e2   
+  xe     
+x 6 Dom
+Typ If
+  e1  Bool   e2     e3  
+Typ Skip
+Typ Seq
+  e1  Act   e2  Act
+  e1e2e3  
+  skip  Act
+  e1 e2  Act
+Typ ACon
+  ei  Obj i  1n
+  id ae1     en  Act
+Typ OCon
+Typ PCon
+  id c  Obj
+  ei  Obj i  1n
+  id pe1     en  Bool
+It is straightforward to show that our type system is sound that is that type-correct expressions
+do not get stuck when evaluating We write s e  s e to mean that there exists a sequence
+s1 e2     sn en such that s e  s1 e1      sn en  s e
+Theorem 32
+s e  s v Moreover if   pure then s  s
+If  e    and s is a state then there exists a state s and value v such that
+Proof See Appendix A
+Theorem 32 in fact states that the language is strongly normalizing the evaluation of every
+expression terminates This is a very desirable property for the language since it will form part of
+the user interface
+Example 33 Consider the following example interpreted with respect to the application model
+of Example 22 In state s1 where both block 1 and 2 are on the table let us trace through the
+execution of the expression xObjyObjmovex y b1 b2 We omit the derivation
+indicating how each step is justied
+s1 xObjyObjmovex y b1 b2 
+s1 yObjmoveb1 y b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s2 skip
+In other words evaluating the expression in state s1 leads to state s2 where indeed block 1 is on top
+of block 2
+34 A Direct Interpreter
+The main reason for introducing the action calculus of this section is to provide a language in
+which to write expressions invoking procedures available in the application interface However
+the operational semantics given above rely on explicitly passing around the state of the application
+This state is taken from the application model In the model the state is an explicit datum that enters
+the interpretation of constants predicates and actions Of course in the actual application the state
+is implicitly maintained by the application itself Invoking an action procedure on the application
+interface modies the current state of the application putting the application in a new state This
+new state is not directly visible to the user
+We can implement an interpreter based on the above operational semantics but without carrying
+around the state explicitly To see this observe that the state is only relevant for the evaluation of
+the primitives constants predicates and actions More importantly it is always the current state
+of the application that is relevant and only actions are allowed to change the state We can therefore
+implement an interpreter by simply directly invoking the procedures in the application interface
+when the semantics tells us to reduce via c p or a Furthermore we need to be able to raise an
+exception  if the objects passed to the interface are not of the right class This requires querying
+for the class of an object As we indicated in Section 21 we simply assume that this can be done
+either through language facilities an instanceOf operator or through explicit procedures in the
+interface that check whether an object is of a given class
+In summary given an application with a suitable application interface we can write an in-
+terpreter for our action calculus that will interpret expressions by invoking procedures available
+through the application interface when appropriate The interpreter does not require an application
+model The model is useful to establish properties of the interpreter and if one wants to reason
+about the execution of expressions via the above operational semantics
+4 Categorial Grammars
+In the last section we introduced an action calculus that lets us write expressions that can be un-
+derstood via calls to the application interface The aim of this section is to use this action calculus
+as the target of a translation from natural language sentences In other words we describe a way to
+take a natural language sentence and produce a corresponding expression in our action calculus that
+captures the meaning of the sentence Our main tool is categorial grammars
+Categorial grammars provide a mechanism to assign semantics to sentences in natural language
+in a compositional manner As we shall see we can obtain a compositional translation from natural
+language sentences into the action calculus presented in the previous section and thus provide a
+simple natural language user interface for a given application This section provides a brief exposi-
+tion of categorial grammars based on Carpenters 1997 presentation We should note that the use
+of categorial grammars is not a requirement in our framework Indeed any approach to provide se-
+mantics to natural language sentences in higher-order logic which can be viewed as a simply-typed
+-calculus Andrews 1986 can be adapted to our use For instance Moortgats 1997 multimodal
+categorial grammars which can handle a wider range of syntactic constructs can also be used for
+our purposes To simplify the exposition we use the simpler categorial grammars in this paper
+Categorial grammars were originally developed by Ajdukiewicz 1935 and Bar-Hillel 1953
+and later generalized by Lambek 1958 The idea behind categorial grammars is simple We start
+with a set of categories each category representing a grammatical function For instance we can
+start with the simple categories np representing noun phrases pp representing prepositional phrases
+s representing declarative sentences and a representing imperative sentences Given categories A
+and B we can form the functor categories AB and BA The category AB represents the
+category of syntactic units that take a syntactic unit of category B to their right to form a syntactic
+unit of category A Similarly the category BA represents the category of syntactic units that take
+a syntactic unit of category B to their left to form a syntactic unit of category A
+Consider some examples If np is the category of noun phrases and s is the category of declar-
+ative sentences then the category nps is the category of intransitive verbs eg laughs they take
+a noun phrase on their left to form a sentence eg Alice laughs or the reviewer laughs Similarly
+the category npsnp represents the category of transitive verbs eg takes they take a noun
+phrase on their right and then a noun phrase on their left to form a sentence eg Alice takes the
+doughnut We also consider the category pp of propositional phrases as well as the category a of
+imperative sentences
+The main goal of categorial grammars is to provide a method of determining the well-formedness
+of natural language A lexicon associates every word or complex sequence of words that constitute
+a single lexical entry with one or more categories The approach described by Lambek 1958 is
+to prescribe a calculus of categories so that if a sequence of words can be assigned a category A
+according to the rules then the sequence of words is deemed a well-formed syntactic unit of cate-
+gory A Hence a sequence of words is a well-formed noun phrase if it can be shown in the calculus
+that it has category np As an example of reduction we see that if 1 has category A and 2 has
+category AB then 1 2 has category B Schematically A AB  B Moreover this goes both
+ways that is if 1 2 has category B and 1 can be shown to have category A then we can derive
+that 2 has category AB
+Van Benthem 1986 showed that this calculus could be used to assign a semantics to terms by
+following the derivation of the categories Assume that every basic category is assigned a type in
+our action calculus through a type assignment T  A type assignment T can be extended to functor
+categories by putting T AB  T BA  T B  T A The lexicon is extended so that every
+word is now associated with one or more pairs of a category A and an expression  in our action
+calculus of the appropriate type that is    T A
+We use the sequent notation 1  A1     n  An    A to mean that expressions 1     n
+of categories A1     An can be concatenated to form an expression  of category A We call   A
+the conclusion of the sequent We use capital Greek letters   to represent sequences of
+expressions and categories We reserve  for typing contexts of the calculus in the last section
+We now give rules that allow us to derive new sequents from other sequents
+Categorial Grammar Sequent Rules
+Seq Id
+Seq Cut
+    B 1   B 2    A
+  A    A
+1  2    A
+Seq App Right
+    B 1   A 2    C
+Seq App Left
+    B 1   A 2    C
+1   AB  2    C
+1    BA 2    C
+Seq Abs Right
+ x  A    B
+Seq Abs Left
+x  A     B
+  x  BA
+  x  AB
+Example 41 Consider the following simple lexicon suitable for the TOYBLOCKS application
+The following types are associated with the basic grammatical units
+T np  Obj
+T pp  Obj
+T s  Bool
+T a  Act
+Here is a lexicon that captures a simple input language for TOYBLOCKS
+block one 7 b1  np
+block two 7 b2  np
+the table 7 table  np
+on 7 xObjx  ppnp
+is 7 xObjyObjis ony x  npspp
+if 7 xBoolyActxyskip  aas
+move 7 xObjyObjmovex y  appnp
+This is a particularly simple lexicon since every entry is assigned a single term and category It is
+also a very specialized lexicon for the purpose of illustration our treatment of is is specic to the
+TOYBLOCKS example
+Using the above lexicon the sentence move block one on block two can be associated with the string
+of expressions and categories xObjyObjmovex y  appnp b1  np xObjx 
+ppnp b2  np The following derivation shows that this concatenation yields an expression of
+category a For reasons of space we have elided the type annotations in -abstractions
+b1np  b1np
+b2np  b2np
+xymovex y b1 xx b2a
+xymovex yappnp b1np xx b2pp 
+xymovex yappnp b1np xxppnp b2np 
+xymovex y b1 xx b2a
+where the subderivation  is simply
+xx b2pp 
+xx b2pp
+xymovex y b1 xx b2a 
+xymovex y b1 xx b2a
+ 
+xymovex y b1app xx b2pp 
+xymovex y b1 xx b2a
+Hence the sentence is a well-formed imperative sentence Moreover the derivation shows that the
+meaning of the sentence move block one on block two is
+xObjyObjmovex y b1 xObjx b2
+The execution of this expression similar to the one in Example 33 shows that the intuitive meaning
+of the sentence is reected by the execution of the corresponding expression
+One might hope that the expressions derived through a categorial grammar derivation are always
+valid expressions of our action calculus To ensure that this property holds we must somewhat
+restrict the kind of categories that can appear in a derivation Let us say that a derivation respects
+imperative structure if for every category of the form AB or AB that appears in the derivation
+we have  T A  T B ok Intuitively a derivation respects imperative structure if it cannot
+construct declarative sentences that depend on imperative subsentences ie a declarative sentence
+cannot have any side effects For the lexicon in Example 41 a derivation respects imperative
+structure if and only if every category of the form aB or Ba that appears in the derivation is
+either aa or aa We can show that all such derivations correspond to admissible typing rules in
+the type system of the last section An admissible typing rule is a rule that does not add derivations
+to the type system anything derivable using the rule can be derived without the rule
+Theorem 42 If 1  A1     n  An    A has a derivation that respects imperative structure
+then the rule
+  1  T A1
+     n  T An
+    T A
+is an admissible typing rule
+Proof See Appendix A
+Note that if each expression i  Ai is taken from the lexicon then we have  i  T Ai by
+assumption and therefore Theorem 42 says that if 1  A1     k  Ak    A has a derivation
+that respects imperative structure then    T A
+So given a natural language imperative sentence from the user we use the lexicon to nd the
+corresponding expressions and category pairs 1  A1     n  An and then attempt to parse it
+that is to nd a derivation for the sequent 1  A1     n  An    a that respects imperative
+structure If a unique such derivation exists then we have an unambiguous parsing of the natural
+language imperative sentence and moreover the action calculus expression  is the semantics of
+the imperative sentence
+5 Putting It All Together
+We now have the major components of our framework a model for action-based applications and
+interfaces to them an action calculus which can be interpreted as calls to an application interface
+and the use of categorial grammars to create expressions in our action calculus from natural language
+sentences
+Lets see how our framework combines these components by considering an end-to-end example
+for TOYBLOCKS Suppose the user inputs the sentence move block one on block two when blocks
+1 and 2 are both on the table Our framework would process this sentence in the following steps
+1 Parsing The TOYBLOCKS lexicon is used to parse the sentence Parsing succeeds only
+if there is a unique parsing of the sentence via a derivation that respects imperative struc-
+ture otherwise the parsing step fails because the sentence was either ambiguous contained
+unknown words or phrases or was ungrammatical In this example there is only a single
+parsing of the sentence as shown in Example 41 and the result is the following expression
+in our action calculus which has type Act
+xObjyObjmovex y b1 xObjx b2
+2 Evaluating The action calculus expression is evaluated using a direct interpreter imple-
+menting the operational semantics of Section 3 The evaluation of the expression proceeds as
+follows
+s1 xObjyObjmovex y b1 xObjx b2 
+s1 yObjmoveb1 y xObjx b2 
+s1 moveb1 xObjx b2 
+s1 moveb1 xObjx b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s2 skip
+In the process of this evaluation several calls are generated to the application interface In
+particular calls are made to determine the identity of the object constants b1 and b2 as b1
+and b2 respectively Then during the last transition guard predicates such as is blockb1
+and is positionb2 may be called to ensure that b1 and b2 are of the appropriate classes
+for being passed as arguments to move Since the objects are of the appropriate classes the
+action moveb1 b2 is invoked via the application interface and succeeds
+3 Reporting Following the evaluation of the expression some result must be reported back to
+the user Our framework does not detail what information is conveyed back to the user but
+they must be informed if an exception was raised during the evaluation of the expression
+In this example no exception was raised so what to report to the user is at the discretion of
+the user interface If the user interface had a graphical depiction of the state of TOYBLOCKS
+it may now send queries to the application interface to determine the new state of the world
+and modify its graphical display appropriately
+Lets consider what would happen if an exception  was raised during the evaluation phase For
+example consider processing the sentence move the table on block one The parsing phase would
+succeed as the sentence is grammatically correct However prior to calling the action movet b1
+the evaluation would determine that the object t does not belong to the class block by a guard
+predicate such as is blockt returning ff  or by some other mechanism An exception would
+thus be raised and some information must be reported back to the user during the reporting phase
+Note that the framework has ensured that the action movet b1 was not invoked on the application
+interface
+6 Extensions
+Several extensions to this framework are possible There is a mismatch of types in our framework
+The application model permits a rich notion of types any object of the application may belong to
+one or more classes By contrast our action calculus has a very simple notion of types assigning the
+type Obj to all objects and not statically distinguishing different classes of objects The simplicity
+of our action calculus is achieved at the cost of dynamic type checking which ensures that actions
+and predicates on the application interface are invoked only with appropriate parameters It would
+be straightforward to extend the action calculus with a more rened type system that includes a
+notion of subtyping to model the application classes Not only would this extension remove many
+if not all of the dynamic type checks but it may also reduce the number of possible parses of
+natural language sentences The rened type system allows the semantics of the lexicon entries to
+be ner-grained and by considering these semantics some nonsensical parses of a sentence could
+be ignored For example in the sentence pick up the book and the doughnut and eat it the referent
+of it could naively be either the book or the doughnut if the semantics of eat require an object of the
+class Food and the classes of the book and the doughnut are considered then the former possibility
+could be ruled out
+Another straightforward extension to the framework is to allow the user to query the state by
+entering declarative sentences and treating them as yes-no interrogative sentences For example
+block one is on the table This corresponds to accepting sequents of the form 1  A1     n 
+An    s and executing the action calculus expression  which has type Bool The categorial
+grammar could be extended to accept other yes-no questions such as is block two on block one
+A more interesting extension which would require a correspondingly more complex application
+model is to allow hypothetical queries such as if you move block one on block two is block one
+on the table This corresponds to querying is block one on the table in the state that would result
+if the action move block one on block two were performed This extension would bring our higher-
+order logic that is our action calculus closer to dynamic logic Groenendijk and Stokhof 1991
+Harel Kozen and Tiuryn 2000 It is not clear however how to derive a direct interpreter for such
+an extended calculus
+In Section 22 we made some simplifying assumptions about the application model Chief
+among these assumptions was that an applications state changes only as a result of explicit actions
+This assumption may be unrealistic if for example the application has multiple concurrent users
+We can however extend the framework to relax this assumption One way of relaxing it is to in-
+corporate transactions into the application model and application interface the application model
+would guarantee that within transactions states change only as a result of explicit actions but if no
+transaction is in progress then states may change arbitrarily The evaluation of an action calculus
+expression would then be wrapped in a transaction
+Another restriction we imposed was that predicates be pure It is of course technically possible
+to permit arbitrary state changes during the evaluation of predicates In fact we can modify the
+operational semantics to allow the evaluation of any expression to change states If done properly
+the key property is still preserved the evaluation of constants predicates or actions rely only on the
+current state and all other transitions do not rely on the state at all Thus the semantics remains
+consistent with interpreting expressions using calls to the application interface However doing this
+would lose the intuitive meaning of natural language sentences that do not contain actions they
+should not change the state of the world
+7 Conclusion
+We have presented a framework that simplies the creation of simple natural language user inter-
+faces for action-based applications The key point of this framework is the use of a -calculus to
+mediate access to the application The -calculus we dene is used as a semantics for natural lan-
+guage sentences via categorial grammars and expressions in this calculus are executed by issuing
+calls to the application interface The framework has a number of application-independent compo-
+nents reducing the amount of effort required to create a simple natural language user interface for
+a given application
+A number of applications have natural language interfaces Winograd 1971 Price Rilofff
+Zachary and Harvey 2000 but they appear to be designed specically for the given application
+rather than being a generic approach A number of methodologies and frameworks exist for natural
+language interfaces for database queries see Androutsopoulos et al 1995 for a survey but we
+are not aware of a framework for deriving natural language interfaces to general applications in a
+principled manner
+While the framework presented here is useful for the rapid development of simple natural lan-
+guage user interfaces the emphasis is on simple Categorial grammars and other techniques that
+use higher order logic as the semantics of natural language are limited in their ability to deal with
+the wide and diverse phenomena that occur in English For example additional mechanisms outside
+of the categorial grammar probably application-specic would be required to deal with discourse
+However categorial grammars are easily extensible by expanding the lexicon and many parts of
+the lexicon of a categorial grammar are reusable in different applications making it well-suited to a
+framework for rapid development of natural language user interfaces
+It may seem that a limitation of our framework is that it is only suitable for applications for
+which we can provide an interface of the kind described in Section 2the action calculus of Sec-
+tion 3 is specically designed to be interpreted as calls to an action-based application However
+all the examples we considered can be provided with such an interface It is especially interesting
+to note that our denition of action-based application interfaces is compatible with the notion of
+interface for XML web services Barclay Gray Strand Ekblad and Richter 2002 This suggests
+that it may be possible to derive a natural language interface to XML Web Services using essentially
+the approach we advocate in this paper
+Acknowledgments
+Thanks to Eric Breck and Vicky Weissman for comments on earlier drafts of this paper This work
+was partially supported by NSF under grant CTC-0208535 by ONR under grants N00014-00-1-
+03-41 and N00014-01-10-511 and by the DoD Multidisciplinary University Research Initiative
+MURI program administered by the ONR under grant N00014-01-1-0795
+A Proofs
+The soundness and strong normalization Theorem 32 of the calculus in Section 3 can be derived
+using logical relations in a fairly standard way Winskel 1993 In order to do this we need some
+lemmas about properties of the operational semantics
+Lemma A1 If  e   and s e  s e then  e   
+Proof This is a completely straightforward proof by induction on the height of the typing derivation
+for  e   
+Lemma A2 If  e    s e  s e and   pure then s  s
+Proof This result follows essentially by examination of the operational semantics rules proceeding
+by induction on the structure of e
+- Case e  x This case cannot arise since  e   cannot hold with an empty context when e
+is a variable
+- Case e  v An inspection of the operational semantics rules shows that this case cannot
+arise since there is no s and e such that s e  s e if e is a value
+- Case e  id c By Red OCon we have s e  s cid c and the state is unchanged
+irrespectively of  
+- Case e  id pe1     en By examination of the operational semantics rules two cases
+arise If every ei is a value vi then s e  s ps id p v1     vn with   Bool and
+  pure and the state is unchanged during the transition as required Otherwise there is at
+least one ei that is not a value and s e  s id p    e     or s e  s  Again
+  Bool so that   pure and the state is unchanged during the transition as required
+- Case e  id ae1     en If  e    then   Act which is not a pure type so there is
+nothing to show for this case
+- Case e  e1 e2 By examination of the operational semantics rules two cases arise If e1 is a
+value then it must be  or an abstraction x e In the former case s e  s  In the
+latter case s e  s exe2 In both cases the state is unchanged irrespectively of
+the type   If e1 is not a value then from rule Red App 1 we get s e1 e2  s e
+or s e1 e2  s  and the state is unchanged irrespectively of the type  
+- Case e  e1e2e3 By examination of the operational semantics rules we consider two cases
+If e1 is a value then it must be  or a Boolean value In the former case s e  s 
+In the latter case s e  s e2 or s e  s e3 depending on whether e1 is true or
+false In both cases the state is unchanged irrespectively of the type   If e1 is not a value
+1e2e3 or s e  s  and the state is
+then from rule Red If 1 we get s e  s e
+unchanged irrespectively of the type  
+- Case e  e1 e2 If  e    then   Act which is not a pure type so there is nothing to
+show for this case
+This completes the induction
+We dene for each type   a set R of terms which terminate in all states Formally for a base
+type b either Obj Bool or Act we take
+Rb  e   e  t svse s  v s
+For a function type 1  2 we take
+R12  e   e  1  2 svse s  v s e  R1e e1  R2
+We dene a substitution operator  to be a partial map from variables to expressions of the
+action calculus Let dom be the domain of denition of the partial map  Given a context 
+we write    if the domains of  and  are equal a context  can be understood as a partial map
+from variables to types and for all x  dom x  Rx where x is the type associated
+with x in the context  We extend  to expressions by taking e to be the expression resulting
+from replacing every variable x in e by the expression x Formally
+x x
+if x  dom
+otherwise
+true  true
+false  false
+xe  xxe
+skip  skip
+vo  vo
+  
+id c  id c
+id pe1     en  id pe1     en
+id ae1     en  id ae1     en
+e1 e2  e1 e2
+e1e2e3  e1e2e3
+e1 e2  e1 e2
+where x is the same substitution map as  except that it is undened on variable x
+Lemma A3 If   e   and    then  e   
+Proof This is a straightforward proof by induction on the height of the typing derivation for   e 
+Lemma A4 If  e    and for all s there exists s and e  R such that s e  s e then
+e  R 
+Proof We prove this by induction on the structure of   For a base type b the result is immediate
+by the denition of Rb For   1  2 assume  e  1  2 and for all s there exists the
+required s e For an arbitrary state s let s e be such that s e  s e since e  R12
+we have s e  s v for some s and value v Thus s e  s v Finally it
+remains to show that for all e  R1 we have e e  R2 By assumption we have e e 
+R2 To apply the induction hypothesis and get e e  R2 we show that for all s we have
+s e e  s e e We proceed by induction on the length of the derivation s e  s e
+First note that because  e  1  2 which is a pure type a straightforward induction on the
+length of the derivation using Lemma A2 shows that s  s
+If the length is 0 then e  e
+so the result is immediate
+If the length is non-zero then s e  s e  s e By
+the induction hypothesis s e e  s e e Since s e  s e by rule Red App
+1 s e e  s e e so that s e e  s e e as required This establishes that
+e e  R2
+We can now prove the main result
+Theorem 32
+s e  s v Moreover if   pure then s  s
+If  e    and s is a state then there exists a state s and value v such that
+Proof Clearly it is sufcient to show that  e   implies e  R  To use induction we prove the
+more general statement that   e   and    implies e  R  The desired result follows
+by taking  to be the empty substitution and  the empty context We prove the general result by
+induction on the structure of e
+- Case e  x Assume   x    and    We need to show that x  R  Since x
+is a variable   x and thus x is in the domain of  Since    x  R  and
+x  x implies x  R  as required
+- Case e  true false skip  vo Assume   e  b for the appropriate base type b
+and    We need to show that e  e  Rb Since e is a value than for all s
+s e  s e so e  Rb as required
+- Case e  xe This is the difcult case Assume that   xe
+     and
+   We need to show that xe  xe  R   This involves following
+the denition of R   establishing three facts First by Lemma A3  xe Since
+e  xe is a value we immediately have that s xe reduces to a value
+for all states s Finally we need to show that for all e  R  we have xe e  R 
+Given e  R  By Red App 3 for all s s xe e  s exe By
+Lemma A4 it sufces to show that exe  R  to show that xe e  R 
+by taking s  s
+Dene  
+Clearly exe   
+means that  x    e    Now  
+assumption Applying the induction hypothesis yields that  
+x  xx 7 e  x 7 e since x is just  expect undened on variable x
+xe By assumption we have   xe      which
+xx  e  R  by
+x   x    since    and  
+xe  R  as required
+- Case e  id c Assume   id c  Obj and    We need to show that id c 
+id c  RObj For all s s id c  s cs id c by Red OCon so id c  RObj as
+required
+- Case e  id pe1     en Assume   id pe1     en  Bool and    We need to show
+that id pe1     en  id pe1     en  RBool Since   id pe1     en 
+Bool we have   ei  Obj for all i Applying the induction hypothesis we get that ei 
+RObj for all i and thus for all s we can construct a derivation s id pe1     en 
+s id pv1     en      s id pv1     vn  s ps v1     vn by re-
+peated applications of Red PCon 1 and Red PCon 2 and a nal application of Red Pcon
+3 Alternatively a derivation that reduces to  is also possible Therefore id pe1     en 
+RBool as required
+- Case e  id ae1     en This case is exactly like the case for id pe1     en replacing
+Bool by Act where appropriate
+- Case e  e1 e2 Assume   e1 e2    and    We need to show that e1 e2 
+e1 e2  R  Since   e1 e2    we know that   e1       and   e2    for
+some   Applying the induction hypothesis we get e1  R  and e2  R  By the
+denition of R   we get that e1 e2  R  as required
+- Case e  e1e2e3 Assume   e1e2e3    and    We need to show that
+e1e2e3  e1e2e3  R  Since   e1e2e3    we know that   e1  Obj
+  e2    and   e3    for some   Applying the induction hypothesis we get e1 
+RBool e2  R  and e3  R  Therefore for all s we can construct either the deriva-
+tion s e1e2e3  s truee2e3  s e2  s v2 or the
+derivation s e1e2e3  s falsee2e3  s e3  s v3
+using Red If 1 Red If 2 Red If 3 depending on the Boolean value that s e1 reduces
+to Alternatively a derivation that reduces to  is also possible Therefore e1e2e3 
+R  as required
+- Case e  e1 e2 Assume   e1 e2  Act and    We need to show that e1 e2 
+e1 e2  RAct Since   e1 e2  Act we know that   e1  Act and   e2 
+Act Applying the induction hypothesis we get e1  RAct and e2  RAct There-
+fore for all s we can construct the derivation s e1 e2  s skip e2 
+s e2  s skip by applications of Red Seq 1 Red Seq 2 Red Seq 3 Al-
+ternatively a derivation that reduces to  is also possible Therefore we have e1 e2 
+RAct as required
+If   pure a straightforward induction on the length of the derivation s e  s v via
+Lemma A2 establishes that s  s
+Theorem 42 If 1  A1     n  An    A has a derivation that respects imperative structure
+then the rule
+  1  T A1
+     n  T An
+is an admissible typing rule
+    T A
+Proof We proceed by induction on the height of the derivation for 1  A1     n  An    A
+First some notation if  is a sequence 1  A1     k  Ak and  is a typing context we write
+ for the sequence of judgments   1  T A1       k  T Ak For the base case we
+have   A    A and clearly the typing rule
+    T A
+    T A
+is admissible For the induction step consider a number of cases one for each possible last rule of
+the derivation In the case Seq Cut the last rule of the derivation is of the form
+    B 1   B 2    A
+1  2    A
+Applying the induction hypothesis both
+
+    T B
+1     T B 2
+    T A
+are admissible typing rules Composing these two admissible rules yields the admissible rule
+
+1
+    T B 2
+    T A
+In the case Seq App Right the last rule of the derivation is of the form
+    B 1   C 2    A
+1   CB  2    A
+Applying the induction hypothesis both
+
+    T B
+1     C 2
+    T A
+are admissible typing rules Composing them yields the following admissible rule upon noting that
+T CB  T B  T C
+
+    T B  T C
+    T B
+1
+    T C
+    T A
+2
+The case for Seq App Left is similar
+Finally in the case Seq Abs Right where we have   x and A  BC the last rule of
+the derivation is of the form
+ x  C    B
+  x  BC
+Applying the induction hypothesis for  of the form  x  T C the typing rule
+ x  T C  x  T C  x  T C
+ x  T A    T B
+is admissible Noting that T BC  T C  T B in order to derive an admissible typing
+rule using Typ Fun we need to check that  T C  T B ok But this is exactly what the
+assumption that the derivation respects imperative structure gives us We can therefore derive the
+following admissible typing rule
+ x  T C  x  T C  x  T C
+ x  T C    T B
+ T C  T B ok
+  xT C  T C  T B
+The case for Seq Abs Left is similar
+References
+Ajdukiewicz K 1935 Die syntaktische Konnexitat Studia Philosophica 1 127
+Andrews P B 1986 An Introduction to Mathematical Logic and Type Theory To Truth
+through Proof Academic Press
+Androutsopoulos
+I G Ritchie and P Thanisch 1995 Natural
+language interfaces to
+databasesan introduction Journal of Language Engineering 11 2981
+Bar-Hillel Y 1953 A quasi-arithmetical notation for syntactic description Language 29 47
+Barclay T J Gray E Strand S Ekblad and J Richter 2002 June TerraServiceNET An
+introduction to web services Technical Report MSTR200253 Microsoft Research
+Barendregt H P 1981 The Lambda Calculus Its Syntax and Semantics Studies in Logic
+North-Holland
+Benthem J van 1986 The semantics of variety in categorial grammar In W Buszkowski
+J van Benthem and W Marciszewski Eds Categorial Grammar Number 25 in Linguis-
+tics and Literary Studies in Eastern Europe pp 3755 John Benjamins Previously appeared
+as Report 83-29 Department of Mathematics Simon Fraser University 1983
+Carpenter B 1997 Type-Logical Semantics MIT Press
+Groenendijk J and M Stokhof 1991 Dynamic predicate logic Linguistics and Philoso-
+phy 141 39100
+Harel D D Kozen and J Tiuryn 2000 Dynamic Logic MIT Press
+Lambek J 1958 The mathematics of sentence structure The American Mathematical
+Monthly 65 154170
+Moggi E 1989 Computational lambda-calculus and monads In Proc 4th Annual IEEE Sym-
+posium on Logic in Computer Science LICS89 pp 1423 IEEE Computer Society Press
+Moortgat M 1997 Categorial type logics In J van Benthem and A ter Meulen Eds Hand-
+book of Logic and Language Chapter 2 pp 93177 The MIT Press  Elsevier
+Price D E Rilofff J L Zachary and B Harvey 2000 NaturalJava a natural language inter-
+face for programming in Java In Intelligent User Interfaces pp 207211
+Winograd T 1971 Procedures as a representation for data in a computer program for under-
+standing natural languages Project MAC technical report MAC-TR-84 MIT
+Winskel G 1993 The Formal Semantics of Programming Languages MIT Press
+A Framework for Creating Natural Language User Interfaces
+for Action-Based Applications
+Stephen Chong
+Cornell University
+Ithaca NY 14853 USA
+schongcscornelledu
+Riccardo Pucella
+Cornell University
+Ithaca NY 14853 USA
+riccardocscornelledu
+Abstract
+In this paper we present a framework for creating natural language interfaces to action-based
+applications Our framework uses a number of reusable application-independent components
+in order to reduce the effort of creating a natural language interface for a given application
+Using a type-logical grammar we rst translate natural language sentences into expressions
+in an extended higher-order logic These expressions can be seen as executable specications
+corresponding to the original sentences The executable specications are then interpreted by
+invoking appropriate procedures provided by the application for which a natural language in-
+terface is being created
+1 Introduction
+The separation of the user interface from the application is regarded as a sound design principle A
+clean separation of these components allows different user interfaces such as GUI command-line
+and voice-recognition interfaces To support this feature an application would supply an applica-
+tion interface Roughly speaking an application interface is a set of hooks that an application
+provides so that user interfaces can access the applications functionality A user interface issues
+commands and queries to the application through the application interface the application executes
+these commands and queries and returns the results back to the user interface We are interested
+in applications whose interface can be described in terms of actions that modify the applications
+state and predicates that query the current state of the application We refer to such applications as
+action-based applications
+In this paper we propose a framework for creating natural language user interfaces to action-
+based applications These user interfaces will accept commands from the user in the form of natural
+language sentences We do not address how the user inputs these sentences by typing by speak-
+ing into a voice recognizer etc but rather focus on what to do with those sentences Intuitively
+we translate natural language sentences into appropriate calls to procedures available through the
+application interface
+A preliminary version of this paper appeared in the Proceedings of the Third International AMAST Workshop on
+Algebraic Methods in Language Processing TWLT Report 21 pp 83-98 2003
+Other UI 1
+Other UI 2
+Lexicon
+Interpreter
+Adapter
+Application
+Figure 1 Architecture
+ Application
+specific
+component
+ Application
+independent
+component
+Action Based
+Application
+As an example consider the application TOYBLOCKS It consists of a graphical representation
+of two blocks on a table that can be moved and put one on top of the other We would like to be
+able to take a sentence such as move block one on block two and have it translated into suitable calls
+to the TOYBLOCKS interface that would move block 1 on top of block 2 This requires that the
+interface of TOYBLOCKS supplies a procedure for moving blocks While this example is simple
+it already exposes most of the issues with which our framework must deal
+Our framework architecture is sketched in Figure 1 The diagram shows an application with
+several different user interfaces The box labeled NLUI represents the natural language user in-
+terface that our framework is designed to implement Our framework is appropriate for applications
+that provide a suitable application interface which is described in Section 2 We expect that most
+existent applications will not provide an interface conforming to our requirements Thus an adapter
+might be required as shown in the gure Other user interfaces can also build on this application
+interface The user interface labeled Other UI 1 for instance a command-line interface does just
+that The application may have some user interfaces that interact with the application through other
+means such as the user interface Other UI 2 for instance the native graphical interface of the
+application
+The translation from natural language sentences to application interface calls is achieved in
+two steps The rst step is to use a categorial grammar Carpenter 1997 to derive an intermediate
+representation of the semantics of the input sentence An interesting feature of categorial grammars
+is that the semantics of the sentence is compositionally derived from the meaning of the words in
+the lexicon The derived meaning is a formula of higher-order logic Andrews 1986 The key
+observation is that such a formula can be seen as an executable specication More precisely it
+corresponds to an expression of a simply-typed -calculus Barendregt 1981 The second step
+of our translation is to execute this -calculus expression via calls to procedures supplied by the
+application interface
+We implement the above scheme as follows A parser accepts a natural language sentence from
+the user and attempts to parse it using the categorial grammar rules and the vocabulary from the
+application-specic lexicon The parser fails if it is not able to provide a unique unambiguous
+parsing of the sentence Successful parsing results in a formula in our higher-order logic which
+corresponds to an expression in an action calculusa -calculus equipped with a notion of action
+This expression is passed to the action calculus interpreter which executes the expression by
+making appropriate calls to the application via the application interface The interpreter may report
+back to the screen the results of executing the actions
+The main advantage of our approach is its modularity This architecture contains only a few
+application-specic components and has a number of reusable components More precisely the
+categorial grammar parser and the action calculus interpreter are generic and reusable across differ-
+ent applications The lexicon on the other hand provides an application-specic vocabulary and
+describes the semantics of the vocabulary in terms of a specic application interface
+In Section 2 we describe our requirements for action-based applications We dene the notion
+of an application interface and provide a semantics for such an interface in terms of a model of the
+application In Section 3 we present an action calculus that can be used to capture the meaning of
+imperative natural language sentences The semantics of this action calculus are given in terms of
+an action-based application interface and application model these semantics permit us to evaluate
+expressions of the action calculus by making calls to the application interface Section 4 provides
+a brief introduction to categorial grammars Section 5 shows how these components action-based
+applications action calculus and categorial grammar are used in our framework We discuss some
+extensions to the framework in Section 6 and conclude in Section 7
+2 Action-Based Applications
+Our framework applies to applications that provide a suitable Application Programmer Interface
+API Roughly speaking such an interface provides procedures that are callable from external
+processes to drive the application
+In this section we describe in detail the kind of interface
+needed by our approach We also introduce a model of applications that will let us reason about the
+suitability of the whole framework
+21 Application Interface
+Our framework requires action-based applications to have an application interface that species
+which externally callable procedures exist in the application This interface is meant to specify
+procedures that can be called from programs written in fairly arbitrary programming languages To
+achieve this we assume only that the calling language can distinguish between objects the term
+object is used is a nontechnical sense to denote arbitrary data values and Boolean values tt true
+and ff false
+An application interface species the existence of a number of different kind of procedures
+1 Constants There is a set of constants representing objects of interest For TOYBLOCKS the
+constants are b1 b2 and table
+2 Predicates There is a set of predicates dened over the states of the application A predicate
+can be used to check whether objects satisfy certain properties dependent on the state of
+the application Predicates return truth values For TOYBLOCKS we consider the single
+predicate is onbl  pos that checks whether a particular block bl is in a particular position
+pos on another block or on the table Each predicate p has an associated arity indicating
+how many arguments it needs
+3 Actions Finally there is a set of actions dened by the application Actions essentially effect
+a state change Actions can be given arguments for example to effect a change to a particular
+object For TOYBLOCKS we consider a single action movebl pos  which moves block
+bl to position pos on another block or on the table As with predicates each action has an
+associated arity which may be 0 indicating that the action is parameterless
+We emphasize that the application interface simply gives the names of the procedures that are
+callable by external processes It does not actually dene an implementation for these procedures
+In order to prevent predicates and actions from being given inappropriate arguments we need
+some information about the actual kind of objects associated with constants and that the predicates
+and actions take as arguments We make the assumption that every object in the application belongs
+to at least one of many classes of objects Let C be such a set of classes Although this termi-
+nology evokes object-oriented programming we emphasize that an object-oriented approach is not
+necessary for such interfaces a number of languages and paradigms are suitable for implementing
+application interfaces
+We associate class information to every name in the interface via a map  More specically
+we associate with every constant c a set c  C representing the classes of objects that can be
+associated with c We associate with each predicate p a set p  Cn where n is the arity of the
+predicate indicating for which classes of objects the predicate is dened Similarly we associate
+with each action a a set a  Cn again where n is the arity of the action which in this case can
+be 0 As we will make clear shortly we only require that the application return meaningful values
+for objects of the right classes
+Formally an application interface is a tuple I  C P A C  where C is a set of constant
+names P is a set of predicate names A is a set of action names C is the set of classes of the
+application and  is the map associating every element of the interface with its corresponding class
+information The procedures in the interface provide a means for an external process to access
+the functionality of the application by presenting to the language a generally accessible version
+of the constants predicates and actions Of course in our case we are not interested in having
+arbitrary processes invoking procedures in the interface but specically an interpreter that interprets
+commands written in a natural language
+In a precise sense the map  describes typing information for the elements of the interface
+However because we do not want to impose a particular type system on the application for instance
+we do not want to assume that the application is object-oriented we instead assume a form of
+dynamic typing More precisely we assume that there is a way to check if an object belongs to
+a given class This can either be performed through special guard predicates in the application
+interface for instance a procedure is block that returns true if the supplied object is actually a
+block or a mechanism similar to Javas instanceOf operator
+Example 21 As an example consider the following interface IT for TOYBLOCKS Let IT 
+C P A C  where as we discussed earlier
+C  b1 b2 table
+P  is on
+A  move
+We consider only two classes of objects block  representing the blocks that can be moved and
+position representing locations where blocks can be located Therefore C  block  position 
+To dene  consider the way in which the interface could be used The constant b1 represents an
+object that is both a block that can be moved and a position to which the other block can be moved
+to since we can stack blocks on top of each other The constant b2 is similar The constant table
+represents an object that is a position only Therefore we have
+b1  block  position 
+b2  block  position 
+table  position
+Correspondingly we can derive the class information for is on and move
+is on  block  position
+move  block  position 
+22 Application Model
+In order to reason formally about the interface we provide a semantics to the procedures in the
+interface This is done by supplying a model of the underlying application We make a number of
+simplifying assumptions about the application model and discuss relaxing some of these assump-
+tions in Section 6
+Applications are modeled using four components
+1 Interface The interface as we saw in the previous section species the procedures that can
+be used to query and affect the application The interface also denes the set C of classes of
+objects in the application
+2 States A state is roughly speaking everything that is relevant to understand how the appli-
+cation behaves At any given point in time the application is in some state We assume that
+an applications state changes only through explicit actions
+3 Objects This denes the set of objects that can be manipulated or queried in the application
+As we already mentioned we use the term object in the generic sense without implying
+that the application is implemented through an object-oriented language Every object is
+associated with at least one class
+4 Interpretation An interpretation associates with every element of the interface a meaning
+in the application model As we shall see it associates with every constant an object of
+the model with every predicate a predicate on the model and with every action a state-
+transformation on the model
+Formally an application is a tuple M  I S O  where I in an interface that denes the
+constants predicates and actions of the application as well as the classes of the objects S is the
+set of states of the application O is the set of objects and  is the interpretation
+We extend the map  dened in the interface to also provide class information for the objects
+in O Specically we dene for every object o  O a set o  C of classes to which that object
+belongs An object can belong to more than one class
+The map  associates with every state and every element in the interface ie every constant
+predicate and action the appropriate interpretation of that element at that state Specically for a
+state s  S we have sc  O Therefore constants can denote different objects at different
+states of the applications For predicates sp is a partial function from O      O to truth
+values tt or ff  This means that predicates are pure in that they do not modify the state of an
+application they are simply used to query the state For actions sa is a partial function from
+O  O to S The interpretation  is subject to the following conditions For a given predicate p
+the interpretation sp must be dened on objects of the appropriate class Thus the domain of
+the partial function sp must at least consist of o1     on  o1  onp 6 
+Similarly for a given action a the domain of the partial function sa must at least consist of
+o1     on  o1      on  a 6  Furthermore any class associated with a constant
+must also be associated with the corresponding object In other words for all constants c we must
+have c  sc for all states s
+Example 22 We give a model MT for our sample TOYBLOCKS application to go with the inter-
+face IT dened in Example 21 Let MT  IT  S O  We will consider only three states in the
+application S  s1 s2 s3 which can be described variously
+in state s1 blocks 1 and 2 are on the table
+in state s2 block 1 is on block 2 and block 2 is on the table
+in state s3 block 1 is on the table and block 2 is on block 1
+We consider only three objects in the model O  b1 b2 t where b1 is block 1 b2 is block 2 and
+t is the table We extend the map  in the obvious way
+b1  block  position
+b2  block  position
+t  position 
+The interpretation for constants is particularly simple as the interpretation is in fact independent of
+the state in other words the constants refer to the same objects at all states
+sb1  b1
+sb2  b2
+stable  t
+The interpretation of the is on predicates is straightforward
+s1is onx cid26 tt
+s2is onx cid26 tt
+s3is onx cid26 tt
+if x  b1 t b2 t
+if x  b1 b1 b1 b2 b2 b1 b2 b2
+if x  b1 b2 b2 t
+if x  b1 t b1 b1 b2 b1 b2 b2
+if x  b1 t b2 b1
+if x  b1 b1 b1 b2 b2 t b2 b2
+The interpretation of move is also straightforward
+s1movex 
+s2movex cid26 s1
+s3movex cid26 s1
+if x  b1 b2
+if x  b2 b1
+if x  b1 t b1 b1 b2 t b2 b2
+if x  b1 t
+if x  b1 b1 b1 b2 b2 t b2 b1 b2 b2
+if x  b2 t
+if x  b1 t b1 b1 b1 b2 b2 b1 b2 b2
+If a block is unmovable that is if there is another block on it then the state does not change
+following a move operation
+3 An Action Calculus
+Action-based application interfaces are designed to provide a means for external processes to access
+the functionality of an application In this section we dene a powerful and exible language that
+can be interpreted as calls to an application interface The language we use is a simply-typed -
+calculus extended with a notion of action It is effectively a computational -calculus in the style
+of Moggi 1989 although we give a nonstandard presentation in order to simplify expressing the
+language semantics in terms of an application interface
+The calculus is parameterized by a particular application interface and application model The
+application interface provides the primitive constants predicates and actions that can be used to
+build more complicated expressions while the application model is used to dene the semantics
+31 Syntax
+Every expression in the language is given a type intuitively describing the kind of values that the
+expression produces The types used in this language are given by the following grammar
+1  2
+boolean
+function
+The types  correspond closely to the types required by the action-based application interfaces we
+dened in the previous section the type Bool is the type of truth values with constants true and
+false corresponding to the Boolean values tt and ff  and the type Obj is the type of generic objects
+The type Act is more subtle an expression of type Act represents an action that can be executed to
+change the state of the application This is an example of computational type as dened by Moggi
+1989 As we shall see shortly expressions of type Act can be interpreted as calls to the action
+procedures of the application interface
+The classes C dened by the application interface have no corresponding types in this language
+instead all objects have the type Obj Incorporating these classes as types is an obvious possible
+extension see Section 6
+The syntax of the language is a straightforward extension of that of the -calculus
+Syntax of Expressions
+true  false
+xe
+id pe1     en
+id ae1     en
+e1e2e3
+boolean
+function
+null action
+expression
+variable
+constant
+predicate
+application
+conditional
+action sequencing
+The expressions id c id pe1     en and id ae1     en correspond to the procedures respec-
+tively constants predicates and actions available in the application interface Constants are writ-
+ten id c as a visual reminder that they are essentially functions id c may yield different values at
+different states as the semantics will make clear So for TOYBLOCKS the constants are b1 b2
+and table the only predicate is is on and the only action is move The expression e1e2e3 is a
+conditional expression evaluating to e2 if e1 evaluates to true and e3 if e1 evaluates to false The
+expression e1 e2 when e1 and e2 are actions evaluates to an action corresponding to performing
+e1 followed by e2 The constant skip represents an action that has no effect
+Example 31 Consider the interface for TOYBLOCKS The expression b1 represents block 1
+while table represents the table The expression moveb1 table represents the action
+of moving block 1 on the table Similarly the action moveb1 table moveb2 b1
+represents the composite action of moving block 1 on the table and then moving block 2 on top of
+block 1
+32 Operational Semantics
+The operational semantics is dened with respect to the application model More precisely the
+semantics is given by a transition relation written s e  s e where s s are states of the
+application and e e are expressions Intuitively this represents the expression e executing in state
+s and making a one-step transition to a possibly different state s and a new expression e
+To accommodate the transition relation we need to extend the syntax of expressions to account
+for object values produced during the evaluation We also include a special value  that represents
+an exception raised by the code This exception is used to capture various errors that may occur
+during evaluation
+Additional Syntax of Expressions
+vo  O
+object value
+exception
+The transition relation is parameterized by the functions c p and p given below These
+functions provide a semantics to the constant predicate and action procedures respectively and
+are derived from the interpretation  in the application model The intuition is that evaluating
+these functions corresponds to making calls to the appropriate procedures on the given application
+interface and returning the result
+Reduction Rules for Interface Elements
+cs id c  sid c
+ps id p v1     vn cid26 sid pv1     vn
+as id a v1     vn cid26 sid av1     vn
+if v1      vn  id p 6 
+otherwise
+if v1      vn  id a 6 
+otherwise
+Note that determining whether or not a primitive throws an exception depends on being able to
+establish the class of an object via the map  We can thus ensure that we never call an action or
+predicate procedure on the application interface with inappropriate objects and so we guarantee a
+kind of dynamic type-safety with respect to the application interface
+Reduction Rules
+Red App 1
+Red App 2
+Red App 3
+s e1  s e
+s e1 e2  s e
+s e1  s 
+s e1 e2  s 
+s xe1 e2  s e1xe2
+Red OCon
+Red PCon 1
+s id c  s cs id c
+s id p    ei     s id p    e
+i   
+s ei  s e
+for some i  1n
+Red PCon 2
+s ei  s 
+for some i  1n
+Red PCon 3
+s id pe1     en  s 
+s id pv1     vn  s v
+ps id p v1     vn  v
+Red If 1
+Red If 2
+Red If 3
+s e1  s e
+s e1e2e3  s e
+1e2e3
+s e1  s 
+s e1e2e3  s 
+s vetrueefalse  s ev
+Red Seq 1
+Red Seq 2
+Red Seq 3
+s  e  s 
+s skip e  s e
+s e1  s e
+s e1 e2  s e
+Red ACon 1
+s ei  s e
+for some i  1n
+Red ACon 2
+s ei  s 
+for some i  1n
+s id a    ei     s id a    e
+i   
+s id ae1     en  s 
+Red ACon 3
+s id av1     vn  s skip
+as id a v1     vn  s
+Red ACon 4
+s id av1     vn  s 
+as id a v1     vn  
+The operational semantics is a combination of call-by-name and call-by-value semantics The
+language as a whole is evaluated in a call-by-name fashion In particular rule Red App 3 indicates
+that application is call-by-name Actions on the other hand are evaluated under what might be
+called call-by-value as indicated by rule Red Seq 1 Roughly the rst term of a sequencing
+operation e1 e2 is fully evaluated before e2 is evaluated
+Intuitively applications are evaluated
+under call-by-name because premature evaluation of actions could lead to action procedures in the
+application interface being called inappropriately For example under call-by-value semantics the
+evaluation of the following expression
+xActfalsexskip A
+would call the action procedure for A assuming A is an action in the application interface This
+does not agree with the intuitive interpretation of actions More importantly the mapping from nat-
+ural language sentences to expressions in our calculus naturally yields a call-by-name interpretation
+33 Type System
+We use type judgments to ensure that expressions are assigned types appropriately and that the
+types themselves are well-formed Roughly speaking a type is well-formed if it preserves the sepa-
+ration between pure computations computations with no side-effects and imperative computations
+computations that may have side-effects The type system enforces that pure computations do
+not change the state of the application This captures the intuition that declarative sentences
+corresponding to pure computations should not change the state of the world This correspon-
+dence between declarative sentences and pure computations is made clear in the next section The
+rules for the type well-formedness judgment   ok are given in the following table along with the
+auxiliary judgment   pure stating that a type  is a pure type evaluates without side effects
+Judgments   pure and   ok
+Pure Obj
+Pure Bool
+Pure Fun
+OK Fun Pure
+ 1 pure
+ 2 pure
+OK Fun Act
+ Obj pure
+ Bool pure
+ 1  2 pure
+ 1  2 ok
+   Act ok
+The judgment   e   assigns a type  to expression e in a well-formed environment 
+An environment  denes the types of all variables in scope An environment is of the form x1 
+1     xn  n and denes each variable xi to have type i We require that variables do not repeat
+in a well-formed environment The typing rules for expressions are essentially standard with the
+exception of the typing rule for functions which requires that function types     be well-formed
+Judgment   e  
+Typ Var
+Typ Obj
+Typ True
+Typ False
+Typ Exc
+ x    x  
+  vo  Obj
+  true  Bool
+  false  Bool
+    
+Typ App
+  e1        e2  
+Typ Fun
+ x    e   
+     ok
+  e1 e2   
+  xe     
+x 6 Dom
+Typ If
+  e1  Bool   e2     e3  
+Typ Skip
+Typ Seq
+  e1  Act   e2  Act
+  e1e2e3  
+  skip  Act
+  e1 e2  Act
+Typ ACon
+  ei  Obj i  1n
+  id ae1     en  Act
+Typ OCon
+Typ PCon
+  id c  Obj
+  ei  Obj i  1n
+  id pe1     en  Bool
+It is straightforward to show that our type system is sound that is that type-correct expressions
+do not get stuck when evaluating We write s e  s e to mean that there exists a sequence
+s1 e2     sn en such that s e  s1 e1      sn en  s e
+Theorem 32
+s e  s v Moreover if   pure then s  s
+If  e    and s is a state then there exists a state s and value v such that
+Proof See Appendix A
+Theorem 32 in fact states that the language is strongly normalizing the evaluation of every
+expression terminates This is a very desirable property for the language since it will form part of
+the user interface
+Example 33 Consider the following example interpreted with respect to the application model
+of Example 22 In state s1 where both block 1 and 2 are on the table let us trace through the
+execution of the expression xObjyObjmovex y b1 b2 We omit the derivation
+indicating how each step is justied
+s1 xObjyObjmovex y b1 b2 
+s1 yObjmoveb1 y b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s2 skip
+In other words evaluating the expression in state s1 leads to state s2 where indeed block 1 is on top
+of block 2
+34 A Direct Interpreter
+The main reason for introducing the action calculus of this section is to provide a language in
+which to write expressions invoking procedures available in the application interface However
+the operational semantics given above rely on explicitly passing around the state of the application
+This state is taken from the application model In the model the state is an explicit datum that enters
+the interpretation of constants predicates and actions Of course in the actual application the state
+is implicitly maintained by the application itself Invoking an action procedure on the application
+interface modies the current state of the application putting the application in a new state This
+new state is not directly visible to the user
+We can implement an interpreter based on the above operational semantics but without carrying
+around the state explicitly To see this observe that the state is only relevant for the evaluation of
+the primitives constants predicates and actions More importantly it is always the current state
+of the application that is relevant and only actions are allowed to change the state We can therefore
+implement an interpreter by simply directly invoking the procedures in the application interface
+when the semantics tells us to reduce via c p or a Furthermore we need to be able to raise an
+exception  if the objects passed to the interface are not of the right class This requires querying
+for the class of an object As we indicated in Section 21 we simply assume that this can be done
+either through language facilities an instanceOf operator or through explicit procedures in the
+interface that check whether an object is of a given class
+In summary given an application with a suitable application interface we can write an in-
+terpreter for our action calculus that will interpret expressions by invoking procedures available
+through the application interface when appropriate The interpreter does not require an application
+model The model is useful to establish properties of the interpreter and if one wants to reason
+about the execution of expressions via the above operational semantics
+4 Categorial Grammars
+In the last section we introduced an action calculus that lets us write expressions that can be un-
+derstood via calls to the application interface The aim of this section is to use this action calculus
+as the target of a translation from natural language sentences In other words we describe a way to
+take a natural language sentence and produce a corresponding expression in our action calculus that
+captures the meaning of the sentence Our main tool is categorial grammars
+Categorial grammars provide a mechanism to assign semantics to sentences in natural language
+in a compositional manner As we shall see we can obtain a compositional translation from natural
+language sentences into the action calculus presented in the previous section and thus provide a
+simple natural language user interface for a given application This section provides a brief exposi-
+tion of categorial grammars based on Carpenters 1997 presentation We should note that the use
+of categorial grammars is not a requirement in our framework Indeed any approach to provide se-
+mantics to natural language sentences in higher-order logic which can be viewed as a simply-typed
+-calculus Andrews 1986 can be adapted to our use For instance Moortgats 1997 multimodal
+categorial grammars which can handle a wider range of syntactic constructs can also be used for
+our purposes To simplify the exposition we use the simpler categorial grammars in this paper
+Categorial grammars were originally developed by Ajdukiewicz 1935 and Bar-Hillel 1953
+and later generalized by Lambek 1958 The idea behind categorial grammars is simple We start
+with a set of categories each category representing a grammatical function For instance we can
+start with the simple categories np representing noun phrases pp representing prepositional phrases
+s representing declarative sentences and a representing imperative sentences Given categories A
+and B we can form the functor categories AB and BA The category AB represents the
+category of syntactic units that take a syntactic unit of category B to their right to form a syntactic
+unit of category A Similarly the category BA represents the category of syntactic units that take
+a syntactic unit of category B to their left to form a syntactic unit of category A
+Consider some examples If np is the category of noun phrases and s is the category of declar-
+ative sentences then the category nps is the category of intransitive verbs eg laughs they take
+a noun phrase on their left to form a sentence eg Alice laughs or the reviewer laughs Similarly
+the category npsnp represents the category of transitive verbs eg takes they take a noun
+phrase on their right and then a noun phrase on their left to form a sentence eg Alice takes the
+doughnut We also consider the category pp of propositional phrases as well as the category a of
+imperative sentences
+The main goal of categorial grammars is to provide a method of determining the well-formedness
+of natural language A lexicon associates every word or complex sequence of words that constitute
+a single lexical entry with one or more categories The approach described by Lambek 1958 is
+to prescribe a calculus of categories so that if a sequence of words can be assigned a category A
+according to the rules then the sequence of words is deemed a well-formed syntactic unit of cate-
+gory A Hence a sequence of words is a well-formed noun phrase if it can be shown in the calculus
+that it has category np As an example of reduction we see that if 1 has category A and 2 has
+category AB then 1 2 has category B Schematically A AB  B Moreover this goes both
+ways that is if 1 2 has category B and 1 can be shown to have category A then we can derive
+that 2 has category AB
+Van Benthem 1986 showed that this calculus could be used to assign a semantics to terms by
+following the derivation of the categories Assume that every basic category is assigned a type in
+our action calculus through a type assignment T  A type assignment T can be extended to functor
+categories by putting T AB  T BA  T B  T A The lexicon is extended so that every
+word is now associated with one or more pairs of a category A and an expression  in our action
+calculus of the appropriate type that is    T A
+We use the sequent notation 1  A1     n  An    A to mean that expressions 1     n
+of categories A1     An can be concatenated to form an expression  of category A We call   A
+the conclusion of the sequent We use capital Greek letters   to represent sequences of
+expressions and categories We reserve  for typing contexts of the calculus in the last section
+We now give rules that allow us to derive new sequents from other sequents
+Categorial Grammar Sequent Rules
+Seq Id
+Seq Cut
+    B 1   B 2    A
+  A    A
+1  2    A
+Seq App Right
+    B 1   A 2    C
+Seq App Left
+    B 1   A 2    C
+1   AB  2    C
+1    BA 2    C
+Seq Abs Right
+ x  A    B
+Seq Abs Left
+x  A     B
+  x  BA
+  x  AB
+Example 41 Consider the following simple lexicon suitable for the TOYBLOCKS application
+The following types are associated with the basic grammatical units
+T np  Obj
+T pp  Obj
+T s  Bool
+T a  Act
+Here is a lexicon that captures a simple input language for TOYBLOCKS
+block one 7 b1  np
+block two 7 b2  np
+the table 7 table  np
+on 7 xObjx  ppnp
+is 7 xObjyObjis ony x  npspp
+if 7 xBoolyActxyskip  aas
+move 7 xObjyObjmovex y  appnp
+This is a particularly simple lexicon since every entry is assigned a single term and category It is
+also a very specialized lexicon for the purpose of illustration our treatment of is is specic to the
+TOYBLOCKS example
+Using the above lexicon the sentence move block one on block two can be associated with the string
+of expressions and categories xObjyObjmovex y  appnp b1  np xObjx 
+ppnp b2  np The following derivation shows that this concatenation yields an expression of
+category a For reasons of space we have elided the type annotations in -abstractions
+b1np  b1np
+b2np  b2np
+xymovex y b1 xx b2a
+xymovex yappnp b1np xx b2pp 
+xymovex yappnp b1np xxppnp b2np 
+xymovex y b1 xx b2a
+where the subderivation  is simply
+xx b2pp 
+xx b2pp
+xymovex y b1 xx b2a 
+xymovex y b1 xx b2a
+ 
+xymovex y b1app xx b2pp 
+xymovex y b1 xx b2a
+Hence the sentence is a well-formed imperative sentence Moreover the derivation shows that the
+meaning of the sentence move block one on block two is
+xObjyObjmovex y b1 xObjx b2
+The execution of this expression similar to the one in Example 33 shows that the intuitive meaning
+of the sentence is reected by the execution of the corresponding expression
+One might hope that the expressions derived through a categorial grammar derivation are always
+valid expressions of our action calculus To ensure that this property holds we must somewhat
+restrict the kind of categories that can appear in a derivation Let us say that a derivation respects
+imperative structure if for every category of the form AB or AB that appears in the derivation
+we have  T A  T B ok Intuitively a derivation respects imperative structure if it cannot
+construct declarative sentences that depend on imperative subsentences ie a declarative sentence
+cannot have any side effects For the lexicon in Example 41 a derivation respects imperative
+structure if and only if every category of the form aB or Ba that appears in the derivation is
+either aa or aa We can show that all such derivations correspond to admissible typing rules in
+the type system of the last section An admissible typing rule is a rule that does not add derivations
+to the type system anything derivable using the rule can be derived without the rule
+Theorem 42 If 1  A1     n  An    A has a derivation that respects imperative structure
+then the rule
+  1  T A1
+     n  T An
+    T A
+is an admissible typing rule
+Proof See Appendix A
+Note that if each expression i  Ai is taken from the lexicon then we have  i  T Ai by
+assumption and therefore Theorem 42 says that if 1  A1     k  Ak    A has a derivation
+that respects imperative structure then    T A
+So given a natural language imperative sentence from the user we use the lexicon to nd the
+corresponding expressions and category pairs 1  A1     n  An and then attempt to parse it
+that is to nd a derivation for the sequent 1  A1     n  An    a that respects imperative
+structure If a unique such derivation exists then we have an unambiguous parsing of the natural
+language imperative sentence and moreover the action calculus expression  is the semantics of
+the imperative sentence
+5 Putting It All Together
+We now have the major components of our framework a model for action-based applications and
+interfaces to them an action calculus which can be interpreted as calls to an application interface
+and the use of categorial grammars to create expressions in our action calculus from natural language
+sentences
+Lets see how our framework combines these components by considering an end-to-end example
+for TOYBLOCKS Suppose the user inputs the sentence move block one on block two when blocks
+1 and 2 are both on the table Our framework would process this sentence in the following steps
+1 Parsing The TOYBLOCKS lexicon is used to parse the sentence Parsing succeeds only
+if there is a unique parsing of the sentence via a derivation that respects imperative struc-
+ture otherwise the parsing step fails because the sentence was either ambiguous contained
+unknown words or phrases or was ungrammatical In this example there is only a single
+parsing of the sentence as shown in Example 41 and the result is the following expression
+in our action calculus which has type Act
+xObjyObjmovex y b1 xObjx b2
+2 Evaluating The action calculus expression is evaluated using a direct interpreter imple-
+menting the operational semantics of Section 3 The evaluation of the expression proceeds as
+follows
+s1 xObjyObjmovex y b1 xObjx b2 
+s1 yObjmoveb1 y xObjx b2 
+s1 moveb1 xObjx b2 
+s1 moveb1 xObjx b2 
+s1 moveb1 b2 
+s1 moveb1 b2 
+s2 skip
+In the process of this evaluation several calls are generated to the application interface In
+particular calls are made to determine the identity of the object constants b1 and b2 as b1
+and b2 respectively Then during the last transition guard predicates such as is blockb1
+and is positionb2 may be called to ensure that b1 and b2 are of the appropriate classes
+for being passed as arguments to move Since the objects are of the appropriate classes the
+action moveb1 b2 is invoked via the application interface and succeeds
+3 Reporting Following the evaluation of the expression some result must be reported back to
+the user Our framework does not detail what information is conveyed back to the user but
+they must be informed if an exception was raised during the evaluation of the expression
+In this example no exception was raised so what to report to the user is at the discretion of
+the user interface If the user interface had a graphical depiction of the state of TOYBLOCKS
+it may now send queries to the application interface to determine the new state of the world
+and modify its graphical display appropriately
+Lets consider what would happen if an exception  was raised during the evaluation phase For
+example consider processing the sentence move the table on block one The parsing phase would
+succeed as the sentence is grammatically correct However prior to calling the action movet b1
+the evaluation would determine that the object t does not belong to the class block by a guard
+predicate such as is blockt returning ff  or by some other mechanism An exception would
+thus be raised and some information must be reported back to the user during the reporting phase
+Note that the framework has ensured that the action movet b1 was not invoked on the application
+interface
+6 Extensions
+Several extensions to this framework are possible There is a mismatch of types in our framework
+The application model permits a rich notion of types any object of the application may belong to
+one or more classes By contrast our action calculus has a very simple notion of types assigning the
+type Obj to all objects and not statically distinguishing different classes of objects The simplicity
+of our action calculus is achieved at the cost of dynamic type checking which ensures that actions
+and predicates on the application interface are invoked only with appropriate parameters It would
+be straightforward to extend the action calculus with a more rened type system that includes a
+notion of subtyping to model the application classes Not only would this extension remove many
+if not all of the dynamic type checks but it may also reduce the number of possible parses of
+natural language sentences The rened type system allows the semantics of the lexicon entries to
+be ner-grained and by considering these semantics some nonsensical parses of a sentence could
+be ignored For example in the sentence pick up the book and the doughnut and eat it the referent
+of it could naively be either the book or the doughnut if the semantics of eat require an object of the
+class Food and the classes of the book and the doughnut are considered then the former possibility
+could be ruled out
+Another straightforward extension to the framework is to allow the user to query the state by
+entering declarative sentences and treating them as yes-no interrogative sentences For example
+block one is on the table This corresponds to accepting sequents of the form 1  A1     n 
+An    s and executing the action calculus expression  which has type Bool The categorial
+grammar could be extended to accept other yes-no questions such as is block two on block one
+A more interesting extension which would require a correspondingly more complex application
+model is to allow hypothetical queries such as if you move block one on block two is block one
+on the table This corresponds to querying is block one on the table in the state that would result
+if the action move block one on block two were performed This extension would bring our higher-
+order logic that is our action calculus closer to dynamic logic Groenendijk and Stokhof 1991
+Harel Kozen and Tiuryn 2000 It is not clear however how to derive a direct interpreter for such
+an extended calculus
+In Section 22 we made some simplifying assumptions about the application model Chief
+among these assumptions was that an applications state changes only as a result of explicit actions
+This assumption may be unrealistic if for example the application has multiple concurrent users
+We can however extend the framework to relax this assumption One way of relaxing it is to in-
+corporate transactions into the application model and application interface the application model
+would guarantee that within transactions states change only as a result of explicit actions but if no
+transaction is in progress then states may change arbitrarily The evaluation of an action calculus
+expression would then be wrapped in a transaction
+Another restriction we imposed was that predicates be pure It is of course technically possible
+to permit arbitrary state changes during the evaluation of predicates In fact we can modify the
+operational semantics to allow the evaluation of any expression to change states If done properly
+the key property is still preserved the evaluation of constants predicates or actions rely only on the
+current state and all other transitions do not rely on the state at all Thus the semantics remains
+consistent with interpreting expressions using calls to the application interface However doing this
+would lose the intuitive meaning of natural language sentences that do not contain actions they
+should not change the state of the world
+7 Conclusion
+We have presented a framework that simplies the creation of simple natural language user inter-
+faces for action-based applications The key point of this framework is the use of a -calculus to
+mediate access to the application The -calculus we dene is used as a semantics for natural lan-
+guage sentences via categorial grammars and expressions in this calculus are executed by issuing
+calls to the application interface The framework has a number of application-independent compo-
+nents reducing the amount of effort required to create a simple natural language user interface for
+a given application
+A number of applications have natural language interfaces Winograd 1971 Price Rilofff
+Zachary and Harvey 2000 but they appear to be designed specically for the given application
+rather than being a generic approach A number of methodologies and frameworks exist for natural
+language interfaces for database queries see Androutsopoulos et al 1995 for a survey but we
+are not aware of a framework for deriving natural language interfaces to general applications in a
+principled manner
+While the framework presented here is useful for the rapid development of simple natural lan-
+guage user interfaces the emphasis is on simple Categorial grammars and other techniques that
+use higher order logic as the semantics of natural language are limited in their ability to deal with
+the wide and diverse phenomena that occur in English For example additional mechanisms outside
+of the categorial grammar probably application-specic would be required to deal with discourse
+However categorial grammars are easily extensible by expanding the lexicon and many parts of
+the lexicon of a categorial grammar are reusable in different applications making it well-suited to a
+framework for rapid development of natural language user interfaces
+It may seem that a limitation of our framework is that it is only suitable for applications for
+which we can provide an interface of the kind described in Section 2the action calculus of Sec-
+tion 3 is specically designed to be interpreted as calls to an action-based application However
+all the examples we considered can be provided with such an interface It is especially interesting
+to note that our denition of action-based application interfaces is compatible with the notion of
+interface for XML web services Barclay Gray Strand Ekblad and Richter 2002 This suggests
+that it may be possible to derive a natural language interface to XML Web Services using essentially
+the approach we advocate in this paper
+Acknowledgments
+Thanks to Eric Breck and Vicky Weissman for comments on earlier drafts of this paper This work
+was partially supported by NSF under grant CTC-0208535 by ONR under grants N00014-00-1-
+03-41 and N00014-01-10-511 and by the DoD Multidisciplinary University Research Initiative
+MURI program administered by the ONR under grant N00014-01-1-0795
+A Proofs
+The soundness and strong normalization Theorem 32 of the calculus in Section 3 can be derived
+using logical relations in a fairly standard way Winskel 1993 In order to do this we need some
+lemmas about properties of the operational semantics
+Lemma A1 If  e   and s e  s e then  e   
+Proof This is a completely straightforward proof by induction on the height of the typing derivation
+for  e   
+Lemma A2 If  e    s e  s e and   pure then s  s
+Proof This result follows essentially by examination of the operational semantics rules proceeding
+by induction on the structure of e
+- Case e  x This case cannot arise since  e   cannot hold with an empty context when e
+is a variable
+- Case e  v An inspection of the operational semantics rules shows that this case cannot
+arise since there is no s and e such that s e  s e if e is a value
+- Case e  id c By Red OCon we have s e  s cid c and the state is unchanged
+irrespectively of  
+- Case e  id pe1     en By examination of the operational semantics rules two cases
+arise If every ei is a value vi then s e  s ps id p v1     vn with   Bool and
+  pure and the state is unchanged during the transition as required Otherwise there is at
+least one ei that is not a value and s e  s id p    e     or s e  s  Again
+  Bool so that   pure and the state is unchanged during the transition as required
+- Case e  id ae1     en If  e    then   Act which is not a pure type so there is
+nothing to show for this case
+- Case e  e1 e2 By examination of the operational semantics rules two cases arise If e1 is a
+value then it must be  or an abstraction x e In the former case s e  s  In the
+latter case s e  s exe2 In both cases the state is unchanged irrespectively of
+the type   If e1 is not a value then from rule Red App 1 we get s e1 e2  s e
+or s e1 e2  s  and the state is unchanged irrespectively of the type  
+- Case e  e1e2e3 By examination of the operational semantics rules we consider two cases
+If e1 is a value then it must be  or a Boolean value In the former case s e  s 
+In the latter case s e  s e2 or s e  s e3 depending on whether e1 is true or
+false In both cases the state is unchanged irrespectively of the type   If e1 is not a value
+1e2e3 or s e  s  and the state is
+then from rule Red If 1 we get s e  s e
+unchanged irrespectively of the type  
+- Case e  e1 e2 If  e    then   Act which is not a pure type so there is nothing to
+show for this case
+This completes the induction
+We dene for each type   a set R of terms which terminate in all states Formally for a base
+type b either Obj Bool or Act we take
+Rb  e   e  t svse s  v s
+For a function type 1  2 we take
+R12  e   e  1  2 svse s  v s e  R1e e1  R2
+We dene a substitution operator  to be a partial map from variables to expressions of the
+action calculus Let dom be the domain of denition of the partial map  Given a context 
+we write    if the domains of  and  are equal a context  can be understood as a partial map
+from variables to types and for all x  dom x  Rx where x is the type associated
+with x in the context  We extend  to expressions by taking e to be the expression resulting
+from replacing every variable x in e by the expression x Formally
+x x
+if x  dom
+otherwise
+true  true
+false  false
+xe  xxe
+skip  skip
+vo  vo
+  
+id c  id c
+id pe1     en  id pe1     en
+id ae1     en  id ae1     en
+e1 e2  e1 e2
+e1e2e3  e1e2e3
+e1 e2  e1 e2
+where x is the same substitution map as  except that it is undened on variable x
+Lemma A3 If   e   and    then  e   
+Proof This is a straightforward proof by induction on the height of the typing derivation for   e 
+Lemma A4 If  e    and for all s there exists s and e  R such that s e  s e then
+e  R 
+Proof We prove this by induction on the structure of   For a base type b the result is immediate
+by the denition of Rb For   1  2 assume  e  1  2 and for all s there exists the
+required s e For an arbitrary state s let s e be such that s e  s e since e  R12
+we have s e  s v for some s and value v Thus s e  s v Finally it
+remains to show that for all e  R1 we have e e  R2 By assumption we have e e 
+R2 To apply the induction hypothesis and get e e  R2 we show that for all s we have
+s e e  s e e We proceed by induction on the length of the derivation s e  s e
+First note that because  e  1  2 which is a pure type a straightforward induction on the
+length of the derivation using Lemma A2 shows that s  s
+If the length is 0 then e  e
+so the result is immediate
+If the length is non-zero then s e  s e  s e By
+the induction hypothesis s e e  s e e Since s e  s e by rule Red App
+1 s e e  s e e so that s e e  s e e as required This establishes that
+e e  R2
+We can now prove the main result
+Theorem 32
+s e  s v Moreover if   pure then s  s
+If  e    and s is a state then there exists a state s and value v such that
+Proof Clearly it is sufcient to show that  e   implies e  R  To use induction we prove the
+more general statement that   e   and    implies e  R  The desired result follows
+by taking  to be the empty substitution and  the empty context We prove the general result by
+induction on the structure of e
+- Case e  x Assume   x    and    We need to show that x  R  Since x
+is a variable   x and thus x is in the domain of  Since    x  R  and
+x  x implies x  R  as required
+- Case e  true false skip  vo Assume   e  b for the appropriate base type b
+and    We need to show that e  e  Rb Since e is a value than for all s
+s e  s e so e  Rb as required
+- Case e  xe This is the difcult case Assume that   xe
+     and
+   We need to show that xe  xe  R   This involves following
+the denition of R   establishing three facts First by Lemma A3  xe Since
+e  xe is a value we immediately have that s xe reduces to a value
+for all states s Finally we need to show that for all e  R  we have xe e  R 
+Given e  R  By Red App 3 for all s s xe e  s exe By
+Lemma A4 it sufces to show that exe  R  to show that xe e  R 
+by taking s  s
+Dene  
+Clearly exe   
+means that  x    e    Now  
+assumption Applying the induction hypothesis yields that  
+x  xx 7 e  x 7 e since x is just  expect undened on variable x
+xe By assumption we have   xe      which
+xx  e  R  by
+x   x    since    and  
+xe  R  as required
+- Case e  id c Assume   id c  Obj and    We need to show that id c 
+id c  RObj For all s s id c  s cs id c by Red OCon so id c  RObj as
+required
+- Case e  id pe1     en Assume   id pe1     en  Bool and    We need to show
+that id pe1     en  id pe1     en  RBool Since   id pe1     en 
+Bool we have   ei  Obj for all i Applying the induction hypothesis we get that ei 
+RObj for all i and thus for all s we can construct a derivation s id pe1     en 
+s id pv1     en      s id pv1     vn  s ps v1     vn by re-
+peated applications of Red PCon 1 and Red PCon 2 and a nal application of Red Pcon
+3 Alternatively a derivation that reduces to  is also possible Therefore id pe1     en 
+RBool as required
+- Case e  id ae1     en This case is exactly like the case for id pe1     en replacing
+Bool by Act where appropriate
+- Case e  e1 e2 Assume   e1 e2    and    We need to show that e1 e2 
+e1 e2  R  Since   e1 e2    we know that   e1       and   e2    for
+some   Applying the induction hypothesis we get e1  R  and e2  R  By the
+denition of R   we get that e1 e2  R  as required
+- Case e  e1e2e3 Assume   e1e2e3    and    We need to show that
+e1e2e3  e1e2e3  R  Since   e1e2e3    we know that   e1  Obj
+  e2    and   e3    for some   Applying the induction hypothesis we get e1 
+RBool e2  R  and e3  R  Therefore for all s we can construct either the deriva-
+tion s e1e2e3  s truee2e3  s e2  s v2 or the
+derivation s e1e2e3  s falsee2e3  s e3  s v3
+using Red If 1 Red If 2 Red If 3 depending on the Boolean value that s e1 reduces
+to Alternatively a derivation that reduces to  is also possible Therefore e1e2e3 
+R  as required
+- Case e  e1 e2 Assume   e1 e2  Act and    We need to show that e1 e2 
+e1 e2  RAct Since   e1 e2  Act we know that   e1  Act and   e2 
+Act Applying the induction hypothesis we get e1  RAct and e2  RAct There-
+fore for all s we can construct the derivation s e1 e2  s skip e2 
+s e2  s skip by applications of Red Seq 1 Red Seq 2 Red Seq 3 Al-
+ternatively a derivation that reduces to  is also possible Therefore we have e1 e2 
+RAct as required
+If   pure a straightforward induction on the length of the derivation s e  s v via
+Lemma A2 establishes that s  s
+Theorem 42 If 1  A1     n  An    A has a derivation that respects imperative structure
+then the rule
+  1  T A1
+     n  T An
+is an admissible typing rule
+    T A
+Proof We proceed by induction on the height of the derivation for 1  A1     n  An    A
+First some notation if  is a sequence 1  A1     k  Ak and  is a typing context we write
+ for the sequence of judgments   1  T A1       k  T Ak For the base case we
+have   A    A and clearly the typing rule
+    T A
+    T A
+is admissible For the induction step consider a number of cases one for each possible last rule of
+the derivation In the case Seq Cut the last rule of the derivation is of the form
+    B 1   B 2    A
+1  2    A
+Applying the induction hypothesis both
+
+    T B
+1     T B 2
+    T A
+are admissible typing rules Composing these two admissible rules yields the admissible rule
+
+1
+    T B 2
+    T A
+In the case Seq App Right the last rule of the derivation is of the form
+    B 1   C 2    A
+1   CB  2    A
+Applying the induction hypothesis both
+
+    T B
+1     C 2
+    T A
+are admissible typing rules Composing them yields the following admissible rule upon noting that
+T CB  T B  T C
+
+    T B  T C
+    T B
+1
+    T C
+    T A
+2
+The case for Seq App Left is similar
+Finally in the case Seq Abs Right where we have   x and A  BC the last rule of
+the derivation is of the form
+ x  C    B
+  x  BC
+Applying the induction hypothesis for  of the form  x  T C the typing rule
+ x  T C  x  T C  x  T C
+ x  T A    T B
+is admissible Noting that T BC  T C  T B in order to derive an admissible typing
+rule using Typ Fun we need to check that  T C  T B ok But this is exactly what the
+assumption that the derivation respects imperative structure gives us We can therefore derive the
+following admissible typing rule
+ x  T C  x  T C  x  T C
+ x  T C    T B
+ T C  T B ok
+  xT C  T C  T B
+The case for Seq Abs Left is similar
+References
+Ajdukiewicz K 1935 Die syntaktische Konnexitat Studia Philosophica 1 127
+Andrews P B 1986 An Introduction to Mathematical Logic and Type Theory To Truth
+through Proof Academic Press
+Androutsopoulos
+I G Ritchie and P Thanisch 1995 Natural
+language interfaces to
+databasesan introduction Journal of Language Engineering 11 2981
+Bar-Hillel Y 1953 A quasi-arithmetical notation for syntactic description Language 29 47
+Barclay T J Gray E Strand S Ekblad and J Richter 2002 June TerraServiceNET An
+introduction to web services Technical Report MSTR200253 Microsoft Research
+Barendregt H P 1981 The Lambda Calculus Its Syntax and Semantics Studies in Logic
+North-Holland
+Benthem J van 1986 The semantics of variety in categorial grammar In W Buszkowski
+J van Benthem and W Marciszewski Eds Categorial Grammar Number 25 in Linguis-
+tics and Literary Studies in Eastern Europe pp 3755 John Benjamins Previously appeared
+as Report 83-29 Department of Mathematics Simon Fraser University 1983
+Carpenter B 1997 Type-Logical Semantics MIT Press
+Groenendijk J and M Stokhof 1991 Dynamic predicate logic Linguistics and Philoso-
+phy 141 39100
+Harel D D Kozen and J Tiuryn 2000 Dynamic Logic MIT Press
+Lambek J 1958 The mathematics of sentence structure The American Mathematical
+Monthly 65 154170
+Moggi E 1989 Computational lambda-calculus and monads In Proc 4th Annual IEEE Sym-
+posium on Logic in Computer Science LICS89 pp 1423 IEEE Computer Society Press
+Moortgat M 1997 Categorial type logics In J van Benthem and A ter Meulen Eds Hand-
+book of Logic and Language Chapter 2 pp 93177 The MIT Press  Elsevier
+Price D E Rilofff J L Zachary and B Harvey 2000 NaturalJava a natural language inter-
+face for programming in Java In Intelligent User Interfaces pp 207211
+Winograd T 1971 Procedures as a representation for data in a computer program for under-
+standing natural languages Project MAC technical report MAC-TR-84 MIT
+Winskel G 1993 The Formal Semantics of Programming Languages MIT Press
