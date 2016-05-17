@@ -140,5 +140,5 @@ def noun_parsing():
 if __name__ == '__main__':
     #if not os.path.join("nlp.db"):
         #setup_database()
-    #searching()
+    searching()
     noun_parsing()

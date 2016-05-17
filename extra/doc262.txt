@@ -1,0 +1,791 @@
+AA manuscript no
+will be inserted by hand later
+Your thesaurus codes are
+11 11011 11052 11071 11111 11196
+ASTRONOMY
+ASTROPHYSICS
+122008
+ChemoDynamical SPH code for evolution of star forming
+disk galaxies
+Peter Berczik
+Main Astronomical Observatory of Ukrainian National Academy of Sciences 252650 Golosiiv Kiev-022 Ukraine
+e-mail berczikmaokievua
+Received 16 February 1999  Accepted 30 April 1999
+Abstract A new ChemoDynamical Smoothed Particle
+Hydrodynamic CD-SPH code is presented The disk
+galaxy is described as a multifragmented gas and star sys-
+tem embedded in a cold dark matter halo with a rigid po-
+tential eld The star formation SF process SNII SNIa
+and PN events and the chemical enrichment of gas have
+all been considered within the framework of the standard
+SPH model which we use to describe the dynamical and
+chemical evolution of triaxial disklike galaxies It is found
+that such approach provides a realistic description of the
+process of formation chemical and dynamical evolution of
+disk galaxies over a cosmological timescale
+Key words chemical and dynamical evolution of disk
+galaxies  CD-SPH  star formation in SPH
+1 Introduction
+The dynamical and chemical evolution of galaxies is one of
+the most interesting and complex of problems Naturally
+galaxy formation is closely connected with the process of
+largescale structure formation in the Universe
+The main role in the scenario of largescale struc-
+ture formation seems to be played by the dark matter
+It is believed that the Universe was seeded at some early
+epoch with low density uctuations of dark nonbaryonic
+matter and the evolving distribution of these dark ha-
+los provides the arena for galaxy formation Galaxy for-
+mation itself involves collapse of baryons within poten-
+tial wells of dark halos White  Rees 1978 The prop-
+erties of forming galaxies depend on the amount of bary-
+onic matter that can be accumulated in such halos and
+the eciency of star formation The observational sup-
+port for this galaxy formation scenario comes from the
+recent COBE detection of uctuations in the microwave
+background eg Bennett et al 1993
+Send oprint requests to Peter Berczik
+The investigation of galaxy formation is a highly com-
+plex subject requiring many dierent approaches The for-
+mation of selfgravitating inhomogeneities of protogalac-
+tic size the ratio of baryonic and nonbaryonic matter
+Bardeen et al 1986 White  Silk 1979 Peebles 1993
+Dar 1995 the origin of the protogalaxys initial angu-
+lar momentum Voglis  Hiotelis 1989 Zurek et al 1988
+Eisenstein  Loeb 1995 Steinmetz  Bartelmann 1995
+and the protogalaxys collapse and its subsequent evo-
+lution are all usually considered as separate problems
+Recent advances in computer technology and numeri-
+cal methods have allowed detailed modeling of baryon
+matter dynamics in the universe dominated by colli-
+sionless dark matter and therefore the detailed gravi-
+tational and hydrodynamical description of galaxy for-
+mation and evolution The most sophisticated models
+include radiative processes star formation and super-
+nova feedback eg Katz 1992 Steinmetz  Muller 1994
+Friedli  Benz 1995
+The results of numerical simulations are essentially af-
+fected by the star formation algorithm incorporated into
+modeling techniques The star formation and related pro-
+cesses are still not well understood on either small or large
+spatial scales such that the star formation algorithm by
+which the gas material is converted into stars can only be
+based on simple theoretical assumptions or on empirical
+observations of nearby galaxies The other most impor-
+tant eect of star formation on the global evolution of a
+galaxy is caused by a large amount of energy released in
+supernova explosions and stellar winds
+Among numerous methods developed for the modeling
+of complex three dimensional hydrodynamic phenomena
+Smoothed Particle Hydrodynamics SPH is one of the
+most popular Monaghan 1992 Its Lagrangian nature al-
+lows easy combination with fast Nbody algorithms mak-
+ing it suitable for simultaneous description of the complex
+dynamics of a gasstellar system Friedli  Benz 1995
+As an example of such a combination the TREE-SPH
+Hernquist  Katz 1989 Navarro  White 1993
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+was successfully applied to the detailed modeling of disk
+galaxy mergers Mihos  Hernquist 1996 and of galaxy
+formation and evolution Katz 1992 The second good ex-
+ample is a GRAPE-SPH code Steinmetz  Muller 1994
+Steinmetz  Muller 1995 which was successfully used to
+model the evolution of disk galaxy structure and kinemat-
+In recent years there have been excellent papers con-
+cerning the complex SPH modeling of galaxy formation
+and evolution Raiteri et al 1996 Carraro et al 1997
+Our code proposes new energetic criteria for SF and
+suggest a more realistic account of returned chemically
+enriched gas fraction via SNII SNIa and PN events
+The simplicity and numerical eciency of the SPH
+method were the main reasons why we chose this tech-
+nique for the modeling of the evolution of complex multi
+fragmented triaxial protogalactic systems We used our
+own modication of the hybrid NbodySPH method
+Berczik  Kravchuk 1996 Berczik 1998 which we call
+the chemodynamical SPH CD-SPH code
+The dark matter and stars are included in the
+standard SPH algorithm as the Nbody collisionless sys-
+tem of particles which can interact with the gas com-
+ponent only through gravitation Katz 1992 The star
+formation process and supernova explosions are also in-
+cluded in the scheme as proposed by Raiteri et al 1996
+but with our own modications
+2 The CD-SPH code
+21 The SPH code
+Continuous hydrodynamic elds in SPH are described by
+the interpolation functions constructed from the known
+values of these functions at randomly positioned parti-
+cles Monaghan 1992 Following Monaghan  Lattanzio
+1985 we use for the kernel function Wij the spline ex-
+pression in the form of
+1  3
+if 0  uij  1
+neighborhood of each particle within the 2  hi remains
+constant Mihos  Hernquist 1996 The value of NB is
+chosen such that a certain fraction of the total number
+of gas particles N aects the local ow characteristics
+Hiotelis  Voglis 1991 If the dened hi becomes smaller
+than the minimal smoothing length hmin we set the value
+hi  hmin For dark matter and star particles with
+Plummer density proles we use accordingly the xed
+gravitational smoothing lengths hdm and hstar
+If the density is computed according to Equation 2
+then the continuity equation is satised automatically
+Equations of motion for particle i are
+i  ii  iext
+where Pi is the pressure i is the self gravitational
+potential ext
+is a gravitational potential of possible
+external halo and avis
+is an articial viscosity term
+Hiotelis et al 1991 The energy equation has the form
+ivi 
+i  i
+Here ui is the specic internal energy of particle i The
+term i  ii accounts for non adiabatic processes not
+associated with the articial viscosity in our calculations
+i  0 We present the radiative cooling in the form
+i  iui i  
+i Ti  n2
+where ni is the hydrogen number density and Ti the
+temperature To follow its subsequent thermal behaviour
+in numerical simulations we use an analytical approxi-
+mation of the standard cooling function T  for an op-
+tically thin primordial plasma in ionization equilibrium
+Dalgarno  McCray 1972 Katz  Gunn 1991 Its abso-
+lute cuto temperature is set equal to 104 K
+The equation of state must be added to close the sys-
+
+
+4 2  uij3
+if 1  uij  2
+Pi  i    1  ui
+otherwise 
+where   53 is the adiabatic index
+Here uij  rij h
+To achieve the same level of accuracy for all points in
+the uid it is necessary to use a spatially variable smooth-
+ing length In this case each particle has its individual
+value of h Following Hernquist  Katz 1989 we write
+ ri 
+ W rij  hi  W rij  hj
+In our calculations the values of hi were determined
+from the condition that the number of particles NB in the
+22 Time integration
+To solve the system of Equations 3 4 and 5 we
+use the leapfrog integrator Hernquist  Katz 1989 The
+time step ti for each particle depends on the particles ac-
+celeration ai and velocity vi as well as on viscous forces
+To dene ti we use the relation from Hiotelis  Voglis
+1991 and adopt Courants number Cn  01
+We carried out Berczik  Kolesnik 1993 a large se-
+ries of test calculations to check that the code is correct
+the conservation laws are obeyed and the hydrodynamic
+elds are represented adequately all with good results
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+23 The star formation algorithm
+It is well known that star formation SF regions are as-
+sociated with giant molecular complexes especially with
+regions that are approaching dynamical instability The
+early phase of star formation does not seem to crucially
+aect the dynamics of a galaxy From the beginning of
+the collapse such a system decouples from its surround-
+ings and evolves on a completely dierent timescale When
+the chemically enriched gas content of the galaxy de-
+creases the heating by winds and supernova explosions
+Leitherer et al 1992 begins to play an important role
+in the dynamics of the galaxy The overall picture of
+star formation seems to be understood but the detailed
+physics of star formation and accompanying processes on
+either small or large scales remains sketchy Larson 1969
+Silk 1987
+All the above stated as well as computer constrains
+cause the using of simplied numerical algorithms of de-
+scription of conversion of the gaseous material into stars
+which are based on simple theoretical assumptions andor
+on results of observations of nearby galaxies
+To describe of the process of converting of gaseous ma-
+terial into stars we modify the standard SPH star forma-
+tion algorithm Katz 1992 Navarro  White 1993 tak-
+ing into account the presence of random motions in the
+gaseous environment and the time lag between the ini-
+tial development of suitable conditions for star forma-
+tion and star formation itself Berczik  Kravchuk 1996
+Berczik 1998 The rst reasonable requirement incorpo-
+rated into this algorithm allows selecting gas particles
+that are potentially eligible to form stars It states that in
+the separate gas particle the SF can start if the absolute
+value of the gas particles gravitational energy exceeds
+the sum of its thermal energy and the energy of random
+motions
+i  Ech
+Gravitational and thermal energies and the energy of
+random motions for the gas particle i in model simula-
+tion are dened as
+i   3
+5  G  m2
+2  mi  c2
+2  mi  v2
+
+
+where ci  p  Ti is the isothermal sound speed
+of particle i We set   13 and dene the random or
+turbulent square velocities near particle i as
+mj  vj  vc2
+mj  vj
+For practical reasons it is useful to dene a critical
+temperature for SF onset in particle i as
+   G  i  h2
+i  v2
+Then if the temperature of the gas particle i drops
+below the critical one SF can proceed
+Ti  T crit
+We think that requirement 8 or in another form 13
+is the only one needed It seems reasonable that the chosen
+gas particle will produce stars only if the above condi-
+tion hold over the interval that exceeds its free - fall time
+tf f  p3  32  G   This condition is based on the
+well known fact that due to gravitational instability all
+substructures of a collapsing system are formed on such a
+timescale Using it we exclude transient structures that
+are destroyed by the tidal action of surrounding matter
+from consideration
+We also dene which gas particles remain cool
+ie tcool  tf f  We rewrite this condition as presented
+in Navarro  White 1993 i  crit Here we use the
+value of crit  003 cm3
+When the collapsing particle i is dened we create the
+new star particle with mass mstar and update the gas
+particle mi using these simple equations
+mstar    mi
+mi  1    mi
+Here  dened as the global eciency of star forma-
+tion is the fraction of gas converted into stars according
+to the appropriate initial mass function IMF The typ-
+ical values for SF eciency in our Galaxy on the scale
+of giant molecular clouds are in the range   001  04
+Duerr et al 1982 Wilking  Lada 1983 But it is still a
+little known quantity In numerical simulation the model
+parameter has to be checked by comparison of numerical
+simulation results with available observational data Here
+we dene  as
+  1  Eth
+i  Ech
+i   Egr
+with the requirement that all excess mass of the gas
+component in a starforming particle which provides the
+inequality  Egr
+ is transformed into the
+star component In the code we set the absolute maxi-
+mum value of the mass of such a star particle mstar
+25 106 M ie  5 of the initial particle mass mi
+i  Ech
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+At the moment of stellar birth the position and veloc-
+ities of new star particles are equal to those of parent
+gas particles Thereafter these star particles interact
+with other gas star or dark matter particles only by
+gravitation The gravitational smoothing length for these
+Plummer like particles is set equal to hstar
+24 The thermal SNII feedback
+We try to include the events of SNII SNIa and PN in the
+complex gasdynamic picture of galaxy evolution But for
+the thermal budget of the ISM only SNII plays the main
+role Following Katz 1992 we assume that the explo-
+sion energy is converted totally into thermal energy The
+stellar wind action seems not to be essential in the en-
+ergy budget Ferriere 1995 The total energy released by
+SNII explosions 1044 J per SNII within a star particle
+is calculated at each time step and distributed uniformly
+between the surrounding ie rij  hstar gas particles
+Raiteri et al 1996
+25 The chemical enrichment of gas
+Every star particle in our SF scheme represents a sep-
+arate gravitationally closed star formation macro region
+like a globular cluster The star particle is character-
+ized by its own time of birth tbegSF which is set equal
+to the moment of particle formation After the formation
+these particles return the chemically enriched gas into sur-
+rounding gas particles due to SNII SNIa and PN events
+For the description of this process we use the approxima-
+tion proposed by Raiteri et al 1996 We consider only
+the production of 16O and 56Fe and try to describe the
+full galactic time evolution of these elements from the
+beginning to present time ie tevol  130 Gyr
+With the multipower IMF law suggested by Kroupa
+et al 1993 the distribution of stellar masses within a
+star particle of mass mstar is then
+209  m13
+if 01  m  05
+m  mstar  A 
+if 05  m  10
+a0Z  10130  00755  log Z  00081  log Z2
+a1Z  44240  07939  log Z  01187  log Z2
+a2Z  12620  03385  log Z  00542  log Z2
+
+
+These relations are based on the calculations of
+the Padova group Alongi et al 1993 Bressan et al 1993
+Bertelli et al 1994 and give a reasonable approximation
+to stellar lifetimes in the mass range from 06 M to
+120 M and metallicities Z  7  105  003 dened
+as a mass of all elements heavier than He In our cal-
+culation following Raiteri et al 1996 we assume that Z
+scales with the oxygen abundance as ZZ 16O16O
+For those metallicities exceeding available data we take
+the value corresponding to the extremes
+We can dene the number of SNII explosions inside a
+given star particle during the time from t to tt using
+a simple equation
+NSNII 
+mdeadt
+mdeadtt
+mdm
+where mdeadt and mdeadt  t are masses of stars
+that end their lifetimes at the beginning and at the end of
+the respective time step We assume that all stars with
+masses between 8 M and 100 M produce SNII for
+which we use the yields from Woosley  Weaver 1995
+The approximation formulae from Raiteri et al 1996 de-
+nes the total ejected mass by one SNII - mtot
+ej  as well as
+the ejected mass of iron - mFe
+ej and oxygen - mO
+ej as a func-
+tion of stellar mass in solar units
+
+
+ej  7682  101  m1056
+ej  2802  104  m1864
+ej  4586  104  m2721
+To take into account PN events inside the star par-
+
+
+m22
+m27
+if 10  m
+ticle we use the equation as for 19
+where m is the star mass in solar units With adopted
+lower mlow  01 M and upper mupp  100 M
+limits of the IMF the normalization constant A  031
+NPN 
+mdeadt
+mdeadtt
+mdm
+For the denition of stellar lifetimes we use the equa-
+tion Raiteri et al 1996
+log tdead  a0Z  a1Z  log m  a2Z  log m2
+where tdead is expressed in years m is in solar units
+and coecients are dened as
+Following van den Hoek  Groenewegen 1997 Sam-
+land 1997 and Samland et al 1997 we assume that
+all stars with masses between 1 M and 8 M pro-
+duce PN We dene the average ejected masses in
+solar units of one PN event as Renzini  Voli 1981
+van den Hoek  Groenewegen 1997
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+ej  163
+ej  000
+ej  000
+
+
+The method described in Raiteri et al 1996 and pro-
+posed in Greggio  Renzini 1983 and Matteuchi  Greg-
+gio 1986 is used to account for SNIa In simulations the
+number of SNIa exploding inside a selected star particle
+during each time step is given by
+NSNIa 
+mdeadt
+mdeadtt
+2m2dm2
+Fig 1 The number of SNII SNIa and PN events
+SNII  477 mH
+PN  2164 mH
+SNIa  414
+SNII  159 mHe
+PN  7213 mHe
+SNIa  138
+SNII  35 mFe
+PN  0000 mFe
+SNIa  535
+SNII  119 mO
+PN  0000 mO
+SNIa  110
+The quantity 2m2 represents the initial mass func-
+tion of the secondary component and includes the distri-
+bution function of the secondarys mass relative to the
+total mass of the binary system mB
+2m2  mstar  A2 
+2  m27
+where minf  max2  m2 3 M and msup  m2 
+8 M Following van den Berg  McClure 1994 the value
+of normalization constant we set equal to A2  016  A
+ejected mass in solar units is Thielemann et al 1986
+Nomoto et al 1984
+
+
+ej  141
+ej  063
+ej  013
+
+
+In summary a new star particle with metallicity
+Z  104 with mass 104 M during the total time of
+evolution tevol produces
+NSNII  525 NPN  17700 NSNIa  848
+Fig 2 The returned mass of 56Fe
+Fig 1 presents the number of SNII SNIa and PN
+events for this star particle
+26 The cold dark matter halo
+In Fig 2 and Fig 3 we present the returned masses
+of 56Fe and 16O We can estimate the total masses H He
+56Fe 16O in solar masses returned to the surrounding
+gas particles due to these processes as
+In the literature we have found some proles some-
+times controversial
+for the galactic Cold Dark Mat-
+ter Haloes CDMH Burkert 1995 Navarro 1998 For
+resolved structures of CDMH halor  r14
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+a value of NB  1 Ngas provides qualitatively correct
+treatment of the systems large scale evolution
+As the initial model relevant for CDM - scenario
+we took a constantdensity homogeneous gaseous triaxial
+conguration Mgas  1011 M within the dark matter
+halo Mhalo  1012 M We set A  100 kpc B  75
+kpc and C  50 kpc for semiaxes of system Such triaxial
+congurations are reported in cosmological simulations of
+the dark matter halo formation Eisenstein  Loeb 1995
+Frenk et al 1988 Warren et al 1992 Initially the cen-
+ters of all particles were placed on a homogeneous grid
+inside this triaxial conguration We set the smoothing
+parameter of CDMH bhalo  25 kpc These values of
+Mhalo and bhalo are typical for CDMH in disk galaxies
+Navarro et al 1996 Navarro et al 1997 Burkert 1995
+The gas component was assumed to be cold initially
+T0  104 K As we see in our calculations the inuence
+of random motions essentially reduces the dependence of
+model parameters on the adopted temperature cuto and
+therefore on the adopted form of the cooling function it-
+The gas was assumed to be involved in the Hubble
+ow H0  65 kmsMpc and the solid - body rotation
+around z - axis We added small random velocity compo-
+nents   v  10 kms to account for the random mo-
+tions of fragments The initial velocity eld was dened
+vx y z  x y z  r  H0  r  vx y z
+Fig 3 The returned mass of 16O
+Moore et al 1997 The structure of CDMH high
+resolution Nbody simulations can be described by
+halor  r1 Navarro et al 1996 Navarro et al 1997
+Finally in Kravtsov et al 1997 we nd that the cores
+of DM dominated galaxies may have a central prole
+halor  r02
+In our calculations and as a rst approximation it
+is assumed that the model galaxy halo contains the
+CDMH component with Plummer - type density proles
+Douphole  Colin 1995
+halor 
+r2  b2
+Therefore for the external force acting on the gas
+and star particles we can write
+iext
+i  G 
+3 Results and discussion
+31 Initial conditions
+After testing our code demonstrated that simple assump-
+tions can lead to a reasonable model of a galaxy The
+SPH calculations were carried out for Ngas  2109 gas
+particles According to Navarro  White 1993 and Rai-
+teri et al 1996 such a number seems adequate for a
+qualitatively correct description of the systems behaviour
+Even this small a number of gas particles produces
+Nstar  31631 star particles at the end of the calcu-
+lation
+The value of the smoothing length hi was chosen to
+require that each gas particle had NB  21 neighbors
+within 2  hi Minimal hmin was set equal to 1 kpc and
+the xed gravitational smoothing length hstar  1 kpc
+was used for the star particles Our results show that
+where x y z is the angular velocity of an initially
+rigidly rotating system
+The spin parameter in our numerical simulations is
+  008 dened in Peebles 1969 as
+ L0  p Egr
+G  Mgas  Mhalo52 
+L0 is the total initial angular momentum and Egr
+the total initial gravitational energy of a protogalaxy It
+is to be noted that for a system in which angular mo-
+mentum is acquired through the tidal torque of the sur-
+rounding matter the standard spin parameter does not
+exceed   011 Steinmetz  Bartelmann 1995 More-
+its typical values range between   007004
+005
+eg 002    011
+32 Dynamical model
+In Fig 4 we present the XY XZ and YZ distribu-
+tions of gas particles at the nal time step tevol  130
+Gyr The box size is 50 kpc In Fig 5 we present the
+distributions of star particles The star distributions
+have dimensions typical of a disk galaxy The radial ex-
+tension is approximately 25  30 kpc The disk height is
+around 1  2 kpc In the center the bar -like structure
+is developed as a result of strong initial triaxial structure
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+whole in the plane of the disk we can see the spiral - like
+distribution of particles with extended arm laments The
+gas particles are located within central 5  10 kpc
+Except for the central region  2 kpc the gas dis-
+tribution has a exponential form with radial scale length
+ 28 kpc The column density distributions of gas gasr
+and stars r are presented in Fig 6 The total column
+density is dened as totr  gasr  r The to-
+tal column density distribution totr is well approxi-
+mated in the interval from 5 kpc to 15 kpc with an
+exponential prole characterized by a  35 kpc radial
+scale length This value is very close to one a reported
+recently 35 kpc for the radial scale length of the to-
+tal disk mass surface density distribution obtained for our
+Galaxy Mera et al 1998b The value of tot  55 M
+pc2 near the location of the Sun r  9 kpc is close to a
+recent determination of the total density 52 13 M pc2
+Mera et al 1998a
+Fig 7 shows both the rotational velocity distribu-
+tion of gas Vrotr resulting from the modeled disk
+galaxy calculation and the rotational curve for our Galaxy
+Vallee 1994 both of which are very close
+The gaseous radial Vradr and normal Vzr velocity
+distributions are in Fig 8 and Fig 9 The radial veloc-
+ity dispersion has a maximum value  60 kms in the
+center a high value mainly caused by the central strong
+bar structure Near the Sun this dispersion drops down
+to  20 kms Such radial dispersion is reported in the
+kinematic study of the stellar motions in the solar neigh-
+borhood Bienayme 1998 while the normal dispersion is
+near  20 kms in the whole disk This value also coin-
+cides with the vertical dispersion velocity near the Sun
+Bienayme 1998
+We present the temperature distribution of gas T r in
+Fig 10 As seen the distribution of T r has a very large
+scatter from 104 K to 106 K In our calculation we set the
+cuto temperature for the cooling function at 104 K the
+gas cant cool to lower temperatures
+The modeled process of SNII explosions injects to a
+great amount of thermal energy into the gas and gener-
+ates a very large temperature scatter also typical of our
+Galaxys ISM At each point even with crude numerical
+approximations a good t can be reached for all dynami-
+cal and thermal distributions of gas and stars in a typical
+disk galaxy like our Galaxy
+33 Chemical characteristics
+Fig 11 shows the time evolution of the SFR in galaxy
+SF Rt  dMtdt Approximately 90 of gas is con-
+verted into stars at the end of calculation The most in-
+tensive SF burst happened in the rst  1 Gyr with a
+maximal SFR  35 Myr After  15  2 Gyr the SFR
+is decreases like an exponential function until it has a
+value  1 Myr at the end of the simulation To check
+the SF and chemical enrichment algorithm in our SPH
+Fig 6 gasr r and totr  gasr  r The
+column density distribution in the disk of gas and stars in the
+nal step
+Fig 7 Vrotr The rotational velocity distribution of gas in
+the nal step
+code we use the chemical characteristics of the disk in
+the solar cylinder 8 kpc  r  10 kpc
+The agemetallicity relation of the star particles in
+the solar cylinder FeHt is shown in Fig 12 with
+observational data taken from Meusinger et al 1991 and
+Edvardsson et al 1993 while in Fig 13 we presented
+the metallicity distribution of the star particles in the
+solar cylinder NFeH The model data are scaled to
+the observed number of stars Edvardsson et al 1993 In
+Fig 12 each model point represents the separate star
+particle The mass of each star particle is dierent from
+ 104 M up to  25 106 M because the star forma-
+tion eciency -  is dierent in each star forming region
+The model point is systematically higher than the obser-
+vations especially near the t  5 Gyr but if we also
+analyze the mass of each star particle we see that the
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+Fig 4 The distribution of gas particles in the nal step
+more massive particles systematically show lower metal-
+licity than the observations If one divides the metallicity
+to equal zone and calculate the sum of the mass in each
+metallicity zone in Fig 12 we get the results in Fig 13
+and in this gure we see what the model mass distribution
+has shifted to the lower metallicities
+007 dexkpc From observations of PN of dierent
+types Maciel  Koppen 1994 we obtained the values
+003 dexkpc for PNI 0069 dexkpc for PNII 0058
+dexkpc for PNIII 0062 dexkpc for PNIIa and 0057
+dexkpc for PNIIb All this agrees well with the oxygen
+radial gradient in our Galaxy
+The OFe vs FeH distribution of the star par-
+ticles in the solar cylinder one found in Fig 14 In this
+gure we also present the observational data from Ed-
+vardsson et al 1993 and Tomkin et al 1992 All these
+model distributions are in good agreement not only with
+presented observational data but also with other data col-
+lected from Portinari et al 1997
+The OH radial distribution OHr is shown in
+Fig 15 The approximation presented in the gure is ob-
+tained by a least - squares linear t At distances 5 kpc
+ r  11 kpc the models radial abundance gradi-
+ent is 006 dexkpc In the literature we found dier-
+ent values of this gradient dened in objects of dierent
+types From observations of HII regions Peimbert 1979
+Shaver et al 1983 we obtained oxygen radial gradient
+34 Conclusion
+This simple model provides a reasonable selfconsistent
+picture of the processes of galaxy formation and star for-
+mation in the galaxy The dynamical and chemical evo-
+lution of the modeled disklike galaxy is coincident with
+observations for our own Galaxy The results of our model-
+ing give a good base for a wide use of the proposed SF and
+chemical enrichment algorithm in other SPH simulations
+Acknowledgments The author is grateful to SG
+Kravchuk LS Pilyugin and YuI Izotov for fruitful dis-
+cussions during the preparation of this work It is a plea-
+sure to thank Pavel Kroupa and Christian Boily for com-
+ments on an earlier version of this paper The author also
+thanks the anonymous referee for a helpful referees report
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+Fig 5 The distribution of star particles in the nal step
+which resulted in a signicantly improved version of this
+paper This research was supported by a grant from the
+American Astronomical Society
+References
+Alongi M Bertelli G Bressan A et al 1993 Astron  As-
+trophys Suppl 97 851
+Bardeen JM Bond JR Kaiser N  Szalay AS 1986 As-
+trophys J 304 15
+Bennett CL Boggess NW Hauser MG Mather JC
+Smoot GF  Wright EL 1993 in The Environment and
+Evolution of Galaxies Eds Shull MJ Thronson HAJr
+Kluwer Acad Publ 27
+Berczik P  Kolesnik IG 1993 Kinematika i Fizika
+Nebesnykh Tel 9 No 2 3
+Berczik P  Kravchuk SG 1996 Astrophys  Sp Sci 245
+Berczik P 1998 Presented as a poster in the Isaac Newton
+Institute Workshop Astrophysical Discs June 22 - 27
+1998 Cambridge UK astro-ph9807059
+Bertelli G Bressan A Chiosi C Fagotto F  Nasi E 1994
+Astron  Astrophys Suppl 106 275
+Bienayme O 1998 Astron  Astrophys 341 86
+Burkert A 1995 Astrophys J 447 L25
+Bressan A Fagotto F Bertelli G  Chiosi C 1993 Astron
+ Astrophys Suppl 100 647
+Carraro G Lia C  Chiosi C 1997 Mon Not Roy Astr
+Soc 297 1021
+Dalgarno A  McCray RA 1972 Annu Rev Astron  As-
+trophys 10 375
+Dar A 1995 Astrophys J 449 550
+Douphole B  Colin J 1995 Astron  Astrophys 300 117
+Duerr R Imho CL  Lada CJ 1982 Astrophys J 261
+Edvardsson B Andersen J Gustason B et al1993 Astron
+ Astrophys 275 101
+Eisenstein DJ  Loeb A 1995 Astrophys J 439 520
+Ferriere KM 1995 Astrophys J 441 281
+Frenk CS White SDM Davis M  Efstathiou G 1988
+Astrophys J 327 507
+Friedli D  Benz W 1995 Astron  Astrophys 301 649
+Greggio L  Renzini A 1983 Astron  Astrophys 118 217
+Hernquist L  Katz N 1989 Astrophys J Suppl Ser 70
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+Fig 8 Vradr The radial velocity distribution of gas in the
+nal step
+Fig 10 T r The temperature distribution of gas in the nal
+Fig 9 Vzr The perpendicular to disk normal velocity dis-
+tribution of gas in the nal step
+Fig 11 SF Rt  dMtdt The time evolution of the SFR
+in galaxy
+Hiotelis N Voglis N  Contopoulos G 1991 Astron  As-
+Mera D Chabrier G  Schaeer R 1998a Astron  Astro-
+trophys 242 69
+phys 330 937
+Hiotelis N  Voglis N 1991 Astron  Astrophys 243 333
+Katz N  Gunn JE 1991 Astrophys J 377 365
+Katz N 1992 Astrophys J 391 502
+Kravtsov AV Klypin AA Bullock JS  Primack JR 1997
+Astrophys J 502 48
+Kroupa P Tout C  Gilmore G 1993 Mon Not Roy Astr
+Mera D Chabrier G  Schaeer R 1998b Astron  Astro-
+phys 330 953
+Meusinger H Reimann HG  Stecklum B 1991 Astron 
+Astrophys 245 57
+Mihos JC  Hernquist L 1996 Astrophys J 464 641
+Monaghan JJ  Lattanzio JC 1985 Astron  Astrophys
+Soc 262 545
+149 135
+Larson RB 1969 Mon Not Roy Astr Soc 145 405
+Leitherer C Robert C  Drissen L 1992 Astrophys J 401
+Monaghan JJ 1992 Annu Rev Astron  Astrophys 30
+Moore B Governato F Quinn T Stadel J  Lake G 1997
+Lucy LB 1977 Astron J 82 1013
+Maciel WJ  Koppen J 1994 Astron  Astrophys 282
+Astrophys J 499 L5
+Nomoto K Thielemann F-K  Yokoi K 1984 Astrophys
+J 286 644
+Matteucci F  Greggio L 1986 Astron  Astrophys 154
+Navarro JF Frenk CS  White SDM 1996 Astrophys J
+462 563
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+Fig 12 FeHt The age metallicity relation of the star
+particles in the solar cylinder 8 kpc  r  10 kpc
+Fig 14 The OFe vs FeH distribution of the star par-
+ticles in the solar cylinder 8 kpc  r  10 kpc
+Fig 13 NFeH The metallicity distribution of the star
+particles in the solar cylinder 8 kpc  r  10 kpc
+Fig 15 OHr The OH radial distribution
+Navarro JF Frenk CS  White SDM 1997 Astrophys J
+490 493
+Samland M 1997 Astrophys J 496 155
+Shaver PA McGee RX Newton LM Danks AC  Pot-
+Navarro
+astro-ph9801073
+Astrophys
+submitted
+tasch SR 1983 Mon Not Roy Astr Soc 204 53
+Silk J 1987 in IAU Symp No 115 Star Forming Regions
+Navarro JF  White SDM 1993 Mon Not Roy Astr
+Eds Peimbert M Jugaku J Reidel Dordrecht p 557
+Soc 265 271
+Steinmetz M  Muller E 1994 Astron  Astrophys 281
+Peebles PJE 1969 Astron  Astrophys 155 393
+Peebles PJE 1993 in Principles of Physical Cosmology
+Steinmetz M  Muller E 1995 Mon Not Roy Astr Soc
+Princeton Univ Press
+276 549
+Peimbert M 1979 in The Large Scale Characteristic of the
+Steinmetz M  Bartelmann M 1995 Mon Not Roy Astr
+Galaxy Ed Burton WB Reidel Dordrecht p 307
+Soc 272 570
+Portinari L Chiosi C  Bressan A 1997 Astron  Astro-
+Thielemann F-K Nomoto K  Yokoi K 1986 Astron 
+phys 334 505
+Astrophys 158 17
+Raiteri CM Villata M  Navarro JF 1996 Astron  As-
+Tomkin J Lemke M Lambert DL  Sneden C 1992 As-
+trophys 315 105
+tron J 104 1568
+Renzini A  Voli M 1981 Astron  Astrophys 94 175
+Samland M Hensler G  Theis Ch 1997 Astrophys J 476
+Vallee J 1994 Astrophys J 437 179
+van den Bergh S  McClure RD 1994 Astrophys J 425
+Peter Berczik ChemoDynamical SPH code for evolution of star forming disk galaxies
+van den Hoek LB  Groenewegen MAT 1997 Astron 
+Astrophys Suppl 123 305
+Voglis N  Hiotelis N 1989 Astron  Astrophys 218 1
+Warren MS Quinn PJ Salmon JK  Zurek WH 1992
+Astrophys J 399 405
+Wilking BA  Lada CJ 1983 Astrophys J 274 698
+White SDM  Rees MJ 1978 Mon Not Roy Astr Soc
+183 341
+White SDM  Silk J 1979 Astrophys J 231 1
+Woosley SE  Weaver TA 1995 Astrophys J Suppl Ser
+101 181
+Zurek WH Quinn PJ  Salmon JK 1988 Astrophys J
+330 519
+This article was processed by the author using Springer-Verlag
+LaTEX AA style le L-AA version 3
