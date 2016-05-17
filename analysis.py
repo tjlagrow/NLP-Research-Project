@@ -1,9 +1,8 @@
 """
 analysis.py
 Authors: 
-	Theodore LaGrow
-	Jacob Bieker
-
+    Theodore LaGrow
+    Jacob Bieker
 Language: Python 3.5x
 Packages needed: os, sys, nltk, TextBlob
 """
