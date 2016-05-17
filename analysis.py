@@ -5,7 +5,7 @@ Authors:
 	Jacob Bieker
 
 Language: Python 3.5x
-Packages needed: os, sys, nltk 
+Packages needed: os, sys, nltk, TextBlob
 """
 
 import os, sys
@@ -13,6 +13,8 @@ from io import StringIO
 import nltk
 from databaseSetup import setup_database, Document, Word
 from nltk.corpus import stopwords
+from textblob import TextBlob
+
 ################################################################
 """ Uncomment string to download the required NLTK packages """
 
@@ -94,6 +96,12 @@ def searching():
             print("\n\n")
             #print(fd.tabulate())
             # print(text[1024:1062])
+
+def noun_parsing(dictonary):
+    
+    ngramOutput = "".join(dictionary)
+    for np in ngramOutput.noun_phrases:
+        print(np)
 
 
 if __name__ == '__main__':
