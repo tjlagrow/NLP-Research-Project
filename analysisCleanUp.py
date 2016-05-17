@@ -20,3 +20,6 @@ with open("nounsFinal.txt", "w"):
 # To clear the Final.txt
 with open("Final.txt", "w"):
     pass
+
+with open("wordcloud.txt", "w"):
+    pass
