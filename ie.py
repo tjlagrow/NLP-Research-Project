@@ -1,5 +1,6 @@
 """
 ie.py 
+"Information Extraction"
 Authors: 
 	Theodore LaGrow
 	Jacob Bieker
@@ -9,12 +10,21 @@ Packages needed:
 
 """
 
-import nltk, re, pprint
+import nltk
+from textblob import TextBlob
+import os, sys
+from io import StringIO
 
-def ie_preprocess(document):
-	
-	sentences = nltk.sent_tokenize(document) #NLTK's default sentence segmenter
-	sentences = [nltk.word_tokenize(sent) for sent in sentences] # word tokenizer
-	sentences = [nltk.pos_tag(sent) for sent in sentences] # part-of-speech tagger
-	
-	return(sentences)
+def blobTexting():
+	for filename in os.listdir(os.path.join("Text_Docs")):
+		with open(os.path.join("Text_Docs", filename)) as text:
+			print(filename)
+			raw = text.read()
+			raw = TextBlob(raw)
+			for np in raw.noun_phrases:
+				print(np)
+
+
+
+if __name__ == '__main__':
+	blobTexting()

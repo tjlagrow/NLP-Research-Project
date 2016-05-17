@@ -27,7 +27,7 @@ s = StringIO()
 # Use redirected sys.stdout to get value of output and put into database
 
 
-interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate"]
+interesting_words = ["simulation", "simulations", "software", "code", "analysis", "simulate", "using", "we used", "program", "analyzed", "simulated", "scripted", "automated", "descrip", "implements", "function"]
 
 stopwords = nltk.corpus.stopwords.words('english')
 
