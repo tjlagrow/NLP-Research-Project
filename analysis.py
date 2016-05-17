@@ -10,7 +10,6 @@ Packages needed: os, sys, nltk, TextBlob
 import os, sys
 from io import StringIO
 import nltk
-from databaseSetup import setup_database, Document, Word
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from collections import Counter
@@ -72,16 +71,6 @@ def searching():
             # print(tokens[:10])
 
             text = nltk.Text(tokens)
-            ####################################
-            #
-            #  Example of adding to the database
-            #
-            ####################################
-
-            Document.insert({'words': raw,
-                             'discipline': 'astrophysics',
-                            }).execute()
-            ### End Example #####
 
             trigrams = nltk.ngrams(text, n=15)
             fdist = nltk.FreqDist(trigrams)
