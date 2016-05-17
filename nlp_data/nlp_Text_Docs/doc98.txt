@@ -1,0 +1,936 @@
+Natural Language Object Retrieval
+Ronghang Hu1 Huazhe Xu2 Marcus Rohrbach13
+Jiashi Feng4 Kate Saenko5
+Trevor Darrell1
+1University of California Berkeley
+4National University of Singapore
+2Tsinghua University
+5University of Massachusetts Lowell
+3ICSI Berkeley
+ronghang rohrbach trevoreecsberkeleyedu xhz12mailstsinghuaeducn
+elefjianusedusg saenkocsumledu
+Abstract
+In this paper we address the task of natural language
+object retrieval to localize a target object within a given
+image based on a natural language query of the object Nat-
+ural language object retrieval differs from text-based image
+retrieval task as it involves spatial information about ob-
+jects within the scene and global scene context To address
+this issue we propose a novel Spatial Context Recurrent
+ConvNet SCRC model as scoring function on candidate
+boxes for object retrieval integrating spatial congurations
+and global scene-level contextual information into the net-
+work Our model processes query text local image de-
+scriptors spatial congurations and global context features
+through a recurrent network outputs the probability of the
+query text conditioned on each candidate box as a score for
+the box and can transfer visual-linguistic knowledge from
+image captioning domain to our task Experimental results
+demonstrate that our method effectively utilizes both local
+and global information outperforming previous baseline
+methods signicantly on different datasets and scenarios
+and can exploit large scale vision and language datasets
+for knowledge transfer
+1 Introduction
+Signicant progress has been made in object detection
+in recent years with the help of Convolutional Neural Net-
+works CNNs it is possible to detect a predened set of
+object categories with high accuracy 8 7 and the num-
+ber of categories in object detection has grown over 10K to
+100K with the help of domain adaptation 12 and hashing
+2 However in practical application scenarios instead of
+using a predened xed set of object categories one would
+often prefer to refer to an object with natural language rather
+than use a predened category label Such natural language
+query can include different types of phrases such as cat-
+egories attributes spatial congurations and interactions
+with other objects such as the young lady in a white dress
+Figure 1 Overview of our method Given an input image a text
+query and a set of candidate locations eg from object proposal
+methods a recurrent neural network model is used to score can-
+didate locations based on local descriptors spatial congurations
+and global context The highest scoring candidate is retrieved
+sitting on the left or white car on the right in Figure 1
+In this paper we address the problem of natural language
+object retrieval given an image and a natural language de-
+scription of an object as query we want to retrieve the ob-
+ject by localizing the object in the image Natural language
+object retrieval can be seen as a generalization of generic
+object detection and has a wide range of applications such
+as handling natural language commands in robotics where
+the user may ask to a robot to pick up the TV remote con-
+candidate location setinput imagelocal descriptorspatial configurationglobal contextnatural language querywhite car on the rightobject proposalSpatial Context Recurrent ConvNetcandidate scores054007028015042output object retrieval resulttop score candidatetrol on the shelf
+We frame natural language object retrieval as a retrieval
+task on a set of candidate locations in a given image in this
+paper as shown in Figure 1 where candidate locations can
+come from object proposal methods such as EdgeBox 33
+We observe that simply applying text-based image retrieval
+systems on the image regions cropped from candidate loca-
+tions for this task leads to inferior performance as natural
+language object retrieval involves spatial congurations of
+objects and the global scene as context For example to de-
+cide how likely an object in a scene corresponds to the man
+in a blue jacket sitting on the right in front of the house one
+needs to look at both the object to determine whether it is
+the man category in blue jacket attribute and sit-
+ting action and its spatial conguration within the scene
+to determine whether it is on the right and the whole im-
+age as global contextual information to determine whether
+it is in front of the house Although both text-based im-
+age retrieval and natural language object retrieval involve
+jointly modeling images and text they are different vision
+and language domains with domain shift from whole im-
+ages to bounding boxes
+To address these issues we propose the Spatial Context
+Recurrent ConvNet SCRC model to learn a scoring func-
+tion that takes the text query candidate regions their spa-
+tial congurations and global context as input and outputs
+scores for candidate regions Inspired by the Long-term Re-
+current Convolutional Network LRCN 4 an effective re-
+current architecture for both image captioning and image re-
+trieval we use a two-layer LSTM network structure where
+the embedded text sequence and visual features serve as
+input to the rst layer and the second layer respectively
+However we note that it is possible to build our model on
+other recurrent network architectures such as 24 30
+Compared with other types of visual-linguistic models
+such as bag-of-words 26 one of the advantages of us-
+ing a recurrent neural network as scoring function is that
+the whole model can be easily learned end-to-end via sim-
+ple back propagation allowing visual feature extraction
+and text sequence embedding to be adapted to each other
+and we show that it signicantly outperforms a previous
+method using bag-of-words Another advantage is that it
+is easy to utilize relatively large scale image-text datasets
+from other domains like image captioning eg MSCOCO
+22 to learn a vision-language model by rst pretraining
+the model on the image captioning task and then adapting it
+to natural language object retrieval task through ne-tuning
+One of the main challenges for natural language object re-
+trieval is the lack of large scale datasets with annotated ob-
+ject bounding box and description pairs To address this
+issue we show that it allows us to transfer visual-linguistic
+knowledge learned from the former task to the latter one
+by rst pretraining on the image caption domain and then
+adapting it to the natural language object retrieval domain
+This pretraining and adaptation procedure improves the per-
+formance and avoids over-tting especially when the object
+retrieval training dataset is small
+2 Related work
+Natural language object retrieval grounding image cap-
+tioning and image retrieval can be seen as different direc-
+tions of the same super-task of jointly modeling a text se-
+quence and image content so it is natural to consider trans-
+ferring knowledge learned from one task to another domain
+In this work we transfer knowledge from image captioning
+to natural language object retrieval by rst pretraining our
+model on image captioning datasets to learn an initial pa-
+rameter set for word embedding and word sequence predic-
+tion based on visual features In the following we discuss
+these related areas
+Natural language object retrieval Based on a bag of
+words sentence model and embeddings derived from Ima-
+geNET classiers 10 addresses a similar problem as ours
+and localizes an object within an image based on a text
+query Given a set of candidate object regions 10 gener-
+ates text from those candidates represented as bag-of-words
+using category names predicted from a large scale pre-
+trained classier and compares the word bags to the query
+text Other methods generate visual features from query text
+and match them to image regions eg through a text-based
+image search engine 1 or learn a joint embedding of text
+phrases and visual features Concurrent with our work 23
+also proposes a recurrent network model to localize objects
+from given descriptions
+Grounding Objects from Image Descriptions Given
+an image and its description sentence 17 aligns sentence
+fragments to image regions by embedding the detection re-
+sults from a pretrained object detector and the dependency
+tree from a parser with a ranking loss 16 builds on 17
+and replaces the dependency tree with a bidirectional RNN
+Canonical Correlation Analysis CCA is used in 25 to
+learn a joint embedding of image regions and text snippets
+to localize each object mentioned in the caption 21 uses
+a structure prediction model to align text to image and rea-
+sons about object co-reference in text for 3D scene parsing
+Concurrent with this paper 27 uses an attention model to
+ground referential phrases in image descriptions by attend-
+ing to regions where the phrases can be best reconstructed
+Image captioning methods take
+an input image and generate a text caption describing
+it Recently methods based on recurrent neural networks
+31 30 24 4 have shown to be effective on this task
+LRCN 4 is one of these recent successful methods and in-
+volves a two-layer LSTM network with the embedded word
+sequence and image features as input at each time step We
+use LRCN as our base network architecture in this work and
+Image Captioning
+Figure 2 Our Spatial Context Recurrent ConvNet SCRC for natural language object retrieval The recurrent network in our model
+contains three LSTM units Two CNNs are used to extract local image descriptors and global scene-level contextual feature respectively
+Parameters in word embedding word prediction and three LSTM units are initialized by pretraining on image captioning dataset
+incorporate spatial congurations and global context into
+the recurrent model for natural language object retrieval
+Image Retrieval Text-based image retrieval systems se-
+lect from a set of images an image that best matches the
+query text In image retrieval a ranking function is learned
+through a recurrent neural network 24 4 metric learning
+13 correlation analysis 20 and other methods 6 19
+It was shown in 4 that a probabilistic image captioning
+model such as LRCN can also be used as an image retriever
+by using the probability of the query text sequence condi-
+tioned on the image pSqueryI generated by image cap-
+tioning model as a score for retrieval
+3 Our model
+In this section we describe our Spatial Context Recur-
+rent ConvNet SCRC model for natural language object
+retrieval and the training procedure in details At test time
+an image a natural language object query and a set of can-
+didate bounding boxes eg from object proposal methods
+such as EdgeBox 33 are provided The system needs to
+select from the candidate set a subset of bounding boxes
+that match the query text
+31 Spatial Context Recurrent ConvNet
+Inspired by the architecture of LRCN 4 our Spatial
+Context Recurrent ConvNet SCRC model for natural lan-
+guage object retrieval consists of several components as il-
+lustrated in Figure 2 The model has three Long Short-Term
+Memory LSTM 11 units denoted by LSTMlanguage
+LSTMlocal and LSTMglobal a local and a global Convo-
+lutional Neural Network CNN a word embedding layer
+and a word prediction layer At test time given an image
+I a query text sequence S and a set of candidate bounding
+boxes bi in I the network outputs a score si for the i-th
+candidate box bi based on local image descriptors xbox on
+bi spatial conguration xspatial of the box with respect to
+the scene and global contextual feature xcontext
+In this work the local descriptor xbox is extracted by
+CNNlocal from local region Ibox on bi and we use feature
+extracted by another network CNNglobal on the whole im-
+age Iim as scene-level contextual feature xcontext The spa-
+tial conguration of bi is an 8-dimensional representation
+xspatial  xmin ymin xmax ymax xcenter ycenter wbox hbox
+where wbox and hbox are the width and height of bi We nor-
+malize image height and width to be 2 and place the origin
+at the image center so that coordinates range from 1 to 1
+The words wt in the query text sequence S are rep-
+resented as one-hot vectors and embedded through a lin-
+ear word embedding matrix as Ewt and processed by
+LSTMlanguage as the input time sequence At each time
+step t LSTMlocal takes in ht
+language xbox xspatial con-
+catenation of the three vectors where ht
+language is the hid-
+den state from LSTMlanguage and LSTMglobal takes in
+global
+a word prediction layer predicts the conditional probability
+distribution of the next word based on local image region
+Ibox whole image Iim spatial conguration xspatial and
+all previous words it have seen so far as
+language xcontext Finally based on ht
+local and ht
+pwt1wt  w1 Ibox Iim xspatial
+local  Wglobalht
+ SoftmaxWlocalht
+global  r 2
+where Wlocal and Wglobal are weight matrices for word pre-
+diction and r is a bias vector Softmax is a softmax func-
+tion over a vector to output a probability distribution
+CNNword embeddingword predictionSman in middle with blue shirt and blue shortsscoreboxpSman in middle with blue shirt and blue shorts  Ibox Iim xspatialCNNIboxIimxspatialqueryman in middle with blue shirt and blue shortsLSTMlocalLSTMglobalLSTMlanguagespatial configurationlocalglobalWe note that when setting Wlocal  0 in Eqn 2 our
+Spatial Context Recurrent ConvNet SCRC model is equiv-
+alent to the LRCN model 4 for image captioning and im-
+age retrieval by only modeling pSIim to predict a text se-
+quence S based on the whole image Iim while ignoring Ibox
+and xspatial This makes it possible to pretrain the model on
+the image captioning in Section 32 to obtain a good param-
+eter initialization for visual-linguistic modeling and trans-
+fer knowledge from large image captioning datasets
+We use VGG-16 net 29 trained on ILSVRC-2012
+dataset 28 as the CNN architecture for CNNlocal and
+CNNglobal and extract 1000-dimensional fc8 outputs as
+xbox and xcontext and use the same LSTM implementation
+as in 4 where the gates are computed as
+it  Wxixt  Whiht1  bi
+ft  Wxf xt  Whf ht1  bf 
+ot  Wxoxt  Whoht1  bo
+gt  tanhWxgxt  Whght1  bg
+All the three LSTM units have 1000-dimensional state ht
+At test time given an input image I a query text S and
+a set of candidate bounding boxes bi the query text S
+is scored on i-th candidate box using the likelihood of S
+conditioned on the local image region the whole image and
+the spatial conguration of the box computed as
+s  pSIbox Iim xspatial
+pwtwt1  w1 Ibox Iim xspatial7
+cid89
+and the highest scoring candidate boxes are retrieved
+32 Knowledge transfer from image captioning
+To exploit paired image-text data in image captioning
+datasets and to learn a good initialization of parameters in
+word embedding word prediction and three LSTM units
+we rst pretrain our model on an image captioning dataset
+by restricting Wlocal  0 in Eqn 2 which is equivalent
+to training a LRCN model 4 We follow the procedure in
+4 for pretraining on image captioning During pretraining
+the probability of ground truth image caption pSgtIim is
+maximized over the training image-sentence pairs and the
+whole network is optimized with standard Stochastic Gra-
+dient Descent SGD We refer to 4 for the training details
+on image captioning
+Since we restrict Wlocal  0 in Eqn 2 during pretrain-
+ing the parameters in LSTMlocal are not learned To obtain
+a good initialization of this unit we copy those weights in
+Eqn 3  6 from LSTMglobal to LSTMlocal The weights
+over the extra 8 dimensions of xspatial are initialized with
+zero We also copy Wglobal to Wlocal to initialize word pre-
+diction weights
+After pretraining on the image captioning task the pa-
+rameters in our model already encode useful knowledge
+of word embedding and decoding and sequence prediction
+based on image features The knowledge is transferred to
+the natural language object retrieval task in Section 33
+33 Training for object retrieval
+After pretraining we adapt the SCRC model to natu-
+In this paper we assume
+ral language object retrieval
+that the training dataset consists of N images with each
+image containing Mi i  1  N annotated objects
+and each object annotated by a bounding box and Kij
+i  1  N j  1  Mi text descriptions an ob-
+ject can be described more than once with different descrip-
+tions At training time each instance is an image-bounding
+box-description tuple Ii bij Sijk where Ii is the whole
+image bij  xmin ymin xmax ymax is the bounding box
+of the j-th object and Sijk is a description text in natural
+language such as the black and white cat
+Our model for natural language object retrieval can be
+trained via maximizing the probability of the object de-
+scription text in ground truth annotations conditioned on the
+local image region Ibox and the whole image Iim as con-
+text which is analogous to training a generic object detec-
+tion system Many state-of-the-art generic object detectors
+8 7 are built by turning object detection into a classica-
+tion problem on candidate bounding boxes produced either
+from a sliding window or an object proposal mechanism
+and a classier is trained by maximizing the probability of
+ground truth object category label In natural language ob-
+ject retrieval the description text of an object can be seen
+as a generalized label of the object and maximizing its
+conditional probability is similar to training a generalized
+classier whose output is a sequence of word labels rather
+than a single category label
+Given a natural language object retrieval dataset we con-
+struct all tuples Ii bij Sijk from the ground truth anno-
+tations as training instances multiple tuples are constructed
+if there are multiple descriptions for the same object For
+each annotated object in the training set an image patch
+Ibox is cropped from the whole image Iim based on bound-
+ing box of that object region with its spatial conguration
+xspatial constructed through Eqn 1 We dene the loss
+function during training as
+L   Ncid88
+Micid88
+Kijcid88
+logpSijkIboxij Iimi xspatialij
+where N is the number of images Mi is the number of
+annotated objects in i-th image Kij is the number of nat-
+ural language descriptions associated with the j-th object
+in that image and pSijkIboxij Iimi xspatialij is com-
+puted by Eqn 7
+During training the model parameters are initialized
+from the pretrained network in Section 32 and ne-tuned
+using SGD with a smaller learning rate allowing the net-
+work to adapt to natural language object retrieval domain
+The whole network is trained end-to-end via back propaga-
+tion Our model is implemented using Caffe 15 and our
+code and data are available at httpronghanghu
+comtextobjretrieval
+4 Experiments
+We evaluate our method on different datasets from small
+scale to relatively large scale Since 10 solves a similar
+problem to our paper we adopt it as our baseline In 10
+a large scale ne-grained classier of 7K object classes is
+trained on ImageNET 3 Each box in the candidate set is
+classied into one of the 7K classes and a bag of words
+is extracted from the predicted object class based on its
+ImageNET 3 synset containing category name and syn-
+onyms Then the word bag is projected to a vector space
+and matched to the projected query text using cosine dis-
+tance to obtain a score The sentence projection embed-
+ding in 10 is predened and the only training involved
+in training the 7K object classier Note that 10 also pro-
+poses an instance match model that relies on online APIs
+at test time As in this work we assume a self-contained
+system without resorting to other APIs we only use the cat-
+egory model CAFFE-7K in 10 as our baseline
+As our recurrent architecture is inspired by LRCN 4
+which is shown to be effective for both image captioning
+and image retrieval we also compare our model to LRCN
+We use the LRCN model trained on MSCOCO 22 for im-
+age captioning task as an object retriever by evaluating it
+on candidate bounding boxes Given an image I with a set
+of candidate boxes and a query text Squery we compute
+pSqueryIbox the probability of the query text Squery con-
+ditioned on the local image region Ibox outputted by LRCN
+as a score for each box in the candidate set and retrieve
+highest scoring candidates
+41 Object retrieval evaluation on ReferIt dataset
+The ReferIt dataset 18 is the biggest publicly avail-
+able dataset containing image regions with descriptions at
+the time of writing It contains 20000 images from IAPR
+TC-12 dataset 9 together with segmented image regions
+from SAIAPR-12 dataset 5 and 120K annotated descrip-
+tions for the image regions collected in a two-player game
+that aims to make the image region identiable from the
+annotation The ReferIt dataset also contains some am-
+biguous eg anywhere and mistakenly annotated ex-
+amples where the annotation does not correspond to any
+object To evaluate on this dataset we split the 20000
+images together with their annotations into 10000 for
+training and validation and 10000 for test and construct
+image-bounding box-description tuples on all annotated im-
+age regions as training instances There are 59976 image
+bounding box description tuples in the trainval set and
+60105 in the test set In our experiments on this dataset
+we only use the bounding boxes of annotated regions during
+training and evaluation The bounding boxes are obtained
+from the segmentation regions in SAIAPR-12 dataset cor-
+responding to the clicks by annotators Note that although
+18 introduces the ReferIt dataset it does not propose a
+baseline method for object retrieval based on text query
+As described in Section 3 we rst pretrain a SCRC
+model on MSCOCO dataset 22 for image captioning The
+training details such as hyper-parameters of SGD follow
+4 After pretraining we copy the weights in LSTM and
+the word prediction layer to the local part of the network as
+mentioned in Section 32 Then the pretrained SCRC model
+is adapted to the natural language object retrieval task fol-
+lowing the procedure in Section 33 The model is ne-
+tuned on image-bounding box-description tuples in ReferIt
+trainval set with back propagation
+Ablations To test the effect of incorporating spatial
+congurations xspatial and scene-level contextual feature
+xcontext we evaluate different setups during ne-tuning on
+ReferIt By setting xspatial and Wglobal to 0 during ne-
+tuning and testing the model can only learn to score a
+box based on local image descriptors xbox from candidate
+boxes denoted by SCRC wo context spatial Similarly
+by setting Wglobal to 0 the model can learn a scoring func-
+tion on xbox and xspatial but cannot utilize scene-level con-
+text denoted by SCRC wo context
+As a comparison we directly trained a SCRC model
+on ReferIt without rst pretraining on MSCOCO and set
+xspatial and Wglobal to 0 during training and testing de-
+noted by SCRC wo context spatial transfer The CNN
+parameters in the model are initialized from VGG-16 net
+29 and other parameters are randomly initialized In all
+the training above the whole SCRC model is trained end-
+to-end with SGD allowing visual feature extraction and tex-
+tual sequence prediction to be optimized jointly
+At test time all the 4 SCRC models mentioned above
+the bag-of-words model CAFFE-7K in 10 and LRCN
+4 as an object retriever on candidate boxes are compared
+on the ReferIt test set The LRCN model is trained on
+MSCOCO dataset for image captioning as described in 4
+to learn a probabilistic generative model pSI and we use
+it to score a candidate region Ibox based on a text query
+Squery by computing the probability of the text conditioned
+on the local region ie pSqueryIbox as a baseline
+We evaluate with two testing scenarios In the rst sce-
+nario similar to the experiment in 10 given an image and a
+text query the model is asked to retrieve the corresponding
+image region from all annotated regions in that image In
+the second scenario which is a harder task but closer to real
+Method
+CAFFE-7K 10
+LRCN 4
+SCRC wo context spatial transfer
+SCRC wo context spatial
+SCRC wo context
+Table 1 Top-1 precision of our method compared with baselines
+on annotated bounding boxes in ReferIt dataset See Section 41
+for details
+applications given a text query the model retrieves an image
+region from a set of candidate bounding boxes produced by
+object proposal methods A retrieved region is considered
+as correct if it overlaps with ground truth bounding box by
+at least 50 IoU In this experiment we use top 100 pro-
+posals from EdgeBox 33 as our candidate box set
+Results Table 1 shows the top-1 precision the percent-
+age of the highest-scoring region being correct in the rst
+scenario where the candidate set is all annotated boxes in
+the image Note that CAFFE-7K cannot return informative
+results when none of the words in query are in its category
+names leading to an empty bag and same score for all re-
+gions whereas our SCRC model can always return deter-
+ministic result since it can represent unknown words with
+unk Similar to 10 we evaluate with P1-NR
+corresponding to non-random top-1 precision computed on
+the those informative results and P1 corresponding to
+top-1 precision on all cases including non-informative re-
+sults where random guess is used Results show that our
+full SCRC model achieves the highest top-1 precision In
+Table 1 it can be seen that pretraining on image captioning
+adding spatial conguration and adding scene-level context
+all improve the performance with adding spatial congu-
+ration xspatial leading to the most signicant performance
+boost This is no surprise as spatial conguration not only
+benets in cases where spatial relationship is directly in-
+volved in the query eg the man on the left but also
+enables the network to learn a prior distribution of object
+locations eg sky is usually at the top of the scene while
+ground is usually at the bottom
+Table 2 shows the result of the second scenario on 100
+EdgeBox proposals where R1 is the recall of the high-
+est scoring box the percentage of the highest scoring box
+being correct and R10 is the percentage of at least one
+of the 10 highest scoring proposals being correct We also
+report Oracle or equivalently R100 the percentage
+of at least one of all 100 proposals being correct as an
+upper-bound of all object retrieval systems in this scenario
+It can be seen that results in Table 2 follow the same trend as
+in Table 1 with our full SCRC model achieving the highest
+recall Figure 5 shows examples of correctly retrieved ob-
+jects at top-1 using 100 EdgeBox proposals where the high-
+CAFFE-7K 10
+LRCN 4
+SCRC wo context spatial transfer
+SCRC wo context spatial
+SCRC wo context
+1038 2620
+859 3186
+1453 4072
+1578 4254
+1768 4477
+1793 4527
+5938 5938
+Table 2 Performance of our method compared with baselines on
+100 EdgeBox proposals in ReferIt dataset See Section 41 for
+details
+est scoring candidate region from our SCRC model overlaps
+with ground truth annotation by at least 50 IoU and Fig-
+ure 6 shows some failure cases where retrieved top-1 can-
+didate region fails to match ground truth
+By comparing SCRC wo context
+spatial and
+SCRC wo context spatial transfer in Table 1 and Ta-
+ble 2 it can also be seen that the pretraining and adaptation
+procedure described in Section 3 outperforms directly train-
+ing on retrieval dataset showing that pretraining allows the
+model to transfer useful visual-linguistic knowledge from
+image captioning dataset
+Also our SCRC model outperforms the bag-of-words
+CAFFE-7K model and LRCN model signicantly Com-
+pared with our model CAFFE-7K method suffers from in-
+formation loss by rst projecting image region to category
+names and limited vocabulary drawn from predened object
+category names and is not end-to-end trainable Although
+LRCN model trained on MSCOCO for image captioning
+task is effective for text-based image retrieval as shown in
+4 directly running it as an object retriever on a set of can-
+didate boxes results in inferior performance This is because
+object retrieval and image retrieval are different domains
+and LRCN model as a object retriever does not encode spa-
+tial conguration or global context
+Retrieval on object descriptions in context In reality
+people usually describe an object based on both the object
+itself and other objects plus the whole scene as context To
+distinguish a specic object from others in a scene espe-
+cially when there are multiple objects of the same category
+a description needs to contain not only the category name
+but also other discriminative information such as locations
+or attributes
+Figure 3 shows an example of this where one cannot re-
+fer to a person simply using category name person since
+there are three people in the scene but needs to use a de-
+scription based on the environment as query Our SCRC
+model can handle such context-based descriptions by incor-
+porating spatial congurations and scene-level context into
+the recurrent network Figure 7 shows some retrieval exam-
+ples on multiple objects within the same image on ReferIt
+18 dataset where objects are described in context
+a scene with three people queryman far right
+queryleft guy
+querycyclist
+Figure 3 An example image in ReferIt dataset where objects are described based on other objects in the scene When referring to one of
+the three people in the image expressions based on both the object and the context are used to make the description discriminative Our
+model can handle such object descriptions in context by incorporating these information into the recurrent neural network In the images
+above yellow boxes are ground truth and green boxes are correctly retrieved results by our model using highest scoring candidate from
+100 EdgeBox proposals
+Object vs stuff The ReferIt dataset contains annota-
+tions on both object regions and stuff regions In com-
+puter vision the term object is usually used to refer to en-
+tities with closed boundary and well-dened shape such as
+car person and laptop On the other hand stuff is
+used for entities without a regular shape such as grass
+road and sky
+Given an input image and a natural language query our
+SCRC model is not only capable of retrieving object re-
+gions but can also be applied to stuff regions Figure 8
+shows some examples of stuff retrieval on ReferIt dataset
+Generating descriptions for objects Although our
+SCRC model is designed for natural language object re-
+trieval
+it can also be applied in another task to gen-
+erate descriptions for the objects in an image Given
+an image Iim and the bounding box of an object a
+text description Sdes can be generated for the object
+as Sdes  arg maxS pSIbox Iim xspatial using beam
+search where Iim is the local image region of the object
+and xspatial is its spatial conguration Figure 9 shows
+some object descriptions generated by our SCRC model on
+ReferIt dataset
+42 Object retrieval evaluation on Kitchen dataset
+We also evaluate and compare our method with the base-
+line model 10 on the same Kitchen dataset as used in
+10 Kitchen is a dataset with 606 images sampled from
+the kitchenhousehold sub-tree of ImageNET hierarchy 3
+with 10 different descriptions annotated for each image
+Since objects in this dataset almost occupy the entire im-
+ages instead of using retrievals on candidate object propos-
+als boxes in 10 the performance of the object retrieval
+is evaluated at image-level During testing for each query
+text the candidate set consists of 11 images with ground
+truth and 10 distractors The distractors are sampled ei-
+CAFFE-7K 10
+LRCN 4
+SCRC wo context spatial transfer
+SCRC wo context spatial
+ImageNet
+Kitchen
+6162 8115
+Table 3 Performance of different methods on the Kitchen dataset
+See Section 42 for details
+ther from the same Kitchen dataset Kitchen experiment
+or from the whole ImageNET ImageNET experiment
+with the latter being an easier task Performance of object
+retrieval is evaluated using top-1 precision
+To evaluate our method on this dataset we split the
+dataset into two parts with 300 images as trainval set and
+306 images as test set Similar to Section 41 we rst pre-
+train a SCRC model on MSCOCO dataset 22 for image
+captioning and then ne-tune the model on the trainval
+set The our model is tested through image-level retrieval
+on the candidate set of ground truth and 10 distractors
+where we use the feature extracted from the entire image
+as xbox Since the dataset involves no spatial congurations
+or scene-level contextual information we set xspatial and
+Wglobal in Eqn 2 to zero during ne-tuning and testing so
+the model can only learn to score a candidate based xbox As
+this dataset is a much smaller than ReferIt we observe that
+transferring knowledge from MSCOCO signicantly boosts
+the performance and avoids overtting
+Results Table 3 shows the top-1 precision P1 of
+our method together with the baseline on the test set The
+rst column Kitchen corresponds to sampling the 10 dis-
+tractors from the same Kitchen dataset while the second
+column corresponds to sampling distractors from the whole
+ImageNET 7K dataset 3 Similar to Section 41 LRCN
+refers to directly running LRCN model on the candidate im-
+querywhisk with red tipped handle
+querymobile phone the pink color
+Figure 4 Correctly retrieved examples in Kitchen dataset where the highest scoring object green matches ground truth
+ages as a retriever SCRC wo context spatial transfer
+refers to the SCRC model directly trained on the trainval
+part of the Kitchen dataset with convolutional layer initial-
+ized from VGG-16 net and LSTM unit word embedding
+and word prediction weights randomly initialized SCRC
+wo context spatial corresponds to rst pretraining on
+MSCOCO and then ne-tuning on Kitchen trainval set as
+described in Section 3 As the dataset contains no spatial
+conguration or scene-level context information we cannot
+test our full SCRC model on it It can be seen from Table
+3 that in both scenarios pretraining on image captioning
+and ne-tune on natural language object retrieval leads to
+the best performance outperforming the baseline bag-of-
+words model CAFFE-7K and LRCN Figure 4 shows some
+correctly retrieved object examples from Kitchen dataset
+where the highest scoring candidate matches the ground
+truth Both the ground truth and the 10 distractor images
+are sampled from the same Kitchen dataset in Figure 4
+Moreover as Kitchen dataset has only 606 objects and is
+more than 100 times smaller than ReferIt dataset SCRC
+wo context spatial has signicantly higher accuracy
+than SCRC wo context spatial transfer This shows
+that pretraining on MSCOCO for image captioning dataset
+improves the performance of natural language object re-
+trieval signicantly on this relatively smaller dataset by
+transferring the visual-linguistic knowledge from the for-
+mer task to the latter task As a reference we note that
+10 also uses an instance model and achieves higher over-
+all performance The instance model sends the query and
+candidate image regions to online APIs such as Google Im-
+age Search and FreeBase on the y at test time As in this
+work we assume a self-contained system that can be applied
+without resorting to Internet APIs on the y we only com-
+pare with the category model CAFFE-7K in 10
+43 Object retrieval evaluation on Flickr30K Enti-
+ties dataset
+We also train and evaluate our method on the Flickr30K
+Entities dataset 25 for natural language object retrieval
+which contains 31783 images and 275775 annotated
+bounding boxes The object-level annotations in this dataset
+CCA 25
+253 597
+278 629
+769 769
+Table 4 Performance of our method compared with Canonical
+Correlation Analysis CCA baseline on 100 EdgeBox proposals
+in Flickr30K Entities dataset Oracle corresponds to the highest
+possible recall on all 100 proposals for any retrieval method
+are derived from existing scene-level captions in Flickr30K
+We train our model on the referential expressions in the
+Flickr30K dataset using the same top-100 EdgeBox 33
+proposals same as in 25 On this dataset our SCRC model
+achieves higher recall than the Canonical Correlation Anal-
+ysis CCA method in 25 as is shown in Table 4
+5 Conclusion
+In this paper we address natural language object re-
+trieval with Spatial Context Recurrent ConvNet SCRC a
+recurrent neural network model that scores a candidate box
+based on local image descriptors spatial congurations and
+global scene-level context We show that incorporation of
+spatial conguration and global context improves the per-
+formance of natural language object retrieval signicantly
+The recurrent network model used in our method leads to an
+end-to-end trainable scoring function which signicantly
+outperforms baseline methods
+Also we demonstrate that natural language object re-
+trieval can benet from transferring knowledge learned on
+image captioning through pretraining and adaptation As
+one of the difculties for natural language object retrieval
+systems is the lack of large datasets with object-level an-
+notation we show that this problem can be alleviated by
+exploiting datasets with image-level annotations which are
+often easier to collect than object-level descriptions As fol-
+low up to this work we show successful results by encoding
+the phrase rather than scoring it 27 and also predicting im-
+age segmentations instead of bounding boxes 14
+queryman squatting
+querystanding guy
+querybike wheels
+querywhite hat
+queryWindow with closed curtains
+queryright lake
+querybird on the left
+queryleaves of left tree
+querypillar building in the middle
+Figure 5 Correctly localized examples IoU  05 on ReferIt with EdgeBox Ground truth in yellow and correctly retrieved box in green
+queryman on right blue gloves
+querythe piece with no shadows
+queryface
+queryrock
+querywater on the right only
+querydirt patch next to car right side
+Figure 6 Failure cases IoU  05 on ReferIt with EdgeBox Ground truth in yellow and incorrectly retrieved box in red Some failures
+cases are caused by ambiguity of the query and some due to wrong annotations in the dataset
+queryfar right person
+querylady very back with white shirts
+on next to man in hat
+querylady in black shirt
+querybottom left window
+queryfenced window left of center door
+querywindow upper right
+query2 people on left
+querydude center with backpack blue
+queryguy with the tan pants and
+backpack
+querychair left
+querynice plush chair
+querylamp
+querypicture 2nd from left
+querythird picture from left
+querypicture second from right
+Figure 7 Examples on multiple objects in the same image in ReferIt showing the highest scoring candidate box correct in green incorrect
+in red from 100 EdgeBox proposals and ground truth yellow Our model retrieves the objects by taking their local descriptors spatial
+congurations and scene-level contextual information into account
+queryriver
+querysky between ags
+querygrass upper right
+querycity
+querybig gray roof at bottom
+queryrocky wall directly to the right
+of people
+queryroad in front of biking dude
+queryhill
+queryleft white sky just above dark
+mountain
+querygrass to the right of the right
+front tire
+querylake underneath the mountain
+on the left
+querymountain left side above peo-
+ples head
+querythe smoke
+querywater in the center bottom
+querysand
+Figure 8 Examples on stuff regions in ReferIt showing the highest scoring candidate box correct in green incorrect in red from 100
+EdgeBox proposals and ground truth yellow
+generated descriptionbed on left
+generated descriptionyellow car
+generated descriptionhorse
+generated descriptionman in blue shirt
+generated descriptionred backpack
+generated descriptionsnow
+generated descriptiontree on the left
+generated descriptiondoor
+generated descriptionclouds
+generated
+woman in red
+descriptionhat
+generated descriptiondesk in front of
+kid with red shirt
+generated descriptionplant in front of
+pink vase
+generated descriptionsun
+generated descriptionsky
+generated descriptiontree trunk left
+Figure 9 Generated object descriptions by our model on ReferIt The bounding box of the object is shown in yellow
+Acknowledgments
+The authors are grateful to Lisa Hendricks Jeff Don-
+ahue Subhashini Venugopalan and Coline Devin for help-
+ful feedback on drafts M Rohrbach was supported by
+a fellowship within the FITweltweit-Program of the Ger-
+man Academic Exchange Service DAAD J Feng was
+supported by NUS startup grant R263000C08133 This
+work was supported by DARPA AFRL DoD MURI
+award N000141110688 NSF awards IIS-1427425 and IIS-
+1212798 and the Berkeley Vision and Learning Center
+References
+1 R Arandjelovic and A Zisserman Multiple queries for large
+scale specic object retrieval In Proceedings of the British
+Machine Vision Conference BMVC pages 111 2012 2
+2 T Dean M Ruzon M Segal J Shlens S Vijaya-
+narasimhan J Yagnik et al Fast accurate detection of
+In Computer
+100000 object classes on a single machine
+Vision and Pattern Recognition CVPR 2013 IEEE Confer-
+ence on pages 18141821 IEEE 2013 1
+3 J Deng W Dong R Socher L-J Li K Li and L Fei-
+Imagenet A large-scale hierarchical image database
+In Computer Vision and Pattern Recognition 2009 CVPR
+2009 IEEE Conference on pages 248255 IEEE 2009 5
+4 J Donahue L Anne Hendricks
+S Guadarrama
+M Rohrbach S Venugopalan K Saenko and T Dar-
+rell Long-term recurrent convolutional networks for visual
+In Proceedings of the IEEE
+recognition and description
+Conference on Computer Vision and Pattern Recognition
+pages 26252634 2015 2 3 4 5 6 7
+5 H J Escalante C A Hernandez J A Gonzalez A Lopez-
+Lopez M Montes E F Morales L E Sucar L Villasenor
+and M Grubinger The segmented and annotated iapr tc-
+12 benchmark Computer Vision and Image Understanding
+1144419428 2010 5
+6 A Frome G S Corrado J Shlens S Bengio J Dean
+T Mikolov et al Devise A deep visual-semantic embed-
+ding model In Advances in Neural Information Processing
+Systems pages 21212129 2013 3
+7 R Girshick Fast R-CNN In International Conference on
+Computer Vision ICCV 2015 1 4
+8 R Girshick J Donahue T Darrell and J Malik Rich fea-
+ture hierarchies for accurate object detection and semantic
+segmentation In Computer Vision and Pattern Recognition
+CVPR 2014 IEEE Conference on pages 580587 IEEE
+2014 1 4
+9 M Grubinger P Clough H Muller and T Deselaers The
+iapr tc-12 benchmark A new evaluation resource for visual
+information systems In International Workshop OntoImage
+pages 1323 2006 5
+10 S Guadarrama E Rodner K Saenko N Zhang R Farrell
+J Donahue and T Darrell Open-vocabulary object retrieval
+In Robotics Science and Systems 2014 2 5 6 7 8
+11 S Hochreiter and J Schmidhuber Long short-term memory
+Neural computation 9817351780 1997 3
+12 J Hoffman S Guadarrama E S Tzeng R Hu J Donahue
+R Girshick T Darrell and K Saenko Lsda Large scale
+detection through adaptation In Advances in Neural Infor-
+mation Processing Systems pages 35363544 2014 1
+13 S C Hoi W Liu M R Lyu and W-Y Ma Learning dis-
+tance metrics with contextual constraints for image retrieval
+In Computer Vision and Pattern Recognition 2006 IEEE
+Computer Society Conference on volume 2 pages 2072
+2078 IEEE 2006 3
+14 R Hu M Rohrbach and T Darrell Segmentation from nat-
+ural language expressions arXiv preprint arXiv160306180
+2016 8
+15 Y Jia E Shelhamer J Donahue S Karayev J Long R B
+Girshick S Guadarrama and T Darrell Caffe Convolu-
+tional architecture for fast feature embedding In ACM Mul-
+timedia volume 2 page 4 2014 5
+16 A Karpathy and L Fei-Fei Deep visual-semantic align-
+In Proceedings
+ments for generating image descriptions
+of the IEEE Conference on Computer Vision and Pattern
+Recognition CVPR 2015 2
+17 A Karpathy A Joulin and L Fei-Fei Deep fragment em-
+beddings for bidirectional image sentence mapping In Ad-
+vances in Neural Information Processing Systems NIPS
+2014 2
+18 S Kazemzadeh V Ordonez M Matten and T L Berg
+Referitgame Referring to objects in photographs of natural
+scenes In Proceedings of the 2014 Conference on Empirical
+Methods in Natural Language Processing EMNLP pages
+787798 2014 5 6
+19 R Kiros R Salakhutdinov and R S Zemel Unifying
+visual-semantic embeddings with multimodal neural lan-
+guage models Transactions of the Association for Compu-
+tational Linguistics TACL 2015 3
+20 B Klein G Lev G Sadeh and L Wolf Fisher vectors
+derived from hybrid gaussian-laplacian mixture models for
+image annotation arXiv preprint arXiv14117399 2014 3
+21 C Kong D Lin M Bansal R Urtasun and S Fidler What
+are you talking about text-to-image coreference In Com-
+puter Vision and Pattern Recognition CVPR 2014 IEEE
+Conference on pages 35583565 IEEE 2014 2
+22 T-Y Lin M Maire S Belongie J Hays P Perona D Ra-
+manan P Dollar and C L Zitnick Microsoft coco Com-
+In Computer VisionECCV 2014
+mon objects in context
+pages 740755 Springer 2014 2 5 7
+23 J Mao J Huang A Toshev O Camburu A Yuille and
+K Murphy Generation and comprehension of unambiguous
+object descriptions Computer Vision and Pattern Recogni-
+tion CVPR 2016 IEEE Conference on 2016 2
+24 J Mao W Xu Y Yang J Wang Z Huang and A Yuille
+Deep captioning with multimodal recurrent neural networks
+m-rnn In Proceedings of the International Conference on
+Learning Representations 2015 2 3
+25 B Plummer L Wang C Cervantes J Caicedo J Hock-
+enmaier and S Lazebnik
+Flickr30k entities Collect-
+ing region-to-phrase correspondences for richer image-to-
+sentence models In Proceedings of the IEEE International
+Conference on Computer Vision ICCV 2015 2 8
+26 M Ren R Kiros and R Zemel Image question answering
+A visual semantic embedding model and a new dataset In
+Advances in Neural Information Processing Systems NIPS
+2015 2
+27 A Rohrbach M Rohrbach R Hu T Darrell and
+B Schiele Grounding of textual phrases in images by re-
+construction arXiv preprint arXiv151103745 2015 2 8
+28 O Russakovsky J Deng H Su J Krause S Satheesh
+S Ma Z Huang A Karpathy A Khosla M Bernstein
+et al Imagenet large scale visual recognition challenge In-
+ternational Journal of Computer Vision pages 142 2014
+29 K Simonyan and A Zisserman Very deep convolutional
+networks for large-scale image recognition arXiv preprint
+arXiv14091556 2014 4 5
+30 O Vinyals A Toshev S Bengio and D Erhan Show and
+tell A neural image caption generator In Proceedings of the
+IEEE Conference on Computer Vision and Pattern Recogni-
+tion pages 31563164 2015 2
+31 K Xu J Ba R Kiros A Courville R Salakhutdinov
+R Zemel and Y Bengio Show attend and tell Neural im-
+age caption generation with visual attention Proceedings of
+the International Conference on Machine Learning ICML
+2015 2
+32 P Young A Lai M Hodosh and J Hockenmaier From im-
+age descriptions to visual denotations New similarity met-
+rics for semantic inference over event descriptions Transac-
+tions of the Association for Computational Linguistics 267
+78 2014 8
+33 C L Zitnick and P Dollar Edge boxes Locating object pro-
+posals from edges In Proceedings of the European Confer-
+ence on Computer Vision ECCV pages 391405 Springer
+2014 2 3 6 8

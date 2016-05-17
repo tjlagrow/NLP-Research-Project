@@ -1,0 +1,1370 @@
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+SYNTACTIC ANALYSIS BASED ON MORPHOLOGICAL
+CHARACTERISTIC FEATURES OF THE ROMANIAN
+LANGUAGE
+Bogdan Ptru12
+1Department of Mathematics and Informatics Vasile Alecsandri University of Bacau
+Bacau Romania
+2EduSoft Bacau Romania
+12bogdanedusoftro
+ABSTRACT
+This  paper  refers  to  the  syntactic  analysis  of  phrases  in  Romanian  as  an  important  process  of  natural
+language  processing  We  will  suggest  a  real-time  solution  based  on  the  idea  of  using  some  words  or
+groups of words that indicate grammatical category and some specific endings of some parts of sentence
+Our idea is based on some characteristics of the Romanian language where some prepositions adverbs or
+some  specific  endings  can  provide  a  lot  of  information  about  the  structure  of  a  complex sentence  Such
+characteristics  can  be  found  in  other  languages  too  such  as  French  Using a  special  grammar  we
+developed  a  system DIASEXP that  can  perform  a  dialogue  in  natural  language  with  assertive  and
+interogative sentences about a story a set of sentences describing some events from the real life
+KEYWORDS
+Natural Language Processing Syntactic Analysis Morphology Grammar Romanian Language
+1 INTRODUCTION
+Before  making  a  semantic  analysis  of  natural  language  we  should  define  the  lexicon  and
+syntactic  rules  of  a  formal  grammar  useful  in  generating  simple  sentences  in  the  respective
+language for example English French or Romanian
+We shall consider a simple grammar having some rules for the lexicon and some rules for the
+grammatical categories The rules for the lexicon will be of the type 1
+G  W
+where G is a grammatical category or part of speech and W is an word from a certain dictionary
+The other syntactic rules will be of the type 2
+G1  G2 G3
+meaning that the first grammatical category G1 forms out of the concatenation of the other two
+G2 and G3 from the right side of the arrow
+DOI  105121ijnlc20121401
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+Our  simple  grammar  is  presented  in  Figure  1  It  contains  only  few  Romanian  words  and  the
+syntax rules constitute a subset of the Romanian syntax rules
+Lexicon
+every
+a an fem
+a an masc
+woman
+mouse
+loves
+hates
+beautiful
+smart fem
+smart masc
+Syntax
+fiecare
+brbat
+pisic
+oarece
+iubete
+urte
+frumoas
+deteapt
+detept
+Figure 1 Example of simple grammar for Romanian language
+In  Figure  1  we  used  these  notations S   sentence NP   noun  phrase VP   verb  phrase N 
+noun Det  determiner article AP  adjectival phrase A  adjective C  conjunction V  verb
+CA  group made up of a conjunction and an adjective
+This grammar generates correct sentences in English such as
+ Orice femeie iubete Every woman loves
+ Un oarece urte o pisic A mouse hates a cat
+Fiecare brbat detept iubete o femeie frumoas i deteapt Every smart man
+loves a beautiful and smart woman
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+On the other hand this grammar rejects incorrect phrases such as orice iubete un brbat any
+loves  a  man The  previously  phrases  contains  words  only  from  the  chosen  vocabulary
+However  our  grammar overgenerates  that  is  it  generates  sentences  that  are  grammatically
+incorrect  such  as  Ea frumoas sau  deteapt iubete She  beautiful  or  smart  loves  El
+iubete  el He  loves  he and  O brbat iubete  pisic An  man  loves  cat  even  these
+phrases contain words from the selected lexicon
+Also the  grammar subgenerates  meaning  that  there  are  many  sentences  in Romanian that
+grammar  rejects  such  as  Orice  femeie  iubete sau urte un brbat This  phrase  is  correct  in
+Romanian  and  contains  words  from  the  given  dictionary Also the  phrase  nite cini ursc o
+pisic  some  dogs  hate  a  cat  although  syntactically  correct  in  Romanian  is  not  accepted
+because it contains words that have not been entered into our vocabulary
+The syntactic analysis or the parsing of a string of words may be seen as a process of searching
+for a derivation tree This may be achieved either starting from S and searching for a tree with the
+words  from  the given  phrase as  leaves  top-down  parsing  or  starting  from  the  words  and
+searching for a tree with the root S bottom-up parsing An algorithm of efficient parsing is based
+on dynamic programming each time that we analyze the phrase or the string of words we store
+the  result  so  that  we  may  not  have  to reanalyze it  later  For  example  as  soon  as  we  have
+discovered that a string of words is a NP we may record the result in a data structure called chart
+The  algorithms  that  perform  this  operation  are  called  chart-parsers  The  chart-parser  algorithm
+uses  a  polynomial  time  and  a  polynomial  space  In Ptru   Boghian  2010 we developed a
+chart-parser  based  on  the  Cocke  Younger  and  Kasami  algorithm We  presented a  Delphi
+application  that  analyzes  the  lexicon  and  the  syntax  of  a  sentence  in  Romanian  We  used a
+Chomsky normal form CNF grammar Chomsky 1965
+2 USING THE DEFINITE CLAUSE GRAMMARS
+In order for our grammar not to generate incorrect sentences we should use the notions of gender
+number  case etc specifying  for  example  that  femeie  and  frumoas have  the  feminine
+gender  and  the singular  number The  string  El  iubete  ea  is  incorrect  because  ea  is  in
+nominative case and we should use the pe preposition in order to obtain the accusative case
+The correct phrase is El iubete pe ea or evenEl o iubete pe ea He loves her
+If we take into account the case grammar is no longer independent from the context it is not true
+that any NP is equal to any other NP irrespective of the context Nevertheless if we want to work
+with a grammar that is independent from the context we may split the category NP into two NPN
+and NPA  in  order  to  represent  verbal  groups  in  the nominative  subjective  respectively
+accusative  objective case  We  shall  also  have  to  split  the  category Pron into  two  categories
+PronN including El and PronA including pe ea her which contains the preposition pe
+in front of the pronoun ea Russel  Norvig 2002
+Another  issue  concerns  the  agreement  between  the  subject  and  main  verb  of  the  sentence
+predicate For example if Eu I is the subject then Eu iubesc I love is grammatically
+correct whereas Eu iubete I loves is not Then we shall have to split NPN and NPA into
+several alternatives in order to reach the agreement As we identify more and more distinctions
+we eventually obtain an exponential number
+A  more  efficient  solution  is  to  improve augment  the  existing  grammar  rules  by  using
+parameters  for  non-terminal  categories  The  categories NP and Pron have  parameters called
+gender number and case The rule for the NP has as arguments the variables gender number and
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+This formalism of improvement is called definite clause grammar DCG because each grammar
+rule may be interpreted as a definite clause in Horns logic Pereira  Warren 1980 Giurca
+Using adequate predicates a CFG context free grammar rule as S  NP VP will be written in
+the form of the definite clause NPs1 VPs2  Ss1s2 with the meaning that if s1 is NP s2 is
+VP then the concatenation of s1 with s2 is S DCGs allow us to see parsing as a logical inference
+Klein  2005 The  real  benefit  of  the  DCG  approach  is  that  we  can  improve  the  symbols  of
+categories with additional arguments for example the rule NPgender Ngender turns into the
+definite  clause Ngender s1 cid222
+NPgender s1  meaning  that  if s1 is  a noun with  the  gender
+gender  then s1 is also  a noun  phrase with the  same gender  Generally  we  may  supplement  a
+symbol  of  category  with  any  number  of  arguments  and  the  arguments  are  parameters  that
+constitute  the  subject  of  unification  like  in  the  common inference of Horns clauses Russel 
+Norvig 2002
+Even with the improvements brought by DCG incorrect sentences may still be overgenerated In
+order deal with the correct verbal groups in some situations we shall have to split the category V
+into two subcategories one for the verbs with no object and one for the verbs with a single object
+and so on Thus we shall have to specify which expressions groups may follow each verb that
+is  realize  a  subcategorization  of  that  verb  by  the  list  of  objects  An  object  is  a  compulsory
+expression that follows the verb within a verbal group
+Because there are a lot of problems in dealing with the syntactic analysis or a phrase the time of
+the  processing  the  complex  situations  of  the  texts  in  Romanian  language  describing  real life
+situations we decided to use some morphological characteristic features of the Romanian words
+that can be useful in order to determine the parts of the sentences
+2 THE IDEA  FOR  SYNTACTIC  ANALYSIS  BASED  ON  MORPHOLOGICAL
+CHARACTERISTIC FEATURES OF THE LANGUAGE
+As  we  explain  in  the  introduction  the  classic  ideas of  syntactic  analysis  uses lexicons
+dictionaries CFG or DCG grammars and chart-parsers as that developed by  us in Ptru 
+Boghian 2010
+In the previous sections we note the following
+1 Using  a  CFG  grammar  syntactically  correct  sentences  in  Romanian  are  accepted  as
+well as incorrect ones
+2 The power of the analysis system for example a chart-parser based on such a grammar
+depends on the extent of the vocabulary used
+3 The  power  of  a  chart-parser can  be  improved  using DCG  grammars  This  implies  to
+extent the set of the syntactic rules with a lot of new rules using special variables like
+gender case number etc
+As  concerns  the  first and  the  last issues  let  us  assume  that  the  system  will  not  be  required  to
+analyze incorrect  sentences  therefore  we  consider  the  grammar  satisfactory  Regarding  the
+second problem it could be solved by strongly enriching the vocabulary a fact that would require
+the elaboration and implementing of some data structures and searching techniques as efficient as
+possible  which  however  will  not  function  in  real  time  in  some  cases  Of  course  the  main
+problem  would  be  to  write as  comprehensive  a  grammar  as  possible  close  to  the  linguistic
+realities  of  Romanian  morphology  taking  into  consideration  the  diversity  of  forms  and
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+meanings that a sentence can get in the Romanian language However the extent and complexity
+of grammar leads to slowing the analysis therefore this will not be done in real-time in all cases
+In this section we will suggest a real-time solution based on the idea of using
+some words or groups of words that indicate grammatical category
+some specific endings of the inflected words that indicate some parts of sentence
+Our idea is based on some characteristics of the Romanian language where some prepositions or
+some specific endings can provide us a lot of information about the structure of a complex phrase
+Such characteristics  can be found in other languages too such as  French Using our ideas we
+developed a system that uses a special grammar which we will explain
+The morphology of the Romanian language allows the developing of a special syntactic analysis
+that  makes  full  use  of  certain  characteristics  of  words  when  they  are inflected  declined  or
+conjugated or under different hypostases
+With  a  view  to  understanding  a  Romanian  sentence  to  finding  the  constituent  parts  which
+would favor the  translation  of  the  sentence  into  another  language  in  real  time  we  suggest  a
+simple solution based on patterns
+there is a minimal vocabulary of key words prefixes1 linking words endings
+a relatively limited grammar is realized in which the terminals are some words either with
+given endings or from another given vocabulary
+the user is asked to respect some restrictions of sentence word order relatively a few
+the user is assumed to be well meaning
+In Figure 2 it is presented the general scheme for such an analyzer Ptru  Boghian 2012
+In Figure 2 we select the concrete case of the sentence Copii cei cumini au recitat o poezie
+prinilor  n  faa  colii  The  good  children  recited  a  poem  to  their  parents  in  front  of  the
+school
+In stage 2 predicate nouns and adjectives are identified introduced by pronouns or prepositions
+direct  or  indirect  objects  inarticulate  used  without  an  article  introduced  by  articles
+prepositions  and  prepositional  phrases  respectively  adverbials  in  stage  3  articled  direct  and
+indirect objects are identified etc
+Following the logic of processes within the analyzer we notice that the final result that is correct
+in  our  case  up  to  an  additional  detailing  is  approximate  because  the  system  is  based  on  the
+observations made by us which are
+In Romanian the subject usually precedes the predicate copiii the children before au
+recitat recited
+ There are some words or groups of words that we call prefixes or indicators that introduce
+adverbials n faa in front of  place adverbial fiindc because din cauz
+c  cause adverbial pentru a for purpose adverbial
+ The predicate nouns the adjectives and the objects direct and indirect can be introduced by
+indicating prefixes lui Ion Gheorghe etc to  indirect object or predicate noun
+1 by prefixes we understand words or groups of words having the role to indicate the sense of the next
+words from the phrase
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+o  fat  girl  pisic  cat  etc  a    direct  object  if  these  have  not  been
+already identified as subject Thus it is to assume that we will say un biat citete o carte
+a boy is reading a book and not o carte e ceea ce citete un biat or o carte este citit
+de un biat a book is that which a boy is reading or a book is being read by a boy
+therefore the subject precedes the object
+Some  endings  offer  sufficient  information  about  the  nature  of  the  respective  words  in  the
+word prinilor the ending -ilor indicates an indirect object2 just like -ei from fetei
+mamei  indicates  the  same  type  of object  the  -ul  from  biatul  creionul  indicate
+however a direct object articled
+Figure 2 Stages of the analysis
+We  thus  notice  that  our  sentence  recognized  by  an analyzer of  the  type  presented  above  is
+structurally complex enough as compared to the famous orice brbat iubete o femeie any
+man loves a woman given as an example for classic chart-parsers
+It should also be noted that the sentence I o i pe M deoarece M e f J l M because M i b
+could be recognized by the analyzer on the basis of the pattern
+subiect predicat pe complement direct deoarece circumstanial de cauz
+subject predicateon direct objectbecause cause adverbial
+Thus the above sentence although meaningless in Romanian would enter the same category
+as Ion o iubete pe Maria deoarece Maria este frumoas John loves Mary because Mary is
+beautiful a category represented by the pattern mentioned above
+2 Of course prinilor could be an indirect object as well as a predicative noun like in the sentence the
+good  children  recited  the  poems  of  their  parents  in  front  of  the  school  copiii  cei  cumini  au  recitat
+poeziile  prinilor  n  faa  colii  therefore  frequently  not  even  grammar  can  solve  the  systems
+ambiguities
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+3 CREATING AND CONSULTING A DATABASE
+Of course by introducing more such sentences phrases the user can create a table in a database
+with the structure of a sentence therefore each entry would contain the fields subject predicate
+predicative noun direct object indirect object place adverbial etc The detailed structure of the
+table is presented in section 5 when we will discuss about the DIASEXP shystem we developed
+Consulting such a database would be made through Romanian interrogative sentences phrases
+for example
+ Cine  predicat  complement  direct  
+Cine  citete  cartea  
+predicatedirect object Who is reading the book
+in  order  to  find  out  the  subject  using  a  search  engine  based  on  pattern-matching  matching
+patterns  in  which  the  search  clues  would  be  the  predicate  is  reading and  also  the  direct
+object book
+Although the results of the analysis and by this the answers to the questions also have a high
+degree  of  precision  that  depends  on  respecting  the  word  order  restrictions  imposed  by  the
+vocabulary taken into consideration such a system that we have realised and that works in real
+time can be successfully used Moreover the system realised by us may enrich through learning
+its vocabulary so that by using only the 300 initial words and endings it may cover a wide range
+of situations
+4 A GENERATIVE GRAMMAR MODEL FOR SYNTACTIC ANALYSIS
+We present below Figure 3 the grammar used by our system in the syntactic analysis3
+Sentence
+Adverbial
+2 Otherpartofsent
+Partofsentence
+Subject
+5 Object
+7 Directobject
+Indirectobject
+Atribsub
+10 Atrribdo
+11 Atrribio
+12 Atrribute
+Indirobj
+13 Dirobj
+15 Where
+16 When
+17 How
+18 Goal
+19 Why
+20 Prefattrib
+21 Prefdo
+22 Prefio
+23 Prefwhere
+Subject Predicate Subject Predicate Otherpartofsen
+Partofsentence Partofsentence Otherpartsofsent
+Adverbial Object
+Simplesubject Simplesubject Attribsub
+Directobject Indirectobject
+Where When How Goal Why
+Dirobj Dirobj Attribdo
+IndirobjIndirobj Attribio
+Attribute
+Atrribute
+Atrribute
+Adjective Possesionword Prefattrib Words T 
+Prefattrib Word Word  Tpos Word  nd Words T
+Word  Tdo Prefdo Word
+Word  Tio Prefci Word
+Advwhere Prefwhere Words T
+Advwhen Prefwhen Words T
+AdvhowPrefhow Words T
+Prefgoal Words T
+Prefwhy Words T
+al 
+cel 
+pe
+lui 
+la 
+n spatele 
+despre 
+din 
+din 
+care 
+ai 
+a 
+cea 
+cui 
+lng 
+de 
+n 
+ale 
+cu 
+cele 
+de 
+ce 
+cei 
+cu 
+de la 
+n josul
+3 the symbols from the grammar are written using Romanian
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+24 Prefwhen
+25 Prefhow
+26 Prefgoal
+27 Prefwhy
+28 Adjective
+29 Posessionword
+30 Advwhere
+31 Advwhen
+32 Advhow
+33 Tpos
+34 Tdo
+35 Tio
+37 Simplesubject
+38 Predicate
+39 Formsoftobe
+40 Directobj
+Indirobj
+42 Adjective
+43 Advwhere
+44 Advwhen
+45 Advhow
+46 Words
+47 Word
+48 Character
+ile
+astfel ca 
+ilor 
+ele 
+deoarece 
+frumos 
+tuturor 
+frumos 
+elor
+aproape de 
+pe 
+bun 
+lor 
+dincolo 
+pentru c 
+mic 
+tu 
+acolo 
+spre  unde 
+ctre
+nainte de 
+cnd 
+peste 
+altfel dect 
+n felul  
+pentru pentru ca s n vederea
+cci 
+mare 
+meu 
+aici 
+oriunde 
+acum atunci  vara iarna  luni
+bine 
+aa 
+ei 
+lui 
+ul 
+a 
+ului 
+ei 
+ 
+
+Words  Formsoftobe
+este  e  sunt   eti
+mare 
+jos 
+aici 
+iarna 
+dimineaa 
+aa 
+frumos 
+Word Words Words Words Words
+Character  WordCharacter
+ 
+A 
+frumos 
+sus 
+miercuri 
+repede 
+mic 
+acolo 
+rou 
+bine 
+B 
+ 
+Z 
+a 
+elor 
+ilor
+n modul 
+ aa ca 
+dup 
+cum 
+cu scopul pentru ca
+ntruct 
+fiindc 
+nalt 
+nimnui 
+totdeauna seara
+oricum 
+greu 
+atunci 
+z 
+0 
+1 
+ 
+9 
+- 
+Figure 3 A grammar for Romanian based on morphological characteristics
+It is to be noted that the adverbs used are the general ones and the adjectives are those most
+frequently used in common speech Also please note that by  we noted the concatenation of
+two words fete  lor  fetelor This concatenation can be influenced in some cases by a
+phonemic alternance like in fateifetei where we have the phonemic alternance a
+see Ptru 2010 for details
+4 DIASEXP
+Using  the  grammar  from  the  previous  section  we  developed  the  DIASEXP system  DIASEXP
+have  a  simple  text  interface  where  the  user  can  introduce  different  phrases  describing  some
+knowledge about some real life events This collection of phrases is recorded as a story Each
+phrase  of  the  story  is  analyzed  by  the  system  which  will  automatically  detect  the  parts  of  the
+sentence and will add these into a table with the following fields
+1 Subject  this will represent the simple subject of the sentence a noun or a pronoun see
+rules 4 and 37 in Figure 3
+2 Attribsub  this will be the attribute of the subject it can be for example an adjective
+see rules 9 and 12 in the same figure
+3 Predicate  the predicate of the sentence will represent the main action of the assertive
+sentence the predicate can be represented by a normal verb or the copulative verb a fi
+to be which will be folowed by a predicative noun nume predicativ - see rules 38
+and 39
+4 Dirobj  the direct object or the predicative noun see rules 7 13 21 and 34
+5 Attributedo  this will be the attribute of the direct object see rules 7 10 12 and 28
+Indirobj  the indirect object see rules 8 14 22 and 35
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+7 Attributeio  this  will  be  the  attribute  of  the  indirect  object  the  attributes  will  be
+represented by adejectives or by some prepositional phrases  see rules 81112 and 28
+8 Where  this will be the place adverbial see rules 3 6 15 23 and 30
+9 When  this will be the time adverbial see rules 3 6 16 24 and 31
+10 How  this will be the manner adverbial see rules 3 6 17 25 and 32
+11 Goal  this will be the goal adverbial it will be the answer at the question Pentru ce
+For what see rules 3 6 18 and 26
+12 Why  this will be the cause adverbial see rules 3 6 19 and 27
+When DIASEXP isnt sure about which part of the sentence a word is it will ask the user with
+two or three variants and the user will indicate the correct version The next time in a similar
+situation DIASEXP will know the answer and it will not ask again However the use of commas
+will be very helpful in order to avoid the ambiguities
+After entering some assertive sentences the user can  enter some interrogative  sentences  When
+the user will ask something DIASEXP it will answer consulting the assertive sentences it known
+by that moment
+Below Table 1 you can find an example of a story from a dialogue between DIASEXP and a
+human user The assertive sentences are prefixed by A the interogative sentences are prefixed by
+I and the DIASEXPs answers are prefixed by R In the right column the English translation is
+presented
+Table 1 An example of a dialogue with DIASEXP Aassertions Iinterogations Ranswers
+A Elena este frumoasa deoarece are ochi frumosi Helen is  beautiful  because  she  has  beautiful
+A Elena este frumoas deoarece are pr lung
+A Elena este frumoas cci e supl
+A Elena este placut ntruct e sociabil
+A Elena e placut deoarece e harnic
+A Elena este sociabil mereu
+A Elena e prietenoas cu oamenii inteligeni
+A Elena este prietena lui Adrian
+A Adrian  o  iubeste  pe  Elena  cci  e  frumoas i
+harnic
+A Adrian nu iubete alt fat
+A Adrian va drui Elenei o floare mine deoarece
+o iubete
+A Elena va fi bucuroas de floare
+A Prinii Elenei vorbesc despre Adrian
+A Prinii  Elenei  l  vor  invita  pe  Adrian  la  cin
+politicos
+A Prinii Elenei l plac pe Adrian deoarece este
+biat bun
+A Adrian este biat bun deoarece este student
+A Adrian cel bun este student la facultate fiindc
+a nvat mult
+A Adrian studentul este pasionat de informatic
+is  hard-
+Helen is beautiful because she has long hair
+Helen is beautiful as she is slim
+Helen is enjoyable as she is sociable
+Helen is enjoyable  because  she 
+working
+Helen is always sociable
+Helen is amiable with intelligent people
+Helen is Adrians girlfriend
+Adrian loves Helen because she is beautiful and
+hard-working
+Adrian doesnt love another girl
+Adrian  will  give Helen a  flower  tomorrow
+because he loves her
+Helen will be happy about the flower
+Helens parents talk about Adrian
+Helens  parents  will  invite  politely  Adrian  to
+dinner
+Helens  parents  like  Adrian  because  hs  is  a
+good boy
+Adrian is a good guy because he is a student
+Adrian  the  good  guy  is  student  in  college
+because he learned a lot
+Adrian 
+the  student
+computer science
+Adrian is a student of computer science
+is  passionate  about
+A Adrian este student la informatic
+A Elena cea frumoas este elev silitoare la liceu Helen the beautiful one is a sedulous student in
+high school
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+A Elena va citi azi bine lecia de istorie pentru ca
+s ia not mare
+Elena  read  good  history  lesson  today  so she
+wants high grades
+Elena este plcut
+Elena este elev
+I Pe cine iubete Adrian
+R Adrian iubete pe Elena
+Adrian nu iubete alt fat
+A Elena iubete pe Adrian
+A Elena iubeste pe prinii ei
+A Elena s-ar cstori cu Adrian fiindc l iubete
+A  Adrian  va  pleca  repede  astzi  la  bunicii  lui
+pentru ca s ii vad
+I Cum este Elena
+R Elena este frumoas
+I Unde va pleca Adrian
+R Adrian va pleca la bunicii lui
+I Cnd va pleca Adrian la bunicii lui
+R Adrian va pleca astzi la bunicii lui
+I De ce este plcut Elena
+R Elena este plcut ntruct e sociabil
+R Elena este placut deoarece e harnic
+ Cui va drui Adrian
+R Adrian va drui Elenei
+I Ce va drui Adrian Elenei
+R Adrian va drui Elenei o floare
+today  at  his
+Elena loves Adrian
+A Elena loves her parents
+Elena would marry Adrian because he loves
+Adrian  will  go  quickly 
+grandparents to see them
+How is Helen
+Helen is beautiful
+Helen is enjoyable
+Helen is a student
+Whom does Adrian love
+Adrian loves Helen
+Adrian doesnt love another girl
+Where will Adrian go
+Adrian will go to his grandparents
+When will Adrian go to his grandparents
+Adrian will go today to his grandparents
+Why is enjoyable Helen
+Helen is enjoyable because she is sociable
+Helen is enjoyable because she is hard-working
+Whom will gives Adrian the book
+Adrian will give the book to Helen
+What will give Adrian to Helen
+Adrian will give a flower to Helen
+The story represented by the assertions from Figure 4 are stored in the table of the database like
+you can see in Table 2 It is to be noted that the system correctly detected the parts of sentence
+for every assertions In the table the blank spaces correspond to those parts of sentence that are
+not present in that phrase
+Table 2 The table of the database with the records of the story from Table 1
+frumoas
+frumoas
+frumoas
+plcut
+plcut
+sociabil
+prietenoa
+deoarece
+frumoi
+deoarece
+ntruct e
+sociabila
+deoarece
+e harnic
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+prietena
+prin
+prin
+prin
+iubete
+iubete
+pe Elena
+o floare
+bucuroas
+l  vor
+l plac
+student
+pasionat
+prinii
+iubete
+iubete
+casator
+silitoa
+frumoas
+i harnic
+deoarece
+o iubete
+deoarece
+este  biat
+deoarece
+student
+fiindc
+nvat
+fiindc
+iubeste
+The  system  was  developed in Pascal programming language and  was  tested  by  our  team  on
+different situations In graph from Figure 3 you can see the results of analyzing 4 stories after
+entering respectively 20 50 100 and 300 sentences The average of good results is over 80
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+20 sentences
+50 sentences
+100 sentences
+300 sentences
+Story 1
+Story 2
+Story 3
+Story 4
+Figure 3 Results of testing DIASEXP on different stories
+5 CONCLUSIONS
+CFG  and  DCG  are  types  of  generative  grammars  used  in  the  syntactic  analysis  of  a  phrase  in
+natural  language  Sometimes  long  or  complex  phrases  will  be  a  problem  for  the  classic  chart-
+parsers The characteristic features of the Romanian language related to the morphology of words
+or the way in which adverbials are formed can be successfully used in the syntactic analysis by
+using  a  system  based  on  patterns This  system  will  work  in  real-time  and  will  not  record  the
+whole dictionary of Romanian language It will use a small dictionary of prefixes prepositions
+adverbs etc and some endings and linking words
+ACKNOWLEDGEMENTS
+The authors would like to thank to professors Dan Cristea Grigor Moldovan and Ioan Andone for
+their advices and observations during the research activities
+REFERENCES
+1 Chomsky N 1965 Aspects of the Theory of Syntax MIT Press 1965 ISBN 0-262-53007-4
+2 Cristea  Dan  2003  Curs  de  Lingvistic  computaional  Faculty  of  Informatics  Alexandru  Ioan
+Cuza University of Iai Romania
+3 Giurc Adrian 1997 Procesarea limbajului Natural Analiza automat a frazei Aplicaii University
+of Craiova Faculty of Mathematics-Informatics Romania
+4 Klein 
+2005 
+Context 
+Grammars 
+Retrieved 
+wwwinfedacukteachingcoursesicllectures2006cfg-lecpdf at 1st December 2012
+5 Ptru Bogdan 2010 ADX  Agent for Morphologic Analysis of Lexical Entries in a Dictionary
+BRAIN  Broad  Research  in  Artificial  Intelligence  and  Neuroscience  vol  1  1  2010  ISSN  2067-
+6 Ptru Bogdan  Boghian Ioana 2012 Natural Language Processing Syntactic Analysis Lexical
+Disambiguation Logical Formalisms Discourse Theory Bivalent Verbs Germany Munich AVM 
+Akademische Verlagsgemeinschaft Mnchen ISBN 978-3869242071
+7 Ptru  Bogdan    Boghian  Ioana  2010  A  Delphi  Application  for  the  Syntactic  and  Lexical
+Analysis of a Phrase Using Cocke Younger and Kasami Algorithm in BRAIN Broad Research in
+Artificial Intelligence and Neuroscience Vol 1 Issue 2 EduSoft 2010
+8 Pereira  F    D  Warren  1986  Definite  clause  grammars  for  language  analysis  Readings  in
+natural  language  processing  pp  101-124  USA  San  Francisco  Morgan  Kaufmann  Publishers  Inc
+ISBN0-934613-11-7
+9 Russel Stuart  Norvig Peter 2002 Artificial Intelligence - A Modern Approach 2nd International
+Edition USA Menlo Park Addison Wesley
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+Bogdan Ptru
+Bogdan  Ptru
+is  associate  professor  in  computer  science  at  Vasile  Alecsandri
+University  of  Bacau  Romania  with  a  Ph  D  in  computer  science  and  a  Ph  D  in
+accounting  His  domains  of  interest  research  are natural  language  processing multi-
+agent systems and computer science applied in social economic and political sciences
+He  published papers  in  international  journals in these  domains Also Dr  Ptru is  the
+author  or  editor  of  more books  on programming  algorithms  artificial  intelligence
+interactive education and social media
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+SYNTACTIC ANALYSIS BASED ON MORPHOLOGICAL
+CHARACTERISTIC FEATURES OF THE ROMANIAN
+LANGUAGE
+Bogdan Ptru12
+1Department of Mathematics and Informatics Vasile Alecsandri University of Bacau
+Bacau Romania
+2EduSoft Bacau Romania
+12bogdanedusoftro
+ABSTRACT
+This  paper  refers  to  the  syntactic  analysis  of  phrases  in  Romanian  as  an  important  process  of  natural
+language  processing  We  will  suggest  a  real-time  solution  based  on  the  idea  of  using  some  words  or
+groups of words that indicate grammatical category and some specific endings of some parts of sentence
+Our idea is based on some characteristics of the Romanian language where some prepositions adverbs or
+some  specific  endings  can  provide  a  lot  of  information  about  the  structure  of  a  complex sentence  Such
+characteristics  can  be  found  in  other  languages  too  such  as  French  Using a  special  grammar  we
+developed  a  system DIASEXP that  can  perform  a  dialogue  in  natural  language  with  assertive  and
+interogative sentences about a story a set of sentences describing some events from the real life
+KEYWORDS
+Natural Language Processing Syntactic Analysis Morphology Grammar Romanian Language
+1 INTRODUCTION
+Before  making  a  semantic  analysis  of  natural  language  we  should  define  the  lexicon  and
+syntactic  rules  of  a  formal  grammar  useful  in  generating  simple  sentences  in  the  respective
+language for example English French or Romanian
+We shall consider a simple grammar having some rules for the lexicon and some rules for the
+grammatical categories The rules for the lexicon will be of the type 1
+G  W
+where G is a grammatical category or part of speech and W is an word from a certain dictionary
+The other syntactic rules will be of the type 2
+G1  G2 G3
+meaning that the first grammatical category G1 forms out of the concatenation of the other two
+G2 and G3 from the right side of the arrow
+DOI  105121ijnlc20121401
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+Our  simple  grammar  is  presented  in  Figure  1  It  contains  only  few  Romanian  words  and  the
+syntax rules constitute a subset of the Romanian syntax rules
+Lexicon
+every
+a an fem
+a an masc
+woman
+mouse
+loves
+hates
+beautiful
+smart fem
+smart masc
+Syntax
+fiecare
+brbat
+pisic
+oarece
+iubete
+urte
+frumoas
+deteapt
+detept
+Figure 1 Example of simple grammar for Romanian language
+In  Figure  1  we  used  these  notations S   sentence NP   noun  phrase VP   verb  phrase N 
+noun Det  determiner article AP  adjectival phrase A  adjective C  conjunction V  verb
+CA  group made up of a conjunction and an adjective
+This grammar generates correct sentences in English such as
+ Orice femeie iubete Every woman loves
+ Un oarece urte o pisic A mouse hates a cat
+Fiecare brbat detept iubete o femeie frumoas i deteapt Every smart man
+loves a beautiful and smart woman
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+On the other hand this grammar rejects incorrect phrases such as orice iubete un brbat any
+loves  a  man The  previously  phrases  contains  words  only  from  the  chosen  vocabulary
+However  our  grammar overgenerates  that  is  it  generates  sentences  that  are  grammatically
+incorrect  such  as  Ea frumoas sau  deteapt iubete She  beautiful  or  smart  loves  El
+iubete  el He  loves  he and  O brbat iubete  pisic An  man  loves  cat  even  these
+phrases contain words from the selected lexicon
+Also the  grammar subgenerates  meaning  that  there  are  many  sentences  in Romanian that
+grammar  rejects  such  as  Orice  femeie  iubete sau urte un brbat This  phrase  is  correct  in
+Romanian  and  contains  words  from  the  given  dictionary Also the  phrase  nite cini ursc o
+pisic  some  dogs  hate  a  cat  although  syntactically  correct  in  Romanian  is  not  accepted
+because it contains words that have not been entered into our vocabulary
+The syntactic analysis or the parsing of a string of words may be seen as a process of searching
+for a derivation tree This may be achieved either starting from S and searching for a tree with the
+words  from  the given  phrase as  leaves  top-down  parsing  or  starting  from  the  words  and
+searching for a tree with the root S bottom-up parsing An algorithm of efficient parsing is based
+on dynamic programming each time that we analyze the phrase or the string of words we store
+the  result  so  that  we  may  not  have  to reanalyze it  later  For  example  as  soon  as  we  have
+discovered that a string of words is a NP we may record the result in a data structure called chart
+The  algorithms  that  perform  this  operation  are  called  chart-parsers  The  chart-parser  algorithm
+uses  a  polynomial  time  and  a  polynomial  space  In Ptru   Boghian  2010 we developed a
+chart-parser  based  on  the  Cocke  Younger  and  Kasami  algorithm We  presented a  Delphi
+application  that  analyzes  the  lexicon  and  the  syntax  of  a  sentence  in  Romanian  We  used a
+Chomsky normal form CNF grammar Chomsky 1965
+2 USING THE DEFINITE CLAUSE GRAMMARS
+In order for our grammar not to generate incorrect sentences we should use the notions of gender
+number  case etc specifying  for  example  that  femeie  and  frumoas have  the  feminine
+gender  and  the singular  number The  string  El  iubete  ea  is  incorrect  because  ea  is  in
+nominative case and we should use the pe preposition in order to obtain the accusative case
+The correct phrase is El iubete pe ea or evenEl o iubete pe ea He loves her
+If we take into account the case grammar is no longer independent from the context it is not true
+that any NP is equal to any other NP irrespective of the context Nevertheless if we want to work
+with a grammar that is independent from the context we may split the category NP into two NPN
+and NPA  in  order  to  represent  verbal  groups  in  the nominative  subjective  respectively
+accusative  objective case  We  shall  also  have  to  split  the  category Pron into  two  categories
+PronN including El and PronA including pe ea her which contains the preposition pe
+in front of the pronoun ea Russel  Norvig 2002
+Another  issue  concerns  the  agreement  between  the  subject  and  main  verb  of  the  sentence
+predicate For example if Eu I is the subject then Eu iubesc I love is grammatically
+correct whereas Eu iubete I loves is not Then we shall have to split NPN and NPA into
+several alternatives in order to reach the agreement As we identify more and more distinctions
+we eventually obtain an exponential number
+A  more  efficient  solution  is  to  improve augment  the  existing  grammar  rules  by  using
+parameters  for  non-terminal  categories  The  categories NP and Pron have  parameters called
+gender number and case The rule for the NP has as arguments the variables gender number and
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+This formalism of improvement is called definite clause grammar DCG because each grammar
+rule may be interpreted as a definite clause in Horns logic Pereira  Warren 1980 Giurca
+Using adequate predicates a CFG context free grammar rule as S  NP VP will be written in
+the form of the definite clause NPs1 VPs2  Ss1s2 with the meaning that if s1 is NP s2 is
+VP then the concatenation of s1 with s2 is S DCGs allow us to see parsing as a logical inference
+Klein  2005 The  real  benefit  of  the  DCG  approach  is  that  we  can  improve  the  symbols  of
+categories with additional arguments for example the rule NPgender Ngender turns into the
+definite  clause Ngender s1 cid222
+NPgender s1  meaning  that  if s1 is  a noun with  the  gender
+gender  then s1 is also  a noun  phrase with the  same gender  Generally  we  may  supplement  a
+symbol  of  category  with  any  number  of  arguments  and  the  arguments  are  parameters  that
+constitute  the  subject  of  unification  like  in  the  common inference of Horns clauses Russel 
+Norvig 2002
+Even with the improvements brought by DCG incorrect sentences may still be overgenerated In
+order deal with the correct verbal groups in some situations we shall have to split the category V
+into two subcategories one for the verbs with no object and one for the verbs with a single object
+and so on Thus we shall have to specify which expressions groups may follow each verb that
+is  realize  a  subcategorization  of  that  verb  by  the  list  of  objects  An  object  is  a  compulsory
+expression that follows the verb within a verbal group
+Because there are a lot of problems in dealing with the syntactic analysis or a phrase the time of
+the  processing  the  complex  situations  of  the  texts  in  Romanian  language  describing  real life
+situations we decided to use some morphological characteristic features of the Romanian words
+that can be useful in order to determine the parts of the sentences
+2 THE IDEA  FOR  SYNTACTIC  ANALYSIS  BASED  ON  MORPHOLOGICAL
+CHARACTERISTIC FEATURES OF THE LANGUAGE
+As  we  explain  in  the  introduction  the  classic  ideas of  syntactic  analysis  uses lexicons
+dictionaries CFG or DCG grammars and chart-parsers as that developed by  us in Ptru 
+Boghian 2010
+In the previous sections we note the following
+1 Using  a  CFG  grammar  syntactically  correct  sentences  in  Romanian  are  accepted  as
+well as incorrect ones
+2 The power of the analysis system for example a chart-parser based on such a grammar
+depends on the extent of the vocabulary used
+3 The  power  of  a  chart-parser can  be  improved  using DCG  grammars  This  implies  to
+extent the set of the syntactic rules with a lot of new rules using special variables like
+gender case number etc
+As  concerns  the  first and  the  last issues  let  us  assume  that  the  system  will  not  be  required  to
+analyze incorrect  sentences  therefore  we  consider  the  grammar  satisfactory  Regarding  the
+second problem it could be solved by strongly enriching the vocabulary a fact that would require
+the elaboration and implementing of some data structures and searching techniques as efficient as
+possible  which  however  will  not  function  in  real  time  in  some  cases  Of  course  the  main
+problem  would  be  to  write as  comprehensive  a  grammar  as  possible  close  to  the  linguistic
+realities  of  Romanian  morphology  taking  into  consideration  the  diversity  of  forms  and
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+meanings that a sentence can get in the Romanian language However the extent and complexity
+of grammar leads to slowing the analysis therefore this will not be done in real-time in all cases
+In this section we will suggest a real-time solution based on the idea of using
+some words or groups of words that indicate grammatical category
+some specific endings of the inflected words that indicate some parts of sentence
+Our idea is based on some characteristics of the Romanian language where some prepositions or
+some specific endings can provide us a lot of information about the structure of a complex phrase
+Such characteristics  can be found in other languages too such as  French Using our ideas we
+developed a system that uses a special grammar which we will explain
+The morphology of the Romanian language allows the developing of a special syntactic analysis
+that  makes  full  use  of  certain  characteristics  of  words  when  they  are inflected  declined  or
+conjugated or under different hypostases
+With  a  view  to  understanding  a  Romanian  sentence  to  finding  the  constituent  parts  which
+would favor the  translation  of  the  sentence  into  another  language  in  real  time  we  suggest  a
+simple solution based on patterns
+there is a minimal vocabulary of key words prefixes1 linking words endings
+a relatively limited grammar is realized in which the terminals are some words either with
+given endings or from another given vocabulary
+the user is asked to respect some restrictions of sentence word order relatively a few
+the user is assumed to be well meaning
+In Figure 2 it is presented the general scheme for such an analyzer Ptru  Boghian 2012
+In Figure 2 we select the concrete case of the sentence Copii cei cumini au recitat o poezie
+prinilor  n  faa  colii  The  good  children  recited  a  poem  to  their  parents  in  front  of  the
+school
+In stage 2 predicate nouns and adjectives are identified introduced by pronouns or prepositions
+direct  or  indirect  objects  inarticulate  used  without  an  article  introduced  by  articles
+prepositions  and  prepositional  phrases  respectively  adverbials  in  stage  3  articled  direct  and
+indirect objects are identified etc
+Following the logic of processes within the analyzer we notice that the final result that is correct
+in  our  case  up  to  an  additional  detailing  is  approximate  because  the  system  is  based  on  the
+observations made by us which are
+In Romanian the subject usually precedes the predicate copiii the children before au
+recitat recited
+ There are some words or groups of words that we call prefixes or indicators that introduce
+adverbials n faa in front of  place adverbial fiindc because din cauz
+c  cause adverbial pentru a for purpose adverbial
+ The predicate nouns the adjectives and the objects direct and indirect can be introduced by
+indicating prefixes lui Ion Gheorghe etc to  indirect object or predicate noun
+1 by prefixes we understand words or groups of words having the role to indicate the sense of the next
+words from the phrase
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+o  fat  girl  pisic  cat  etc  a    direct  object  if  these  have  not  been
+already identified as subject Thus it is to assume that we will say un biat citete o carte
+a boy is reading a book and not o carte e ceea ce citete un biat or o carte este citit
+de un biat a book is that which a boy is reading or a book is being read by a boy
+therefore the subject precedes the object
+Some  endings  offer  sufficient  information  about  the  nature  of  the  respective  words  in  the
+word prinilor the ending -ilor indicates an indirect object2 just like -ei from fetei
+mamei  indicates  the  same  type  of object  the  -ul  from  biatul  creionul  indicate
+however a direct object articled
+Figure 2 Stages of the analysis
+We  thus  notice  that  our  sentence  recognized  by  an analyzer of  the  type  presented  above  is
+structurally complex enough as compared to the famous orice brbat iubete o femeie any
+man loves a woman given as an example for classic chart-parsers
+It should also be noted that the sentence I o i pe M deoarece M e f J l M because M i b
+could be recognized by the analyzer on the basis of the pattern
+subiect predicat pe complement direct deoarece circumstanial de cauz
+subject predicateon direct objectbecause cause adverbial
+Thus the above sentence although meaningless in Romanian would enter the same category
+as Ion o iubete pe Maria deoarece Maria este frumoas John loves Mary because Mary is
+beautiful a category represented by the pattern mentioned above
+2 Of course prinilor could be an indirect object as well as a predicative noun like in the sentence the
+good  children  recited  the  poems  of  their  parents  in  front  of  the  school  copiii  cei  cumini  au  recitat
+poeziile  prinilor  n  faa  colii  therefore  frequently  not  even  grammar  can  solve  the  systems
+ambiguities
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+3 CREATING AND CONSULTING A DATABASE
+Of course by introducing more such sentences phrases the user can create a table in a database
+with the structure of a sentence therefore each entry would contain the fields subject predicate
+predicative noun direct object indirect object place adverbial etc The detailed structure of the
+table is presented in section 5 when we will discuss about the DIASEXP shystem we developed
+Consulting such a database would be made through Romanian interrogative sentences phrases
+for example
+ Cine  predicat  complement  direct  
+Cine  citete  cartea  
+predicatedirect object Who is reading the book
+in  order  to  find  out  the  subject  using  a  search  engine  based  on  pattern-matching  matching
+patterns  in  which  the  search  clues  would  be  the  predicate  is  reading and  also  the  direct
+object book
+Although the results of the analysis and by this the answers to the questions also have a high
+degree  of  precision  that  depends  on  respecting  the  word  order  restrictions  imposed  by  the
+vocabulary taken into consideration such a system that we have realised and that works in real
+time can be successfully used Moreover the system realised by us may enrich through learning
+its vocabulary so that by using only the 300 initial words and endings it may cover a wide range
+of situations
+4 A GENERATIVE GRAMMAR MODEL FOR SYNTACTIC ANALYSIS
+We present below Figure 3 the grammar used by our system in the syntactic analysis3
+Sentence
+Adverbial
+2 Otherpartofsent
+Partofsentence
+Subject
+5 Object
+7 Directobject
+Indirectobject
+Atribsub
+10 Atrribdo
+11 Atrribio
+12 Atrribute
+Indirobj
+13 Dirobj
+15 Where
+16 When
+17 How
+18 Goal
+19 Why
+20 Prefattrib
+21 Prefdo
+22 Prefio
+23 Prefwhere
+Subject Predicate Subject Predicate Otherpartofsen
+Partofsentence Partofsentence Otherpartsofsent
+Adverbial Object
+Simplesubject Simplesubject Attribsub
+Directobject Indirectobject
+Where When How Goal Why
+Dirobj Dirobj Attribdo
+IndirobjIndirobj Attribio
+Attribute
+Atrribute
+Atrribute
+Adjective Possesionword Prefattrib Words T 
+Prefattrib Word Word  Tpos Word  nd Words T
+Word  Tdo Prefdo Word
+Word  Tio Prefci Word
+Advwhere Prefwhere Words T
+Advwhen Prefwhen Words T
+AdvhowPrefhow Words T
+Prefgoal Words T
+Prefwhy Words T
+al 
+cel 
+pe
+lui 
+la 
+n spatele 
+despre 
+din 
+din 
+care 
+ai 
+a 
+cea 
+cui 
+lng 
+de 
+n 
+ale 
+cu 
+cele 
+de 
+ce 
+cei 
+cu 
+de la 
+n josul
+3 the symbols from the grammar are written using Romanian
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+24 Prefwhen
+25 Prefhow
+26 Prefgoal
+27 Prefwhy
+28 Adjective
+29 Posessionword
+30 Advwhere
+31 Advwhen
+32 Advhow
+33 Tpos
+34 Tdo
+35 Tio
+37 Simplesubject
+38 Predicate
+39 Formsoftobe
+40 Directobj
+Indirobj
+42 Adjective
+43 Advwhere
+44 Advwhen
+45 Advhow
+46 Words
+47 Word
+48 Character
+ile
+astfel ca 
+ilor 
+ele 
+deoarece 
+frumos 
+tuturor 
+frumos 
+elor
+aproape de 
+pe 
+bun 
+lor 
+dincolo 
+pentru c 
+mic 
+tu 
+acolo 
+spre  unde 
+ctre
+nainte de 
+cnd 
+peste 
+altfel dect 
+n felul  
+pentru pentru ca s n vederea
+cci 
+mare 
+meu 
+aici 
+oriunde 
+acum atunci  vara iarna  luni
+bine 
+aa 
+ei 
+lui 
+ul 
+a 
+ului 
+ei 
+ 
+
+Words  Formsoftobe
+este  e  sunt   eti
+mare 
+jos 
+aici 
+iarna 
+dimineaa 
+aa 
+frumos 
+Word Words Words Words Words
+Character  WordCharacter
+ 
+A 
+frumos 
+sus 
+miercuri 
+repede 
+mic 
+acolo 
+rou 
+bine 
+B 
+ 
+Z 
+a 
+elor 
+ilor
+n modul 
+ aa ca 
+dup 
+cum 
+cu scopul pentru ca
+ntruct 
+fiindc 
+nalt 
+nimnui 
+totdeauna seara
+oricum 
+greu 
+atunci 
+z 
+0 
+1 
+ 
+9 
+- 
+Figure 3 A grammar for Romanian based on morphological characteristics
+It is to be noted that the adverbs used are the general ones and the adjectives are those most
+frequently used in common speech Also please note that by  we noted the concatenation of
+two words fete  lor  fetelor This concatenation can be influenced in some cases by a
+phonemic alternance like in fateifetei where we have the phonemic alternance a
+see Ptru 2010 for details
+4 DIASEXP
+Using  the  grammar  from  the  previous  section  we  developed  the  DIASEXP system  DIASEXP
+have  a  simple  text  interface  where  the  user  can  introduce  different  phrases  describing  some
+knowledge about some real life events This collection of phrases is recorded as a story Each
+phrase  of  the  story  is  analyzed  by  the  system  which  will  automatically  detect  the  parts  of  the
+sentence and will add these into a table with the following fields
+1 Subject  this will represent the simple subject of the sentence a noun or a pronoun see
+rules 4 and 37 in Figure 3
+2 Attribsub  this will be the attribute of the subject it can be for example an adjective
+see rules 9 and 12 in the same figure
+3 Predicate  the predicate of the sentence will represent the main action of the assertive
+sentence the predicate can be represented by a normal verb or the copulative verb a fi
+to be which will be folowed by a predicative noun nume predicativ - see rules 38
+and 39
+4 Dirobj  the direct object or the predicative noun see rules 7 13 21 and 34
+5 Attributedo  this will be the attribute of the direct object see rules 7 10 12 and 28
+Indirobj  the indirect object see rules 8 14 22 and 35
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+7 Attributeio  this  will  be  the  attribute  of  the  indirect  object  the  attributes  will  be
+represented by adejectives or by some prepositional phrases  see rules 81112 and 28
+8 Where  this will be the place adverbial see rules 3 6 15 23 and 30
+9 When  this will be the time adverbial see rules 3 6 16 24 and 31
+10 How  this will be the manner adverbial see rules 3 6 17 25 and 32
+11 Goal  this will be the goal adverbial it will be the answer at the question Pentru ce
+For what see rules 3 6 18 and 26
+12 Why  this will be the cause adverbial see rules 3 6 19 and 27
+When DIASEXP isnt sure about which part of the sentence a word is it will ask the user with
+two or three variants and the user will indicate the correct version The next time in a similar
+situation DIASEXP will know the answer and it will not ask again However the use of commas
+will be very helpful in order to avoid the ambiguities
+After entering some assertive sentences the user can  enter some interrogative  sentences  When
+the user will ask something DIASEXP it will answer consulting the assertive sentences it known
+by that moment
+Below Table 1 you can find an example of a story from a dialogue between DIASEXP and a
+human user The assertive sentences are prefixed by A the interogative sentences are prefixed by
+I and the DIASEXPs answers are prefixed by R In the right column the English translation is
+presented
+Table 1 An example of a dialogue with DIASEXP Aassertions Iinterogations Ranswers
+A Elena este frumoasa deoarece are ochi frumosi Helen is  beautiful  because  she  has  beautiful
+A Elena este frumoas deoarece are pr lung
+A Elena este frumoas cci e supl
+A Elena este placut ntruct e sociabil
+A Elena e placut deoarece e harnic
+A Elena este sociabil mereu
+A Elena e prietenoas cu oamenii inteligeni
+A Elena este prietena lui Adrian
+A Adrian  o  iubeste  pe  Elena  cci  e  frumoas i
+harnic
+A Adrian nu iubete alt fat
+A Adrian va drui Elenei o floare mine deoarece
+o iubete
+A Elena va fi bucuroas de floare
+A Prinii Elenei vorbesc despre Adrian
+A Prinii  Elenei  l  vor  invita  pe  Adrian  la  cin
+politicos
+A Prinii Elenei l plac pe Adrian deoarece este
+biat bun
+A Adrian este biat bun deoarece este student
+A Adrian cel bun este student la facultate fiindc
+a nvat mult
+A Adrian studentul este pasionat de informatic
+is  hard-
+Helen is beautiful because she has long hair
+Helen is beautiful as she is slim
+Helen is enjoyable as she is sociable
+Helen is enjoyable  because  she 
+working
+Helen is always sociable
+Helen is amiable with intelligent people
+Helen is Adrians girlfriend
+Adrian loves Helen because she is beautiful and
+hard-working
+Adrian doesnt love another girl
+Adrian  will  give Helen a  flower  tomorrow
+because he loves her
+Helen will be happy about the flower
+Helens parents talk about Adrian
+Helens  parents  will  invite  politely  Adrian  to
+dinner
+Helens  parents  like  Adrian  because  hs  is  a
+good boy
+Adrian is a good guy because he is a student
+Adrian  the  good  guy  is  student  in  college
+because he learned a lot
+Adrian 
+the  student
+computer science
+Adrian is a student of computer science
+is  passionate  about
+A Adrian este student la informatic
+A Elena cea frumoas este elev silitoare la liceu Helen the beautiful one is a sedulous student in
+high school
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+A Elena va citi azi bine lecia de istorie pentru ca
+s ia not mare
+Elena  read  good  history  lesson  today  so she
+wants high grades
+Elena este plcut
+Elena este elev
+I Pe cine iubete Adrian
+R Adrian iubete pe Elena
+Adrian nu iubete alt fat
+A Elena iubete pe Adrian
+A Elena iubeste pe prinii ei
+A Elena s-ar cstori cu Adrian fiindc l iubete
+A  Adrian  va  pleca  repede  astzi  la  bunicii  lui
+pentru ca s ii vad
+I Cum este Elena
+R Elena este frumoas
+I Unde va pleca Adrian
+R Adrian va pleca la bunicii lui
+I Cnd va pleca Adrian la bunicii lui
+R Adrian va pleca astzi la bunicii lui
+I De ce este plcut Elena
+R Elena este plcut ntruct e sociabil
+R Elena este placut deoarece e harnic
+ Cui va drui Adrian
+R Adrian va drui Elenei
+I Ce va drui Adrian Elenei
+R Adrian va drui Elenei o floare
+today  at  his
+Elena loves Adrian
+A Elena loves her parents
+Elena would marry Adrian because he loves
+Adrian  will  go  quickly 
+grandparents to see them
+How is Helen
+Helen is beautiful
+Helen is enjoyable
+Helen is a student
+Whom does Adrian love
+Adrian loves Helen
+Adrian doesnt love another girl
+Where will Adrian go
+Adrian will go to his grandparents
+When will Adrian go to his grandparents
+Adrian will go today to his grandparents
+Why is enjoyable Helen
+Helen is enjoyable because she is sociable
+Helen is enjoyable because she is hard-working
+Whom will gives Adrian the book
+Adrian will give the book to Helen
+What will give Adrian to Helen
+Adrian will give a flower to Helen
+The story represented by the assertions from Figure 4 are stored in the table of the database like
+you can see in Table 2 It is to be noted that the system correctly detected the parts of sentence
+for every assertions In the table the blank spaces correspond to those parts of sentence that are
+not present in that phrase
+Table 2 The table of the database with the records of the story from Table 1
+frumoas
+frumoas
+frumoas
+plcut
+plcut
+sociabil
+prietenoa
+deoarece
+frumoi
+deoarece
+ntruct e
+sociabila
+deoarece
+e harnic
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+prietena
+prin
+prin
+prin
+iubete
+iubete
+pe Elena
+o floare
+bucuroas
+l  vor
+l plac
+student
+pasionat
+prinii
+iubete
+iubete
+casator
+silitoa
+frumoas
+i harnic
+deoarece
+o iubete
+deoarece
+este  biat
+deoarece
+student
+fiindc
+nvat
+fiindc
+iubeste
+The  system  was  developed in Pascal programming language and  was  tested  by  our  team  on
+different situations In graph from Figure 3 you can see the results of analyzing 4 stories after
+entering respectively 20 50 100 and 300 sentences The average of good results is over 80
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+20 sentences
+50 sentences
+100 sentences
+300 sentences
+Story 1
+Story 2
+Story 3
+Story 4
+Figure 3 Results of testing DIASEXP on different stories
+5 CONCLUSIONS
+CFG  and  DCG  are  types  of  generative  grammars  used  in  the  syntactic  analysis  of  a  phrase  in
+natural  language  Sometimes  long  or  complex  phrases  will  be  a  problem  for  the  classic  chart-
+parsers The characteristic features of the Romanian language related to the morphology of words
+or the way in which adverbials are formed can be successfully used in the syntactic analysis by
+using  a  system  based  on  patterns This  system  will  work  in  real-time  and  will  not  record  the
+whole dictionary of Romanian language It will use a small dictionary of prefixes prepositions
+adverbs etc and some endings and linking words
+ACKNOWLEDGEMENTS
+The authors would like to thank to professors Dan Cristea Grigor Moldovan and Ioan Andone for
+their advices and observations during the research activities
+REFERENCES
+1 Chomsky N 1965 Aspects of the Theory of Syntax MIT Press 1965 ISBN 0-262-53007-4
+2 Cristea  Dan  2003  Curs  de  Lingvistic  computaional  Faculty  of  Informatics  Alexandru  Ioan
+Cuza University of Iai Romania
+3 Giurc Adrian 1997 Procesarea limbajului Natural Analiza automat a frazei Aplicaii University
+of Craiova Faculty of Mathematics-Informatics Romania
+4 Klein 
+2005 
+Context 
+Grammars 
+Retrieved 
+wwwinfedacukteachingcoursesicllectures2006cfg-lecpdf at 1st December 2012
+5 Ptru Bogdan 2010 ADX  Agent for Morphologic Analysis of Lexical Entries in a Dictionary
+BRAIN  Broad  Research  in  Artificial  Intelligence  and  Neuroscience  vol  1  1  2010  ISSN  2067-
+6 Ptru Bogdan  Boghian Ioana 2012 Natural Language Processing Syntactic Analysis Lexical
+Disambiguation Logical Formalisms Discourse Theory Bivalent Verbs Germany Munich AVM 
+Akademische Verlagsgemeinschaft Mnchen ISBN 978-3869242071
+7 Ptru  Bogdan    Boghian  Ioana  2010  A  Delphi  Application  for  the  Syntactic  and  Lexical
+Analysis of a Phrase Using Cocke Younger and Kasami Algorithm in BRAIN Broad Research in
+Artificial Intelligence and Neuroscience Vol 1 Issue 2 EduSoft 2010
+8 Pereira  F    D  Warren  1986  Definite  clause  grammars  for  language  analysis  Readings  in
+natural  language  processing  pp  101-124  USA  San  Francisco  Morgan  Kaufmann  Publishers  Inc
+ISBN0-934613-11-7
+9 Russel Stuart  Norvig Peter 2002 Artificial Intelligence - A Modern Approach 2nd International
+Edition USA Menlo Park Addison Wesley
+International Journal on Natural Language Computing IJNLC Vol 1 No4 December 2012
+Bogdan Ptru
+Bogdan  Ptru
+is  associate  professor  in  computer  science  at  Vasile  Alecsandri
+University  of  Bacau  Romania  with  a  Ph  D  in  computer  science  and  a  Ph  D  in
+accounting  His  domains  of  interest  research  are natural  language  processing multi-
+agent systems and computer science applied in social economic and political sciences
+He  published papers  in  international  journals in these  domains Also Dr  Ptru is  the
+author  or  editor  of  more books  on programming  algorithms  artificial  intelligence
+interactive education and social media

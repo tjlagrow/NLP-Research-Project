@@ -1,0 +1,590 @@
+Resolution of Verb Ellipsis in Japanese Sentence
+using Surface Expressions and Examples
+Masaki Murata Makoto Nagao
+Department of Electronics and CommunicationKyoto University
+Yoshida-honmachi Sakyo Kyoto 606-01 Japan
+mmuratanagaokueekyoto-uacjp
+tel  075-753-5962 fax  075-751-1576
+Abstract
+Verbs are sometimes omitted in Japanese
+sentences
+It is necessary to recover
+omitted verbs for purposes of language
+understanding machine translation and
+conversational processing This paper
+describes a practical way to recover omit-
+ted verbs by using surface expressions
+and examples We experimented the res-
+olution of verb ellipses by using this in-
+formation and obtained a recall rate of
+73 and a precision rate of 66 on test
+sentences
+This paper describes a practical method to re-
+cover omitted verbs by using surface expressions
+and examples In short 1 when the referent of
+a verb ellipsis is in the context we use surface
+expressions clue words 2 when the referent
+is not in the context we use examples linguis-
+tic data We dene the verb to which a verb
+ellipsis refers as the recovered verb For exam-
+ple KOWASHITA1 broke in the second sen-
+tence of the following example is a verb ellipsis
+KOWASHITA broke in the rst sentence is a
+recovered verb
+KARE-WA IRONNA MONO-WO KOWASHITA
+He broke several things
+several things
+broke
+1 Introduction
+Verbs are sometimes omitted in Japanese sen-
+tences
+It is necessary to resolve verb ellipses
+for purposes of language understanding machine
+translation and dialogue processing Therefore
+we investigated verb ellipsis resolution in Japanese
+sentences In connection with our approach we
+would like to emphasize the following points
+ Little work has been done so far on resolution
+of verb ellipsis in Japanese
+ Although much work on verb ellipsis in En-
+glish has handled the reconstruction of the
+ellipsis structure in the case when the omit-
+ted verb is given little work has handled the
+estimation of what is the omitted verb Dal-
+rymple el al 91 Kehler 93 Lappin  Shih
+96 On the contrary we handle the estima-
+tion of what is the omitted verb
+ In the case of Japanese the omitted verb
+phrase is sometimes not in the context and
+the system must construct the omitted verb
+by using knowledge or common sense We
+use example-based method to solve this prob-
+KORE-MO ARE-MO
+He broke this and that
+KOWASHITA
+broke
+1 When a recovered verb exists in the context
+we use surface expressions clue words This is
+because an elliptical sentence in the case 1 is in
+one of several typical patterns and has some clue
+words For example when the end of an elliptical
+sentence is the clue word MO also the sys-
+tem judges that the sentence is a repetition of the
+previous sentence and the recovered verb ellipsis
+is the verb of the previous sentence
+2 When a recovered verb is not in the context
+we use examples The reason is that omitted verbs
+in this case 2 are diverse and we use examples to
+construct the omitted verbs The following is an
+example of a recovered verb that does not appear
+in the context
+SOU UMAKU IKUTOWA OMOENAI 
+I dont think
+I dont think it succeeds so well 
+succeed so well
+1 A phrase in brackets  represents an omitted
+The matching part The latter part
+question sentence
+KONNANI UMAKU IKUTOWA OMOENAI
+like this
+I dont think that it succeeded like this
+it succeeds
+I dont think
+UMAKU IKUTOWA KAGIRANAI
+every time it succeeds
+You cannot expect to succeed every time
+cannot expect to
+KANZENNI UMAKU IKUTOWA IENAI
+completely it succeeds
+It cannot be said that it succeeds completely
+it cannot be said
+Figure 1 Sentences containing UMAKU IKU-
+TOWA it succeeds in a corpus examples
+When we want to resolve the verb ellipsis in this
+sentence SOU UMAKU IKUTO WA OMOE-
+NAI the system gathers sentences containing
+the expression SOU UMAKU IKUTOWA it suc-
+ceeds so well  from corpus as shown in Fig-
+ure 1 and judges that the latter part of the highest
+frequency in the obtained sentence in this case
+OMOENAI I dont think etc is the desired
+recovered verb
+2 Categories of Verb Ellipsis
+We handle only verb ellipses in the ends of sen-
+tences
+We classied verb ellipses from the view point
+of machine processing The classication is shown
+in Figure 2 First we classied verb ellipses by
+checking whether there is a recovered verb in the
+context or not Next we classied verb ellipses
+by meaning In the context and Not in the
+context in Figure 2 represent where the recov-
+ered verb exists respectively Although the above
+classication is not perfect and needs modica-
+tion we think that it is useful to understand the
+outline of verb ellipses in machine processing
+The feature and the analysis of each category of
+verb ellipsis are described in the following sections
+21 When a Recovered Verb Ellipsis
+Appears in the Context
+211 QuestionAnswer
+In questionanswer sentences verbs in answer
+sentences are often omitted when answer sen-
+tences use the same verb as question sentences
+For example the verb of KORE WO this is
+omitted and is KOWASHITA break in the
+NANI-WO KOWASHITANO
+What did you break
+break
+KORE-WO KOWASHITA
+I broke this
+break
+The system judges whether the sentences are
+questionanswer sentences or not by using surface
+expressions such as NANI what and if so it
+judges that the recovered verb is the verb of the
+question sentence
+212 Supplement
+In sentences which play a supplementary role to
+the previous sentence verbs are sometimes omit-
+ted For example the second sentence is supple-
+mentary explaining that the key I lost is house
+key
+KAGI-WO NAKUSHITA
+I lost my key
+IE-NO KAGI-WO
+house
+I lost my house key 
+NAKUSHITA
+To solve this we present the following method
+using word meanings When the word at the end
+of the elliptical sentence is semantically similar to
+the word of the same case element in the previ-
+ous sentence they correspond and the omitted
+verb is judged to be the verb of the word of the
+same case element in the previous sentence
+this case since KAGI key and IE-NO KAGI
+house key are semantically similar in the sense
+that they are both keys the system judges they
+correspond and the verb of IE-NO KAGI-WO
+house key is NAKUSHITA lost
+In addition to this method we use methods
+using surface expressions For example when
+a sentence has clue words such as the particle
+MO which indicates repetition the sentence
+is judged to be the supplement of the previous
+sentence
+There are many cases when an elliptical sen-
+tence is the supplement of the previous sentence
+In this work if there is no clue the system judges
+that an elliptical sentence is the supplement of the
+previous sentence
+22 When a Recovered Verb does not
+Appear in the Context
+In the context
+Not in the context
+Question-Answer
+Supplement
+Interrogative sentence
+The other ellipsis use of common sense
+KOWASHITA
+NAKUSHITA
+NANI-WO KOWASHITANO KORE-WO
+What did you break I broke this
+KAGI-WO NAKUSHITA IENOKAGI-WO
+I lost my key I lost my house key
+NAMAE-WA
+What is your name
+SOU UMAKUIKU-TOWA
+I dont think it succeed so well
+NANI-DESUKA
+OMOENAI
+Figure 2 Categories of verb ellipsis
+Interrogative Sentence
+Sometimes in interrogative sentences the par-
+ticle WA is at the end of the sentence and the
+verb is omitted For example the following sen-
+tence is an interrogative sentence and the verb is
+omitted
+NAMAE-WA NANI-DESUKA
+what
+What is your name
+If the end is of the form of Noun  WA
+the sentence is probably an interrogative sentence
+and thus the system judges it to be an interroga-
+tive sentence 2
+When we perform the same interpretation us-
+ing a large amount of linguistic data we de-
+tect the sentence containing an expression which
+is semantically similar to JITSU-WA CHOTTO
+ONEGAIGA To tell you the truth I have
+a request and the latter part of JITSU-WA
+CHOTTO ONEGAIGA is judged to be the con-
+tent of the ellipsis To put it concretely the sys-
+tem detects sentences containing the longest char-
+acters at the end of the input sentence from corpus
+and judges that the verb of the highest frequency
+in the latter part of the detected sentences is a
+recovered verb
+3 Verb Ellipsis Resolution System
+222 Other Ellipses Using Common Sense
+31 Procedure
+In the case of Not in the context the following
+example exists besides Interrogative sentence
+JITSU-WA CHOTTO ONEGAIGA ARIMASU
+the truth a little
+I have
+To tell you the truth I have a request
+request
+This kind of ellipsis does not have the recovered
+expression in sentences The form of the recov-
+ered expression has various types This problem
+is dicult to analyze
+To solve this problem we estimate a recovered
+content by using a large amount of linguistic data
+When Japanese people read the above sentence
+they naturally recognize the omitted verb is ARI-
+MASU I have This is because they often use
+the sentence JITSU-WA CHOTTO ONEGAIGA
+ARIMASU To tell the truth I have a request
+in daily life
+2 Since this work is verb ellipsis resolution the system
+must recover a verb such as NANI-DESUKA what is 
+But the expression of the verb changes according to the
+content of the interrogative sentence and we only deal with
+judging whether the sentence is an interrogative sentence
+or not
+Before the verb ellipsis resolution process sen-
+tences are transformed into a case structure by
+the case structure analyzerKurohashi  Nagao
+94 Verb ellipses are resolved by heuristic rules
+for each sentence from left to right Using these
+rules our system gives possible recovered verbs
+some points and it judges that the possible re-
+covered verb having the maximum point total is
+the desired recovered verb This is because a num-
+ber of types of information is combined in ellipsis
+resolution An increase of the points of a possible
+recovered verb corresponds to an increase of the
+plausibility of the recovered verb
+The heuristic rules are given in the following
+Condition   Proposal Proposal  
+Proposal   Possible recovered verb Point 
+Surface expressions semantic constraints refer-
+ential properties etc are written as conditions in
+the Condition section A possible recovered verb
+is written in the Possible recovered verb section
+Point means the plausibility of the possible recov-
+ered verb
+Table 1 Rule for verb ellipsis resolution
+Condition
+Candidate
+Point Example sentence
+Rule in the case that a verb ellipsis does not exist
+1 When the end of the sentence is a for-
+mal form of a verb or terminal post-
+positional particles such as YO and
+NE
+the system judges that
+a verb ellipsis does not
+SONO MIZUUMI WA KITANO
+KUNINI ATTA The lake was in a
+northern country
+2 When the previous sentence has an in-
+terrogative pronoun such as DARE
+who and NANI what
+modied by the inter-
+rogative pronoun
+Rule in the case of QuestionAnswer
+Rule in the case of Supplement
+3 When the end is Noun X followed by
+a case postpositional particle there is
+a Noun Y followed by the same case
+postpositional particle in the previous
+sentence and the semantic similarity
+between Noun X and Noun Y is a value
+4 When the end is the postpositional
+particle MO or there is an expres-
+sion which indicates repetition such
+as MOTTOMO the repetition of
+the same speakers previous sentence
+is interpreted
+the verb modied by
+the verb at the end
+of the same speakers
+previous
+judged to be a recov-
+ered verb
+sentence
+DARE-WO
+KOROSHITANDA WATASHI-GA
+KATTE-ITA
+WO KOROSHITA Who did you
+kill I killed my monkey
+SUBETENO AKU-GA NAKUNAT-
+GOUTOU-DA-TOKA
+SAGI-DA-TOKA
+ARAYURU HANZAI-GA NAKU-
+NATTEIRU All the evils have dis-
+appeared All the crimes such as rob-
+bery and fraud have disappeared 
+OTONATTE WARUI
+SHITEIRUNDAYO
+WAKARANAIK-
+EREDO WAIRO NANTE KOTO-
+MO SHITEIRUNDAYO Adults
+do only bad things I dont know but
+they do bribe
+In all cases
+the previous sentence
+Rule in the case of Interrogative sentence
+6 When the end is a noun followed by
+postpositional particle WA
+the sentence is inter-
+preted to be an inter-
+rogative sentence
+NAMAE-WA
+NANI-DESUKA What is your
+name
+Rule in the case of use of common sense
+7 When the system detects a sentence
+containing the longest expression at
+the end of the sentence from corpus If
+the highest frequency is much higher
+than the second highest frequency the
+expression is given 9 points otherwise
+it is given 1 point 
+the expression of the
+highest
+frequency in
+the latter part of the
+detected sentences
+SOU UMAKU IKUTOWA OMOE-
+NAI I dont think it will succeed
+32 Heuristic Rule
+33 Example of Verb Ellipsis Resolution
+We made 22 heuristic rules for verb ellipsis resolu-
+tion These rules are made by examining training
+sentences in Section 41 by hand We show some
+of the rules in Table 1
+The value s in Rule 3 is given from the semantic
+similarity between Noun X and Noun Y in EDR
+concept dictionary EDR 95
+The corpus linguistic data used in Rule 7 is
+a set of newspapers one year about 70000000
+characters The method detecting similar sen-
+tences by character matching is performed by sort-
+ing the corpus in advance and using a binary
+search
+We show an example of a verb ellipsis resolution
+in Figure 3 Figure 3 shows that the verb ellipsis
+in ONEGAI request was analyzed well
+Since the end of the sentence is not an expres-
+sion which can normally be at the end of a sen-
+tence Rule 1 was not satised and the system
+judged that a verb ellipsis exists By Rule 5 the
+system took the candidate the end of the previ-
+ous sentence Next by Rule 7 using corpus the
+system took the candidate ARIMASU I have
+Although there are ARU I have and ARI-
+MASU I have the frequency of ARIMASU I
+have is more than the others and it was selected
+as a candidate The candidate ARIMASU I
+have having the best score was properly judged
+to be the desired recovered verb
+MURI-MO-ARIMASENWA
+You may well do so 
+HAJIMETE
+for the rst time
+I meet you for the rst time
+OAISURU-NO-DESUKARA
+I meet you
+JITSU-WA CHOTTOONEGAIGAARIMASU
+the trutha little request
+To tell you the truth I have a request
+I have
+Candidate
+Total score
+the end of
+the previous sentence
+0 point
+ARIMASU
+I have
+0 point
+1 point
+1 point
+the latter part of the sentence Frequency
+containing ONEGAI GA
+ARIMASU I have
+ARU I have
+Figure 3 Example of verb ellipsis resolution
+4 Experiment and Discussion
+41 Experiment
+We ran the experiment on the novel BOKKO-
+CHAN Hoshi 71 This is because novels con-
+tain various verb ellipses In the experiment we
+divided the text into training sentences and test
+sentences We made heuristic rules by examining
+training sentences We tested our rules by using
+test sentences We show the results of verb ellipsis
+resolution in Table 2
+To judge whether the result is correct or not
+we used the following evaluation criteria When
+the recovered verb is correct even if the tense as-
+pect etc are incorrect we regard it as correct
+For ellipses in interrogative sentences if the sys-
+tem estimates that the sentence is an interrogative
+sentence we judge it to be correct When the de-
+sired recovered verb appears in the context and
+the recovered verb chosen by the rule using cor-
+pus is nearly equal to the correct verb we judge
+that it is correct
+42 Discussion
+As in Table 2 we obtained a recall rate of 73
+and a precision rate of 66 in the estimation of
+indirect anaphora on test sentences
+The recall rate of In the context is higher than
+that of Not in the context For In the context
+the system only species the location of the recov-
+ered verb But in the case of Not in the context
+the system judges that the recovered verb does
+not exist in the context and gathers the recovered
+verb from other information Therefore Not in
+the context is very dicult to analyze
+The accuracy rate of Other ellipses use of
+common sense was not so high But since the
+analysis of the case of Other ellipses use of com-
+mon sense is very dicult we think that it is
+valuable to obtain a recall rate of 56 and a pre-
+cision rate 59 We think that when the size of
+corpus becomes larger this method becomes very
+important Although we calculate the similarity
+between the input sentence and the example sen-
+tence in the corpus only by using simple character
+matching we think that we must use the infor-
+mation of semantics and the parts of speech when
+calculating the similarity Moreover we must de-
+tect the desired sentence by using only examples
+of the type whether it is an interrogative sentence
+or not whose previous sentence is the same as the
+previous sentence of the input sentence
+Although the accuracy rate of the category us-
+ing surface expressions is already high there are
+some incorrect cases which can be corrected by re-
+ning the use of surface expressions in each rule
+There is also a case which requires a new kind of
+rule in the experiment on test sentences
+SONOTOTAN WATASHI-WA HIMEI-WO KIITA
+at the moment I
+At the moment I heard a scream
+a scream
+voice
+NANIKA-NI TUBUSARERUYOUNA KOE-NO
+something be crushed
+of a fearful voice such that he was crushed by something
+In these sentences OSOROSHII KOE-NO of
+a fearful voice is the supplement of OOKINA
+HIMEI a scream in the previous sentence To
+solve this ellipsis we need the following rule
+When the end is the form of noun X 
+NOof and there is a noun Z which is
+semantically similar to noun Y in the ex-
+amples of noun X  NOof  noun Y
+the system judges that the sentence is the
+supplement of noun Z
+5 Conclusion
+In this paper we described a practical way to re-
+solve omitted verbs by using surface expressions
+and examples We obtained a recall rate of 73
+and a precision rate of 66 in the resolution of
+verb ellipsis on test sentences The accuracy rate
+of the case of recovered verb appearing in the con-
+text was high The accuracy rate of the case of
+using corpus examples was not so high Since
+the analysis of this phenomena is very dicult we
+think that it is valuable to have proposed a way
+of solving the problem to a certain extent We
+Table 2 Result of resolution of verb ellipsis
+In the context
+QuestionAnswer
+Supplement
+Not in the context
+Interrogative sentence
+Other ellipses
+Training sentences
+Test sentences
+Precision
+Precision
+92  3641
+100 2020
+100  3 3
+100 1717
+76 1621
+100  3 3
+72 1318
+73 3345
+85 2327
+66 3350
+77  3647
+77 2330
+77 2026
+100  3 3   0 0   0 0
+77 2330
+85 2327
+74 1723
+50 1020
+76 1621
+56 1018
+75  3 4   0 0
+0  0 3
+59 1017
+56 1018
+76 1317
+The training sentences are used to make the set of rules in Section 32
+Training sentences the rst half of a collection of short stories BOKKO CHAN Hoshi 71 2614
+sentences 23 stories
+Test sentences the latter half of novels BOKKO CHAN Hoshi 71 2757 sentences 25 stories
+Precision is the fraction of the ends of the sentences which were judged to have verb ellipses Recall
+is the fraction of the ends of the sentences which have the verb ellipses The reason why we use
+precision and recall to evaluate is that the system judges that the ends of the sentences which do not
+have the verb ellipses have the verb ellipses and we check these errors properly
+think that when the size of corpus becomes larger
+and the machine performance becomes greater
+the method of using corpus will become eective
+the European Chapter of
+In Proceedings of
+the Association for Computational Linguistics
+pp203-212 1993
+Kurohashi  Nagao 94 KurohashiS and Na-
+gaoM A Method of Case Structure Analysis
+for Japanese Sentences based on Examples in
+Case Frame Dictionary IEICE Transactions on
+Information and Systems E77D2 pp227-
+239 1994
+Lappin  Shih 96 LappinS and ShihH A
+Generalized Reconstruction Algorithm for El-
+lipsis Resolution In COLING 96  p687-692
+Acknowledgments
+Research on this work was partially supported
+by JSPS-RFTF96P00502 The Japan Society for
+the Promotion of Science Research for the Future
+Program
+References
+Dalrymple el al 91
+DalrympleM ShieberS
+PereiraF Ellipsis and higher-order unica-
+tion Linguistics and Philosophy 14399-452
+EDR 95 Electronic Dictionary Research Insti-
+Electronic Dictionary Concept
+tute LTD
+Dictionary Version 15 in Japanese 1995
+Hoshi 71 HoshiS Bokko-tyan in Japanese
+Shintyousha 1971
+IPAL 87
+Information-technology Promotion
+Agency Japan
+IPA Lexicon of the Japanese
+Language for computers IPAL Basic Verbs
+in Japanese 1987
+Kehler 93 KehlerA A discourse copying al-
+gorithm for ellipsis and anaphora resolution

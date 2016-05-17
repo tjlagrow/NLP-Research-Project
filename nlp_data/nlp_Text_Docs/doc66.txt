@@ -1,0 +1,1522 @@
+Convolutional Neural Networks over Tree Structures
+for Programming Language Processing
+Lili Mou1 Ge Li1 Lu Zhang1 Tao Wang2 Zhi Jin1
+Corresponding authors
+1Software Institute Peking University
+doublepowermougmailcom ligezhangluzhijinseipkueducn
+2Stanford University twangcatstanfordedu
+Abstract
+Programming language processing similar to natural
+language processing is a hot research topic in the eld
+of software engineering it has also aroused growing in-
+terest in the articial intelligence community However
+different from a natural language sentence a program
+contains rich explicit and complicated structural infor-
+mation Hence traditional NLP models may be inappro-
+priate for programs In this paper we propose a novel
+tree-based convolutional neural network TBCNN for
+programming language processing in which a convo-
+lution kernel is designed over programs abstract syn-
+tax trees to capture structural information TBCNN is
+a generic architecture for programming language pro-
+cessing our experiments show its effectiveness in two
+different program analysis tasks classifying programs
+according to functionality and detecting code snippets
+of certain patterns TBCNN outperforms baseline meth-
+ods including several neural models for NLP
+Introduction
+Researchers from various communities are showing growing
+interest in applying articial intelligence AI techniques to
+solve software engineering SE problems Dietz et al 2009
+Bettenburg and Begel 2013 Hao et al 2013 In the area of
+SE analyzing program source codecalled programming
+language processing in this paperis of particular impor-
+Even though computers can run programs they do not
+truly understand programs Analyzing source code pro-
+vides a way of estimating programs behavior functionality
+complexity etc For instance automatically detecting source
+code snippets of certain patterns help programmers to dis-
+cover buggy or inefcient algorithms so as to improve code
+quality Another example is managing large software repos-
+itories where automatic source code classication and tag-
+ging are crucial to software reuse Programming language
+processing in fact serves as a foundation for many SE tasks
+eg requirement analysis Ghabi and Egyed 2012 software
+development and maintenance Bettenburg and Begel 2013
+Hindle et al 2012 demonstrate that programming lan-
+guages similar to natural languages also contain abundant
+Copyright ccid13 2016 Association for the Advancement of Articial
+Intelligence wwwaaaiorg All rights reserved
+statistical properties which are important for program anal-
+ysis These properties are difcult to capture by humans
+but justify learning-based approaches for programming lan-
+guage processing However existing machine learning pro-
+gram analysis depends largely on feature engineering which
+is labor-intensive and ad hoc to a specic task eg code
+clone detection Chilowicz Duris and Roussel 2009 and
+bug detection Steidl and Gode 2013 Further evidence
+in the machine learning literature suggests that human-
+engineered features may fail to capture the nature of data
+so they may be even worse than automatically learned ones
+The deep neural network also known as deep learning is
+a highly automated learning machine By exploring multi-
+ple layers of non-linear transformation the deep architec-
+ture can automatically learn complicated underlying fea-
+tures which are crucial to the task of interest Over the
+past few years deep learning has made signicant break-
+throughs in various elds such as speech recognition Dahl
+Mohamed and Hinton 2010 computer vision Krizhevsky
+Sutskever and Hinton 2012 and natural language process-
+ing Collobert and Weston 2008
+Despite some similarities between natural languages and
+programming languages there are also obvious differences
+Pane Ratanamahatana and Myers 2001 Based on a for-
+mal language programs contain rich and explicit structural
+information Even though structures also exist in natural
+languages they are not as stringent as in programs Pinker
+1994 illustrates an interesting example The dog the stick
+the re burned beat bit the cat This sentence complies
+with all grammar rules but too many attributive clauses
+are nested Hence it can hardly be understood by people
+due to the limitation of human intuition capacity On the
+contrary three nested loops are common in programs The
+parse tree of a program in fact is typically much larger
+than that of a natural language sentencethere are approx-
+imately 190 nodes on average in our experiment whereas
+a sentence comprises only 20 words in a sentiment analy-
+sis dataset Socher et al 2013 Further the grammar rules
+alias neighboring relationships among program compo-
+nents The statements inside and outside a loop for exam-
+ple do not form one semantic group and thus are not se-
+mantically neighboring On the above basis we think more
+effective neural models are in need to capture structural in-
+formation in programs
+In this paper we propose a novel Tree-Based Convolu-
+tional Neural Network TBCNN based on programs ab-
+stract syntax trees ASTs We also introduce the notion
+of continuous binary trees and apply dynamic pooling to
+cope with ASTs of different sizes and shapes The TBCNN
+model is a generic architecture and is applied to two SE
+tasks in our experimentsclassifying programs by function-
+alities and detecting code snippets of certain patterns It out-
+performs baseline methods in both tasks including the re-
+cursive neural network Socher et al 2011b proposed for
+NLP To the best of our knowledge this paper is also the rst
+to apply deep neural networks to the eld of programming
+language processing1
+Related Work
+Deep neural networks have made signicant breakthroughs
+in many elds Stacked restricted Boltzmann machines and
+autoencoders are successful pretraining methods Hinton
+Osindero and Teh 2006 Bengio et al 2006 They explore
+the underlying features of data in an unsupervised manner
+and give a more meaningful initialization of weights for later
+supervised learning with deep neural networks These ap-
+proaches work well with generic data eg data located in a
+manifold embedded in a certain dimensional space but they
+may not be suitable for programming language processing
+because programs contain rich structural information Fur-
+ther AST structures also vary largely among different data
+samples programs and hence they cannot be fed directly
+to a xed-size network
+To capture explicit structures in data it may be impor-
+tant and benecial to integrate human priors to the net-
+works Bengio Courville and Vincent 2013 One exam-
+ple is convolutional neural networks CNNs LeCun et al
+1995 Krizhevsky Sutskever and Hinton 2012 which spec-
+ify spatial neighboring information in data CNNs work with
+signals of a certain dimension eg images they also fail
+to capture tree-structural information as in programs
+Socher et al 2013 2011b propose a recursive neural net-
+work RNN for NLP Although structural information may
+be coded to some extent in RNNs the major drawback is
+that only the root features are used for supervised learn-
+ing which buries illuminating information under a compli-
+cated neural architecture RNNs also suffer from the dif-
+culty of training due to the long dependency path during
+back-propagation Bengio Simard and Frasconi 1994
+Subsequent work After the preliminary version of this
+paper was preprinted on arXiv2 Zaremba and Sutskever
+2014 use recurrent neural networks to estimate the output
+of restricted python programs Piech et al 2015 build re-
+cursive networks on Hoare triples Regarding the proposed
+TBCNN we extend it to process syntactic parse trees of nat-
+ural languages Mou et al 2015 Duvenaud et al 2015 ap-
+ply a similar convolutional network over graphs to analyze
+molecules
+1We make our source code and the collected dataset available
+through our website httpssitesgooglecomsitetreebasedcnn
+2 On 18 September 2014 httparxivorgabs14095718v1
+Tree-Based Convolutional Neural Network
+Programming languages have a natural tree representation
+the abstract syntax tree AST Figure 1a shows the AST of
+the code snippet int ab33 Each node in the AST
+is an abstract component in program source code A node p
+with children c1  cn represents the constructing process
+of the component p  c1  cn
+Figure 1b shows the overall architecture of TBCNN In
+our model an AST node is rst represented as a distributed
+real-valued vector so that the anonymous features of the
+symbols are captured The vector representations are learned
+by a coding criterion in our previous work Peng et al 2015
+Then we design a set of subtree feature detectors called
+the tree-based convolution kernel sliding over the entire
+AST to extract structural information of a program We
+thereafter apply dynamic pooling to gather information over
+different parts of the tree Finally a hidden layer and an out-
+put layer are added For supervised classication tasks the
+activation function of the output layer is softmax
+In the rest of this section we rst explain the coding cri-
+terion for AST nodes representation learning serving as a
+pretraining phase of programming language processing We
+then describe the proposed TBCNN model including a cod-
+ing layer a convolutional layer and a pooling layer We also
+provide additional information on dealing with nodes that
+have varying numbers of child nodes as in ASTs by intro-
+ducing the notion of continuous binary trees
+Representation Learning for AST Nodes
+Vector representations sometimes known as embeddings
+can capture underlying meanings of discrete symbols like
+AST nodes We propose in our previous work Peng et al
+2015 an unsupervised approach to learn program vector
+representations by a coding criterion which serves as a way
+of pretraining
+A generic criterion for
+representation learning is
+smoothnesssimilar symbols have similar feature vec-
+tors Bengio Courville and Vincent 2013 For example
+the symbols While and For are similar because both of
+them are related to control ow particularly loops But they
+are different from ID since ID probably represents some
+data In our scenario we would like the child nodes repre-
+sentations to code their parent nodes via a single neural
+layer during which both vector representations and coding
+weights are learned Formally let vec  RNf be the fea-
+ture representation of a symbol where Nf is the feature di-
+mension For each non-leaf node p and its direct children
+c1  cn we would like
+cid17
+cid16cid88
+vecp  tanh
+liWcodei  vecci  bcode
+where Wcodei  RNfNf
+is the weight matrix corre-
+sponding to the node ci bcode  RNf is the bias li 
+leaves under ci
+leaves under p is the coefcient of the weight Weights
+Wcodei are weighted by leaf numbers
+Because different nodes may have different numbers of
+children the number of Wcodeis is not xed To overcome
+3 Parsed by pycparser httpspypipythonorgpypipycparser
+Figure 1 a Illustration of an AST corresponding to the C code snippet int ab3 It should be notice that our model takes as
+input the entire AST of a program which is typically much larger b The architecture of the Tree-Based Convolutional Neural
+Network TBCNN The main components in our model include vector representation and coding tree-based convolution and
+dynamic pooling then a fully-connected hidden layer and an output layer softmax are added
+this problem we introduce the continuous binary tree
+where only two weight matrices W l
+code serve as
+model parameters Wi is a linear combination of the two pa-
+rameter matrices according to the position of node i Details
+are deferred to the last part of this section
+code and W r
+The closeness between vecp and its coded vector is
+measured by Euclidean distance square ie
+cid13cid13cid13vecp  tanh
+cid16cid88
+liWcodei  vecci  bcode
+cid17cid13cid13cid132
+To prevent the pretraining algorithm from learning trivial
+representations eg 0s will give 0 distance but are mean-
+ingless negative sampling is applied like Collobert et al
+2011 For each pretraining data sample p c1  cn we
+substitute one symbol either p or one of cs with a random
+symbol The distance of the negative sample is denoted as
+dc which should be at least larger than that of the positive
+training sample plus a margin  set to 1 in our experiment
+Thus the pretraining objective is to
+max0   d  dc
+minimize
+codebcodevec
+codeW r
+Coding Layer
+Having pretrained the feature vectors for all symbols we
+would like to feed them forward to the tree-based convo-
+lutional layer for supervised learning For leaf nodes they
+are just the vector representations learned in the pretraining
+phase For a non-leaf node p it has two representations the
+one learned in the pretraining phase left-hand side of Equa-
+tion 1 and the coded one right-hand side of Equation 1
+They are linearly combined before being fed to the convolu-
+tional layer Let c1  cn be the children of node p and we
+denote the combined vector as p We have
+p  Wcomb1  vecp
+ Wcomb2  tanh
+cid16cid88
+cid17
+liWcodei  vecxi  bcode
+where Wcomb1 Wcomb2  RNfNf are the parameters for
+combination They are initialized as diagonal matrices and
+then ne-tuned during supervised training
+Tree-based Convolutional Layer
+Now that each symbol in ASTs is represented as a dis-
+tributed real-valued vector x  RNf  we apply a set of
+Figure 2 a Tree-based convolution Nodes on the left are
+the feature vectors of AST nodes They are either pretrained
+or combined with pretrained and coded vectors b An illus-
+tration of 3-way pooling c An analogy to the continuous
+binary tree model In the triangle the color of a pixel is a
+combination of three primary colors in the convolution pro-
+cess the weight for a node is a combination of three weight
+parameters namely W t
+conv and W r
+conv W l
+cid17
+xed-depth feature detectors sliding over the entire tree de-
+picted in Figure 2a The subtree feature detectors can be
+viewed as convolution with a set of nite support kernels
+We call this tree-based convolution
+Formally in a xed-depth window if there are n nodes
+with vector representations x1  xn then the output of
+the feature detectors is4
+y  tanh
+Wconvi  xi  bconv
+cid16cid88n
+where y bconv RNc Wconvi RNcNf  Nc is the number
+of feature detectors 0s are padded for nodes at the bottom
+that do not have as many layers as the feature detectors In
+our experiments the kernel depth is set to 2
+Note that to deal with varying numbers of children we
+also adopt the notion of continuous binary tree In this sce-
+nario three weight matrices serve as model parameters
+namely W t
+conv Wconvi is a linear combi-
+nation of these three matrices explained in detail in the last
+part of this section
+conv and W r
+conv W l
+4 We used tanh as the activation function in TBCNN mainly
+because we hope to encode features to a same semantic space
+1 1 during coding We are grateful to an anonymous reviewer
+for reminding us of using ReLU in convolution and we are happy
+to try it in future work
+Tree-basedaDeclbTypeDeclBinaryOpIdentifierTypeIDConstantVectorrepresentationsoftmaxfullyconnectedmaxpoolingconvolutionandcodingfullyconnectedDynamicpoolingHiddenOutputTOPLOWERLEFTLOWERRIGHTabcDynamic Pooling
+After convolution structural features in an AST are ex-
+tracted and a new tree is generated The new tree has ex-
+actly the same shape and size as the original one which is
+varying among different programs Therefore the extracted
+features cannot be fed directly to a xed-size neural layer
+Dynamic pooling Socher et al 2011a is applied to deal
+with this problem
+The simplest approach perhaps is to pool all features to
+one vector We call this one-way pooling Concretely the
+maximum value in each dimension is taken from the features
+that are detected by tree-based convolution We also propose
+an alternative three-way pooling where features are pooled
+to 3 parts TOP LOWER LEFT and LOWER RIGHT ac-
+cording to the their positions in the AST Figure 2b As we
+shall see from the experimental results the simple one-way
+pooling just works as well as three-way pooling Therefore
+we adopt one-way pooling in our experiments
+After pooling the features are fully connected to a hid-
+den layer and then fed to the output layer softmax for su-
+pervised classication With the dynamic pooling process
+structural features along the entire AST reach the output
+layer with short paths Hence they can be trained effectively
+by back-propagation
+The Continuous Binary Tree Model
+As stated one problem of coding and convolving is that we
+cannot determine the number of weight matrices because
+AST nodes have different numbers of children
+One possible solution is the continuous bag-of-words
+model CBoW Mikolov et al 20135 but position informa-
+tion will be lost completely Such approach is also used in
+Hermann and Blunsom 2014 Socher et al 2014 allocate
+a different weight matrix as parameters for each position
+but this method fails to scale up since there will be a huge
+number of different positions in ASTs
+In our model we view any subtree as a binary tree re-
+gardless of its size and shape That is we have only three
+weight matrices as parameters for convolution and two for
+coding We call it a continuous binary tree
+conv W l
+conv W l
+conv and W r
+conv and W r
+conv with coefcients t
+Take convolution as an example The three parameter ma-
+conv Superscripts t l r refer
+trices are W t
+to top left and right For node xi in a window its
+weight matrix for convolution Wconvi is a linear combina-
+tion of W t
+i  respectively The coefcients are computed according to
+the relative position of a node in the sliding window Fig-
+ure 2c is an analogy to the continuous binary tree model
+The equations for computing s are listed as follows
+ t
+ r
+ l
+i  di1
+dow d the depth of the window
+i  1  t
+total number of ps siblings
+i  1  t
+5In their original paper they do not deal with varying-length
+data but their method extends naturally to this scenario Their
+method is also mathematically equivalent to average pooling
+d1 di the depth of the node i in the sliding win-
+n1  pi the position of the node n the
+i  pi1
+i 1  r
+Likewise the continuous binary tree for coding has two
+code as parameters The details
+code and W r
+weight matrices W l
+are not repeated here
+conv W l
+conv W r
+code Wcomb1 Wcomb2 W t
+To sum up the entire parameter set for TBCNN is  
+code W r
+conv Whid
+Wout bcode bconv bhid bout vec where Whid Wout bhid
+and bout are the weights and biases for the hidden and
+output layers To set up supervised training W l
+bcode and vec are derived from the pretraining phase
+Wcomb1 and Wcomb2 are initialized as diagonal matrices
+other parameters are initialized randomly We apply the
+cross-entropy loss and use stochastic gradient descent
+computed by back-propagation
+code W r
+Experiments
+We rst assess the learned vector representations both quali-
+tatively and quantitatively Then we evaluate TBCNN in two
+supervised learning tasks and conduct model analysis
+The dataset of our experiments comes from a pedagogi-
+cal programming open judge OJ system6 There are a large
+number of programming problems on the OJ system Stu-
+dents submit their source code as the solution to a certain
+problem the OJ system automatically judges the validity of
+submitted source code by running the program We down-
+loaded the source code and the corresponding programming
+problems represented as IDs as our dataset
+Unsupervised Program Vector Representations
+We applied the coding criterion of pretraining to all C code
+in the OJ system and obtained AST nodes vector represen-
+tations
+Qualitative analysis Figure 3a illustrates the hierarchical
+clustering result based on a subset of AST nodes As demon-
+strated the symbols mainly fall into three categories 1
+BinaryOp ArrayRef ID Constant are grouped to-
+gether since they are related to data referencemanipulation
+2 For If While are similar since they are related to
+control ow 3 ArrayDecl FuncDecl PtrDecl are
+similar since they are declarations The result is quite sen-
+sible because it is consistent with human understanding of
+programs
+Quantitative analysis We also evaluated pretrainings
+effect on supervised learning by feeding the learned repre-
+sentations to a program classication task See next subsec-
+tion Figure 3b plots the learning curves of both training and
+validation which are compared with random initialization
+Unsupervised vector representation learning accelerates the
+supervised training process by nearly 13 showing that pre-
+training does capture underlying features of AST nodes and
+that they can emerge high-level features spontaneously dur-
+ing supervised learning However pretraining has a limited
+effect on the nal accuracy One plausible explanation is that
+the number of AST nodes is small the pycparser we
+use distinguishes only 44 symbols Hence their representa-
+tions can be adequately tuned in a supervised fashion
+6 httpprogramminggridscn
+Figure 3 Analysis of vector representations a Hierarchical
+clustering based on AST nodes vector representations b
+Learning curves with and without pretraining
+Statistics
+ of code lines
+ of AST nodes
+Average leaf nodes depth in an AST
+Max depth of an AST
+Sample std
+Table 1 Statistics of our dataset
+Hyperparameter
+Initial learning rate
+Learning rate decay
+Embedding dimension
+Convolutional layers dim
+Penultimate layers dim
+l2 penalty
+Value How is the value chosen
+By validation
+Empirically
+Empirically
+By validation
+Same as conv layers
+Empirically
+Table 2 TBCNNs hyperparameters
+Nonetheless we think the pretraining criterion is effec-
+tive and benecial for TBCNN because training deep neural
+networks is usually time-consuming especially when tuning
+hyperparameters The pretrained vector representations are
+used throughout the experiments below
+Classifying Programs by Functionalities
+Task description In software engineering classifying
+programs by functionalities is an important problem for var-
+ious software development tasks For example in a large
+software repository eg SourceForge software products
+are usually organized into categories a typical criterion for
+which is by functionalities With program classication it
+becomes feasible to automatically tag a software component
+newly added into the repository which is benecial for soft-
+ware reuse during the development process
+In our experiment we applied TBCNN to classify source
+code in the OJ system The target label of a data sample is
+one of 104 programming problems represented as an ID
+That is programs with a same target label have the same
+functionality We randomly chose exactly 500 programs in
+each class and thus 52000 samples in total which were
+further randomly split by 311 for training validation and
+testing Relevant statistics are shown in Table 1
+Hyperparameters TBCNNs hyperparameters are shown
+in Table 2 Our competing methods include SVM and a deep
+feed-forward neural network based on hand-crafted features
+namely bag-of-words BoW the counting of each symbol
+or bag-of-tree BoT the counting of 2-layer subtrees We
+also compare our model with the recursive neural network
+Surface
+features
+NN-based
+approaches
+Our method
+linear SVMBoW
+RBF SVMBoW
+linear SVMBoT
+RBF SVMBoT
+DNNBoW
+DNNBoT
+Vector avg
+Test Accuracy 
+Table 3 The accuracy of 104-label program classications
+RNN Socher et al 2011b Hyperparameters for baselines
+are listed as follows
+SVM The linear SVM has one hyperparameter C RBF
+SVM has two C and  They are tuned by validation over
+the set   1 03 01 003 with grid search
+DNN We applied a 4-layer DNN including input em-
+pirically The hidden layers dimension is 300 chosen from
+100 300 1000 learning rates are 0003 for BoW and 003
+for BoT chosen from 0003  03 with granularity 3x
+cid962 regularization coefcient is 106 for both BoW and BoT
+chosen from 107  104 with granularity 10x and
+also no regularization
+RNN Recursive units are 600-dimensional as
+our method The learning rate is chosen from the set
+ 10 03 01 and 03 yields the highest validation
+performance
+Results Table 3 presents the results in the 104-label
+program classication experiment Using SVM with sur-
+face features does distinguish different programs to some
+extentfor example a program about string manipulation
+is different from say matrix operation also a difcult pro-
+gramming problem necessitates a more complex program
+and thus more lines of code and AST nodes However their
+performance is comparatively low
+We tried deep feed-forward neural networks on these fea-
+tures and achieved accuracies of 760897 comparable
+to SVMs Vector averaging with softmaxanother neural
+network-based competing method applied in NLP Socher et
+al 2013 Kalchbrenner Grefenstette and Blunsom 2014
+yields an accuracy similar to a linear classier built on
+BoW features This is probably because the number of AST
+symbols is far fewer than words in natural languages and
+thus the vector representations provided non-singular can
+be absorbed into the classiers weights Comparing these
+approaches with our method we deem TBCNNs perfor-
+mance boost is not merely caused by using a better clas-
+sier neural networks versus SVM say but also the fea-
+turerepresentation learning nature which enables automatic
+structural feature extraction
+We also applied RNN to the program classication
+task7 the RNNs accuracy is lower than shallow methods
+7We do not use the pretrained vector representations which are
+inimical to RNN the weight Wcode codes childrens representation
+to its candidate parents adversely the high-level nodes in pro-
+grams eg a function denition are typically non-informative
+Classier
+Randmajority
+RBF SVM
+RBF SVM
+Features
+Bag-of-words
+Bag-of-trees
+Learned
+Accuracy
+Table 4 Accuracy of detecting bubble sort in percentage
+Model Variant
+Coding layer  None
+1-way pooling  3-way
+Continuous binary tree  CBoW
+TBCNN with the best gadgets
+Validation Acc
+Table 5 Effect of coding pooling and the continuous binary
+SVMBoT Taking into consideration experiments in NLP
+Socher et al 2011b Socher et al 2013 we observe a
+degradation of RNNs performance if the tree structure is
+TBCNN outperforms the above methods yielding an ac-
+curacy of 94 By exploring tree-based convolution our
+model is better at capturing programs structural features
+which is important for program analysis
+Detecting Bubble Sort
+Task description To further evaluate our TBCNN model
+in a more realistic SE scenario we used it to detect an un-
+healthy code pattern bubble sort which can also be regarded
+as a binary program classication task Detecting source
+code of certain patterns is closely related to many SE prob-
+lems In this experiment bubble sort is thought of as un-
+healthy code because it implements an inefcient algorithm
+By identifying such unhealthy code project managers can
+rene the implementations during the maintenance process
+Before the experiment a volunteer8 annotated from the
+OJ system 109 programs that contain bubble sort and 109
+programs that do not contain bubble sort They were split
+11 for validation and testing
+Data augmentation To train our TBCNN model a dataset
+of such scale is insufcient We propose a simple yet useful
+data augmentation technique for programs Concretely we
+used the source code of 4k programs in the OJ system as the
+non-bubble sort class For each program we randomly sub-
+stituted a fragment of program statements with a pre-written
+bubble sort snippet Thus we had 8k data samples in total
+Results We tested our model on the annotated real-world
+programs Note that the test samples were written by real-
+world programmers and thus the styles and forms of bubble
+sort snippets may differ from the training set for example
+sorting an integer array versus sorting a user-dened struc-
+ture and sorting an array versus sorting two arrays simulta-
+neously As we see in Table 4 bag-of-words features are not
+illuminating in this classication and yield a low accuracy of
+8The volunteer has neither authorship nor a conict of interests
+Figure 4 Validation accuracy versus the number of convo-
+lution units
+623 Bag-of-trees features are better and achieve 7706
+Our model outperforms these methods by more than 10
+This experiment also suggests that neural networks can learn
+more robust features than just counting surface statistics
+Model Analysis
+We now analyze each gadget of TBCNN quantitatively with
+the 104-label program classication as our testbed We re-
+port validation accuracies throughout this part
+Effect of coding layer
+In the proposed TBCNN model for
+program analysis we represent a non-leaf node by combin-
+ing its coded representation and its pretrained one We nd
+that the underneath coding layer can also integrate global
+information in addition to merely averaging two homoge-
+neous sources If we build a tree-based convolutional layer
+directly on the pretrained vector representations all struc-
+tural features are local that is conned in the convolution
+window The lack of integrating global information leads to
+2 degradation in performance See the rst and last rows
+in Table 5
+Layers dimensions
+In our experiments AST nodes vec-
+tor representations are set to be 30-dimensional empirically
+We chose this small value because AST nodes have only 44
+different symbols Hence the dimension needs to be intu-
+itively smaller than words vector representations eg 300
+in Mou et al 2015 The dimension of convolution ie
+the number of feature detectors was chosen by validation
+Figure 4 We tried several congurations among which
+600-dimensional convolution results in the highest valida-
+tion accuracy This analysis also veries that programs have
+rich structural information even though the number of AST
+symbols is not large As the rich semantics are emerged by
+different combinations of AST symbols we are in need of
+more feature detectors that is a larger convolutional layer
+Effect of pooling layer We tried two pooling methods in
+our TBCNN model and compare them in Table 5 the sec-
+ond and last rows 3-way pooling is proposed in hope of
+preserving features from different parts of the tree However
+as indicated by the experimental result the simple 1-way
+pooling works just as ne even 01 higher on the valida-
+tion set This suggests that TBCNN is not sensitive to pool-
+ing methods which mainly serve as a necessity for packing
+varying sized and shaped data Further development can be
+addressed in future work
+Effect of continuous binary tree The continuous binary
+tree is introduced to treat nodes with different numbers of
+children as well as to capture order information of child
+nodes We also implemented the continuous bag-of-words
+CBoW model where child nodes representations are av-
+eraged before convolution Rows 4 and 5 in Table 5 compare
+our proposed continuous binary tree and the above alterna-
+tive The result shows a boost of 13 in considering child
+nodes order information
+Conclusion
+In this paper we applied deep neural networks to the eld
+of programming language processing Due to the rich and
+explicit tree structures of programs we proposed the novel
+Tree-Based Convolutional Neural Network TBCNN In
+our model program vector representations are learned by
+the coding criterion structural features are detected by the
+convolutional layer the continuous binary tree and dynamic
+pooling enable our model to cope with trees of varying sizes
+and shapes Experimental results show the superiority of our
+model to baseline methods
+Acknowledgments
+We would like to thank anonymous reviewers for insight-
+ful comments we also thank Xiaowei Sun for annotating
+bubble sort programs Yuxuan Liu for data processing and
+Weiru Liu for discussion on the manuscript This research
+is supported by the National Basic Research Program of
+China the 973 Program under Grant No 2015CB352201
+and the National Natural Science Foundation of China un-
+der Grant Nos 61421091 61232015 61225007 91318301
+and 61502014
+References
+2006 Bengio Y Lamblin P Popovici D and Larochelle H
+2006 Greedy layer-wise training of deep networks In NIPS
+2013 Bengio Y Courville A and Vincent P 2013 Repre-
+sentation learning A review and new perspectives IEEE Trans
+Pattern Anal Mach Intell 35817981828
+1994 Bengio Y Simard P and Frasconi P 1994 Learning
+long-term dependencies with gradient descent is difcult IEEE
+Trans Neural Networks 52157166
+2013 Bettenburg N and Begel A 2013 Deciphering the
+story of software development through frequent pattern mining
+In ICSE 11971200
+2009 Chilowicz M Duris E and Roussel G 2009 Syntax
+tree ngerprinting for source code similarity detection In Proc
+IEEE Int Conf Program Comprehension 243247
+2008 Collobert R and Weston J 2008 A unied architec-
+ture for natural language processing Deep neural networks with
+multitask learning In ICML
+2011 Collobert R Weston
+J Bottou L Karlen M
+Kavukcuoglu K and Kuksa P 2011 Natural language pro-
+cessing almost from scratch JRML 1224932537
+2010 Dahl G Mohamed A and Hinton G 2010 Phone
+recognition with the mean-covariance restricted Boltzmann ma-
+chine In NIPS
+2009 Dietz L Dallmeier V Zeller A and Scheffer T 2009
+Localizing bugs in program executions with graphical models In
+2015 Duvenaud D Maclaurin D Aguilera-Iparraguirre J
+Gomez-Bombarelli R Hirzel T Aspuru-Guzik A and
+Adams R 2015 Convolutional networks on graphs for learn-
+ing molecular ngerprints arXiv preprint arXiv150909292
+2012 Ghabi A and Egyed A 2012 Code patterns for automat-
+ically validating requirements-to-code traces In ASE 200209
+2013 Hao D Lan T Zhang H Guo C and Zhang L 2013
+Is this a bug or an obsolete test In Proc ECOOP 602628
+2014 Hermann K and Blunsom P 2014 Multilingual models
+for compositional distributed semantics In ACL 5868
+2012 Hindle A Barr E Su Z Gabel M and Devanbu P
+2012 On the naturalness of software In ICSE 837847
+2006 Hinton G Osindero S and Teh Y 2006 A fast learning
+algorithm for deep belief nets Neural Computation 1871527
+2014 Kalchbrenner N Grefenstette E and Blunsom P 2014
+A convolutional neural network for modelling sentences In ACL
+655665
+2012 Krizhevsky A Sutskever I and Hinton G 2012 Ima-
+geNet classication with deep convolutional neural networks In
+1995 LeCun Y Jackel L Bottou L Brunot A Cortes C
+Denker J Drucker H Guyon I Muller U and Sackinger E
+1995 Comparison of learning algorithms for handwritten digit
+recognition In Proc Int Conf Articial Neural Networks
+2013 Mikolov T Sutskever I Chen K Corrado G and
+Dean J 2013 Distributed representations of words and phrases
+and their compositionality In NIPS
+2015 Mou L Peng H Li G Xu Y Zhang L and Jin Z
+2015 Discriminating neural sentence modeling by tree-based
+convolution In EMNLP 23152325
+2001 Pane J Ratanamahatana C and Myers B 2001 Study-
+ing the language and structure in non-programmers solutions
+Int J Human-Computer Studies
+to programming problems
+542237264
+2015 Peng H Mou L Li G Liu Y Zhang L and Jin Z
+2015 Building program vector representations for deep learn-
+ing In Proc 8th Int Conf Knowledge Science Engineering and
+Management 547553
+2015 Piech C Huang J Nguyen A Phulsuksombati M Sa-
+hami M and Guibas L 2015 Learning program embeddings
+to propagate feedback on student code In ICML
+1994 Pinker S 1994 The Language Instinct The New Science
+of Language and Mind Pengiun Press
+2011a Socher R Huang E Pennin J Manning C and Ng
+A 2011a Dynamic pooling and unfolding recursive autoen-
+coders for paraphrase detection In NIPS
+2011b Socher R Pennington J Huang E Ng A and Man-
+ning C 2011b Semi-supervised recursive autoencoders for pre-
+dicting sentiment distributions In EMNLP 151161
+2013 Socher R Perelygin A Wu J Chuang J Manning C
+Ng A and Potts C 2013 Recursive deep models for semantic
+compositionality over a sentiment treebank In EMNLP 1631
+2014 Socher R Karpathy A Le Q Manning C and Ng
+A Y 2014 Grounded compositional semantics for nding and
+describing images with sentences TACL 2207218
+2013 Steidl D and Gode N 2013 Feature-based detection of
+bugs in clones In 7th Int Workshop on Software Clones 7682
+2014 Zaremba W and Sutskever I 2014 Learning to execute
+arXiv preprint arXiv14104615
+Convolutional Neural Networks over Tree Structures
+for Programming Language Processing
+Lili Mou1 Ge Li1 Lu Zhang1 Tao Wang2 Zhi Jin1
+Corresponding authors
+1Software Institute Peking University
+doublepowermougmailcom ligezhangluzhijinseipkueducn
+2Stanford University twangcatstanfordedu
+Abstract
+Programming language processing similar to natural
+language processing is a hot research topic in the eld
+of software engineering it has also aroused growing in-
+terest in the articial intelligence community However
+different from a natural language sentence a program
+contains rich explicit and complicated structural infor-
+mation Hence traditional NLP models may be inappro-
+priate for programs In this paper we propose a novel
+tree-based convolutional neural network TBCNN for
+programming language processing in which a convo-
+lution kernel is designed over programs abstract syn-
+tax trees to capture structural information TBCNN is
+a generic architecture for programming language pro-
+cessing our experiments show its effectiveness in two
+different program analysis tasks classifying programs
+according to functionality and detecting code snippets
+of certain patterns TBCNN outperforms baseline meth-
+ods including several neural models for NLP
+Introduction
+Researchers from various communities are showing growing
+interest in applying articial intelligence AI techniques to
+solve software engineering SE problems Dietz et al 2009
+Bettenburg and Begel 2013 Hao et al 2013 In the area of
+SE analyzing program source codecalled programming
+language processing in this paperis of particular impor-
+Even though computers can run programs they do not
+truly understand programs Analyzing source code pro-
+vides a way of estimating programs behavior functionality
+complexity etc For instance automatically detecting source
+code snippets of certain patterns help programmers to dis-
+cover buggy or inefcient algorithms so as to improve code
+quality Another example is managing large software repos-
+itories where automatic source code classication and tag-
+ging are crucial to software reuse Programming language
+processing in fact serves as a foundation for many SE tasks
+eg requirement analysis Ghabi and Egyed 2012 software
+development and maintenance Bettenburg and Begel 2013
+Hindle et al 2012 demonstrate that programming lan-
+guages similar to natural languages also contain abundant
+Copyright ccid13 2016 Association for the Advancement of Articial
+Intelligence wwwaaaiorg All rights reserved
+statistical properties which are important for program anal-
+ysis These properties are difcult to capture by humans
+but justify learning-based approaches for programming lan-
+guage processing However existing machine learning pro-
+gram analysis depends largely on feature engineering which
+is labor-intensive and ad hoc to a specic task eg code
+clone detection Chilowicz Duris and Roussel 2009 and
+bug detection Steidl and Gode 2013 Further evidence
+in the machine learning literature suggests that human-
+engineered features may fail to capture the nature of data
+so they may be even worse than automatically learned ones
+The deep neural network also known as deep learning is
+a highly automated learning machine By exploring multi-
+ple layers of non-linear transformation the deep architec-
+ture can automatically learn complicated underlying fea-
+tures which are crucial to the task of interest Over the
+past few years deep learning has made signicant break-
+throughs in various elds such as speech recognition Dahl
+Mohamed and Hinton 2010 computer vision Krizhevsky
+Sutskever and Hinton 2012 and natural language process-
+ing Collobert and Weston 2008
+Despite some similarities between natural languages and
+programming languages there are also obvious differences
+Pane Ratanamahatana and Myers 2001 Based on a for-
+mal language programs contain rich and explicit structural
+information Even though structures also exist in natural
+languages they are not as stringent as in programs Pinker
+1994 illustrates an interesting example The dog the stick
+the re burned beat bit the cat This sentence complies
+with all grammar rules but too many attributive clauses
+are nested Hence it can hardly be understood by people
+due to the limitation of human intuition capacity On the
+contrary three nested loops are common in programs The
+parse tree of a program in fact is typically much larger
+than that of a natural language sentencethere are approx-
+imately 190 nodes on average in our experiment whereas
+a sentence comprises only 20 words in a sentiment analy-
+sis dataset Socher et al 2013 Further the grammar rules
+alias neighboring relationships among program compo-
+nents The statements inside and outside a loop for exam-
+ple do not form one semantic group and thus are not se-
+mantically neighboring On the above basis we think more
+effective neural models are in need to capture structural in-
+formation in programs
+In this paper we propose a novel Tree-Based Convolu-
+tional Neural Network TBCNN based on programs ab-
+stract syntax trees ASTs We also introduce the notion
+of continuous binary trees and apply dynamic pooling to
+cope with ASTs of different sizes and shapes The TBCNN
+model is a generic architecture and is applied to two SE
+tasks in our experimentsclassifying programs by function-
+alities and detecting code snippets of certain patterns It out-
+performs baseline methods in both tasks including the re-
+cursive neural network Socher et al 2011b proposed for
+NLP To the best of our knowledge this paper is also the rst
+to apply deep neural networks to the eld of programming
+language processing1
+Related Work
+Deep neural networks have made signicant breakthroughs
+in many elds Stacked restricted Boltzmann machines and
+autoencoders are successful pretraining methods Hinton
+Osindero and Teh 2006 Bengio et al 2006 They explore
+the underlying features of data in an unsupervised manner
+and give a more meaningful initialization of weights for later
+supervised learning with deep neural networks These ap-
+proaches work well with generic data eg data located in a
+manifold embedded in a certain dimensional space but they
+may not be suitable for programming language processing
+because programs contain rich structural information Fur-
+ther AST structures also vary largely among different data
+samples programs and hence they cannot be fed directly
+to a xed-size network
+To capture explicit structures in data it may be impor-
+tant and benecial to integrate human priors to the net-
+works Bengio Courville and Vincent 2013 One exam-
+ple is convolutional neural networks CNNs LeCun et al
+1995 Krizhevsky Sutskever and Hinton 2012 which spec-
+ify spatial neighboring information in data CNNs work with
+signals of a certain dimension eg images they also fail
+to capture tree-structural information as in programs
+Socher et al 2013 2011b propose a recursive neural net-
+work RNN for NLP Although structural information may
+be coded to some extent in RNNs the major drawback is
+that only the root features are used for supervised learn-
+ing which buries illuminating information under a compli-
+cated neural architecture RNNs also suffer from the dif-
+culty of training due to the long dependency path during
+back-propagation Bengio Simard and Frasconi 1994
+Subsequent work After the preliminary version of this
+paper was preprinted on arXiv2 Zaremba and Sutskever
+2014 use recurrent neural networks to estimate the output
+of restricted python programs Piech et al 2015 build re-
+cursive networks on Hoare triples Regarding the proposed
+TBCNN we extend it to process syntactic parse trees of nat-
+ural languages Mou et al 2015 Duvenaud et al 2015 ap-
+ply a similar convolutional network over graphs to analyze
+molecules
+1We make our source code and the collected dataset available
+through our website httpssitesgooglecomsitetreebasedcnn
+2 On 18 September 2014 httparxivorgabs14095718v1
+Tree-Based Convolutional Neural Network
+Programming languages have a natural tree representation
+the abstract syntax tree AST Figure 1a shows the AST of
+the code snippet int ab33 Each node in the AST
+is an abstract component in program source code A node p
+with children c1  cn represents the constructing process
+of the component p  c1  cn
+Figure 1b shows the overall architecture of TBCNN In
+our model an AST node is rst represented as a distributed
+real-valued vector so that the anonymous features of the
+symbols are captured The vector representations are learned
+by a coding criterion in our previous work Peng et al 2015
+Then we design a set of subtree feature detectors called
+the tree-based convolution kernel sliding over the entire
+AST to extract structural information of a program We
+thereafter apply dynamic pooling to gather information over
+different parts of the tree Finally a hidden layer and an out-
+put layer are added For supervised classication tasks the
+activation function of the output layer is softmax
+In the rest of this section we rst explain the coding cri-
+terion for AST nodes representation learning serving as a
+pretraining phase of programming language processing We
+then describe the proposed TBCNN model including a cod-
+ing layer a convolutional layer and a pooling layer We also
+provide additional information on dealing with nodes that
+have varying numbers of child nodes as in ASTs by intro-
+ducing the notion of continuous binary trees
+Representation Learning for AST Nodes
+Vector representations sometimes known as embeddings
+can capture underlying meanings of discrete symbols like
+AST nodes We propose in our previous work Peng et al
+2015 an unsupervised approach to learn program vector
+representations by a coding criterion which serves as a way
+of pretraining
+A generic criterion for
+representation learning is
+smoothnesssimilar symbols have similar feature vec-
+tors Bengio Courville and Vincent 2013 For example
+the symbols While and For are similar because both of
+them are related to control ow particularly loops But they
+are different from ID since ID probably represents some
+data In our scenario we would like the child nodes repre-
+sentations to code their parent nodes via a single neural
+layer during which both vector representations and coding
+weights are learned Formally let vec  RNf be the fea-
+ture representation of a symbol where Nf is the feature di-
+mension For each non-leaf node p and its direct children
+c1  cn we would like
+cid17
+cid16cid88
+vecp  tanh
+liWcodei  vecci  bcode
+where Wcodei  RNfNf
+is the weight matrix corre-
+sponding to the node ci bcode  RNf is the bias li 
+leaves under ci
+leaves under p is the coefcient of the weight Weights
+Wcodei are weighted by leaf numbers
+Because different nodes may have different numbers of
+children the number of Wcodeis is not xed To overcome
+3 Parsed by pycparser httpspypipythonorgpypipycparser
+Figure 1 a Illustration of an AST corresponding to the C code snippet int ab3 It should be notice that our model takes as
+input the entire AST of a program which is typically much larger b The architecture of the Tree-Based Convolutional Neural
+Network TBCNN The main components in our model include vector representation and coding tree-based convolution and
+dynamic pooling then a fully-connected hidden layer and an output layer softmax are added
+this problem we introduce the continuous binary tree
+where only two weight matrices W l
+code serve as
+model parameters Wi is a linear combination of the two pa-
+rameter matrices according to the position of node i Details
+are deferred to the last part of this section
+code and W r
+The closeness between vecp and its coded vector is
+measured by Euclidean distance square ie
+cid13cid13cid13vecp  tanh
+cid16cid88
+liWcodei  vecci  bcode
+cid17cid13cid13cid132
+To prevent the pretraining algorithm from learning trivial
+representations eg 0s will give 0 distance but are mean-
+ingless negative sampling is applied like Collobert et al
+2011 For each pretraining data sample p c1  cn we
+substitute one symbol either p or one of cs with a random
+symbol The distance of the negative sample is denoted as
+dc which should be at least larger than that of the positive
+training sample plus a margin  set to 1 in our experiment
+Thus the pretraining objective is to
+max0   d  dc
+minimize
+codebcodevec
+codeW r
+Coding Layer
+Having pretrained the feature vectors for all symbols we
+would like to feed them forward to the tree-based convo-
+lutional layer for supervised learning For leaf nodes they
+are just the vector representations learned in the pretraining
+phase For a non-leaf node p it has two representations the
+one learned in the pretraining phase left-hand side of Equa-
+tion 1 and the coded one right-hand side of Equation 1
+They are linearly combined before being fed to the convolu-
+tional layer Let c1  cn be the children of node p and we
+denote the combined vector as p We have
+p  Wcomb1  vecp
+ Wcomb2  tanh
+cid16cid88
+cid17
+liWcodei  vecxi  bcode
+where Wcomb1 Wcomb2  RNfNf are the parameters for
+combination They are initialized as diagonal matrices and
+then ne-tuned during supervised training
+Tree-based Convolutional Layer
+Now that each symbol in ASTs is represented as a dis-
+tributed real-valued vector x  RNf  we apply a set of
+Figure 2 a Tree-based convolution Nodes on the left are
+the feature vectors of AST nodes They are either pretrained
+or combined with pretrained and coded vectors b An illus-
+tration of 3-way pooling c An analogy to the continuous
+binary tree model In the triangle the color of a pixel is a
+combination of three primary colors in the convolution pro-
+cess the weight for a node is a combination of three weight
+parameters namely W t
+conv and W r
+conv W l
+cid17
+xed-depth feature detectors sliding over the entire tree de-
+picted in Figure 2a The subtree feature detectors can be
+viewed as convolution with a set of nite support kernels
+We call this tree-based convolution
+Formally in a xed-depth window if there are n nodes
+with vector representations x1  xn then the output of
+the feature detectors is4
+y  tanh
+Wconvi  xi  bconv
+cid16cid88n
+where y bconv RNc Wconvi RNcNf  Nc is the number
+of feature detectors 0s are padded for nodes at the bottom
+that do not have as many layers as the feature detectors In
+our experiments the kernel depth is set to 2
+Note that to deal with varying numbers of children we
+also adopt the notion of continuous binary tree In this sce-
+nario three weight matrices serve as model parameters
+namely W t
+conv Wconvi is a linear combi-
+nation of these three matrices explained in detail in the last
+part of this section
+conv and W r
+conv W l
+4 We used tanh as the activation function in TBCNN mainly
+because we hope to encode features to a same semantic space
+1 1 during coding We are grateful to an anonymous reviewer
+for reminding us of using ReLU in convolution and we are happy
+to try it in future work
+Tree-basedaDeclbTypeDeclBinaryOpIdentifierTypeIDConstantVectorrepresentationsoftmaxfullyconnectedmaxpoolingconvolutionandcodingfullyconnectedDynamicpoolingHiddenOutputTOPLOWERLEFTLOWERRIGHTabcDynamic Pooling
+After convolution structural features in an AST are ex-
+tracted and a new tree is generated The new tree has ex-
+actly the same shape and size as the original one which is
+varying among different programs Therefore the extracted
+features cannot be fed directly to a xed-size neural layer
+Dynamic pooling Socher et al 2011a is applied to deal
+with this problem
+The simplest approach perhaps is to pool all features to
+one vector We call this one-way pooling Concretely the
+maximum value in each dimension is taken from the features
+that are detected by tree-based convolution We also propose
+an alternative three-way pooling where features are pooled
+to 3 parts TOP LOWER LEFT and LOWER RIGHT ac-
+cording to the their positions in the AST Figure 2b As we
+shall see from the experimental results the simple one-way
+pooling just works as well as three-way pooling Therefore
+we adopt one-way pooling in our experiments
+After pooling the features are fully connected to a hid-
+den layer and then fed to the output layer softmax for su-
+pervised classication With the dynamic pooling process
+structural features along the entire AST reach the output
+layer with short paths Hence they can be trained effectively
+by back-propagation
+The Continuous Binary Tree Model
+As stated one problem of coding and convolving is that we
+cannot determine the number of weight matrices because
+AST nodes have different numbers of children
+One possible solution is the continuous bag-of-words
+model CBoW Mikolov et al 20135 but position informa-
+tion will be lost completely Such approach is also used in
+Hermann and Blunsom 2014 Socher et al 2014 allocate
+a different weight matrix as parameters for each position
+but this method fails to scale up since there will be a huge
+number of different positions in ASTs
+In our model we view any subtree as a binary tree re-
+gardless of its size and shape That is we have only three
+weight matrices as parameters for convolution and two for
+coding We call it a continuous binary tree
+conv W l
+conv W l
+conv and W r
+conv and W r
+conv with coefcients t
+Take convolution as an example The three parameter ma-
+conv Superscripts t l r refer
+trices are W t
+to top left and right For node xi in a window its
+weight matrix for convolution Wconvi is a linear combina-
+tion of W t
+i  respectively The coefcients are computed according to
+the relative position of a node in the sliding window Fig-
+ure 2c is an analogy to the continuous binary tree model
+The equations for computing s are listed as follows
+ t
+ r
+ l
+i  di1
+dow d the depth of the window
+i  1  t
+total number of ps siblings
+i  1  t
+5In their original paper they do not deal with varying-length
+data but their method extends naturally to this scenario Their
+method is also mathematically equivalent to average pooling
+d1 di the depth of the node i in the sliding win-
+n1  pi the position of the node n the
+i  pi1
+i 1  r
+Likewise the continuous binary tree for coding has two
+code as parameters The details
+code and W r
+weight matrices W l
+are not repeated here
+conv W l
+conv W r
+code Wcomb1 Wcomb2 W t
+To sum up the entire parameter set for TBCNN is  
+code W r
+conv Whid
+Wout bcode bconv bhid bout vec where Whid Wout bhid
+and bout are the weights and biases for the hidden and
+output layers To set up supervised training W l
+bcode and vec are derived from the pretraining phase
+Wcomb1 and Wcomb2 are initialized as diagonal matrices
+other parameters are initialized randomly We apply the
+cross-entropy loss and use stochastic gradient descent
+computed by back-propagation
+code W r
+Experiments
+We rst assess the learned vector representations both quali-
+tatively and quantitatively Then we evaluate TBCNN in two
+supervised learning tasks and conduct model analysis
+The dataset of our experiments comes from a pedagogi-
+cal programming open judge OJ system6 There are a large
+number of programming problems on the OJ system Stu-
+dents submit their source code as the solution to a certain
+problem the OJ system automatically judges the validity of
+submitted source code by running the program We down-
+loaded the source code and the corresponding programming
+problems represented as IDs as our dataset
+Unsupervised Program Vector Representations
+We applied the coding criterion of pretraining to all C code
+in the OJ system and obtained AST nodes vector represen-
+tations
+Qualitative analysis Figure 3a illustrates the hierarchical
+clustering result based on a subset of AST nodes As demon-
+strated the symbols mainly fall into three categories 1
+BinaryOp ArrayRef ID Constant are grouped to-
+gether since they are related to data referencemanipulation
+2 For If While are similar since they are related to
+control ow 3 ArrayDecl FuncDecl PtrDecl are
+similar since they are declarations The result is quite sen-
+sible because it is consistent with human understanding of
+programs
+Quantitative analysis We also evaluated pretrainings
+effect on supervised learning by feeding the learned repre-
+sentations to a program classication task See next subsec-
+tion Figure 3b plots the learning curves of both training and
+validation which are compared with random initialization
+Unsupervised vector representation learning accelerates the
+supervised training process by nearly 13 showing that pre-
+training does capture underlying features of AST nodes and
+that they can emerge high-level features spontaneously dur-
+ing supervised learning However pretraining has a limited
+effect on the nal accuracy One plausible explanation is that
+the number of AST nodes is small the pycparser we
+use distinguishes only 44 symbols Hence their representa-
+tions can be adequately tuned in a supervised fashion
+6 httpprogramminggridscn
+Figure 3 Analysis of vector representations a Hierarchical
+clustering based on AST nodes vector representations b
+Learning curves with and without pretraining
+Statistics
+ of code lines
+ of AST nodes
+Average leaf nodes depth in an AST
+Max depth of an AST
+Sample std
+Table 1 Statistics of our dataset
+Hyperparameter
+Initial learning rate
+Learning rate decay
+Embedding dimension
+Convolutional layers dim
+Penultimate layers dim
+l2 penalty
+Value How is the value chosen
+By validation
+Empirically
+Empirically
+By validation
+Same as conv layers
+Empirically
+Table 2 TBCNNs hyperparameters
+Nonetheless we think the pretraining criterion is effec-
+tive and benecial for TBCNN because training deep neural
+networks is usually time-consuming especially when tuning
+hyperparameters The pretrained vector representations are
+used throughout the experiments below
+Classifying Programs by Functionalities
+Task description In software engineering classifying
+programs by functionalities is an important problem for var-
+ious software development tasks For example in a large
+software repository eg SourceForge software products
+are usually organized into categories a typical criterion for
+which is by functionalities With program classication it
+becomes feasible to automatically tag a software component
+newly added into the repository which is benecial for soft-
+ware reuse during the development process
+In our experiment we applied TBCNN to classify source
+code in the OJ system The target label of a data sample is
+one of 104 programming problems represented as an ID
+That is programs with a same target label have the same
+functionality We randomly chose exactly 500 programs in
+each class and thus 52000 samples in total which were
+further randomly split by 311 for training validation and
+testing Relevant statistics are shown in Table 1
+Hyperparameters TBCNNs hyperparameters are shown
+in Table 2 Our competing methods include SVM and a deep
+feed-forward neural network based on hand-crafted features
+namely bag-of-words BoW the counting of each symbol
+or bag-of-tree BoT the counting of 2-layer subtrees We
+also compare our model with the recursive neural network
+Surface
+features
+NN-based
+approaches
+Our method
+linear SVMBoW
+RBF SVMBoW
+linear SVMBoT
+RBF SVMBoT
+DNNBoW
+DNNBoT
+Vector avg
+Test Accuracy 
+Table 3 The accuracy of 104-label program classications
+RNN Socher et al 2011b Hyperparameters for baselines
+are listed as follows
+SVM The linear SVM has one hyperparameter C RBF
+SVM has two C and  They are tuned by validation over
+the set   1 03 01 003 with grid search
+DNN We applied a 4-layer DNN including input em-
+pirically The hidden layers dimension is 300 chosen from
+100 300 1000 learning rates are 0003 for BoW and 003
+for BoT chosen from 0003  03 with granularity 3x
+cid962 regularization coefcient is 106 for both BoW and BoT
+chosen from 107  104 with granularity 10x and
+also no regularization
+RNN Recursive units are 600-dimensional as
+our method The learning rate is chosen from the set
+ 10 03 01 and 03 yields the highest validation
+performance
+Results Table 3 presents the results in the 104-label
+program classication experiment Using SVM with sur-
+face features does distinguish different programs to some
+extentfor example a program about string manipulation
+is different from say matrix operation also a difcult pro-
+gramming problem necessitates a more complex program
+and thus more lines of code and AST nodes However their
+performance is comparatively low
+We tried deep feed-forward neural networks on these fea-
+tures and achieved accuracies of 760897 comparable
+to SVMs Vector averaging with softmaxanother neural
+network-based competing method applied in NLP Socher et
+al 2013 Kalchbrenner Grefenstette and Blunsom 2014
+yields an accuracy similar to a linear classier built on
+BoW features This is probably because the number of AST
+symbols is far fewer than words in natural languages and
+thus the vector representations provided non-singular can
+be absorbed into the classiers weights Comparing these
+approaches with our method we deem TBCNNs perfor-
+mance boost is not merely caused by using a better clas-
+sier neural networks versus SVM say but also the fea-
+turerepresentation learning nature which enables automatic
+structural feature extraction
+We also applied RNN to the program classication
+task7 the RNNs accuracy is lower than shallow methods
+7We do not use the pretrained vector representations which are
+inimical to RNN the weight Wcode codes childrens representation
+to its candidate parents adversely the high-level nodes in pro-
+grams eg a function denition are typically non-informative
+Classier
+Randmajority
+RBF SVM
+RBF SVM
+Features
+Bag-of-words
+Bag-of-trees
+Learned
+Accuracy
+Table 4 Accuracy of detecting bubble sort in percentage
+Model Variant
+Coding layer  None
+1-way pooling  3-way
+Continuous binary tree  CBoW
+TBCNN with the best gadgets
+Validation Acc
+Table 5 Effect of coding pooling and the continuous binary
+SVMBoT Taking into consideration experiments in NLP
+Socher et al 2011b Socher et al 2013 we observe a
+degradation of RNNs performance if the tree structure is
+TBCNN outperforms the above methods yielding an ac-
+curacy of 94 By exploring tree-based convolution our
+model is better at capturing programs structural features
+which is important for program analysis
+Detecting Bubble Sort
+Task description To further evaluate our TBCNN model
+in a more realistic SE scenario we used it to detect an un-
+healthy code pattern bubble sort which can also be regarded
+as a binary program classication task Detecting source
+code of certain patterns is closely related to many SE prob-
+lems In this experiment bubble sort is thought of as un-
+healthy code because it implements an inefcient algorithm
+By identifying such unhealthy code project managers can
+rene the implementations during the maintenance process
+Before the experiment a volunteer8 annotated from the
+OJ system 109 programs that contain bubble sort and 109
+programs that do not contain bubble sort They were split
+11 for validation and testing
+Data augmentation To train our TBCNN model a dataset
+of such scale is insufcient We propose a simple yet useful
+data augmentation technique for programs Concretely we
+used the source code of 4k programs in the OJ system as the
+non-bubble sort class For each program we randomly sub-
+stituted a fragment of program statements with a pre-written
+bubble sort snippet Thus we had 8k data samples in total
+Results We tested our model on the annotated real-world
+programs Note that the test samples were written by real-
+world programmers and thus the styles and forms of bubble
+sort snippets may differ from the training set for example
+sorting an integer array versus sorting a user-dened struc-
+ture and sorting an array versus sorting two arrays simulta-
+neously As we see in Table 4 bag-of-words features are not
+illuminating in this classication and yield a low accuracy of
+8The volunteer has neither authorship nor a conict of interests
+Figure 4 Validation accuracy versus the number of convo-
+lution units
+623 Bag-of-trees features are better and achieve 7706
+Our model outperforms these methods by more than 10
+This experiment also suggests that neural networks can learn
+more robust features than just counting surface statistics
+Model Analysis
+We now analyze each gadget of TBCNN quantitatively with
+the 104-label program classication as our testbed We re-
+port validation accuracies throughout this part
+Effect of coding layer
+In the proposed TBCNN model for
+program analysis we represent a non-leaf node by combin-
+ing its coded representation and its pretrained one We nd
+that the underneath coding layer can also integrate global
+information in addition to merely averaging two homoge-
+neous sources If we build a tree-based convolutional layer
+directly on the pretrained vector representations all struc-
+tural features are local that is conned in the convolution
+window The lack of integrating global information leads to
+2 degradation in performance See the rst and last rows
+in Table 5
+Layers dimensions
+In our experiments AST nodes vec-
+tor representations are set to be 30-dimensional empirically
+We chose this small value because AST nodes have only 44
+different symbols Hence the dimension needs to be intu-
+itively smaller than words vector representations eg 300
+in Mou et al 2015 The dimension of convolution ie
+the number of feature detectors was chosen by validation
+Figure 4 We tried several congurations among which
+600-dimensional convolution results in the highest valida-
+tion accuracy This analysis also veries that programs have
+rich structural information even though the number of AST
+symbols is not large As the rich semantics are emerged by
+different combinations of AST symbols we are in need of
+more feature detectors that is a larger convolutional layer
+Effect of pooling layer We tried two pooling methods in
+our TBCNN model and compare them in Table 5 the sec-
+ond and last rows 3-way pooling is proposed in hope of
+preserving features from different parts of the tree However
+as indicated by the experimental result the simple 1-way
+pooling works just as ne even 01 higher on the valida-
+tion set This suggests that TBCNN is not sensitive to pool-
+ing methods which mainly serve as a necessity for packing
+varying sized and shaped data Further development can be
+addressed in future work
+Effect of continuous binary tree The continuous binary
+tree is introduced to treat nodes with different numbers of
+children as well as to capture order information of child
+nodes We also implemented the continuous bag-of-words
+CBoW model where child nodes representations are av-
+eraged before convolution Rows 4 and 5 in Table 5 compare
+our proposed continuous binary tree and the above alterna-
+tive The result shows a boost of 13 in considering child
+nodes order information
+Conclusion
+In this paper we applied deep neural networks to the eld
+of programming language processing Due to the rich and
+explicit tree structures of programs we proposed the novel
+Tree-Based Convolutional Neural Network TBCNN In
+our model program vector representations are learned by
+the coding criterion structural features are detected by the
+convolutional layer the continuous binary tree and dynamic
+pooling enable our model to cope with trees of varying sizes
+and shapes Experimental results show the superiority of our
+model to baseline methods
+Acknowledgments
+We would like to thank anonymous reviewers for insight-
+ful comments we also thank Xiaowei Sun for annotating
+bubble sort programs Yuxuan Liu for data processing and
+Weiru Liu for discussion on the manuscript This research
+is supported by the National Basic Research Program of
+China the 973 Program under Grant No 2015CB352201
+and the National Natural Science Foundation of China un-
+der Grant Nos 61421091 61232015 61225007 91318301
+and 61502014
+References
+2006 Bengio Y Lamblin P Popovici D and Larochelle H
+2006 Greedy layer-wise training of deep networks In NIPS
+2013 Bengio Y Courville A and Vincent P 2013 Repre-
+sentation learning A review and new perspectives IEEE Trans
+Pattern Anal Mach Intell 35817981828
+1994 Bengio Y Simard P and Frasconi P 1994 Learning
+long-term dependencies with gradient descent is difcult IEEE
+Trans Neural Networks 52157166
+2013 Bettenburg N and Begel A 2013 Deciphering the
+story of software development through frequent pattern mining
+In ICSE 11971200
+2009 Chilowicz M Duris E and Roussel G 2009 Syntax
+tree ngerprinting for source code similarity detection In Proc
+IEEE Int Conf Program Comprehension 243247
+2008 Collobert R and Weston J 2008 A unied architec-
+ture for natural language processing Deep neural networks with
+multitask learning In ICML
+2011 Collobert R Weston
+J Bottou L Karlen M
+Kavukcuoglu K and Kuksa P 2011 Natural language pro-
+cessing almost from scratch JRML 1224932537
+2010 Dahl G Mohamed A and Hinton G 2010 Phone
+recognition with the mean-covariance restricted Boltzmann ma-
+chine In NIPS
+2009 Dietz L Dallmeier V Zeller A and Scheffer T 2009
+Localizing bugs in program executions with graphical models In
+2015 Duvenaud D Maclaurin D Aguilera-Iparraguirre J
+Gomez-Bombarelli R Hirzel T Aspuru-Guzik A and
+Adams R 2015 Convolutional networks on graphs for learn-
+ing molecular ngerprints arXiv preprint arXiv150909292
+2012 Ghabi A and Egyed A 2012 Code patterns for automat-
+ically validating requirements-to-code traces In ASE 200209
+2013 Hao D Lan T Zhang H Guo C and Zhang L 2013
+Is this a bug or an obsolete test In Proc ECOOP 602628
+2014 Hermann K and Blunsom P 2014 Multilingual models
+for compositional distributed semantics In ACL 5868
+2012 Hindle A Barr E Su Z Gabel M and Devanbu P
+2012 On the naturalness of software In ICSE 837847
+2006 Hinton G Osindero S and Teh Y 2006 A fast learning
+algorithm for deep belief nets Neural Computation 1871527
+2014 Kalchbrenner N Grefenstette E and Blunsom P 2014
+A convolutional neural network for modelling sentences In ACL
+655665
+2012 Krizhevsky A Sutskever I and Hinton G 2012 Ima-
+geNet classication with deep convolutional neural networks In
+1995 LeCun Y Jackel L Bottou L Brunot A Cortes C
+Denker J Drucker H Guyon I Muller U and Sackinger E
+1995 Comparison of learning algorithms for handwritten digit
+recognition In Proc Int Conf Articial Neural Networks
+2013 Mikolov T Sutskever I Chen K Corrado G and
+Dean J 2013 Distributed representations of words and phrases
+and their compositionality In NIPS
+2015 Mou L Peng H Li G Xu Y Zhang L and Jin Z
+2015 Discriminating neural sentence modeling by tree-based
+convolution In EMNLP 23152325
+2001 Pane J Ratanamahatana C and Myers B 2001 Study-
+ing the language and structure in non-programmers solutions
+Int J Human-Computer Studies
+to programming problems
+542237264
+2015 Peng H Mou L Li G Liu Y Zhang L and Jin Z
+2015 Building program vector representations for deep learn-
+ing In Proc 8th Int Conf Knowledge Science Engineering and
+Management 547553
+2015 Piech C Huang J Nguyen A Phulsuksombati M Sa-
+hami M and Guibas L 2015 Learning program embeddings
+to propagate feedback on student code In ICML
+1994 Pinker S 1994 The Language Instinct The New Science
+of Language and Mind Pengiun Press
+2011a Socher R Huang E Pennin J Manning C and Ng
+A 2011a Dynamic pooling and unfolding recursive autoen-
+coders for paraphrase detection In NIPS
+2011b Socher R Pennington J Huang E Ng A and Man-
+ning C 2011b Semi-supervised recursive autoencoders for pre-
+dicting sentiment distributions In EMNLP 151161
+2013 Socher R Perelygin A Wu J Chuang J Manning C
+Ng A and Potts C 2013 Recursive deep models for semantic
+compositionality over a sentiment treebank In EMNLP 1631
+2014 Socher R Karpathy A Le Q Manning C and Ng
+A Y 2014 Grounded compositional semantics for nding and
+describing images with sentences TACL 2207218
+2013 Steidl D and Gode N 2013 Feature-based detection of
+bugs in clones In 7th Int Workshop on Software Clones 7682
+2014 Zaremba W and Sutskever I 2014 Learning to execute
+arXiv preprint arXiv14104615

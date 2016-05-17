@@ -31,8 +31,8 @@ links_file = open('links_for_pdfs.txt', 'w')
 base_url = 'http://export.arxiv.org/api/query?';
 
 # Search parameters
-search_query = 'natural+language+processing&in=grp_cs' #cs 343
-#search_query = 't+cell+receptor+genome&in=grp_q-bio' #biology 231
+#search_query = 'natural+language+processing&in=grp_cs' #cs 343
+search_query = 't+cell+receptor+genome&in=grp_q-bio' #biology 231
 #search_query = 'galaxy+evolution&in=grp_physics' #physics 365
 #search_query = 'hawkes+processes&in=grp_math' #math 166
 

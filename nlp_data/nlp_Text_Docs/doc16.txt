@@ -1,0 +1,1548 @@
+NLTK The Natural Language Toolkit
+Edward Loper and Steven Bird
+Department of Computer and Information Science
+University of Pennsylvania Philadelphia PA 19104-6389 USA
+Abstract
+NLTK the Natural Language Toolkit
+is a suite of open source program
+modules tutorials and problem sets
+providing ready-to-use computational
+linguistics courseware NLTK covers
+symbolic and statistical natural
+guage processing and is interfaced to
+annotated corpora Students augment
+and replace existing components learn
+structured programming by example
+and manipulate sophisticated models
+from the outset
+1 Introduction
+student
+assignments
+computational
+introductory courses on compu-
+Teachers of
+tational
+linguistics are often faced with the
+challenge of setting up a practical programming
+component
+This is a dicult task because
+projects
+dierent
+linguistics domains
+require a variety of dierent data structures
+and functions and because a diverse range of
+topics may need to be included in the syllabus
+A widespread practice is to employ multiple
+programming languages where each language
+provides native data structures and functions
+that are a good t for the task at hand For
+example a course might use Prolog for pars-
+ing Perl for corpus processing and a nite-state
+toolkit for morphological analysis By relying
+on the built-in features of various languages the
+teacher avoids having to develop a lot of software
+infrastructure
+consequence
+An unfortunate
+signicant part of such courses must be devoted
+to teaching programming languages Further
+many interesting projects span a variety of
+domains and would require that multiple
+languages be bridged For example a student
+project that involved syntactic parsing of corpus
+data from a morphologically rich language might
+involve all three of the languages mentioned
+above Perl for string processing a nite state
+toolkit for morphological analysis and Prolog
+for parsing It is clear that these considerable
+overheads and shortcomings warrant a fresh
+approach
+Apart from the practical component compu-
+tational linguistics courses may also depend on
+software for in-class demonstrations This con-
+text calls for highly interactive graphical user
+interfaces making it possible to view program
+state eg the chart of a chart parser observe
+program execution step-by-step eg
+tion of a nite-state machine and even make
+minor modications to programs in response to
+what if questions from the class Because
+of these diculties it is common to avoid live
+demonstrations and keep classes for theoreti-
+cal presentations only Apart from being dull
+this approach leaves students to solve important
+practical problems on their own or to deal with
+them less eciently in oce hours
+In this paper we introduce a new approach to
+the above challenges a streamlined and exible
+way of organizing the practical component
+linguistics
+of an introductory computational
+course We describe NLTK
+the Natural
+Language Toolkit which we have developed in
+conjunction with a course we have taught at
+the University of Pennsylvania
+The Natural Language Toolkit
+able under an open source
+httpnltksfnet
+platforms
+Windows OS X Linux and Unix
+supported by Python
+license
+is avail-
+NLTK runs on all
+including
+criteria are listed in the order of their impor-
+It was also important to decide what
+goals the toolkit would not attempt to accom-
+plish we therefore include an explicit set of non-
+requirements which the toolkit is not expected
+to satisfy
+2 Choice of Programming Language
+31 Requirements
+A number
+The most basic step in setting up a practical
+component is choosing a suitable programming
+language
+considerations
+inuenced our choice First the language must
+have a shallow learning curve so that novice
+programmers get immediate rewards for their
+eorts
+Second the language must support
+rapid prototyping and a short developtest
+cycle an obligatory compilation step is a
+serious detraction Third the code should be
+self-documenting with a transparent syntax and
+semantics Fourth it should be easy to write
+structured programs ideally object-oriented but
+without the burden associated with languages
+like C Finally the language must have
+an easy-to-use graphics library to support the
+development of graphical user interfaces
+In surveying the available languages we
+believe that Python oers an especially good
+t to the above requirements Python is an
+object-oriented scripting language developed
+by Guido van Rossum and available on all
+Python oers
+platforms wwwpythonorg
+a shallow learning curve
+it was designed to
+be easily learnt by children van Rossum
+1999 As an interpreted language Python is
+suitable for rapid prototyping Python code is
+exceptionally readable and it has been praised
+as executable pseudocode
+Python is an
+object-oriented language but not punitively
+so and it is easy to encapsulate data and
+methods inside Python classes Finally Python
+has an interface to the Tk graphics toolkit
+Lundh 1999 and writing graphical interfaces
+is straightforward
+3 Design Criteria
+Several criteria were considered in the design
+and implementation of the toolkit These design
+Ease of Use The primary purpose of the
+toolkit is to allow students to concentrate on
+building natural language processing NLP sys-
+tems The more time students must spend learn-
+ing to use the toolkit the less useful it is
+Consistency The toolkit should use consis-
+tent data structures and interfaces
+toolkit
+Extensibility The
+accommodate new components whether those
+components replicate or extend the toolkits
+existing functionality
+be structured in such a way that it is obvious
+where new extensions would t into the toolkits
+infrastructure
+The toolkit
+toolkit
+Documentation The
+structures and its implementation all need to
+be carefully and thoroughly documented All
+nomenclature must be carefully chosen and
+consistently used
+Simplicity The toolkit should structure the
+complexities of building NLP systems not hide
+them Therefore each class dened by the
+toolkit should be simple enough that a student
+could implement it by the time they nish an
+introductory course in computational
+linguis-
+In particular
+Modularity The interaction between dier-
+ent components of the toolkit should be kept
+to a minimum using simple well-dened inter-
+it should be possible to
+complete individual projects using small parts
+of the toolkit without worrying about how they
+interact with the rest of the toolkit This allows
+students to learn how to use the toolkit incre-
+mentally throughout a course Modularity also
+makes it easier to change and extend the toolkit
+32 Non-Requirements
+Comprehensiveness The
+intended to provide a comprehensive set of
+tools Indeed there should be a wide variety of
+ways in which students can extend the toolkit
+toolkit
+Eciency The toolkit does not need to
+be highly optimized for runtime performance
+However
+it should be ecient enough that
+students can use their NLP systems to perform
+real tasks
+Cleverness Clear designs and implementa-
+tions are far preferable to ingenious yet inde-
+cipherable ones
+4 Modules
+The toolkit is implemented as a collection of
+independent modules each of which denes a
+specic data structure or task
+A set of core modules denes basic data
+types and processing systems that are used
+throughout the toolkit The token module
+provides basic classes for processing individual
+elements of text such as words or sentences
+The tree module denes data structures for
+representing tree structures over text
+as syntax trees and morphological trees The
+probability module implements classes that
+encode frequency distributions and probability
+distributions including a variety of statistical
+smoothing techniques
+The remaining modules dene data structures
+and interfaces for performing specic NLP tasks
+This list of modules will grow over time as we
+add new tasks and algorithms to the toolkit
+Parsing Modules
+The parser module denes a high-level inter-
+face for producing trees that represent the struc-
+tures of texts The chunkparser module denes
+a sub-interface for parsers that identify non-
+overlapping linguistic groups such as base noun
+phrases in unrestricted text
+provide
+implementations
+for these abstract interfaces The srparser
+shift-reduce
+parser The chartparser module denes a
+exible parser that uses a chart
+to record
+Four modules
+implements
+hypotheses about syntactic constituents The
+pcfgparser module provides a variety of
+dierent parsers for probabilistic grammars
+And the rechunkparser module denes a
+transformational
+implementation of the chunk parser interface
+regular-expression
+Tagging Modules
+The tagger module denes a standard interface
+for augmenting each token of a text with supple-
+mentary information such as its part of speech
+or its WordNet synset tag and provides several
+dierent implementations for this interface
+Finite State Automata
+The fsa module denes a data type for encod-
+ing nite state automata and an interface for
+creating automata from regular expressions
+Type Checking
+Debugging time is an important factor in the
+toolkits ease of use To reduce the amount of
+time students must spend debugging their code
+we provide a type checking module which can
+be used to ensure that functions are given valid
+arguments The type checking module is used
+by all of the basic data types and processing
+classes
+Since type checking is done explicitly it can
+slow the toolkit down However when eciency
+is an issue type checking can be easily turned
+o and with type checking is disabled there is
+no performance penalty
+Visualization
+structures
+and graphical
+modules
+viewing
+Visualization
+graphical
+dene
+interfaces
+and manipulating
+experimenting with NLP tasks The drawtree
+module provides a simple graphical
+face for displaying tree structures
+drawtree edit module provides an interface
+for building and modifying tree structures
+The drawplot graph module can be used to
+graph mathematical functions The drawfsa
+module provides a graphical tool for displaying
+and simulating nite state automata
+drawchart module provides an interactive
+graphical tool
+parsers
+for experimenting with chart
+The visualization modules provide interfaces
+for interaction and experimentation they do
+not directly implement NLP data structures or
+tasks Simplicity of implementation is therefore
+less of an issue for the visualization modules
+than it is for the rest of the toolkit
+Text Classication
+The classifier module denes a standard
+interface for classifying texts into categories
+This interface is currently implemented by two
+modules The classifiernaivebayes module
+denes a text classier based on the Naive Bayes
+assumption The classifiermaxent module
+denes the maximum entropy model for text
+classication and implements two algorithms
+for training the model Generalized Iterative
+Scaling and Improved Iterative Scaling
+The classifierfeature module provides
+a standard encoding for the information that
+is used to make decisions for a particular
+This standard encoding
+classication task
+experiment with the
+dierences between dierent text classication
+algorithms using identical feature sets
+students
+The classifierfeatureselection module
+denes a standard interface for choosing which
+features are relevant for a particular classica-
+tion task Good feature selection can signi-
+cantly improve classication performance
+5 Documentation
+toolkit
+is accompanied by extensive
+documentation that explains the toolkit and
+describes how to use and extend it This
+documentation is divided into three primary
+categories
+teach students how to use the
+Tutorials
+toolkit
+in the context of performing specic
+tasks Each tutorial focuses on a single domain
+such as tagging probabilistic systems or text
+classication The tutorials include a high-level
+discussion that explains and motivates
+domain
+followed by a detailed walk-through
+that uses examples to show how NLTK can be
+used to perform specic tasks
+Reference Documentation provides precise
+denitions for every module
+interface class
+method function and variable in the toolkit It
+is automatically extracted from docstring com-
+ments in the Python source code using Epydoc
+Loper 2002
+explain and justify the
+Technical Reports
+toolkits design and implementation They are
+used by the developers of the toolkit to guide
+and document the toolkits construction Stu-
+dents can also consult these reports if they would
+like further information about how the toolkit is
+designed and why it is designed that way
+6 Uses of NLTK
+61 Assignments
+NLTK can be used to create student assign-
+ments of varying diculty and scope
+simplest assignments students experiment with
+an existing module The wide variety of existing
+modules provide many opportunities for creat-
+ing these simple assignments Once students
+become more familiar with the toolkit they can
+be asked to make minor changes or extensions to
+an existing module A more challenging task is
+to develop a new module Here NLTK provides
+some useful starting points predened inter-
+faces and data structures and existing modules
+that implement the same interface
+Example Chunk Parsing
+As an example of a moderately dicult
+assignment we asked students to construct
+a chunk parser that correctly identies base
+noun phrase chunks
+in a given text by
+dening a cascade of transformational chunking
+The NLTK rechunkparser module
+provides
+regular-expression
+based rule types which the students can
+instantiate
+ChunkRuleNN builds
+chunks from sequences of consecutive nouns
+ChinkRuleVB
+existing chunks SplitRuleNN DT
+splits any existing chunk that contains a
+singular noun followed by determiner
+two pieces and MergeRuleJJ JJ
+construct
+complete
+example
+excises
+variety
+combines two adjacent chunks where the rst
+chunk ends and the second chunk starts with
+adjectives
+The chunking tutorial motivates chunk pars-
+ing describes each rule type and provides all
+the necessary code for the assignment The pro-
+vided code is responsible for loading the chun-
+ked part-of-speech tagged text using an existing
+tokenizer creating an unchunked version of the
+text applying the chunk rules to the unchunked
+text and scoring the result Students focus on
+the NLP task only  providing a rule set with
+the best coverage
+In the remainder of this section we reproduce
+some of the cascades created by the students
+The rst example illustrates a combination of
+several rule types
+cascade  
+ChunkRuleDTNNVBNN
+ChunkRuleDTVBNN
+ChunkRule
+UnChunkRuleINVBCCMDRB
+UnChunkRule
+MergeRuleNNDTJJCD
+NNDTJJCD
+SplitRuleNN DTJJ
+The next example illustrates a brute-force sta-
+tistical approach The student calculated how
+often each part-of-speech tag was included in
+a noun phrase They then constructed chunks
+from any sequence of tags that occurred in a
+noun phrase more than 50 of the time
+cascade  
+ChunkRuleCDDTEXPDT
+PRPWPFW
+JJNNPOSRBSWDT
+In the third example the student constructed
+a single chunk containing the entire text and
+then excised all elements that did not belong
+cascade  
+ChunkRule
+ChinkRuleVBINCCRMDWRBTO
+62 Class demonstrations
+NLTK provides graphical tools that can be used
+in class demonstrations to help explain basic
+NLP concepts and algorithms These interactive
+tools can be used to display relevant data struc-
+tures and to show the step-by-step execution of
+algorithms Both data structures and control
+ow can be easily modied during the demon-
+stration in response to questions from the class
+Since these graphical tools are included with
+the toolkit they can also be used by students
+This allows students to experiment at home with
+the algorithms that they have seen presented in
+Example The Chart Parsing Tool
+The chart parsing tool
+is an example of a
+graphical tool provided by NLTK This tool can
+be used to explain the basic concepts behind
+chart parsing and to show how the algorithm
+works Chart parsing is a exible parsing algo-
+rithm that uses a data structure called a chart to
+record hypotheses about syntactic constituents
+Each hypothesis is represented by a single edge
+on the chart A set of rules determine when new
+edges can be added to the chart This set of rules
+controls the overall behavior of the parser eg
+whether it parses top-down or bottom-up
+The chart parsing tool demonstrates the pro-
+cess of parsing a single sentence with a given
+grammar and lexicon Its display is divided into
+three sections the bottom section displays the
+chart the middle section displays the sentence
+and the top section displays the partial syntax
+tree corresponding to the selected edge But-
+tons along the bottom of the window are used
+to control the execution of the algorithm The
+main display window for the chart parsing tool
+is shown in Figure 1
+This tool can be used to explain several dif-
+ferent aspects of chart parsing First it can be
+used to explain the basic chart data structure
+and to show how edges can represent hypothe-
+ses about syntactic constituents
+It can then
+be used to demonstrate and explain the indi-
+vidual rules that the chart parser uses to create
+new edges Finally it can be used to show how
+these individual rules combine to nd a complete
+parse for a given sentence
+To reduce the overhead of setting up demon-
+strations during lecture the user can dene a
+list of preset charts The tool can then be reset
+to any one of these charts at any time
+students with the basic data structures tools
+and interfaces that they need This allows the
+students to concentrate on the problems that
+interest them
+The collaborative open-source nature of the
+toolkit can provide students with a sense that
+their projects are meaningful contributions and
+not just exercises Several of the students in our
+course have expressed interest in incorporating
+their projects into the toolkit
+Finally many of the modules included in the
+toolkit provide students with good examples
+of what projects should look like with well
+thought-out interfaces clean code structure and
+thorough documentation
+Figure 1 Chart Parsing Tool
+Example Probabilistic Parsing
+The chart parsing tool allows for exible con-
+trol of the parsing algorithm At each step of
+the algorithm the user can select which rule or
+strategy they wish to apply This allows the user
+to experiment with mixing dierent strategies
+eg top-down and bottom-up The user can
+exercise ne-grained control over the algorithm
+by selecting which edge they wish to apply a rule
+to This exibility allows lecturers to use the
+tool to respond to a wide variety of questions
+and allows students to experiment with dierent
+variations on the chart parsing algorithm
+63 Advanced Projects
+NLTK provides students with a exible frame-
+work for advanced projects Typical projects
+involve the development of entirely new func-
+tionality for a previously unsupported NLP task
+or the development of a complete system out of
+existing and new modules
+The toolkits broad coverage allows students
+to explore a wide variety of topics In our intro-
+ductory computational linguistics course topics
+for student projects included text generation
+word sense disambiguation collocation analysis
+and morphological analysis
+NLTK eliminates the tedious infrastructure-
+typically associated with
+providing
+building that
+advanced
+student
+projects
+The probabilistic parsing module was created
+as a class project for a statistical NLP course
+The toolkit provided the basic data types and
+interfaces for parsing The project extended
+these adding a new probabilistic parsing inter-
+face and using subclasses to create a prob-
+abilistic version of the context free grammar
+data structure These new components were
+used in conjunction with several existing compo-
+nents such as the chart data structure to dene
+two implementations of the probabilistic parsing
+interface Finally a tutorial was written that
+explained the basic motivations and concepts
+behind probabilistic parsing and described the
+new interfaces data structures and parsers
+7 Evaluation
+We used NLTK as a basis for the assignments
+and student projects in CIS-530 an introduc-
+tory computational linguistics class taught at
+the University of Pennsylvania CIS-530 is a
+graduate level class although some advanced
+undergraduates were also enrolled Most stu-
+dents had a background in either computer sci-
+ence or linguistics and occasionally both Stu-
+dents were required to complete ve assign-
+ments two exams and a nal project All class
+materials are available from the course website
+httpwwwcisupenneducis530
+The experience of using NLTK was very pos-
+itive both for us and for the students The
+students liked the fact that they could do inter-
+esting projects from the outset They also liked
+being able to run everything on their computer
+at home The students found the extensive doc-
+umentation very helpful for learning to use the
+toolkit They found the interfaces dened by
+NLTK intuitive and appreciated the ease with
+which they could combine dierent components
+to create complete NLP systems
+We did encounter a few diculties during the
+semester One problem was nding large clean
+corpora that the students could use for their
+assignments
+Several of the students needed
+assistance nding suitable corpora for their
+nal projects Another issue was the fact that
+we were actively developing NLTK during the
+semester some modules were only completed
+one or two weeks before the students used
+them As a result students who worked at
+home needed to download new versions of the
+toolkit several times throughout the semester
+Luckily Python has extensive support
+installation scripts which made these upgrades
+simple The students encountered a couple of
+bugs in the toolkit but none were serious and
+all were quickly corrected
+8 Other Approaches
+The computational component of computational
+linguistics courses takes many forms In this sec-
+tion we briey review a selection of approaches
+classied according to the original target audi-
+Linguistics Students Various books intro-
+duce programming or computing to linguists
+These are elementary on the computational side
+providing a gentle introduction to students hav-
+ing no prior experience in computer science
+Examples of such books are Using Computers
+in Linguistics Lawler and Dry 1998 and Pro-
+gramming for Linguistics Java Technology for
+Language Researchers Hammond 2002
+unication-based
+Grammar Developers
+Infrastructure
+for grammar development has a long history
+constraint-based
+grammar
+from DCG Pereira
+and Warren 1980 to HPSG Pollard and
+Sag 1994 Recent work includes Copestake
+frameworks
+2000 Baldridge et al 2002a A concurrent
+development has been the nite state toolkits
+Beesley and
+such as
+Karttunen 2002
+widespread pedagogical application
+the Xerox toolkit
+This work has
+Other Researchers and Developers
+A variety of toolkits have been created for
+research or RD purposes Examples include
+Statistical Language
+the CMU-Cambridge
+Modeling Toolkit
+Clarkson and Rosenfeld
+the EMU Speech Database System
+Harrington and Cassidy 1999 the General
+Architecture for Text Engineering Bontcheva
+et al 2002 the Maxent Package for Maximum
+Entropy Models Baldridge et al 2002b and
+the Annotation Graph Toolkit Maeda et al
+2002 Although not originally motivated by
+pedagogical needs all of these toolkits have
+pedagogical applications and many have already
+been used in teaching
+9 Conclusions and Future Work
+NLTK provides a simple extensible uniform
+framework for assignments projects and class
+demonstrations It is well documented easy to
+learn and simple to use We hope that NLTK
+will allow computational linguistics classes to
+include more hands-on experience with using
+and building NLP components and systems
+NLTK is unique in its combination of three
+factors First it was deliberately designed as
+courseware and gives pedagogical goals primary
+status Second its target audience consists of
+both linguists and computer scientists and it
+is accessible and challenging at many levels of
+prior computational skill Finally it is based on
+an object-oriented scripting language support-
+ing rapid prototyping and literate programming
+We plan to continue extending the breadth
+of materials covered by the toolkit We are
+currently working on NLTK modules for Hidden
+Markov Models
+language modeling and tree
+adjoining grammars We also plan to increase
+the number of algorithms implemented by some
+existing modules such as the text classication
+module
+Finding suitable corpora is a prerequisite for
+many student assignments and projects We are
+EUROSPEECH 97
+camacukprc14eurospeech97ps
+httpsvr-wwweng
+Copestake2000 Ann Copestake 2000 The new
+LKB system
+httpwww-cslistanfordeduaacdoc5-2
+Hammond2002 Michael Hammond 2002 Program-
+ming for Linguistics Java Technology for Lan-
+guage Researchers Oxford Blackwell In press
+Harrington and Cassidy1999 Jonathan Harrington
+and Steve Cassidy 1999 Techniques in Speech
+Acoustics Kluwer
+Lawler and Dry1998 John M
+editors
+Helen Aristar Dry
+Computers in Linguistics London Routledge
+Loper2002 Edward Loper 2002 Epydoc
+httpepydocsourceforgenet
+Lundh1999 Fredrik Lundh 1999 An introduction
+to tkinter
+httpwwwpythonwarecomlibrary
+tkinterintroductionindexhtm
+Maeda et al2002 Kazuaki Maeda Steven Bird
+Xiaoyi Ma and Haejoong Lee
+2002 Creat-
+ing annotation tools with the annotation graph
+toolkit In Proceedings of the Third International
+Conference on Language Resources and Evalua-
+tion httparXivorgabscs0204005
+Pereira and Warren1980 Fernando C N Pereira
+and David H D Warren 1980 Denite clause
+grammars for language analysis  a survey of the
+formalism and a comparison with augmented tran-
+sition grammars Articial Intelligence 13231
+Pollard and Sag1994 Carl Pollard and Ivan A Sag
+1994 Head-Driven Phrase Structure Grammar
+Chicago University Press
+van Rossum1999 Guido van Rossum 1999 Com-
+puter programming for everybody
+Technical
+report Corporation for National Research Ini-
+tiatives httpwwwpythonorgdocessays
+cp4ehtml
+therefore putting together a collection of corpora
+containing data appropriate for every module
+dened by the toolkit
+NLTK is an open source project and we wel-
+come any contributions Readers who are inter-
+ested in contributing to NLTK or who have
+suggestions for improvements are encouraged to
+contact the authors
+10 Acknowledgments
+We are indebted to our students for feedback
+on the toolkit and to anonymous reviewers Jee
+Bang and the workshop organizers for com-
+ments on an earlier version of this paper We are
+grateful to Mitch Marcus and the Department of
+Computer and Information Science at the Uni-
+versity of Pennsylvania for sponsoring the work
+reported here
+References
+Baldridge et al2002a Jason
+Baldridge
+architecture
+Dowding and Susana Early
+resources
+sharing
+unication-based grammars
+In Proceedings
+of the Third Language Resources and Evaluation
+Conference Paris European Language Resources
+Association
+httpwwwiccsinformaticsedacuk
+jmbleo-lrecpsgz
+Baldridge et al2002b Jason Baldridge Thomas
+Morton and Gann Bierner 2002b The MaxEnt
+project
+httpmaxentsourceforgenet
+Beesley and Karttunen2002 Kenneth R Beesley
+and Lauri Karttunen
+Finite-State
+Morphology Xerox Tools and Techniques Studies
+in Natural Language Processing Cambridge
+University Press
+Bontcheva et al2002 Kalina Bontcheva Hamish
+Cunningham Valentin Tablan Diana Maynard
+and Oana Hamza
+2002 Using GATE as an
+environment for teaching NLP In Proceedings of
+the ACL Workshop on Eective Tools and Method-
+ologies for Teaching NLP and CL Somerset NJ
+Association for Computational Linguistics
+Clarkson and Rosenfeld1997 Philip R Clarkson and
+Ronald Rosenfeld
+language
+modeling using the CMU-Cambridge Toolkit
+In Proceedings of
+the 5th European Confer-
+ence on Speech Communication and Technology
+Statistical
+NLTK The Natural Language Toolkit
+Edward Loper and Steven Bird
+Department of Computer and Information Science
+University of Pennsylvania Philadelphia PA 19104-6389 USA
+Abstract
+NLTK the Natural Language Toolkit
+is a suite of open source program
+modules tutorials and problem sets
+providing ready-to-use computational
+linguistics courseware NLTK covers
+symbolic and statistical natural
+guage processing and is interfaced to
+annotated corpora Students augment
+and replace existing components learn
+structured programming by example
+and manipulate sophisticated models
+from the outset
+1 Introduction
+student
+assignments
+computational
+introductory courses on compu-
+Teachers of
+tational
+linguistics are often faced with the
+challenge of setting up a practical programming
+component
+This is a dicult task because
+projects
+dierent
+linguistics domains
+require a variety of dierent data structures
+and functions and because a diverse range of
+topics may need to be included in the syllabus
+A widespread practice is to employ multiple
+programming languages where each language
+provides native data structures and functions
+that are a good t for the task at hand For
+example a course might use Prolog for pars-
+ing Perl for corpus processing and a nite-state
+toolkit for morphological analysis By relying
+on the built-in features of various languages the
+teacher avoids having to develop a lot of software
+infrastructure
+consequence
+An unfortunate
+signicant part of such courses must be devoted
+to teaching programming languages Further
+many interesting projects span a variety of
+domains and would require that multiple
+languages be bridged For example a student
+project that involved syntactic parsing of corpus
+data from a morphologically rich language might
+involve all three of the languages mentioned
+above Perl for string processing a nite state
+toolkit for morphological analysis and Prolog
+for parsing It is clear that these considerable
+overheads and shortcomings warrant a fresh
+approach
+Apart from the practical component compu-
+tational linguistics courses may also depend on
+software for in-class demonstrations This con-
+text calls for highly interactive graphical user
+interfaces making it possible to view program
+state eg the chart of a chart parser observe
+program execution step-by-step eg
+tion of a nite-state machine and even make
+minor modications to programs in response to
+what if questions from the class Because
+of these diculties it is common to avoid live
+demonstrations and keep classes for theoreti-
+cal presentations only Apart from being dull
+this approach leaves students to solve important
+practical problems on their own or to deal with
+them less eciently in oce hours
+In this paper we introduce a new approach to
+the above challenges a streamlined and exible
+way of organizing the practical component
+linguistics
+of an introductory computational
+course We describe NLTK
+the Natural
+Language Toolkit which we have developed in
+conjunction with a course we have taught at
+the University of Pennsylvania
+The Natural Language Toolkit
+able under an open source
+httpnltksfnet
+platforms
+Windows OS X Linux and Unix
+supported by Python
+license
+is avail-
+NLTK runs on all
+including
+criteria are listed in the order of their impor-
+It was also important to decide what
+goals the toolkit would not attempt to accom-
+plish we therefore include an explicit set of non-
+requirements which the toolkit is not expected
+to satisfy
+2 Choice of Programming Language
+31 Requirements
+A number
+The most basic step in setting up a practical
+component is choosing a suitable programming
+language
+considerations
+inuenced our choice First the language must
+have a shallow learning curve so that novice
+programmers get immediate rewards for their
+eorts
+Second the language must support
+rapid prototyping and a short developtest
+cycle an obligatory compilation step is a
+serious detraction Third the code should be
+self-documenting with a transparent syntax and
+semantics Fourth it should be easy to write
+structured programs ideally object-oriented but
+without the burden associated with languages
+like C Finally the language must have
+an easy-to-use graphics library to support the
+development of graphical user interfaces
+In surveying the available languages we
+believe that Python oers an especially good
+t to the above requirements Python is an
+object-oriented scripting language developed
+by Guido van Rossum and available on all
+Python oers
+platforms wwwpythonorg
+a shallow learning curve
+it was designed to
+be easily learnt by children van Rossum
+1999 As an interpreted language Python is
+suitable for rapid prototyping Python code is
+exceptionally readable and it has been praised
+as executable pseudocode
+Python is an
+object-oriented language but not punitively
+so and it is easy to encapsulate data and
+methods inside Python classes Finally Python
+has an interface to the Tk graphics toolkit
+Lundh 1999 and writing graphical interfaces
+is straightforward
+3 Design Criteria
+Several criteria were considered in the design
+and implementation of the toolkit These design
+Ease of Use The primary purpose of the
+toolkit is to allow students to concentrate on
+building natural language processing NLP sys-
+tems The more time students must spend learn-
+ing to use the toolkit the less useful it is
+Consistency The toolkit should use consis-
+tent data structures and interfaces
+toolkit
+Extensibility The
+accommodate new components whether those
+components replicate or extend the toolkits
+existing functionality
+be structured in such a way that it is obvious
+where new extensions would t into the toolkits
+infrastructure
+The toolkit
+toolkit
+Documentation The
+structures and its implementation all need to
+be carefully and thoroughly documented All
+nomenclature must be carefully chosen and
+consistently used
+Simplicity The toolkit should structure the
+complexities of building NLP systems not hide
+them Therefore each class dened by the
+toolkit should be simple enough that a student
+could implement it by the time they nish an
+introductory course in computational
+linguis-
+In particular
+Modularity The interaction between dier-
+ent components of the toolkit should be kept
+to a minimum using simple well-dened inter-
+it should be possible to
+complete individual projects using small parts
+of the toolkit without worrying about how they
+interact with the rest of the toolkit This allows
+students to learn how to use the toolkit incre-
+mentally throughout a course Modularity also
+makes it easier to change and extend the toolkit
+32 Non-Requirements
+Comprehensiveness The
+intended to provide a comprehensive set of
+tools Indeed there should be a wide variety of
+ways in which students can extend the toolkit
+toolkit
+Eciency The toolkit does not need to
+be highly optimized for runtime performance
+However
+it should be ecient enough that
+students can use their NLP systems to perform
+real tasks
+Cleverness Clear designs and implementa-
+tions are far preferable to ingenious yet inde-
+cipherable ones
+4 Modules
+The toolkit is implemented as a collection of
+independent modules each of which denes a
+specic data structure or task
+A set of core modules denes basic data
+types and processing systems that are used
+throughout the toolkit The token module
+provides basic classes for processing individual
+elements of text such as words or sentences
+The tree module denes data structures for
+representing tree structures over text
+as syntax trees and morphological trees The
+probability module implements classes that
+encode frequency distributions and probability
+distributions including a variety of statistical
+smoothing techniques
+The remaining modules dene data structures
+and interfaces for performing specic NLP tasks
+This list of modules will grow over time as we
+add new tasks and algorithms to the toolkit
+Parsing Modules
+The parser module denes a high-level inter-
+face for producing trees that represent the struc-
+tures of texts The chunkparser module denes
+a sub-interface for parsers that identify non-
+overlapping linguistic groups such as base noun
+phrases in unrestricted text
+provide
+implementations
+for these abstract interfaces The srparser
+shift-reduce
+parser The chartparser module denes a
+exible parser that uses a chart
+to record
+Four modules
+implements
+hypotheses about syntactic constituents The
+pcfgparser module provides a variety of
+dierent parsers for probabilistic grammars
+And the rechunkparser module denes a
+transformational
+implementation of the chunk parser interface
+regular-expression
+Tagging Modules
+The tagger module denes a standard interface
+for augmenting each token of a text with supple-
+mentary information such as its part of speech
+or its WordNet synset tag and provides several
+dierent implementations for this interface
+Finite State Automata
+The fsa module denes a data type for encod-
+ing nite state automata and an interface for
+creating automata from regular expressions
+Type Checking
+Debugging time is an important factor in the
+toolkits ease of use To reduce the amount of
+time students must spend debugging their code
+we provide a type checking module which can
+be used to ensure that functions are given valid
+arguments The type checking module is used
+by all of the basic data types and processing
+classes
+Since type checking is done explicitly it can
+slow the toolkit down However when eciency
+is an issue type checking can be easily turned
+o and with type checking is disabled there is
+no performance penalty
+Visualization
+structures
+and graphical
+modules
+viewing
+Visualization
+graphical
+dene
+interfaces
+and manipulating
+experimenting with NLP tasks The drawtree
+module provides a simple graphical
+face for displaying tree structures
+drawtree edit module provides an interface
+for building and modifying tree structures
+The drawplot graph module can be used to
+graph mathematical functions The drawfsa
+module provides a graphical tool for displaying
+and simulating nite state automata
+drawchart module provides an interactive
+graphical tool
+parsers
+for experimenting with chart
+The visualization modules provide interfaces
+for interaction and experimentation they do
+not directly implement NLP data structures or
+tasks Simplicity of implementation is therefore
+less of an issue for the visualization modules
+than it is for the rest of the toolkit
+Text Classication
+The classifier module denes a standard
+interface for classifying texts into categories
+This interface is currently implemented by two
+modules The classifiernaivebayes module
+denes a text classier based on the Naive Bayes
+assumption The classifiermaxent module
+denes the maximum entropy model for text
+classication and implements two algorithms
+for training the model Generalized Iterative
+Scaling and Improved Iterative Scaling
+The classifierfeature module provides
+a standard encoding for the information that
+is used to make decisions for a particular
+This standard encoding
+classication task
+experiment with the
+dierences between dierent text classication
+algorithms using identical feature sets
+students
+The classifierfeatureselection module
+denes a standard interface for choosing which
+features are relevant for a particular classica-
+tion task Good feature selection can signi-
+cantly improve classication performance
+5 Documentation
+toolkit
+is accompanied by extensive
+documentation that explains the toolkit and
+describes how to use and extend it This
+documentation is divided into three primary
+categories
+teach students how to use the
+Tutorials
+toolkit
+in the context of performing specic
+tasks Each tutorial focuses on a single domain
+such as tagging probabilistic systems or text
+classication The tutorials include a high-level
+discussion that explains and motivates
+domain
+followed by a detailed walk-through
+that uses examples to show how NLTK can be
+used to perform specic tasks
+Reference Documentation provides precise
+denitions for every module
+interface class
+method function and variable in the toolkit It
+is automatically extracted from docstring com-
+ments in the Python source code using Epydoc
+Loper 2002
+explain and justify the
+Technical Reports
+toolkits design and implementation They are
+used by the developers of the toolkit to guide
+and document the toolkits construction Stu-
+dents can also consult these reports if they would
+like further information about how the toolkit is
+designed and why it is designed that way
+6 Uses of NLTK
+61 Assignments
+NLTK can be used to create student assign-
+ments of varying diculty and scope
+simplest assignments students experiment with
+an existing module The wide variety of existing
+modules provide many opportunities for creat-
+ing these simple assignments Once students
+become more familiar with the toolkit they can
+be asked to make minor changes or extensions to
+an existing module A more challenging task is
+to develop a new module Here NLTK provides
+some useful starting points predened inter-
+faces and data structures and existing modules
+that implement the same interface
+Example Chunk Parsing
+As an example of a moderately dicult
+assignment we asked students to construct
+a chunk parser that correctly identies base
+noun phrase chunks
+in a given text by
+dening a cascade of transformational chunking
+The NLTK rechunkparser module
+provides
+regular-expression
+based rule types which the students can
+instantiate
+ChunkRuleNN builds
+chunks from sequences of consecutive nouns
+ChinkRuleVB
+existing chunks SplitRuleNN DT
+splits any existing chunk that contains a
+singular noun followed by determiner
+two pieces and MergeRuleJJ JJ
+construct
+complete
+example
+excises
+variety
+combines two adjacent chunks where the rst
+chunk ends and the second chunk starts with
+adjectives
+The chunking tutorial motivates chunk pars-
+ing describes each rule type and provides all
+the necessary code for the assignment The pro-
+vided code is responsible for loading the chun-
+ked part-of-speech tagged text using an existing
+tokenizer creating an unchunked version of the
+text applying the chunk rules to the unchunked
+text and scoring the result Students focus on
+the NLP task only  providing a rule set with
+the best coverage
+In the remainder of this section we reproduce
+some of the cascades created by the students
+The rst example illustrates a combination of
+several rule types
+cascade  
+ChunkRuleDTNNVBNN
+ChunkRuleDTVBNN
+ChunkRule
+UnChunkRuleINVBCCMDRB
+UnChunkRule
+MergeRuleNNDTJJCD
+NNDTJJCD
+SplitRuleNN DTJJ
+The next example illustrates a brute-force sta-
+tistical approach The student calculated how
+often each part-of-speech tag was included in
+a noun phrase They then constructed chunks
+from any sequence of tags that occurred in a
+noun phrase more than 50 of the time
+cascade  
+ChunkRuleCDDTEXPDT
+PRPWPFW
+JJNNPOSRBSWDT
+In the third example the student constructed
+a single chunk containing the entire text and
+then excised all elements that did not belong
+cascade  
+ChunkRule
+ChinkRuleVBINCCRMDWRBTO
+62 Class demonstrations
+NLTK provides graphical tools that can be used
+in class demonstrations to help explain basic
+NLP concepts and algorithms These interactive
+tools can be used to display relevant data struc-
+tures and to show the step-by-step execution of
+algorithms Both data structures and control
+ow can be easily modied during the demon-
+stration in response to questions from the class
+Since these graphical tools are included with
+the toolkit they can also be used by students
+This allows students to experiment at home with
+the algorithms that they have seen presented in
+Example The Chart Parsing Tool
+The chart parsing tool
+is an example of a
+graphical tool provided by NLTK This tool can
+be used to explain the basic concepts behind
+chart parsing and to show how the algorithm
+works Chart parsing is a exible parsing algo-
+rithm that uses a data structure called a chart to
+record hypotheses about syntactic constituents
+Each hypothesis is represented by a single edge
+on the chart A set of rules determine when new
+edges can be added to the chart This set of rules
+controls the overall behavior of the parser eg
+whether it parses top-down or bottom-up
+The chart parsing tool demonstrates the pro-
+cess of parsing a single sentence with a given
+grammar and lexicon Its display is divided into
+three sections the bottom section displays the
+chart the middle section displays the sentence
+and the top section displays the partial syntax
+tree corresponding to the selected edge But-
+tons along the bottom of the window are used
+to control the execution of the algorithm The
+main display window for the chart parsing tool
+is shown in Figure 1
+This tool can be used to explain several dif-
+ferent aspects of chart parsing First it can be
+used to explain the basic chart data structure
+and to show how edges can represent hypothe-
+ses about syntactic constituents
+It can then
+be used to demonstrate and explain the indi-
+vidual rules that the chart parser uses to create
+new edges Finally it can be used to show how
+these individual rules combine to nd a complete
+parse for a given sentence
+To reduce the overhead of setting up demon-
+strations during lecture the user can dene a
+list of preset charts The tool can then be reset
+to any one of these charts at any time
+students with the basic data structures tools
+and interfaces that they need This allows the
+students to concentrate on the problems that
+interest them
+The collaborative open-source nature of the
+toolkit can provide students with a sense that
+their projects are meaningful contributions and
+not just exercises Several of the students in our
+course have expressed interest in incorporating
+their projects into the toolkit
+Finally many of the modules included in the
+toolkit provide students with good examples
+of what projects should look like with well
+thought-out interfaces clean code structure and
+thorough documentation
+Figure 1 Chart Parsing Tool
+Example Probabilistic Parsing
+The chart parsing tool allows for exible con-
+trol of the parsing algorithm At each step of
+the algorithm the user can select which rule or
+strategy they wish to apply This allows the user
+to experiment with mixing dierent strategies
+eg top-down and bottom-up The user can
+exercise ne-grained control over the algorithm
+by selecting which edge they wish to apply a rule
+to This exibility allows lecturers to use the
+tool to respond to a wide variety of questions
+and allows students to experiment with dierent
+variations on the chart parsing algorithm
+63 Advanced Projects
+NLTK provides students with a exible frame-
+work for advanced projects Typical projects
+involve the development of entirely new func-
+tionality for a previously unsupported NLP task
+or the development of a complete system out of
+existing and new modules
+The toolkits broad coverage allows students
+to explore a wide variety of topics In our intro-
+ductory computational linguistics course topics
+for student projects included text generation
+word sense disambiguation collocation analysis
+and morphological analysis
+NLTK eliminates the tedious infrastructure-
+typically associated with
+providing
+building that
+advanced
+student
+projects
+The probabilistic parsing module was created
+as a class project for a statistical NLP course
+The toolkit provided the basic data types and
+interfaces for parsing The project extended
+these adding a new probabilistic parsing inter-
+face and using subclasses to create a prob-
+abilistic version of the context free grammar
+data structure These new components were
+used in conjunction with several existing compo-
+nents such as the chart data structure to dene
+two implementations of the probabilistic parsing
+interface Finally a tutorial was written that
+explained the basic motivations and concepts
+behind probabilistic parsing and described the
+new interfaces data structures and parsers
+7 Evaluation
+We used NLTK as a basis for the assignments
+and student projects in CIS-530 an introduc-
+tory computational linguistics class taught at
+the University of Pennsylvania CIS-530 is a
+graduate level class although some advanced
+undergraduates were also enrolled Most stu-
+dents had a background in either computer sci-
+ence or linguistics and occasionally both Stu-
+dents were required to complete ve assign-
+ments two exams and a nal project All class
+materials are available from the course website
+httpwwwcisupenneducis530
+The experience of using NLTK was very pos-
+itive both for us and for the students The
+students liked the fact that they could do inter-
+esting projects from the outset They also liked
+being able to run everything on their computer
+at home The students found the extensive doc-
+umentation very helpful for learning to use the
+toolkit They found the interfaces dened by
+NLTK intuitive and appreciated the ease with
+which they could combine dierent components
+to create complete NLP systems
+We did encounter a few diculties during the
+semester One problem was nding large clean
+corpora that the students could use for their
+assignments
+Several of the students needed
+assistance nding suitable corpora for their
+nal projects Another issue was the fact that
+we were actively developing NLTK during the
+semester some modules were only completed
+one or two weeks before the students used
+them As a result students who worked at
+home needed to download new versions of the
+toolkit several times throughout the semester
+Luckily Python has extensive support
+installation scripts which made these upgrades
+simple The students encountered a couple of
+bugs in the toolkit but none were serious and
+all were quickly corrected
+8 Other Approaches
+The computational component of computational
+linguistics courses takes many forms In this sec-
+tion we briey review a selection of approaches
+classied according to the original target audi-
+Linguistics Students Various books intro-
+duce programming or computing to linguists
+These are elementary on the computational side
+providing a gentle introduction to students hav-
+ing no prior experience in computer science
+Examples of such books are Using Computers
+in Linguistics Lawler and Dry 1998 and Pro-
+gramming for Linguistics Java Technology for
+Language Researchers Hammond 2002
+unication-based
+Grammar Developers
+Infrastructure
+for grammar development has a long history
+constraint-based
+grammar
+from DCG Pereira
+and Warren 1980 to HPSG Pollard and
+Sag 1994 Recent work includes Copestake
+frameworks
+2000 Baldridge et al 2002a A concurrent
+development has been the nite state toolkits
+Beesley and
+such as
+Karttunen 2002
+widespread pedagogical application
+the Xerox toolkit
+This work has
+Other Researchers and Developers
+A variety of toolkits have been created for
+research or RD purposes Examples include
+Statistical Language
+the CMU-Cambridge
+Modeling Toolkit
+Clarkson and Rosenfeld
+the EMU Speech Database System
+Harrington and Cassidy 1999 the General
+Architecture for Text Engineering Bontcheva
+et al 2002 the Maxent Package for Maximum
+Entropy Models Baldridge et al 2002b and
+the Annotation Graph Toolkit Maeda et al
+2002 Although not originally motivated by
+pedagogical needs all of these toolkits have
+pedagogical applications and many have already
+been used in teaching
+9 Conclusions and Future Work
+NLTK provides a simple extensible uniform
+framework for assignments projects and class
+demonstrations It is well documented easy to
+learn and simple to use We hope that NLTK
+will allow computational linguistics classes to
+include more hands-on experience with using
+and building NLP components and systems
+NLTK is unique in its combination of three
+factors First it was deliberately designed as
+courseware and gives pedagogical goals primary
+status Second its target audience consists of
+both linguists and computer scientists and it
+is accessible and challenging at many levels of
+prior computational skill Finally it is based on
+an object-oriented scripting language support-
+ing rapid prototyping and literate programming
+We plan to continue extending the breadth
+of materials covered by the toolkit We are
+currently working on NLTK modules for Hidden
+Markov Models
+language modeling and tree
+adjoining grammars We also plan to increase
+the number of algorithms implemented by some
+existing modules such as the text classication
+module
+Finding suitable corpora is a prerequisite for
+many student assignments and projects We are
+EUROSPEECH 97
+camacukprc14eurospeech97ps
+httpsvr-wwweng
+Copestake2000 Ann Copestake 2000 The new
+LKB system
+httpwww-cslistanfordeduaacdoc5-2
+Hammond2002 Michael Hammond 2002 Program-
+ming for Linguistics Java Technology for Lan-
+guage Researchers Oxford Blackwell In press
+Harrington and Cassidy1999 Jonathan Harrington
+and Steve Cassidy 1999 Techniques in Speech
+Acoustics Kluwer
+Lawler and Dry1998 John M
+editors
+Helen Aristar Dry
+Computers in Linguistics London Routledge
+Loper2002 Edward Loper 2002 Epydoc
+httpepydocsourceforgenet
+Lundh1999 Fredrik Lundh 1999 An introduction
+to tkinter
+httpwwwpythonwarecomlibrary
+tkinterintroductionindexhtm
+Maeda et al2002 Kazuaki Maeda Steven Bird
+Xiaoyi Ma and Haejoong Lee
+2002 Creat-
+ing annotation tools with the annotation graph
+toolkit In Proceedings of the Third International
+Conference on Language Resources and Evalua-
+tion httparXivorgabscs0204005
+Pereira and Warren1980 Fernando C N Pereira
+and David H D Warren 1980 Denite clause
+grammars for language analysis  a survey of the
+formalism and a comparison with augmented tran-
+sition grammars Articial Intelligence 13231
+Pollard and Sag1994 Carl Pollard and Ivan A Sag
+1994 Head-Driven Phrase Structure Grammar
+Chicago University Press
+van Rossum1999 Guido van Rossum 1999 Com-
+puter programming for everybody
+Technical
+report Corporation for National Research Ini-
+tiatives httpwwwpythonorgdocessays
+cp4ehtml
+therefore putting together a collection of corpora
+containing data appropriate for every module
+dened by the toolkit
+NLTK is an open source project and we wel-
+come any contributions Readers who are inter-
+ested in contributing to NLTK or who have
+suggestions for improvements are encouraged to
+contact the authors
+10 Acknowledgments
+We are indebted to our students for feedback
+on the toolkit and to anonymous reviewers Jee
+Bang and the workshop organizers for com-
+ments on an earlier version of this paper We are
+grateful to Mitch Marcus and the Department of
+Computer and Information Science at the Uni-
+versity of Pennsylvania for sponsoring the work
+reported here
+References
+Baldridge et al2002a Jason
+Baldridge
+architecture
+Dowding and Susana Early
+resources
+sharing
+unication-based grammars
+In Proceedings
+of the Third Language Resources and Evaluation
+Conference Paris European Language Resources
+Association
+httpwwwiccsinformaticsedacuk
+jmbleo-lrecpsgz
+Baldridge et al2002b Jason Baldridge Thomas
+Morton and Gann Bierner 2002b The MaxEnt
+project
+httpmaxentsourceforgenet
+Beesley and Karttunen2002 Kenneth R Beesley
+and Lauri Karttunen
+Finite-State
+Morphology Xerox Tools and Techniques Studies
+in Natural Language Processing Cambridge
+University Press
+Bontcheva et al2002 Kalina Bontcheva Hamish
+Cunningham Valentin Tablan Diana Maynard
+and Oana Hamza
+2002 Using GATE as an
+environment for teaching NLP In Proceedings of
+the ACL Workshop on Eective Tools and Method-
+ologies for Teaching NLP and CL Somerset NJ
+Association for Computational Linguistics
+Clarkson and Rosenfeld1997 Philip R Clarkson and
+Ronald Rosenfeld
+language
+modeling using the CMU-Cambridge Toolkit
+In Proceedings of
+the 5th European Confer-
+ence on Speech Communication and Technology
+Statistical

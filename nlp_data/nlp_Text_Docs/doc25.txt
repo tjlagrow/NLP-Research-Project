@@ -1,0 +1,1072 @@
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+ISSN Online 1694-0784 
+ISSN Print 1694-0814 
+Parsing of part-of-speech tagged Assamese Texts 
+Mirzanur Rahman1 Sufal Das1 and Utpal Sharma2 
+ 1 Department of Information Technology Sikkim Manipal Institute of Technology 
+Rangpo Sikkim-737136 India 
+2 Department of Computer Science  Engineering Tezpur University  
+Tezpur Assam-784028 India 
+Abstract 
+A natural language or ordinary language is a language that is 
+spoken  written  or  signed  by  humans  for  general-purpose 
+communication as distinguished from formal languages such as 
+computer-programming languages or the languages used in the 
+study of formal logic The computational activities required for 
+enabling  a  computer  to  carry  out  information  processing  using 
+natural language is called natural language processing We have 
+taken  Assamese  language  to  check  the  grammars  of  the  input 
+sentence  Our  aim  is  to  produce  a  technique  to  check  the 
+grammatical  structures  of  the  sentences  in  Assamese  text  We 
+have  made  grammar  rules  by  analyzing  the  structures  of 
+Assamese sentences Our parsing program finds the grammatical 
+errors if any in the Assamese sentence If there is no error the 
+program will generate the parse tree for the Assamese sentence 
+Keywords Context-free Grammar Earleys Algorithm Natural 
+Language Processing Parsing Assamese Text 
+1 Introduction 
+Natural 
+language  processing  a  branch  of  artificial 
+intelligence  that  deals  with  analyzing  understanding  and 
+generating  the  languages  that  humans  use  naturally  in 
+order  to  interface  with  computers  in  both  written  and 
+spoken contexts using natural human languages instead of 
+computer languages It studies the problems of automated 
+generation and understanding of natural human languages 
+We  have  taken  Assamese  language  for  information 
+processing  ie  to  check  the  grammars  of  the  input 
+sentence Parsing process makes use of two components 
+A  parser  which  is  a  procedural  component  and  a 
+grammar  which  is  declarative  The  grammar  changes 
+depending on the language to be parsed while the parser 
+remains  unchanged  Thus  by  simply  changing 
+grammar  the  system  would  parsed  a  different  language 
+We  have  taken  Earleys  Parsing  Algorithm  for  parsing 
+Assamese  Sentence  according  to  a  grammar  which  is 
+defined for Assamese language 
+2 Related Works 
+21 Natural Language Processing  
+The  term  natural  languages  refer  to  the  languages  that 
+people speak like English Assamese and Hindi etc The 
+goal of the Natural Language Processing NLP group is 
+to design and build software that will analyze understand 
+and  generate  languages  that  humans  use  naturally  The 
+applications of Natural Language can be divided into two 
+classes 2 
+  Text  based  Applications 
+processing  of  written 
+text  such  as  books 
+newspapers  reports  manuals  e-mail  messages 
+etc These are all reading based tasks 
+involves 
+  Dialogue  based  Applications  It  involves  human 
+ machine communication like spoken language 
+Also includes interaction using keyboards From 
+an  end-users  perspective  an  application  may 
+require  NLP 
+for  either  processing  natural 
+language  input  or  producing  natural  language 
+output or both Also for a particular application 
+only some of the tasks of NLP may be required 
+and  depth  of  analysis  at  the  various  levels  may 
+vary Achieving human like language processing 
+capability is a difficult goal for a machine 
+The difficulties are 
+  Ambiguity 
+  Many inputs can mean same thing 
+Interpreting partial information 
+22 Knowledge Required for Natural Language  
+A Natural Language system uses the knowledge about the 
+structure of the language itself which includes words and 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+how  words  combine  to  form  sentences  about  the  word 
+meaning  and  how  word  meanings  contribute  to  sentence 
+meanings  and  so  on  The  different  forms  of  knowledge 
+relevant for natural language are 2 
+  Phonetic 
+and  phonological  knowledge 
+concerns how words are related to the sounds that 
+realize them 
+  Morphological  knowledge  It  concerns  how 
+words are constructed from more  basic  meaning 
+units  called  morphemes  A  morpheme  is  the 
+primitive  unit  of  meaning  in  a  language  for 
+example  the  meaning  of  the  word  friendly  is 
+derivable  from  the  meaning  of  the  noun  friend 
+and  suffix  -ly  which  transforms  a  noun  into  an 
+adjective 
+  Syntactic Knowledge It concerns how words can 
+be  put  together  to  form  correct  sentences  and 
+determine what structure role each word plays in 
+the sentence 
+  Semantic  knowledge  It  concerns  what  words 
+mean  and  how  these  meanings  combine  in 
+sentences to form sentence meanings 
+  Pragmatic Knowledge It concerns how sentences 
+are  used  in  different  situations  and  how  use 
+affects the interpretation of the sentence 
+  Discourse  Knowledge  It  concerns  how  the 
+immediately  preceding  sentences  affect 
+interpretation of the next sentence 
+  Word Knowledge It includes what each language 
+user must know about the other users beliefs and 
+goals 
+23 Earleys Parsing Algorithm 
+The  Earleys  Parsing  Algorithm  8  9  is  basically  a  top 
+down parsing algorithm where all the possible parses are 
+carried  simultaneously  Earleys  algorithm  uses  dotted 
+Context-free  Grammar  CFG  rules  called  items  which 
+has a dot in its right hand side 
+Let the input sentence be- 0 I 1 saw 2 a 3 man 4 in 5 the 6 
+park  7  Here  the  numbers  appeared  between  words  are 
+called position numbers  
+For  CFG  rule  S  NP  VP  we  will  have  three  types  of 
+dotted items- 
+  S NP VP00  
+  S NPVP01  
+  S NP VP04  
+S    Starting Symbol 
+NP  Noun Phrase 
+VP  Verb Phrase 
+1  The first item indicates that the input sentence is 
+going to be parsed applying the rule S NP VP 
+from position 0 
+2  The second item indicates the portion of the input 
+sentence  from  the  position  number  0  to  1  has 
+been  parsed  as  NP  and  the  remainder  left  to  be 
+satisfied as VP 
+3  The third item indicates that the portion of input 
+sentence  from  position  number  0  to  4  has  been 
+parsed as NP VP and thus S is accomplished  
+Earleys algorithm uses 3 phases 
+  Predictor 
+  Scanner 
+  Completer 
+Let        are  sequence  of  terminal  or  nonterminal 
+symbols and S A B are non terminal symbols  
+Predictor Operation 
+For an item of the form A  Bij create Bjj 
+for  each  production  of  the  B  It  is  called  predictor 
+operation because we can predict the next item  
+Completer Operation  
+For  an  item  of  the  form  Bjk  create  ABik 
+ijk for each item in the form of ABij if exists 
+It is called completer because it completes an operation 
+Scanner Operation 
+For  an 
+Awij  create 
+item  of 
+Awij1 if w is a terminal symbol appeared in the 
+input sentence between j and j1 
+Earleys parsing algorithm 
+1  For each production S create S00 
+2  For  j0  to  n  do  n  is  the  length  of  the  input 
+sentence 
+3  For each item in the form of ABij apply 
+Predictor operation while a new item is created  
+4  For  each  item  in  the  form  of  Bij  apply 
+Completer operation while a new item is created  
+5  For each item in the form of Awij apply 
+Scanner operation 
+If we find an item of the form S0n then we accept 
+Let us take an example 
+0 I 1 saw 2 a 3 man 4 
+Consider the following grammar 
+1 S  NP VP 
+2 S  S PP 
+3  NP  n 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+4  NP  art n 
+5  NP  NP PP 
+6  PP  p NP 
+7  VP  v NP 
+8   n  I 
+9   n  man 
+11 v  saw 
+12 art  a 
+Now parse the sentence using Earleys parsing technique 
+SNP VP00 
+SS PP00 
+Initialization 
+Apply  Predictor  to  step  1  and 
+step 2 
+NPn00 
+NPart n00 
+NPNP PP00  Apply Predictor to step 3 
+nI00 
+n I01 
+Apply scanner to 6 
+Apply Completer to step 7 with 
+step 3 
+Apply Completer to step 8 with 
+step 1 and step 5 
+NPn01 
+v saw12 
+SNPVP01 
+NPNPPP01  Apply Predictor to step 9 
+Apply Predictor to step 11 
+VPv NP11 
+Apply Predictor to step 10 
+vsaw11 
+PPp NP11 
+Apply Scanner to step 12 
+Apply  Completer  to  step  14 
+with  step 11 
+Apply Predictor to step 15 
+VPvNP12 
+NPn22 
+NPart n22 
+NPNP PP 22  Apply Predictor to step 17 
+Apply Scanner  to step 19 
+art  a 22 
+art  a23 
+Apply  Completer  to  step  20 
+with step 17 
+NP  art n23  Apply Predictor to step 21 
+n  man 33  Apply Scanner to step 22 
+n  man34  Apply  Completer  to  step  23 
+with step 21 
+NP  art n24  Apply Completer to 24 with 15 
+VP  v NP14  Apply Completer to 25 with 9 
+S  NP VP04  Complete 
+                                                                       
+  When  applying  Predictor  operation  Earleys  algorithm 
+often creates a set of similar items such as-step 345 and 
+161718 expecting NP in future 
+3 Properties and problems of parsing 
+algorithm  
+Parsing  algorithms  are  usually  designed  for  classes  of 
+grammar rather than for some individual grammars There 
+are  some  important  properties  6  that  make  a  parsing 
+algorithm practically useful 
+It  should  be  sound  with  respect  to  a  given 
+grammar and lexicon 
+It should be complete so that it assign to an input 
+sentence and all the analyses it    can have with 
+respect to the current grammar and lexicon 
+It should also be efficient so that it take minimum 
+of computational work 
+Algorithm  should  be  robust  behaving  in  a  reasonably 
+sensible  way  when  presented  with  sentence  that  it  is 
+unable to fully analyze successfully 
+The  main  problem  of  Natural  Language  is  its 
+ambiguity  The  sentences  of  Natural  Languages  are 
+ambiguous  in  meaning  There  are  different  meanings  for 
+one sentence So all the algorithms for parsing can not be 
+used  for  Natural  Language  processing  There  are  many 
+parsing technique used in programming languages like C 
+languageThese  techniques  easy  to  use  because  in 
+programming  language  meaning  of  the  words  are  fixed 
+But  in  case  of  NLP  we  can  not  used  this  technique  for 
+parsing because of ambiguity 
+For example I saw a man in the park with a telescope  
+This sentence has at least three meanings- 
+  Using a telescope I saw the man in the park 
+I saw the man in the park that has a telescope 
+I saw the man in the park standing behind the 
+telescope which is placed in the park 
+So  this  sentence  is  ambiguous  and  no  algorithm  can 
+resolve  the  ambiguity  An  algorithm  will  be  the  best 
+algorithm which produces all the possible analyses 
+To begin with we look for algorithm that can take care of 
+ambiguity  of  smaller  components  such  as  ambiguity  of 
+words and phrases 
+4 Proposed grammar and algorithm for 
+Assamese Texts 
+Since  it  is  impossible  to  cover  all  types  of  sentences  in 
+Assamese  language  we  have  taken  some  portion  of  the 
+sentence and try to make grammar for them Assamese is 
+free-word-order language 10 As an example we can take 
+the following Assamese sentence 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+This sentence can be written as 
+41 Modification of Earleys Algorithm for Assamese 
+Text Parsing 
+Here we see that one sentence can be written in different 
+forms for the same meaning ie the positions of the tags 
+are not fixed So we can not restrict the grammar rule for 
+one sentence The grammar rule may be very long but we 
+have to accept it The grammar rule we have tried to make 
+may not work for all the sentences in Assamese language 
+Because  we  have  not  considered  all  types  of  sentences 
+Some of the sentences are shown below which are used to 
+make the grammar rule 3 4 
+Our proposed grammars for Assamese sentences 
+1  S    PP VP  PP 
+2  PP  PN NP  NP PN  ADJ NP  NP ADJ  NP    
+                 ADJ  IND NP  PN  ADV NP  ADV 
+3  NP  NP PP  PP NP  ADV NP   PP  ART NP   
+                        NP ART  IND PN  PN IND 
+Here 
+NP  Noun 
+PN  Pronoun 
+VP  Verb 
+ADV  Adverb 
+ADJ  Adjective 
+ART  Article 
+IND  Indeclinable 
+We  know  that  Earleys  algorithm  uses  three  operations 
+Predictor Scanner and Completer We add Predictor and 
+Completer in one phase and Scanner operation in another 
+phase  
+Let        PP  VP  are  sequence  of  terminal  or 
+nonterminal symbols and S B are non terminal symbols 
+Phase 1PredictorCompleter 
+For an item of the form S  Bij  create  
+S ij for each production of the B 
+Phase 2  Scanner 
+For  an 
+Swij  create 
+item  of 
+Swij1 if w is a terminal symbol appeared in the 
+input sentence between j and j1 
+Our Algorithm 
+Input Tagged Assamese Sentence 
+Output Parse Tree or Error message 
+Step 1 If Verb is present in the sentence then create 
+            S PP VP 00  
+             Else create  
+            S PP 00 
+Step 2 Do the following steps in a loop until there is a     
+            success or error 
+Step 3 For each item of the form of SBij apply  
+            phase 1 
+Step 4 For each item of the form of S wij apply  
+             phase 2 
+Step 5 If we find an item of the form S 0n then  
+             we accept the sentence as success else error   
+             message Where n is the length of input sentence   
+             And then come out from the loop 
+Step 6 Generate the parse trees for the successful  
+            sentences 
+Some other modifications of Earleys algorithm 
+Earleys  algorithm  blocks  left  recursive  rules 
+NP  NP  PP  00  when  applying  Predictor 
+operation  Since  Assamese  Language  is  a  Free-
+Word-Order  language  We  are  not  blocking  this 
+type of rules 
+Earleys  algorithm  creates  new  items  for  all 
+possible productions if there is a non terminal in 
+the  left  hand  side  rule  But  we  reduce  these 
+productions  by 
+type  of 
+productions  which  create  the  number  of  total 
+removing 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+productions  in  the  stack  greater  then  total  tag 
+length of the input sentence 
+3  Another restriction we used in our algorithm for 
+creating  new  item  is  that  if  the  algorithm 
+currently analyzing the last word of the sentence 
+then  it  selects  only  the  single  production  in  the 
+right  hand  side  example  PPNP  The  other 
+rules which have more then one production rules 
+in  right  hand  side  example  PPPN  NP  are 
+ignored by the algorithm 
+42  Parsing  Assamese  text  using  proposed  grammar 
+and algorithm 
+Let us take an Assamese sentence 
+Now  the  position  number  for  the  words  are  placed 
+according to which word will be parsed first 
+We consider the following grammar rule 
+1  S       PP VP  PP 
+2  PP     PN NP  NP PN  ADJ NP  NP ADJ  NP  
+                     ADJ  IND NP  PN  ADV NP  ADV 
+3  NP     NP PP  PP NP  ADV NP   PP  ART   
+                     NP  NP ART  IND PN  PN IND 
+4  PN     mai 
+5  PN     si 
+7  ADV  ekelge 
+8  NP     gharalE 
+9  VP     jAm 
+IND   Aru 
+Parsing process will proceed as follows 
+S  PP VP  00 
+S  NP VP0 0 
+S  PP NP VP00 
+S  PN NP NP VP00 
+S  mai NP NP VP00 
+S  mai NP NP VP01 
+S  mai IND PN NP VP01 
+S    mai 
+VP01 
+S  mai Aru PN NP VP02  Apply Phase 1 
+S    mai  Aru 
+Apply Phase 2 
+VP02 
+S    mai  Aru  si 
+VP03 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 2 
+  Aru  PN  NP 
+Apply Phase 1 
+si  NP 
+S  mai Aru si ADV NP 
+VP03 
+S    mai  Aru  si  ekelge 
+NP VP03 
+S    mai  Aru  si  ekelge 
+NP VP04 
+S    mai  Aru  si  ekelge 
+gharalE VP05 
+S    mai  Aru  si  ekelge 
+gharalE VP05 
+S    mai  Aru  si  ekelge 
+gharalE jAm05 
+S    mai  Aru  si  ekelge 
+gharalE jAm06 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 2 
+Complete 
+In  the  above  example  we  have  shown  only  the  steps 
+which proceeds to the goal The other steps are ignored  
+5 Implementation and Result Analysis 
+51 Different Stages of the Program 
+In the program there are 3 stages 
+  Lexical Analysis 
+  Syntax Analysis 
+  Tree Generation 
+In  Lexical  Analysis  stage  program  finds  the  correct  tag 
+for each word in the sentence by searching the database 
+There are seven databases NP PN VP ADJ ADV ART 
+IND for tagging the words 
+In  Syntax  Analysis  stage  the  program  tries  to 
+analyze  whether  the  given  sentence  is  grammatically 
+correct or not 
+In  Tree  Generation  stage  the  program  finds  all 
+the production rules which lead to success and generates 
+parse tree for those rules If there are more then one path 
+to  success  this  stage  can  generates  more  then  on  parse 
+trees  It  also  displays  the  words  of  the  sentences  with 
+proper tags The following shows a parse tree generate by 
+the program 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+Handle 
+SPP 
+PPNP 
+NPNP PP 
+NP  NP ART 
+NP  gru 
+ART ebidh 
+PP ADJ NP 
+ADJupakArI 
+NPzantu 
+NP PP 
+NP ART PP 
+gru ART PP 
+gru ebidh PP 
+gru ebidh  ADJ NP 
+gru ebidh  upakArI NP 
+gru ebidh  upakArI zantu 
+From  the  above  derivation  it  has  been  seen  that  the 
+Assamese  sentence  is  correct  according  to  the  proposed 
+grammar  So our parsing program generates a parse tree 
+successfully as follows 
+The original parse tree for the above sentence is 
+52 Result Analysis  
+After  implementation  of  Earleys  algorithm  using  our 
+proposed grammar it has been seen that the algorithm can 
+easily  generates  parse  tree  for  a  sentence  if  the  sentence 
+structure satisfies the grammar rules For example we take 
+the following Assamese sentence  
+The structure of the above sentence is NP-ART-ADJ-NP 
+This  is  a  correct  sentence  according  to  the  Assamese 
+literature According to our proposed grammar a possible 
+top down derivation for the above sentence is 
+Our program tests only the sentence structure according to 
+the  proposed  grammar  rules  So  if  the  sentence  structure 
+satisfies 
+sentence  as  a  correct  sentence  and  generates  parse  tree 
+Otherwise it gives output as an error 
+the  grammar  rule  program  recognizes 
+6 Conclusion and Future Work 
+We  have  developed  a  context  free  grammar  for  simple 
+Assamese sentences  Different natural languages present 
+different challenges in computational processing We have 
+studied the issues that arise in parsing Assamese sentences 
+and  produce  an  algorithm  suitable  for  those  issues  This 
+algorithm  is  a  modification  of  Earleys  Algorithm  We 
+found  that  Earleys  parsing  algorithms  is  simple  and 
+effective 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+In  this  work  we  have  considered  limited  number  of 
+Assamese  sentences  to  construct  the  grammar  rules  We 
+also have considered only seven main tags In future work 
+we  have  to  consider  as  many  sentences  as  we  can  and 
+some  more  tags  for  constructing  the  grammar  rules 
+Because  Assamese 
+free-word-order 
+language  Word  position  for  one  sentence  may  not  be 
+same  in  the  other  sentences  So  we  can  not  restrict  the 
+grammar rules for some limited number of sentences 
+References 
+language 
+1  Alfred  V  Aho  and  Jeffrey  D  Ullman  Principles  of 
+Compiler Design Narosa publishing  House 1995 
+2  James  Allen  Natural  Language  Understanding 
+Pearson Education Singapur second edition 2004 
+3  Hem Chandra Baruah Assamiya Vyakaran Hemkush 
+Prakashan Guwahati 2003 
+4  D Deka and B Kalita Adhunik Rasana Bisitra Assam 
+Book Dipo Guwahati 7th edition 2007 
+5  H  Numazaki  and  H  Tananaka  A  new  parallel 
+algorithm for generalized lr parsing 1990 
+6  Stephen  G  Pulman  Basic  parsing  techniques  an 
+introductory survey 1991 
+7  Utpal  Sharma  Natural  Language  Processing 
+Department  of  Computer  Science  and  Information 
+Technology  Tezpur  University  Tezpur-784028 
+AssamIndia 
+8  Hozumi Tanaka Current trends on parsing - a survey 
+9  Jay Earley An efficient context free parsing algorithm 
+Communications of the ACM Volume 13 no 2 
+February-1970 
+10 Navanath  Saharia  Dhrubajyoti  Das  Utpal  Sharma 
+Jugal Kalita Part of Speech Tagger for Assamese Text 
+ACL-IJCNLP 2009 2-7 August 2009 Singapore 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+ISSN Online 1694-0784 
+ISSN Print 1694-0814 
+Parsing of part-of-speech tagged Assamese Texts 
+Mirzanur Rahman1 Sufal Das1 and Utpal Sharma2 
+ 1 Department of Information Technology Sikkim Manipal Institute of Technology 
+Rangpo Sikkim-737136 India 
+2 Department of Computer Science  Engineering Tezpur University  
+Tezpur Assam-784028 India 
+Abstract 
+A natural language or ordinary language is a language that is 
+spoken  written  or  signed  by  humans  for  general-purpose 
+communication as distinguished from formal languages such as 
+computer-programming languages or the languages used in the 
+study of formal logic The computational activities required for 
+enabling  a  computer  to  carry  out  information  processing  using 
+natural language is called natural language processing We have 
+taken  Assamese  language  to  check  the  grammars  of  the  input 
+sentence  Our  aim  is  to  produce  a  technique  to  check  the 
+grammatical  structures  of  the  sentences  in  Assamese  text  We 
+have  made  grammar  rules  by  analyzing  the  structures  of 
+Assamese sentences Our parsing program finds the grammatical 
+errors if any in the Assamese sentence If there is no error the 
+program will generate the parse tree for the Assamese sentence 
+Keywords Context-free Grammar Earleys Algorithm Natural 
+Language Processing Parsing Assamese Text 
+1 Introduction 
+Natural 
+language  processing  a  branch  of  artificial 
+intelligence  that  deals  with  analyzing  understanding  and 
+generating  the  languages  that  humans  use  naturally  in 
+order  to  interface  with  computers  in  both  written  and 
+spoken contexts using natural human languages instead of 
+computer languages It studies the problems of automated 
+generation and understanding of natural human languages 
+We  have  taken  Assamese  language  for  information 
+processing  ie  to  check  the  grammars  of  the  input 
+sentence Parsing process makes use of two components 
+A  parser  which  is  a  procedural  component  and  a 
+grammar  which  is  declarative  The  grammar  changes 
+depending on the language to be parsed while the parser 
+remains  unchanged  Thus  by  simply  changing 
+grammar  the  system  would  parsed  a  different  language 
+We  have  taken  Earleys  Parsing  Algorithm  for  parsing 
+Assamese  Sentence  according  to  a  grammar  which  is 
+defined for Assamese language 
+2 Related Works 
+21 Natural Language Processing  
+The  term  natural  languages  refer  to  the  languages  that 
+people speak like English Assamese and Hindi etc The 
+goal of the Natural Language Processing NLP group is 
+to design and build software that will analyze understand 
+and  generate  languages  that  humans  use  naturally  The 
+applications of Natural Language can be divided into two 
+classes 2 
+  Text  based  Applications 
+processing  of  written 
+text  such  as  books 
+newspapers  reports  manuals  e-mail  messages 
+etc These are all reading based tasks 
+involves 
+  Dialogue  based  Applications  It  involves  human 
+ machine communication like spoken language 
+Also includes interaction using keyboards From 
+an  end-users  perspective  an  application  may 
+require  NLP 
+for  either  processing  natural 
+language  input  or  producing  natural  language 
+output or both Also for a particular application 
+only some of the tasks of NLP may be required 
+and  depth  of  analysis  at  the  various  levels  may 
+vary Achieving human like language processing 
+capability is a difficult goal for a machine 
+The difficulties are 
+  Ambiguity 
+  Many inputs can mean same thing 
+Interpreting partial information 
+22 Knowledge Required for Natural Language  
+A Natural Language system uses the knowledge about the 
+structure of the language itself which includes words and 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+how  words  combine  to  form  sentences  about  the  word 
+meaning  and  how  word  meanings  contribute  to  sentence 
+meanings  and  so  on  The  different  forms  of  knowledge 
+relevant for natural language are 2 
+  Phonetic 
+and  phonological  knowledge 
+concerns how words are related to the sounds that 
+realize them 
+  Morphological  knowledge  It  concerns  how 
+words are constructed from more  basic  meaning 
+units  called  morphemes  A  morpheme  is  the 
+primitive  unit  of  meaning  in  a  language  for 
+example  the  meaning  of  the  word  friendly  is 
+derivable  from  the  meaning  of  the  noun  friend 
+and  suffix  -ly  which  transforms  a  noun  into  an 
+adjective 
+  Syntactic Knowledge It concerns how words can 
+be  put  together  to  form  correct  sentences  and 
+determine what structure role each word plays in 
+the sentence 
+  Semantic  knowledge  It  concerns  what  words 
+mean  and  how  these  meanings  combine  in 
+sentences to form sentence meanings 
+  Pragmatic Knowledge It concerns how sentences 
+are  used  in  different  situations  and  how  use 
+affects the interpretation of the sentence 
+  Discourse  Knowledge  It  concerns  how  the 
+immediately  preceding  sentences  affect 
+interpretation of the next sentence 
+  Word Knowledge It includes what each language 
+user must know about the other users beliefs and 
+goals 
+23 Earleys Parsing Algorithm 
+The  Earleys  Parsing  Algorithm  8  9  is  basically  a  top 
+down parsing algorithm where all the possible parses are 
+carried  simultaneously  Earleys  algorithm  uses  dotted 
+Context-free  Grammar  CFG  rules  called  items  which 
+has a dot in its right hand side 
+Let the input sentence be- 0 I 1 saw 2 a 3 man 4 in 5 the 6 
+park  7  Here  the  numbers  appeared  between  words  are 
+called position numbers  
+For  CFG  rule  S  NP  VP  we  will  have  three  types  of 
+dotted items- 
+  S NP VP00  
+  S NPVP01  
+  S NP VP04  
+S    Starting Symbol 
+NP  Noun Phrase 
+VP  Verb Phrase 
+1  The first item indicates that the input sentence is 
+going to be parsed applying the rule S NP VP 
+from position 0 
+2  The second item indicates the portion of the input 
+sentence  from  the  position  number  0  to  1  has 
+been  parsed  as  NP  and  the  remainder  left  to  be 
+satisfied as VP 
+3  The third item indicates that the portion of input 
+sentence  from  position  number  0  to  4  has  been 
+parsed as NP VP and thus S is accomplished  
+Earleys algorithm uses 3 phases 
+  Predictor 
+  Scanner 
+  Completer 
+Let        are  sequence  of  terminal  or  nonterminal 
+symbols and S A B are non terminal symbols  
+Predictor Operation 
+For an item of the form A  Bij create Bjj 
+for  each  production  of  the  B  It  is  called  predictor 
+operation because we can predict the next item  
+Completer Operation  
+For  an  item  of  the  form  Bjk  create  ABik 
+ijk for each item in the form of ABij if exists 
+It is called completer because it completes an operation 
+Scanner Operation 
+For  an 
+Awij  create 
+item  of 
+Awij1 if w is a terminal symbol appeared in the 
+input sentence between j and j1 
+Earleys parsing algorithm 
+1  For each production S create S00 
+2  For  j0  to  n  do  n  is  the  length  of  the  input 
+sentence 
+3  For each item in the form of ABij apply 
+Predictor operation while a new item is created  
+4  For  each  item  in  the  form  of  Bij  apply 
+Completer operation while a new item is created  
+5  For each item in the form of Awij apply 
+Scanner operation 
+If we find an item of the form S0n then we accept 
+Let us take an example 
+0 I 1 saw 2 a 3 man 4 
+Consider the following grammar 
+1 S  NP VP 
+2 S  S PP 
+3  NP  n 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+4  NP  art n 
+5  NP  NP PP 
+6  PP  p NP 
+7  VP  v NP 
+8   n  I 
+9   n  man 
+11 v  saw 
+12 art  a 
+Now parse the sentence using Earleys parsing technique 
+SNP VP00 
+SS PP00 
+Initialization 
+Apply  Predictor  to  step  1  and 
+step 2 
+NPn00 
+NPart n00 
+NPNP PP00  Apply Predictor to step 3 
+nI00 
+n I01 
+Apply scanner to 6 
+Apply Completer to step 7 with 
+step 3 
+Apply Completer to step 8 with 
+step 1 and step 5 
+NPn01 
+v saw12 
+SNPVP01 
+NPNPPP01  Apply Predictor to step 9 
+Apply Predictor to step 11 
+VPv NP11 
+Apply Predictor to step 10 
+vsaw11 
+PPp NP11 
+Apply Scanner to step 12 
+Apply  Completer  to  step  14 
+with  step 11 
+Apply Predictor to step 15 
+VPvNP12 
+NPn22 
+NPart n22 
+NPNP PP 22  Apply Predictor to step 17 
+Apply Scanner  to step 19 
+art  a 22 
+art  a23 
+Apply  Completer  to  step  20 
+with step 17 
+NP  art n23  Apply Predictor to step 21 
+n  man 33  Apply Scanner to step 22 
+n  man34  Apply  Completer  to  step  23 
+with step 21 
+NP  art n24  Apply Completer to 24 with 15 
+VP  v NP14  Apply Completer to 25 with 9 
+S  NP VP04  Complete 
+                                                                       
+  When  applying  Predictor  operation  Earleys  algorithm 
+often creates a set of similar items such as-step 345 and 
+161718 expecting NP in future 
+3 Properties and problems of parsing 
+algorithm  
+Parsing  algorithms  are  usually  designed  for  classes  of 
+grammar rather than for some individual grammars There 
+are  some  important  properties  6  that  make  a  parsing 
+algorithm practically useful 
+It  should  be  sound  with  respect  to  a  given 
+grammar and lexicon 
+It should be complete so that it assign to an input 
+sentence and all the analyses it    can have with 
+respect to the current grammar and lexicon 
+It should also be efficient so that it take minimum 
+of computational work 
+Algorithm  should  be  robust  behaving  in  a  reasonably 
+sensible  way  when  presented  with  sentence  that  it  is 
+unable to fully analyze successfully 
+The  main  problem  of  Natural  Language  is  its 
+ambiguity  The  sentences  of  Natural  Languages  are 
+ambiguous  in  meaning  There  are  different  meanings  for 
+one sentence So all the algorithms for parsing can not be 
+used  for  Natural  Language  processing  There  are  many 
+parsing technique used in programming languages like C 
+languageThese  techniques  easy  to  use  because  in 
+programming  language  meaning  of  the  words  are  fixed 
+But  in  case  of  NLP  we  can  not  used  this  technique  for 
+parsing because of ambiguity 
+For example I saw a man in the park with a telescope  
+This sentence has at least three meanings- 
+  Using a telescope I saw the man in the park 
+I saw the man in the park that has a telescope 
+I saw the man in the park standing behind the 
+telescope which is placed in the park 
+So  this  sentence  is  ambiguous  and  no  algorithm  can 
+resolve  the  ambiguity  An  algorithm  will  be  the  best 
+algorithm which produces all the possible analyses 
+To begin with we look for algorithm that can take care of 
+ambiguity  of  smaller  components  such  as  ambiguity  of 
+words and phrases 
+4 Proposed grammar and algorithm for 
+Assamese Texts 
+Since  it  is  impossible  to  cover  all  types  of  sentences  in 
+Assamese  language  we  have  taken  some  portion  of  the 
+sentence and try to make grammar for them Assamese is 
+free-word-order language 10 As an example we can take 
+the following Assamese sentence 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+This sentence can be written as 
+41 Modification of Earleys Algorithm for Assamese 
+Text Parsing 
+Here we see that one sentence can be written in different 
+forms for the same meaning ie the positions of the tags 
+are not fixed So we can not restrict the grammar rule for 
+one sentence The grammar rule may be very long but we 
+have to accept it The grammar rule we have tried to make 
+may not work for all the sentences in Assamese language 
+Because  we  have  not  considered  all  types  of  sentences 
+Some of the sentences are shown below which are used to 
+make the grammar rule 3 4 
+Our proposed grammars for Assamese sentences 
+1  S    PP VP  PP 
+2  PP  PN NP  NP PN  ADJ NP  NP ADJ  NP    
+                 ADJ  IND NP  PN  ADV NP  ADV 
+3  NP  NP PP  PP NP  ADV NP   PP  ART NP   
+                        NP ART  IND PN  PN IND 
+Here 
+NP  Noun 
+PN  Pronoun 
+VP  Verb 
+ADV  Adverb 
+ADJ  Adjective 
+ART  Article 
+IND  Indeclinable 
+We  know  that  Earleys  algorithm  uses  three  operations 
+Predictor Scanner and Completer We add Predictor and 
+Completer in one phase and Scanner operation in another 
+phase  
+Let        PP  VP  are  sequence  of  terminal  or 
+nonterminal symbols and S B are non terminal symbols 
+Phase 1PredictorCompleter 
+For an item of the form S  Bij  create  
+S ij for each production of the B 
+Phase 2  Scanner 
+For  an 
+Swij  create 
+item  of 
+Swij1 if w is a terminal symbol appeared in the 
+input sentence between j and j1 
+Our Algorithm 
+Input Tagged Assamese Sentence 
+Output Parse Tree or Error message 
+Step 1 If Verb is present in the sentence then create 
+            S PP VP 00  
+             Else create  
+            S PP 00 
+Step 2 Do the following steps in a loop until there is a     
+            success or error 
+Step 3 For each item of the form of SBij apply  
+            phase 1 
+Step 4 For each item of the form of S wij apply  
+             phase 2 
+Step 5 If we find an item of the form S 0n then  
+             we accept the sentence as success else error   
+             message Where n is the length of input sentence   
+             And then come out from the loop 
+Step 6 Generate the parse trees for the successful  
+            sentences 
+Some other modifications of Earleys algorithm 
+Earleys  algorithm  blocks  left  recursive  rules 
+NP  NP  PP  00  when  applying  Predictor 
+operation  Since  Assamese  Language  is  a  Free-
+Word-Order  language  We  are  not  blocking  this 
+type of rules 
+Earleys  algorithm  creates  new  items  for  all 
+possible productions if there is a non terminal in 
+the  left  hand  side  rule  But  we  reduce  these 
+productions  by 
+type  of 
+productions  which  create  the  number  of  total 
+removing 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+productions  in  the  stack  greater  then  total  tag 
+length of the input sentence 
+3  Another restriction we used in our algorithm for 
+creating  new  item  is  that  if  the  algorithm 
+currently analyzing the last word of the sentence 
+then  it  selects  only  the  single  production  in  the 
+right  hand  side  example  PPNP  The  other 
+rules which have more then one production rules 
+in  right  hand  side  example  PPPN  NP  are 
+ignored by the algorithm 
+42  Parsing  Assamese  text  using  proposed  grammar 
+and algorithm 
+Let us take an Assamese sentence 
+Now  the  position  number  for  the  words  are  placed 
+according to which word will be parsed first 
+We consider the following grammar rule 
+1  S       PP VP  PP 
+2  PP     PN NP  NP PN  ADJ NP  NP ADJ  NP  
+                     ADJ  IND NP  PN  ADV NP  ADV 
+3  NP     NP PP  PP NP  ADV NP   PP  ART   
+                     NP  NP ART  IND PN  PN IND 
+4  PN     mai 
+5  PN     si 
+7  ADV  ekelge 
+8  NP     gharalE 
+9  VP     jAm 
+IND   Aru 
+Parsing process will proceed as follows 
+S  PP VP  00 
+S  NP VP0 0 
+S  PP NP VP00 
+S  PN NP NP VP00 
+S  mai NP NP VP00 
+S  mai NP NP VP01 
+S  mai IND PN NP VP01 
+S    mai 
+VP01 
+S  mai Aru PN NP VP02  Apply Phase 1 
+S    mai  Aru 
+Apply Phase 2 
+VP02 
+S    mai  Aru  si 
+VP03 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 1 
+Apply Phase 2 
+  Aru  PN  NP 
+Apply Phase 1 
+si  NP 
+S  mai Aru si ADV NP 
+VP03 
+S    mai  Aru  si  ekelge 
+NP VP03 
+S    mai  Aru  si  ekelge 
+NP VP04 
+S    mai  Aru  si  ekelge 
+gharalE VP05 
+S    mai  Aru  si  ekelge 
+gharalE VP05 
+S    mai  Aru  si  ekelge 
+gharalE jAm05 
+S    mai  Aru  si  ekelge 
+gharalE jAm06 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 2 
+Apply Phase 1 
+Apply Phase 2 
+Complete 
+In  the  above  example  we  have  shown  only  the  steps 
+which proceeds to the goal The other steps are ignored  
+5 Implementation and Result Analysis 
+51 Different Stages of the Program 
+In the program there are 3 stages 
+  Lexical Analysis 
+  Syntax Analysis 
+  Tree Generation 
+In  Lexical  Analysis  stage  program  finds  the  correct  tag 
+for each word in the sentence by searching the database 
+There are seven databases NP PN VP ADJ ADV ART 
+IND for tagging the words 
+In  Syntax  Analysis  stage  the  program  tries  to 
+analyze  whether  the  given  sentence  is  grammatically 
+correct or not 
+In  Tree  Generation  stage  the  program  finds  all 
+the production rules which lead to success and generates 
+parse tree for those rules If there are more then one path 
+to  success  this  stage  can  generates  more  then  on  parse 
+trees  It  also  displays  the  words  of  the  sentences  with 
+proper tags The following shows a parse tree generate by 
+the program 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+Handle 
+SPP 
+PPNP 
+NPNP PP 
+NP  NP ART 
+NP  gru 
+ART ebidh 
+PP ADJ NP 
+ADJupakArI 
+NPzantu 
+NP PP 
+NP ART PP 
+gru ART PP 
+gru ebidh PP 
+gru ebidh  ADJ NP 
+gru ebidh  upakArI NP 
+gru ebidh  upakArI zantu 
+From  the  above  derivation  it  has  been  seen  that  the 
+Assamese  sentence  is  correct  according  to  the  proposed 
+grammar  So our parsing program generates a parse tree 
+successfully as follows 
+The original parse tree for the above sentence is 
+52 Result Analysis  
+After  implementation  of  Earleys  algorithm  using  our 
+proposed grammar it has been seen that the algorithm can 
+easily  generates  parse  tree  for  a  sentence  if  the  sentence 
+structure satisfies the grammar rules For example we take 
+the following Assamese sentence  
+The structure of the above sentence is NP-ART-ADJ-NP 
+This  is  a  correct  sentence  according  to  the  Assamese 
+literature According to our proposed grammar a possible 
+top down derivation for the above sentence is 
+Our program tests only the sentence structure according to 
+the  proposed  grammar  rules  So  if  the  sentence  structure 
+satisfies 
+sentence  as  a  correct  sentence  and  generates  parse  tree 
+Otherwise it gives output as an error 
+the  grammar  rule  program  recognizes 
+6 Conclusion and Future Work 
+We  have  developed  a  context  free  grammar  for  simple 
+Assamese sentences  Different natural languages present 
+different challenges in computational processing We have 
+studied the issues that arise in parsing Assamese sentences 
+and  produce  an  algorithm  suitable  for  those  issues  This 
+algorithm  is  a  modification  of  Earleys  Algorithm  We 
+found  that  Earleys  parsing  algorithms  is  simple  and 
+effective 
+IJCSI International Journal of Computer Science Issues Vol 6 No 1 2009 
+In  this  work  we  have  considered  limited  number  of 
+Assamese  sentences  to  construct  the  grammar  rules  We 
+also have considered only seven main tags In future work 
+we  have  to  consider  as  many  sentences  as  we  can  and 
+some  more  tags  for  constructing  the  grammar  rules 
+Because  Assamese 
+free-word-order 
+language  Word  position  for  one  sentence  may  not  be 
+same  in  the  other  sentences  So  we  can  not  restrict  the 
+grammar rules for some limited number of sentences 
+References 
+language 
+1  Alfred  V  Aho  and  Jeffrey  D  Ullman  Principles  of 
+Compiler Design Narosa publishing  House 1995 
+2  James  Allen  Natural  Language  Understanding 
+Pearson Education Singapur second edition 2004 
+3  Hem Chandra Baruah Assamiya Vyakaran Hemkush 
+Prakashan Guwahati 2003 
+4  D Deka and B Kalita Adhunik Rasana Bisitra Assam 
+Book Dipo Guwahati 7th edition 2007 
+5  H  Numazaki  and  H  Tananaka  A  new  parallel 
+algorithm for generalized lr parsing 1990 
+6  Stephen  G  Pulman  Basic  parsing  techniques  an 
+introductory survey 1991 
+7  Utpal  Sharma  Natural  Language  Processing 
+Department  of  Computer  Science  and  Information 
+Technology  Tezpur  University  Tezpur-784028 
+AssamIndia 
+8  Hozumi Tanaka Current trends on parsing - a survey 
+9  Jay Earley An efficient context free parsing algorithm 
+Communications of the ACM Volume 13 no 2 
+February-1970 
+10 Navanath  Saharia  Dhrubajyoti  Das  Utpal  Sharma 
+Jugal Kalita Part of Speech Tagger for Assamese Text 
+ACL-IJCNLP 2009 2-7 August 2009 Singapore 

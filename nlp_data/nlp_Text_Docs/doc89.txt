@@ -1,0 +1,559 @@
+Instructions for Temporal Annotation of Scheduling Dialogs
+Tom OHara Janyce Wiebe and Karen Payne
+January 7 2014
+Abstract
+Human annotation of natural language facilitates standardized evaluation of natural lan-
+guage processing systems and supports automated feature extraction This document consists
+of instructions for annotating the temporal information in scheduling dialogs dialogs in which
+the participants schedule a meeting with one another Task-oriented dialogs such as these
+are would arise in many useful applications for instance automated information providers
+and automated phone operators Explicit instructions support good inter-rater reliability and
+serve as documentation for the classes being annotated
+Introduction
+Research systems in computational linguistics are no longer assessed solely by appeals to re-
+searcher intuition on selected examples Instead system results usually are compared to inde-
+pendent interpretations of naturally occurring text Therefore the main purpose of this temporal
+coding task is to provide a benchmark for evaluating the performance of Artwork1 on tracking
+the times discussed in scheduling dialogs This includes the inference of missing or underspecied
+temporal information To facilitate the evaluation the temporal information is being recorded in
+a standardized format
+This coding can also serve as a starting point for obtaining a tagged corpus of temporal
+expressions in naturally occurring discourse Such a corpus makes it easier to compare the
+performance of dierent research systems on the same problem It also permits for statistical
+analysis which might be useful for extracting temporal features
+Each dialog to be coded concerns two people trying to arrange for a meeting For each
+utterance you are to specify the time that is being referred to either explicitly or implicitly This
+should only be based on an interpretation of the utterances that have already been encountered
+the dialog context That is you should not revise answers in light of subsequent utterances
+Furthermore you should interpret the text based on your common-sense intuitions regarding
+meetings such as that they usually occur during normal working hours However in order to
+This
+research was
+supported in part by the US Department of Defense under contract number
+MDA904-96-C-0354
+1Artwork is being developed at NMSUs Computing Research Laboratory as part of a joint project with CMU
+on investigating ways to facilitate machine translation of scheduling dialogs
+restrict the wide range of plausible inferences that can be applied you need to limit such inferences
+to what can be readily inferred from the dialog This vague notion will be discussed in detail
+later For now consider it as covering the obvious inferences Surprisingly these are often the
+most dicult to model via a computer
+See the guidelines section below for more information about these and other requirements
+First an example dialog will be discussed to show what is expected of you Then the coding
+representation is explained You need to adhere to this format to ensure that the results are
+recorded in a common format After the detailed list of guidelines there is a section with
+additional coding advice The appendix gives a complete example of a dialog coded based on
+these instructions
+2 Background
+The following transcript illustrates the type of scheduling dialog you will be tagging It is given
+in both the original Spanish and in the English translation You do not need to refer to the
+Spanish version to perform this task it is provided as background material for those who can
+read Spanish2
+S1 Quihubo Primo que paso
+1 Whats up Primo whats happening
+S2 Nada aqui nada mas como has estado
+2 Not much same old thing how you been
+S1 Muy bien Oye necesito juntarme contigo Necesitamos este discutir eh uh
+algo del proyecto Cuando tienes tiempo
+3 Good 4 Listen I need to talk to you 5 We need to ahh talk about
+ahh uh something about the project 6 When do you have time
+S2 Hijola pos que dia estas pensando en
+7 Jeez well what day were you thinking about
+S1 Pos si se puede manana Si se puede manana Tienes chance manana
+8 Well tomorrow if you can 9 Tomorrow if you can 10 Do you have
+a chance tomorrow
+S2 Pos depende en que hora porque mira para empezar como horita de las ocho a
+las diez tengo una cita con el doctor y ya sabes como le entretiene a uno
+11 Well it depends on what time because look to begin with I have a
+doctors appointment between eight and ten and you know the runaround
+they give you
+S1 Si
+12 Yeah
+2Subtle distinctions are occasionally lost in the translation but this usually doesnt aect the temporal
+information
+The dialogs are divided into groups of consecutive utterances by the same speaker which are
+called turns Most of the turns have just one or two utterances but a few have several especially
+if the speaker makes a correction
+In this dialog the rst two turns are typical greetings that the speakers exchange No temporal
+information has been conveyed Next speaker 1 introduces the need to have a meeting and
+then asks the other person to indicate availability
+In reply speaker 2 asks for a clarication
+Although there is mention of when and what day these are not specic times so they are
+not represented Therefore the entries for the rst seven utterances would indicate no temporal
+information
+ Start WeekDay Month Date Hour Time of Day
+End WeekDay Month Date Hour Time of Day
+This shows that time is being represented by intervals rather than by points as there are
+starting and ending entries for all elds3 The interval-based approach is commonly used in
+natural language processing since it is closer to the way people usually express time periods
+The example also shows that all the elds are explicitly lled in in cases where no information
+is known the special entry null is used This is designed to eliminate errors due to coder
+omissions
+Starting with utterance 8 specic times are being discussed Speaker 1 suggests tomorrow
+for a potential meeting Since the dialog date is Tuesday May 11th 1993 we know that the time
+in question is Wednesday May 12th The next two utterances reiterate this request so the times
+will be the same
+3An alternative representation would be to encode the start and end points separately along with the relation
+between the points For instance the entry for 8 would be split into two entries with a precedes relation between
+the two
+ Start WeekDay Month Date Hour Time of Day
+End WeekDay Month Date Hour Time of Day
+Wednesday May
+Wednesday May
+Wednesday May
+Wednesday May
+Wednesday May
+Wednesday May
+It might seem odd that both the starting and ending times are the same Doesnt this mean
+the interval has no length No since the hour and time of day elds are left unspecied The
+representation indicates that the period in question starts some time on May 12th and ends
+some time on the same day However there are cases when the interval length will be zero For
+instance 10 But remember the oce closes tomorrow at 3pm would be represented as
+Wednesday May
+Wednesday May
+afternoon
+afternoon
+In response to the suggested date of Wednesday May 12th the other person gives a constraint
+that the meeting cant occur between eight and ten due to a doctors appointment Note that
+there is no mention of the meeting date but this is readily inferred from the dialog context
+Finally the last utterance conveys no temporal information
+Wednesday May
+Wednesday May
+800 morning
+1000 morning
+As indicated in the table we also inferred that the time for 11 is in the morning Although
+it might seem obvious that it must be in the morning you have to be careful when you make
+this type of judgement In this case youd be surprised if the appointment were in the evening
+especially since its a doctors appointment Thus when in doubt about a time determine
+whether it would surprise you if it werent the case Just leave the eld as null otherwise
+3 Code Format
+For each distinct time mentioned in the dialog please ll out the following information using
+null to indicate information that cannot be inferred and commas to separate elds A template
+will be provided to help ensure that the correct format is applied
+Label SWeekDay
+STimeOfDay
+EWeekDay EMonth EDate EHourSpec ETimeOfDay
+SHourSpec
+SMonth
+The S prexes elds for the starting time and the E prexes those for the ending time Each of
+the components in this structure is given in the following format where the qualiers are optional
+WeekDay
+HourSpec
+Description
+Numeric label of the utterance eg 1 19a
+Use 1 alt1 etc for alternatives see below
+sunday monday  saturday
+january february  december
+1 2 3  31
+10 1215
+Omit the AM or PM indicator
+since that is covered by the Time of Day eld
+TimeOfDay morning afternoon evening
+breakfast lunch dinner
+all-day
+Since meetings could last an entire day be careful not
+to assume it will just be in the morning or afternoon
+Qualiers
+before after during Mainly for use with TimeOfDay before lunch
+early mid late
+but could also be used with other elds after the fth
+Description
+Figure 1 Possible Values for the Components of the Temporal Representation
+Qualiers TimeComponent
+Example 1 shows the exact format that is required Possible values for the components elds
+are listed in gure 1
+Im free late in the afternoon on Monday the 19th until Wednesday
+monday august 19 null late afternoon
+wednesday august 21 null null
+A few examples will be given just to illustrate the desired format The rationale for the
+content of the representation is covered in the next section First of all since qualiers can apply
+to any eld the value for each component is actually a list of items These lists are enclosed in
+parentheses to eliminate confusion The whole structure is then enclosed in square brackets
+Are you free Wednesday September 4th
+wednesday september 4 null null
+wednesday september 4 null null
+Yes but only early in the morning
+wednesday september 4 null early morning
+wednesday september 4 null early morning
+Oh then how about after the fth
+null september after 5 null null
+null null null null null
+4 Coding Guidelines
+Please keep in mind the following guidelines for specifying the times The examples given assume
+the dialog date is Monday 19 August 1996 The calendar for this period follows
+Tues Wed
+August 1996
+In what follows the labeling convention for these examples uses a number followed by an
+optional letter sux eg 1a The number is based on the example number rather than the
+utterance number The letter is used when there is more than one utterance for the same example
+Since there might be several examples together this might be a little confusing However two
+utterances will be related only if the labels use the same example number as a prex For instance
+in the following utterances 5b and 6a would be unrelated
+Good morning Peter
+Good morning and how are you Mary
+What day is best for you
+None really since my schedules quite full
+The guidelines follow
+1 Fill in missing temporal information based on what can be readily inferred from the context
+of the dialog Avoid relying too much on common-sense assumptions such as about the
+most likely times for meetings Unfortunately there are no clear boundaries Instead you
+must use your intuition about what seem to be reasonable assumptions
+Lets meet tomorrow morning
+OK how about 8 oclock
+tuesday august 20 null morning
+tuesday august 20 null null
+tuesday august 20 8 morning
+tuesday august 20 null null
+We need to discuss the project soon
+Well lets meet Thursday after lunch
+null null null null null
+null null null null null
+thursday august 22 null after lunch
+thursday august 22 null null
+Lets meet Friday afternoon
+OK how about 3pm
+friday august 23 null afternoon
+friday august 23 null null
+friday august 23 3 afternoon
+friday august 23 null afternoon
+The representation for 9b suggests the meeting ends in the afternoon presumably since
+people usually dont stay late on Fridays Thus it is a case of extrapolating too much from
+the dialog Note that evening would also be inappropriate since the meeting might very
+well be short Therefore its better to be noncommittal and use null
+2 Only consider the previous utterances when interpreting the time of an utterance So dont
+read ahead if you are unsure of the time Likewise dont revise previous answers There
+might be transcription errors in the dialogs which were recorded from actual conversations
+Even if a later utterance reveals an error in an earlier one do not go back and revise it
+Note that you may not be able to determine what all of the times aresometimes speakers
+are too vague for a denitive time to be determined Fill in a time when you are reasonably
+certain what the speakers mean
+3 Consider weeks as just workweeks Therefore omit weekends unless the dialog suggests
+otherwise
+I am free all this week
+monday august 19 null null
+friday august 23 null null
+When speciers such as rst or last apply to partial workweeks the interpretation can be
+quite subjective A rule of thumb is to consider only those with more than two working
+I was in Portland the rst week of August
+monday august 5 null null
+friday august 9 null null
+This shows that the period discussed is the interval from Monday the fth to Friday the
+ninth treated as a single unit The partial workweek Aug 1-2 is skipped
+4 Be as specic as possible about the time for a meeting or for the speakers availability For
+instance if a day of the week is specied relative to some week just code the time for the
+day not the entire week as illustrated in 12a
+Lets meet Friday next week
+I can only meet next month
+OK then how about the rst week
+friday august 30 null null
+friday august 30 null null
+sunday september 1 null null
+monday september 30 null null
+monday september 2 null null
+friday september 6 null null
+12b shows that months should be interpreted as ranges from the rst of the month to the
+last Weeks are handled similarly except that weekends are not included
+5 If no end time is mentioned then code the end time using as much of the start time as
+possible For instance if the start time mentions the day and the exact starting time in
+hours and minutes use the day in the end time as well but omit the HourSpec
+Lets meet Thursday at 9am
+thursday august 22 9 morning
+thursday august 22 null null
+6 Dont just encode the time as literally given Instead encode it based on an interpretation
+giving the most information regarding the meeting or other scheduling event For example
+information on an entire meeting is more informative than just information on its start or
+The meeting has to be Friday at 8am
+OK just so it ends at 10am
+friday august 23 8 morning
+friday august 23 null null
+friday august 23 8 morning
+friday august 23 10 morning
+Taken literally 14a would be represented as a point But since meetings take time the
+ending hour is left unspecied Similarly the encoding for 14b provides more information
+about the meeting than what a literal interpretation of at 10am would provide
+7 Interpret simple events as instantaneous unless such events are usually considered as part
+of an extended event As above the encoding should indicate the time most relevant for
+the scheduling domain
+Lets meet tomorrow afternoon at 3pm
+Would we then adjourn at 5pm
+Yes Ill remind you at 1pm
+tuesday august 20 3 afternoon
+tuesday august 20 null null
+tuesday august 20 3 afternoon
+tuesday august 20 5 afternoon
+tuesday august 20 1 afternoon
+tuesday august 20 1 afternoon
+It is natural to consider 15a as referring to a point in time since you might interpret
+meet as encounter an instantaneous occurrence or simple event But since were con-
+cerned primarily with the scheduling domain you should generally interpret meet as
+hold meeting a prolonged occurrence or complex event Similarly 15b might be taken
+to refer to an instantaneous occurrence just considering the adjournment itself But it also
+should be represented as an interval because the simple adjournment event is part of the
+complex meeting event the focus of the domain However 15c is represented by a point
+since reminders are generally independent simple events
+Note that the distinction between instantaneous and prolonged occurrences or simple versus
+complex event is easier to see in other domains
+John walked the dog at 6pm
+Spot bit John at 615
+null null null 6 evening
+null null null null evening
+null null null 615 evening
+null null null 615 evening
+16a is represented as an interval since walking a dog is a complex event 16b in contrast
+is represented by a point since a dog-bite event usually is relatively instantaneous
+8 Consider the big picture when deciding on event interpretations This guideline is implicit
+in the previous two but it is important enough to emphasize separately Since the same
+event can be looked at from dierent viewpoints the event aspect there might be confusion
+on what to encode In 17 below the entire event is being referred to whereas in 17
+just the start Again you should consider the temporal references at the level of the entire
+meeting event instead of at the level of the viewpoint Thus 17 and 17 are represented
+in the same way
+17
+17
+Lets meet in the afternoon
+null null null null afternoon
+null null null null null
+Lets start the meeting in the afternoon
+null null null null afternoon
+null null null null null
+Some people may read sentences such as 17 as meaning that the entire meeting must
+be held in the afternoon For consistency of tagging however please encode these and
+similar examples as specied in this document
+9 Treat discrete times individually Please label each alternative in the disjunction with
+the sux  alt1  alt2 etc as illustrated Similarly label each required time in a
+conjunction with  and1  and2 etc
+18 alt1
+18 alt2
+I can meet Wednesday or Friday
+wednesday august 21 null null
+wednesday august 21 null null
+friday august 23 null null
+friday august 23 null null
+19 and1
+19 and2
+I can meet Tuesday and Thursday
+tuesday august 21 null null
+tuesday august 21 null null
+thursday august 22 null null
+thursday august 22 null null
+10 Treat time ranges as a unit represented by one interval That is use a single descriptor
+instead of a series of alternatives
+I will be away the 22nd through the 26th
+thursday august 22 null null
+monday august 26 null null
+11 When in doubt about an assumption you are making ask yourself whether you would be
+surprised it if werent the case
+Lets meet at two
+null null null 2 afternoon
+null null null null null
+The meeting of 21 is assumed to be in the afternoon since you would probably be surprised
+if the meeting were instead at 2am You might object that you wouldnt be surprised at a
+2am clandestine meeting but remember to assume normal working hours and activities
+Lets meet at eight
+null null null 8 null
+null null null null null
+Here you probably wouldnt be surprised if the meeting was at 8pm so coding the meeting
+as in the morning might be assuming too much unless of course something in the prior
+context suggests that the morning is intended
+12 Fill in elds that can be determined from other elds or from the dialog date For instance
+resolve dates to days of the week and use the current month when no other month could
+reasonably apply Likewise resolve temporal adverbs and phrases eg tomorrow in
+two days to absolute dates based on the dialog date
+Today is the nineteenth right
+monday august 19 null null
+monday august 19 null null
+Are you free tomorrow morning
+tuesday august 20 null morning
+tuesday august 20 null null
+13 When trying to decide how much common-sense reasoning you can apply to the interpreta-
+tion consider how specic the times are that have been mentioned In regards to time it
+is generally safer to make assumptions going from the specic to the general So it is safe
+to assume a meeting that starts at 1pm ends on the same day But it is risky to assume
+that a meeting on a Monday wont start before 9am
+Similarly consider the range of possibilities and the likelihood of the alternatives If someone
+says at 3 oclock the choices are 3am and 3pm with the former being unlikely However
+if someone says after 3pm there are many choices eg 301pm 302pm  1159pm
+with those starting at multiples of 30 minutes being more likely eg 330pm 4pm 
+7pm Thus it would be safer to leave the corresponding entry null This is how example
+25 is handled
+After the twenty fth
+null august after 25 null null
+null null null null null
+Although the 31st might be considered a good ending time there are other good possibilities
+eg Thursday 8 September which is two weeks afterwards Note the special handling of
+after in which the day of the week is not resolved and where the qualier goes with the
+14 Since there is not a separate eld for coding duration omit the information when it cannot
+be coded using a pair of startingending elds
+26
+26
+I can meet Thursday for three hours
+thursday august 22 null null
+thursday august 22 null null
+I can meet Thursday at 1pm for three hours
+thursday august 22 1 afternoon
+thursday august 22 4 afternoon
+15 Be careful in coding the entries Please double-check your answers When lling out the
+form you might have accidentally copied over a value from a previous entry
+Appendix Complete Example of Coding a Scheduling Dialog
+Mar 1993
+ Dialog Date 5 March 1993
+7 8 9 10 11 12 13
+14 15 16 17 18 19 20
+21 22 23 24 25 26 27
+28 29 30 31
+ Label SWeekDay SMonth SDay SHourSpec STimeOfDay
+EWeekDay EMonth EDay EHourEpec ETimeOfDay
+1 s1 beg-sim me oye end-sim
+1 null null null null null
+listen to me
+null null null null null
+hello
+2 s2 beg-sim hola end-sim
+2 null null null null null
+null null null null null
+hello pepe
+3 s2 hola pepe
+3 null null null null null
+null null null null null
+hello
+4 s1 hola
+4 null null null null null
+null null null null null
+whats up
+5 s1 que1 tal
+5 null null null null null
+null null null null null
+6 s2 quieres hacer una reunio1n para la segunda semana de marzo
+do you want to schedule a meeting for the second week of march
+6 monday march 8 null null
+friday march 12 null null
+7 s1 bueno
+ok or well or good
+7 null null null null null
+null null null null null
+8 s1 vale
+8 null null null null null
+null null null null null
+if there is no choice
+9 s1 si no hay ma1s remedio
+9 null null null null null
+null null null null null
+10 s1 pues vamos beg-sim a por alla1 ver
+well we will meet there
+10 null null null null null
+null null null null null
+11 s1 mira
+11 null null null null null
+null null null null null
+lets see
+12 s1 a ver
+12 null null null null null
+null null null null null
+lets see
+13 s1 a ver
+13 null null null null null
+null null null null null
+lets see
+14 s1 a ver
+14 null null null null null
+null null null null null
+15 s1 hoy lo tengo libre de hecho end-sim
+today i have free then in fact
+15 friday march 5 null null
+friday march 5 null null
+listen
+16 s2 beg-sim end-sim oye
+16 null null null null null
+null null null null null
+17 s2 cinco
+17 null null null null null
+null null null null null
+fifth of march right
+18 s2 cinco de marzo no
+18 friday march 5 null null
+friday march 5 null null
+19 s1 si1
+19 null null null null null
+null null null null null
+me too
+20 s2 yo tambie1n
+20 null null null null null
+null null null null null
+all day
+21 s1 todo el di1a
+21 friday march 5 null all-day
+friday march 5 null all-day
+all day
+22 s2 todo el di1a
+22 friday march 5 null all-day
+friday march 5 null all-day
+well look
+23 s1 pues mira
+23 null null null null null
+null null null null null
+24 s1 beg-sim ahora
+see you
+38 s2 nos vemos
+38 null null null null null
+null null null null null
+39 s1 hasta luego
+39 null null null null null
+null null null null null
+40 s2 hasta luego
+40 null null null null null
+null null null null null
+good-bye
+41 s1 adio1s
+41 null null null null null
+null null null null null
+twelve to two or the twelfth to the seconf or the twelfth at two
+28 s1 doce a dos
+28 friday march 5 1200 afternoon
+friday march 5 200 afternoon
+24 null null null null null
+null null null null null
+ treated as disfluency
+25 s1 end-sim ahora son
+now is 
+25 null null null null null
+null null null null null
+ treated as disfluency
+now it is eleven ten
+26 s1 ahora son las once y diez
+26 friday march 5 1110 null
+friday march 5 1110 null
+how about twelve
+27 s1 que1 tal  a  a las doce
+27 friday march 5 1200 afternoon
+friday march 5 null null
+29 s2 beg-sim pero
+29 null null null null null
+null null null null null
+better after eating lunch
+30 s2 end-sim mejor despue1s  de  de almorzar
+30 friday march 5 null after lunch
+friday march 5 null null
+31 s1 vale
+31 null null null null null
+null null null null null
+well at one
+32 s1 pues a la una
+32 friday march 5 100 afternoon
+friday march 5 null null
+33 s2 vale
+33 null null null null null
+null null null null null
+from one to three
+34 s1 de una a tres
+34 friday march 5 100 afternoon
+friday march 5 300 afternoon
+35 s2 vale
+35 null null null null null
+null null null null null
+perfect
+36 s1 perfecto
+36 null null null null null
+null null null null null
+look how easy
+37 s1 mira que1 fa1cil
+37 null null null null null
+null null null null null

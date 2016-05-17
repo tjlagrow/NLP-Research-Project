@@ -1,0 +1,1776 @@
+Language understanding as a step towards human level intelligence - automatizing
+the construction of the initial dictionary from example sentences
+School of Computing Informatics and DSE
+School of Computing Informatics and DSE
+Chitta Baral
+Arizona State University
+chittaasuedu
+Juraj Dzifcak
+Arizona State University
+jurajdzifcakasuedu
+Abstract
+For a system to understand natural language it needs to be
+able to take natural language text and answer questions given
+in natural language with respect to that text it also needs to
+be able to follow instructions given in natural language To
+achieve this a system must be able to process natural lan-
+guage and be able to capture the knowledge within that text
+Thus it needs to be able to translate natural language text
+into a formal language We discuss our approach to do this
+where the translation is achieved by composing the mean-
+ing of words in a sentence Our initial approach uses an in-
+verse lambda method that we developed and other methods
+to learn meaning of words from meaning of sentences and an
+initial lexicon We then present an improved method where
+the initial lexicon is also learned by analyzing the training
+sentence and meaning pairs We evaluate our methods and
+compare them with other existing methods on a corpora of
+database querying and robot command and control
+Introduction and Motivation
+We consider natural language understanding as an important
+aspect of human level intelligence But what do we mean by
+language understanding In our view a system that under-
+stands language can among other attributes i take natural
+language text and then answer questions given in natural lan-
+guage with respect to that text and ii take natural language
+instructions and execute those instructions as a human would
+A system that can do the above must have several func-
+tional capabilities such as a It must be able to process lan-
+guage b It must be able to capture knowledge expressed
+in the text c It must be able to reason plan and in gen-
+eral do problem solving and for that it may need to do ef-
+cient searching of solutions d It must be able to do high
+level execution and control as per given directives and e
+To scale it must be able to learn new language aspects for
+eg new words These functional capabilities are often
+compartmentalized to different AI research topics How-
+ever good progress in each of these areas over the last few
+decades provides an opportunity to use results and systems
+from them and build up on that to develop a natural language
+understanding system
+Copyright ccid13 2011 Association for the Advancement of Articial
+Intelligence wwwaaaiorg All rights reserved
+Over the last two decades our group has been focusing
+in the research of developing suitable knowledge represen-
+tation languages The research by a broader community has
+led to KR languages and systems that allow us to represent
+various kinds of knowledge and the KR systems allow us to
+reason plan and do declarative problem solving using them
+Various search techniques are embedded in some of these
+systems and one such system from Potsdam CLASP1 has
+been doing very well in SAT competitions2 Similarly var-
+ious languages and systems have been developed that can
+take directives in a formal language and use it in high level
+execution and control These cover the aspects c and d
+mentioned above
+In our current research we use the existing results on c
+and d and develop an overall architecture that addresses
+the aspects a b and e to lead to a natural language un-
+derstanding framework
+The rst key aspect of our approach and our language un-
+derstanding framework is to translate natural language to
+appropriate formal languages Once that is achieved we
+achieve b and then together with the c and d compo-
+nents we achieve a The second key aspect of our ap-
+proach and our language understanding framework is that
+we can reason and learn about how to translate new words
+and phrases This allows our overall system to scale up to
+larger vocabularies and thus we achieve e
+In this paper we rst give a brief presentation of our sys-
+tem and framework which was reported in an earlier limited
+audience conferenceworkshop We then present some orig-
+inal work to enhance what was done then
+Translating English to Formal languages
+Our approach to translate English to formal languages is in-
+spired by Montagues path-breaking thesis Montague 1974
+of viewing English as a formal language We consider each
+word to be characterized by one or more -calculus for-
+mulas and the translation to be obtained by composing ap-
+propriate -calculus formulas of the words as dictated by a
+PCCG Probabilistic Combinatorial Categorial Grammars
+The big challenge in this approach is to be able to come up
+with the right -calculus formulas for various words Our
+1httpwwwcsuni-potsdamdeclasp
+2httpwwwsatcompetitionorg
+approach initially presented in Baral et al 2011 utilizes
+inverse -calculus operators and generalization to obtain se-
+mantic representations of words and learning techniques to
+distinguish in between them The system architecture of our
+approach is given in gure 1 The left block shows an overall
+system to translate a sentence into a target formal language
+using the PCCG grammar and the lexicon while the right
+block shows the learning module to learn the meaning of
+new words via Inverse  and generalization methods and
+assigning weights to multiple meaning of words We now
+elaborate on some important parts of the system
+Inverse  computation
+The composition semantics of -calculus basically com-
+putes the meaning of a phrase a b by  or  depend-
+ing on the CCG parse Now suppose we know the meaning
+a b to be  and also know the meaning of a as  By
+inverse  we refer to the obtaining of  given  and  De-
+pending on whether  is  or  we have two inverse
+operators InverseR and InverseL We now give a quick
+glimpse of InverseR as given in Baral et al 2011 Further
+details are given in Gonzalez 2010
+ Let G H represent
+J 1J 2J n represent
+w represent variables and 1n represent
+atomic terms
+formulas
+typed terms v1 to vn v and
+ Let f  represent a typed atomic formula Atomic formu-
+las may have a different arity than the one specied and
+still satisfy the conditions of the algorithm if they contain
+the necessary typed atomic terms
+ Typed terms that are sub terms of a typed term J are de-
+ If the formulas we are processing within the algorithm
+do not satisfy any of the if conditions then the algorithm
+returns null
+typed -calculus
+noted as Ji
+Denition 1 Consider two lists of typed -elements A and
+B ai  an and bj  bn respectively and a formula H
+The result of the operation HA  B is obtained by replac-
+ing ai by bi for each appearance of A in H
+Denition 2 The function InverseRH G is dened as
+Given G and H
+1 If G is vvJ set F  InverseLH J
+2 If J is a sub term of H and G is vHJ  v then F  J
+3 G is not vvJ J is a sub term of H and G is
+wHJJ1  Jm  wJp  Jq with 1  pqs 
+m then F  v1  vsJJ1  Jm  vp  vq
+To illustrate InverseR assume that in the example given
+in table 2 the semantics of the word in is not known
+We can use the Inverse operators to obtain it as follows
+Using the semantic representation of the whole sentence
+answerriverloc2stateidcid48arkansascid48
+semantics of the word Name xanswerx we can
+use the respective operators to obtain the semantics of the
+rivers in Arkansas as riverloc2stateidcid48arkansascid48
+Repeating
+recursively
+process
+yyloc2stateidcid48arkansascid48 as
+the representation
+of in Arkansas and xyyloc2x as the desired
+meaning of in 3
+Generalization and trivial solution
+Using IN V ERSE L and IN V ERSE R we are able to
+obtain new semantic representations of particular words in
+the training sentences To go beyond that we use a no-
+tion of generalization that we developed For example con-
+sider the non-transitive verb y who category as per a
+CCG4 Steedman 2000 is SN P  Lets assume we ob-
+tain a new semantic expression for y as xf lyx using
+IN V ERSE L and IN V ERSE R Generalization looks
+up all the words of the same syntactic category SN P  It
+then identies the part of the semantic expression in which
+y is involved In our particular case its the subexpres-
+sion f ly We can then assign the expression xwx to the
+words w of the same category For example for the verb
+swim we could add xswimx to the dictionary This
+process can be performed en masse by going through the
+dictionary and expanding the entries of as many words as
+possible or on demand by looking up the words of the
+same categories when a semantic representation of a word in
+a sentence is required Even with generalization we might
+still be missing large amounts of semantics information to be
+able to use IN V ERSEL and IN V ERSER To make up
+for this we allow trivial solutions where words or phrases
+are assigned the meaning xx xyyx or similarly
+simple representations which basically mean that this word
+may be ignored The trivial solutions are used as a last resort
+approach if neither inverse nor generalization are sufcient
+Translation and the Overall Learning Algorithm
+Earlier we mentioned that a sentence is translated to a rep-
+resentation in a formal language by composing the meaning
+of the words in that sentences as dictated by a CCG How-
+ever in presence of multiple meaning of words probabilistic
+CCG is used where the probabilities of a particular transla-
+tion is computed using weights associated with each word
+and meaning pair For a given sentence the translation that
+has the higher probability is picked This raises the question
+of how does one obtain the weights The weights are ob-
+tained using standard parameter estimation approaches with
+the goal that the weights should be such that they maximize
+the overall probability of translating each of the sentences
+3A very brief review of the  representation is as follows The
+formula xanswerx basically means that x is an input and
+when that input is given then it replaces x in the rest of the for-
+mula This application of a given input in expressed via the symbol
+ Thus xanswerxa reduces to answera
+4In a combinatorial categorial grammar CCG words are asso-
+ciated with categories The meaning of the category SN P is that
+if a word of category N P comes from the left then by combining
+it with a word of category SN P we get a phrase of category S
+For example if the word a has a category SN P and the word
+b has category NP then the two words can be combined to the
+phrase b a which will have the category S Similarly the cate-
+gory SN P means that a word of category N P has to come from
+the right for us to be able to combine
+Figure 1 Overall system architecture
+in the training set of sentences and their desired meaning
+to their desired meaning We now present our overall learn-
+ing algorithm that combines inverse  generalization and
+parameter estimation
+ Input A set of training sentences with their corresponding desired representations S 
+Si Li  i  1n where Si are sentences and Li are desired expressions Weights
+are given an initial value of 01 An initial feature vector 0
+ Output An updated lexicon LT 1 An updated feature vector T 1
+ Algorithm
+ Set L0  IN IT IAL DICT ION ARY S
+ For t  1    T
+ Step 1 Lexical generation
+ For i  1n
+ For j  1n
+ Parse sentence Sj to obtain Tj
+ Traverse Tj
+ apply IN V ERSE L IN V ERSE R and GEN ERALIZED to nd new
+-calculus expressions of words and phrases 
+ Set Lt1  Lt  
+ Step 2 Parameter Estimation
+ Set t1  U P DAT Et Lt15
+ return GEN ERALIZELT  LT  T 
+Automatic generation of initial dictionary
+In tables 6 and 7 we compare the performance of our sys-
+tems INVERSE INVERSE and INVERSEi with other
+systems that have similar goals However although other
+systems had other issues we were not happy that our sys-
+tems required a manually created initial dictionary consist-
+ing of -calculus representations of a set of words In the
+rest of the paper we present an approach to overcome that by
+automatically coming up with candidates for the initial dic-
+tionary and letting the parameter estimation module gure
+out the correct meaning In particular we present methods
+to automatically come up with possible -calculus represen-
+tation of nouns and various other words that are part of the
+initial vocabulary in Baral et al 2011 Unlike Baral et
+al 2011 where each of the word in the initial vocabulary is
+given a unique -calculus representation our approach does
+not necessarily come up with a single -calculus representa-
+tion of the words that are in the initial vocabulary in Baral
+5For details on  computation please see Zettlemoyer and
+Collins 2005
+et al 2011 but sometimes may come up with multiple pos-
+sibilities
+We will now illustrate our approach in obtaining the initial
+dictionary and the use of CCG and -calculus in obtaining
+semantic representations of sentences on the Geoquery cor-
+pus at httpwwwcsutexaseduusersmlgeohtml Table 1
+shows several examples of sentences with their desired rep-
+resentations while table 2 shows a sample CCG parse with
+its corresponding semantic derivation
+To be able to automatically create the entries in the ini-
+tial dictionary as given by Baral et al 2011 we need to
+answer the following two questions How do we nd the ex-
+pression xanswerx and how do we assign it to the word
+Name The word answer isnt given anywhere by the
+sentence Similarly How do we know that the semantic ex-
+pression for Arkansas should be stateidcid48arkansascid48
+The rst question can be answered by looking at several
+possible semantic representations as given in table 1 They
+share one common aspect which is that they all contain
+the predicate answer as the outermost expression Thus
+we can assume that xanswerx should be part of any
+derivation as given by table 2 In general using the grammar
+derivations for the meaning representations we can compare
+various representations and look for common parts which
+we will refer to as common structures We identify these
+common parts and assign them to certain relevant words
+in the sentence such as assigning the common expression
+xanswerx to the word Name To answer the sec-
+ond question we again look at the grammar derivations for
+nouns and analyze them to be able to obtain the semantic
+expression for Arkansas as stateidcid48arkansascid48
+Table 2 shows an example syntactic and semantic deriva-
+tion for the sentence Name the rivers in Arkansas The
+syntactic categories for each are given by the upper part
+of the table
+These are then combined using combi-
+natorial rules Steedman 2000 to obtain the rest of the
+syntactic categories For example the word Arkansas
+of category N is combined with the word in of cate-
+gory N PN N to obtain the syntactic category of in
+Arkansas N PN The lower portion of the table lists the
+Sentence
+Name the rivers in Arkansas
+How many people are there in New York
+How high is Mount McKinley
+Name all the lakes of US
+Name the states which have no surrounding states
+Representation
+answerriverloc2stateidcid48arkansascid48
+answerpopulation1stateidcid48newyorkcid48
+answerelevation1placeidcid48mountmckinleycid48
+answerlakeloc2countryidcid48usacid48
+answerexcludestateall nextto2stateall
+Table 1 Example translations
+N PN P
+N PN P
+N PN P
+riverloc2stateidcid48arkansascid48
+N PN N
+Arkansas
+xriverx
+xriverx
+xyyloc2x
+yyloc2stateidcid48arkansascid48
+riverloc2stateidcid48arkansascid48
+Arkansas
+stateidcid48arkansascid48
+xanswerx
+xanswerx
+xanswerx
+xanswerx
+answerriverloc2stateidcid48arkansascid48
+Table 2 CCG and -calculus derivation for Name the rivers in Arkansas
+semantic representations of each words using -calculus
+These are combined by applying the formulas one to an-
+other following the syntactic parse tree For example
+the semantics of Arkansas stateidcid48arkansascid48 is ap-
+plied onto the semantics of in xyyloc2x yielding
+yyloc2stateidcid48arkansascid48
+Let us rst discuss the common structures of a logical
+form For example for the Geoquery corpus as shown in
+table 1 many queries are of the form answerX where X
+is a structure corresponding to the actual query Similarly by
+analyzing the Robocup corpus we realize that all the queries
+are of the form A doB  def iner C B or def inec
+C B where C is an identier and A and B are some other
+constructs in the given language The main attribute of these
+expressions is that they dene the structures of the desired
+meaning representation
+The second component of the dictionaries were the se-
+mantic representations of nouns Unlike the common struc-
+tures these need to be generated for as many nouns as possi-
+ble to ensure that the system is capable to learn the missing
+semantic representations For example in GeoQuery a noun
+Arkansas is represented as stateidcid48arkansascid48 6 For
+Robocup a compound noun player 5 can be represented
+as player our 5
+Thus our task in being able to automatically obtain these
+is two fold We rst need to identify the common structures
+and nd the appropriate -calculus formulas and pick the
+words to which we will assign them The second part of our
+goal is to nd the corresponding -calculus expressions for
+nouns and compound nouns
+We will assume this process is done on the training data
+and full syntactic parse of the sentences as well as the parse
+of the desired formal representation are given
+Common structures
+In order to look for the common
+structures we will compare the derivation structures of var-
+ious formulas and look for common structures in them To
+6We are using the funql representation although the same ap-
+proach is applicable for the prolog one
+limit the potential search and with respect to our previous
+experience we will only look for the common parts at top
+parts of the derivation Also in order to be more precise and
+keep the computation within reasonable bounds instead of
+looking at the whole grammar for meaning representations
+we will look at the derivations of the meaning representa-
+tions of the training data This is a reasonable assumption
+as in general the amount of structures in the target language
+can be assumed to be less than the amount of training data
+as in the case of Geoquery and CLANG
+Denition 3 Given a context free grammar G with an initial
+symbol S a set of non-terminals N a set of terminals T  a
+set of production rules P and a string w  x1  xn where
+xis are terminal or non-terminal symbols a production d is
+a transformation x1  xn  x1  xi1 A xi1  xn
+such that xi  A is in P  We will say that xi  A corre-
+sponds to d
+Given a sequence of productions d  d1  dn a deriva-
+tion tree t corresponding to d is given as
+- If n  1 let X  X1 X2  Xn be the rule corre-
+sponding to d1 Then t is a tree with X as the root node
+which has n children in order left to right X1 X2  Xn
+- If tcid48 is a derivation tree corresponding to d1  dn1
+and X  X1 X2  Xn is the rule corresponding to dn
+then t is given as tcid48 with n children added in order left to
+right X1 X2  Xn to the left most leaf X of tcid48
+A  tree is a pair V t where V is a list of  bound
+variables and t is a tree where each interior node of t is
+a non terminal symbol from N and each leaf node of t is a
+terminal symbol from T or a variable from V 
+Given two sequences of productions d1 and d2 with their
+corresponding derivation trees t1 and t2 a  tree V tc is a
+common template of t1 and t2 iff there exists two sequences
+of applications s1  X1  Xn and s2  Y1  Yn such
+that when we apply each Xi to each vi i  1  n in tc we
+obtain a subtree of t1 and when we apply each Yi to each vi
+i  1  n in tc we obtain a subtree of t2
+cid46
+cid46
+cid46
+cid38
+cid38
+cid38
+answer
+ST AT E
+cid46
+cid46
+cid46
+answer
+COU N T RY
+cid38
+cid38
+cid38
+cid46
+cid46
+cid46
+ST AT E
+stateid
+ST AT EN AM E
+cid38
+cid38
+cid38
+Table 3 Sample derivation trees
+cid48virginiacid48
+Example derivation trees and a common template are
+given in tables 3 and 4
+cid46  cid38
+answer
+the initial
+Table 4 Sample common template
+Thus based on the above denitions
+the following parts of
+to look for
+the common structures in the desired meaning repre-
+look for common trees between
+sentations we will
+symbol
+derivations which are rooted at
+As an example consider
+derivation obtained directly from the Geoquery cor-
+pus for answerriverloc2stateidcid48arkansascid48 and
+answerlakeloc2countryidcid48usacid48
+ S 1a answerRIV ER
+ 2a answerriverRIV ER
+ 3a answerriverloc2ST AT E
+ S 1b answerP LACE
+ 2b answerlakeP LACE
+ 3b answerlakeloc2COU N T RY 
+Starting from the initial non-terminal S we can see that
+the rules 1a and 1b are already different They share a
+common part in having the terminal symbols answer and
+ Thus if we replace all the non-terminals in the common
+parts of the derivation with  bound variables we obtain the
+common part of the derivations as vanswerv where v
+is the new  bound variable
+In general having a derivation we start at the initial sym-
+bol and follow the derivation tree level by level while com-
+paring the nodes in the derivation tree We then collect all
+the common terminals from this subtree and replace all the
+different non-terminals with  bound variables Note that
+there might be multiple such structures as in the case of
+Robocup corpus In that case we would store and use all of
+them and the learning part of the system would take care of
+picking the proper ones
+After nding the common structures between the deriva-
+tions we need to nd the words to which we assign them
+to Since the structures are supposed to dene the common
+structures of the desired representations it is reasonable to
+try to assign them to words which in a sense dene the
+sentences In our case we look for words that are usually
+last to combine in the CCG derivation The reasoning is that
+when looking for the common structures we looked at the
+top parts of the derivation of meaning representations Thus
+it is reasonable to try to assign them to words which are in
+the top parts of the derivation in the syntactic parse of the
+sentence Note that these words might not be the ones with
+most complex categories In practice such words are usu-
+ally verbs wh-words or some adverbs
+Denition 4 Given a CCG parse tree T of a sentence s and
+a word w from s a word w is a top word if there is no other
+word wcid48 from s such that levelwcid48  levelw
+Given a set of training pairs Si Li i  1  k where
+Si is a sentence and Li is the corresponding desired logical
+form together with a syntactic parse of Si and the derivation
+of Li we can obtain the candidate common structures using
+the following algorithm denoted as IN IT IALC
+ Input
+A set of training sentences with their corresponding desired representations S  Si Li 
+i  1n where Si are sentences and Li are desired expressions A CCG grammar G for
+sentences Si A CFG grammar G for representations Li
+ Output
+An initial lexicon L0
+ Algorithm
+ Step 1 Word selection
+ For i  1n
+ Parse Si using the CCG grammar G to obtain parse tree ti Find all the top words of ti
+and store them in Wi
+Ti and Tj 
+ Step 2 -expression generation
+ For i  1n
+ For j  1n
+ Parse derivations Li and Lj using the CFG grammar G to obtain the derivation trees
+ Starting from roots compare Ti and Tj and nd the largest common template V T 
+ Concatenate all the leafs of T together to form a -expression  For each v  V  add
+ Add  as semantic expression to each of the words in Wi and Wj 7
+ Set L0  iWi
+ return L0
+such that T that is rooted at the initial symbol of the grammar S
+v in front of 
+In order to derive potential -expression candi-
+dates for nouns instead of looking at the top of the deriva-
+tion trees and nding words we match the nouns with the
+terminals in the leafs of the derivation tree and then look
+7This step exhaustively assigns the new semantics to all the top
+words While not optimal the learning part of the overall algorithm
+takes care of guring out the proper assignment
+for non-terminals which can produce it As we traverse up-
+wards towards the root we look for other terminals which
+are produced by the non-terminals we encounter At each
+encountered non-terminal we generate potential candidate
+-expressions by analyzing the current subtree and store
+them As in the previous case we leave it to the parame-
+ter learning part of the overall algorithm to gure out the
+proper ones Our approach can be illustrated as follows
+cityloc2stateidcid48virginiacid48
+Give me the cities in Virginia also given by table 3
+ CIT Y 1f cityCIT Y 
+ CIT Y 2f loc2ST AT E
+ ST AT E 3f stateidST AT EN AM E
+ ST AT EN AM E 4f
+rules deriving
+sentence
+an example of
+from the
+cid48virginiacid48
+look at
+Let us assume that the noun we are interested in is Vir-
+ginia First we will attempt to match it to a terminal in
+the derivation which in this case is cid48virginiacid48 We will
+then traverse the tree upwards In this case we rst reach
+the non-terminal ST AT EN AM E Since cid48virginiacid48 is the
+only child we add cid48virginiacid48 as the potential candidate rep-
+resentation of Virginia Continuing recursively we arrive
+at the non-terminal ST AT E It has additional terminal sym-
+bols as children stateid and  We try to match these with
+the sentence and after being unsuccessful we concatenate
+on the leafs of the current subtree to generate another poten-
+tial candidate which yields stateidcid48virginiacid48 Continu-
+ing to traverse we arrive at the non-terminal CIT Y in the
+rule 2f  As in the previous case it has terminal symbols
+loc2 and  as children and we are unable to match them
+onto the sentence Thus we again concatenate at the leaves
+leading to loc2stateidcid48virginiacid48 as a potential represen-
+tation candidate for the word Virginia Continuing up-
+wards in the tree we reach the non-terminal symbol CIT Y
+given by the rule 1f  In this case we can match one of its
+children the terminal city with some words in the sentence
+and we stop This approach produces three possible repre-
+sentations for Virginia cid48virginiacid48 stateidcid48virginiacid48
+loc2stateidcid48virginiacid48 However during the training
+process the rst one does not yield any new semantic data
+using the inverse lambda operators while the third one is too
+specic and can only be used in very few sentences Con-
+sequently their weights are very low and they are not used
+leaving stateidcid48virginiacid48 as the relevant representation
+We will now dene an algorithm to obtain the candi-
+date noun expressions from the training set denoted by
+IN IT IALN  For our experiments maxlevel was set to
+2 and accuracy was set to 07
+ Input A set of training sentences with their corresponding desired representations S 
+Si Li  i  1n where Si are sentences and Li are desired expressions A CCG
+grammar G for sentences Si A CFG grammar G for representations Li
+F N t - given a CCG parse tree t returns all the nouns in t nM AT CHw - returns a
+set of terminal symbols partially matching the string w with accuracy a Returns a single non
+terminal if w is a single word The accuracy for nM AT CHw is given by the partial string
+matching given as the percentage of similar parts in between the strings M CY KX - given
+a set of terminal and non terminal symbols nds the non-terminal symbol which can yield all of
+them using a modied CYK algorithm
+maxlevel M - maximum number of levels allowed to traverse in the derivation trees
+ Output An initial lexicon Lcid48
+ Algorithm
+ Step 1 -expression generation
+ For i  1n
+ Parse Si using the CCG grammar to obtain ti
+ Parse Li using the CFG grammar to obtain Ti
+ Set W  F N ti
+ For each wj  W 
+ Set X  nM AT CHw
+ Repeat a maximum of M times
+ Set N  M CY KX
+ Set T to be a subtree of Ti rooted at the N
+ For each leaf node n of T which is a match of some word wcid48 of the sentence Si if
+the path from n to N contains a non-terminal symbol replace n with a new  bound
+variable v and add v to 
+ Concatenate all the leaf nodes of T to form cid48
+ Set    cid48 where  represents string concatenation
+ Add wj   to Lcid48
+ Set N  M CY KN 
+If N has two or more non-terminal children break
+If N has a child which terminal symbol can be matched to any word of Si but wj 
+ return Lcid48
+The algorithm stops when it encounters other terminals
+because we are looking for the representations of specic
+words We assume each word is represented as a lambda cal-
+culus formula Once we encounter a terminal corresponding
+to some other word of the sentence we assume that word
+has its own representation which we do not want to add to
+the representation of the current noun we are investigating
+The algorithm produces results such as x answerx for
+the words list name what and stateidcid48virginiacid48 for the
+word V irginia In case of CLANG corpus some of the re-
+sults are xyxdo y xydef iner cid48xcid48 y for each of
+the words call let if
+Combining the output of both algorithms yields an initial
+lexicon which can be used by the system Some of the results
+obtained by the algorithms are given in table 5
+Virgina
+Mississippi
+player 5
+mideld
+Obtained representations
+stateidcid48virginiacid48
+x answerx
+stateidcid48mississippicid48 riveridcid48mississippicid48
+x answerx
+xyxdo y
+xydef iner cid48xcid48 y
+xyxdo y
+xydef iner cid48xcid48 y
+player our 5
+xx midf ield
+Table 5 Examples of learned initial representa-
+Evaluation
+Similarly to Zettlemoyer and Collins 2009 we used the
+standard GEOQUERY and CLANG corpora for evalua-
+tionThe GEOQUERY corpus contained 880 English sen-
+tences with their respective database queries in f unql lan-
+guage The CLANG corpus contained 300 entries specify-
+ing rules conditions and denitions in CLANG
+In all the experiments we used the CC parser of Clark
+and Curran 2007 to obtain syntactic parses for sentences
+In case of CLANG most compound nouns including num-
+bers were pre-processed We used the standard 10 fold cross
+validation and proceeded as follows A set of training and
+testing examples was generated from the respective corpus
+These were parsed using the CC parser to obtain the syn-
+tactic tree structure Next the syntactic parses plus the
+grammar derivations of the desired representations for the
+training data were used to create a corresponding initial dic-
+tionary These together with the training sets containing the
+training sentences with their corresponding semantic repre-
+sentations SRs were used to train a new dictionary with
+corresponding parameters Note that it is possible that many
+of the words were still missing their SRs however note that
+our generalization approach was also applied when comput-
+ing the meanings of the test data This dictionary was then
+used to parse the test sentences and the highest scoring parse
+was used to determine precision and recall Since many
+words might have been missing their SRs the system might
+not have returned a proper complete semantic parse To mea-
+sure precision and recall we adopted the measures given by
+Wong and Mooney 2007 and Ge and Mooney 2009 Pre-
+cision denotes the percentage of of returned SRs that were
+correct while Recall denotes the percentage of test examples
+with pre-specied SRs returned F-measure is the standard
+harmonic mean of precision and recall For database query-
+ing a SR was correct if it retrieved the same answer as the
+standard query For CLANG an SR was correct if it was an
+exact match of the desired SR except for argument ordering
+of conjunctions and other commutative predicates
+To evaluate our system a comparison with the perfor-
+mance results of several alternative systems with available
+data is given
+In many cases the performance data given
+by Ge and Mooney 2009 are used We compared our
+system with the following ones The SYN0 SYN20 and
+GOLDSYN systems by Ge and Mooney 2009 the system
+SCISSOR by Ge and Mooney 2005 an SVM based system
+KRIPS by Kate and Mooney 2006 a synchronous gram-
+mar based system WASP by Wong and Mooney 2007 the
+CCG based system by Zettlemoyer and Collins 2007 the
+work by Lu et al 2008 and the INVERSE and INVERSE
+systems given by Baral et al 2011 The results for differ-
+ent copora if available are given by the tables 6 and 78 The
+work by Percy Michael and Dan 2011 reports a 911 re-
+call on geoquery corpus but uses a 600 to 280 split
+A-INVERSE
+INVERSE
+INVERSE
+GOLDSYN
+SCISSOR
+Lu at al
+Precision
+F-measure
+Table 6 Performance on GEOQUERY
+A-INVERSE
+INVERSEi
+INVERSE
+GOLDSYN
+SCISSOR
+Lu at al
+Precision
+F-measure
+Table 7 Performance on CLANG
+8 The IN V ERSE  i and A  IN V ERSE  i denotes
+evaluation where denec and dener at the start of SRs were
+treated as being equal
+The results of our experiments indicate that our approach
+outperforms the existing parsers in F-measure and illustrate
+that our approach scales well and is applicable for sentences
+with various lengths In particular it is even capable of out-
+performing the manually created initial dictionaries given by
+Baral et al 2011 The main reason seems to be that unlike
+in Wong and Mooney 2007 our approach actually benets
+from a more simplied nature of funql compared to PRO-
+LOG The resulting -calculus expressions are often sim-
+pler as they do not have to account for variables and mul-
+tiple predicates The increase in accuracy mainly resulted
+from the decrease of number of possible semantic expres-
+sions of words As we understand the work by Baral et al
+2011 would sometimes include many meanings of words
+Our approach reduces this number A decrease was caused
+by not being able to automatically generate some expres-
+sions that were manually added in Baral et al 2011 The
+automatically obtained dictionary contained around 32 of
+the semantic data of the manually created one
+Most of the failures of our system can be attributed to the
+lack of data in the training set In particular new syntactic
+categories or semantic constructs rarely seen in the training
+set usually result in complete inability to parse those sen-
+tences In addition given the syntactic parses a complex
+semantic representations in lambda calculus are produced
+which are then often propagated via generalization and can
+produce bad translation and interfere with learning Addi-
+tionally many of the words will have several possible rep-
+resentations and the training set distribution might not prop-
+erly represent the desired one The CC parser that we used
+was primarily trained on news paper text Clark and Curran
+2007 and thus did have some problems with these differ-
+ent domains and in some cases resulted in complex semantic
+representations of words This could be improved by using
+a different parser or by simply adjusting some of the parse
+In the previous paragraphs we compared our system with
+similar systems in terms of performance We now give a
+qualitative comparison of our approach with other learning
+based approaches that can potentially translate natural lan-
+guage text to formal representation languages Zettlemoyer
+and Collins 2005 Kate and Mooney 2006 Wong and
+Mooney 2006 Wong and Mooney 2007 Lu et al 2008
+Zettlemoyer and Collins 2007 Ge and Mooney 2009
+Kwiatkowski et al 2010 Kwiatkowski et al 2011
+Percy Michael and Dan 2011 Zettlemoyer and Collins
+2005 uses a set of hand crafted rules to learn syntactic cat-
+egories and semantic representations of words using combi-
+natorial categorial grammar CCG Steedman 2000 and
+-calculus formulas Gamut 1991 The same approach
+is adopted in Zettlemoyer and Collins 2007 Kanazawa
+2001 Kanazawa 2003 and Kanazawa 2006 focuses on
+computing the missing -expressions but do not provide a
+complete system In Ge and Mooney 2009 a word align-
+ment approach is adopted to obtain the semantic lexicon and
+rules which allow semantic composition are learned Com-
+pared to Ge and Mooney 2009 we do not generate word
+alignments for the sentences and their semantic representa-
+tions We only use a limited form of pattern matching to
+initialize our approach with several basic semantic represen-
+tations We focus on the simplest cases the top and bottom
+of the trees rather than performing a complete analysis of
+the trees We assign each word a -calculus formula as its
+semantics and use the native -calculus application  to
+combine them rather than computed composition rules The
+learning process then gures out which of the candidate se-
+mantics to use We use a different syntactic parser which
+dictates the direction of the semantic composition Both ap-
+proaches use a similar learning model based on Zettlemoyer
+and Collins 2005 The work by Kwiatkowski et al 2010
+uses higher-order unication Instead of using inverse they
+perform a split operation which can break a  expression
+into two However this approach is not capable of learn-
+ing more complex  calculus formulas and lacks general-
+ization Percy Michael and Dan 2011 uses dependency-
+based compositional semanticsDCS with lexical triggers
+which loosely correspond to our initial dictionaries
+Conclusion and Discussion
+In this work we presented an approach to translate natural
+language sentences into semantic representations Using a
+training set of sentences with their desired semantic repre-
+sentations our system is capable of learning the meaning
+representations of words
+It uses the parse of desired se-
+mantic representations under an unambiguous grammar to
+obtain an initial dictionary inverse  operators and gener-
+alization techniques to automatically compute the semantic
+representations based on the syntactic structure of the syn-
+tactic parse tree and known semantic representations without
+any human supervision Statistical learning approaches are
+used to distinguish the various potential semantic represen-
+tations of words and prefer the most promising one In this
+work we are able to overcome some of the deciencies of
+our initial work in Baral et al 2011 Our approach here is
+fully automatic and it generates a set of potential candidate
+words for each noun based solely on the context free gram-
+mar of the target language and the training data The result-
+ing method is capable of outperforming many of the existing
+systems on the standard copora of Geoquery and CLANG
+There are many possible extensions to our work One of
+the possible direction is to experiment with additional cor-
+pora which uses temporal logic as a target language Other
+directions include the improvements in inverse lambda com-
+putation and application of other learning methods such as
+sparse learning
+References
+Baral et al 2011 Baral C Gonzalez M Dzifcak J and
+Zhou J 2011 Using inverse  and generalization to trans-
+late english to formal languages In Proceedings of the Inter-
+national Conference on Computational Semantics Oxford
+England January 2011
+Clark and Curran 2007 Clark S and Curran J R 2007
+Wide-coverage efcient statistical parsing with ccg and log-
+linear models Computational Linguistics 33
+Gamut 1991 Gamut L 1991 Logic Language and Mean-
+ing The University of Chicago Press
+Ge and Mooney 2005 Ge R and Mooney R J 2005 A
+statistical semantic parser that integrates syntax and seman-
+tics In Proceedings of CoNLL 916
+Ge and Mooney 2009 Ge R and Mooney R J 2009
+Learning a compositional semantic parser using an existing
+syntactic parser In Proceedings of ACL-IJCNLP 611619
+Gonzalez 2010 Gonzalez M A 2010 An inverse lambda
+calculus algorithm for natural language processing Masters
+thesis Arizona State University
+Kanazawa 2001 Kanazawa M 2001 Learning word-to-
+meaning mappings in logical semantics In Proceedings of
+the Thirteenth Amsterdam Colloquium 126131
+Kanazawa 2003 Kanazawa M 2003 Computing word
+meanings by interpolation In Proceedings of the Fourteenth
+Amsterdam Colloquium 157162
+Kanazawa 2006 Kanazawa M 2006 Computing inter-
+polants in implicational logics Ann Pure Appl Logic
+1421-3125201
+Kate and Mooney 2006 Kate R J and Mooney R J
+2006 Using string-kernels for learning semantic parsers
+In Proceedings of COLING 439446
+Kwiatkowski et al 2010 Kwiatkowski T Zettlemoyer L
+Goldwater S and Steedman M 2010
+Inducing proba-
+bilistic ccg grammars from logical form with higher-order
+unication In In Proceedings of EMNLP
+Kwiatkowski et al 2011 Kwiatkowski T Zettlemoyer L
+Goldwater S and Steedman M 2011 Lexical generaliza-
+tion in ccg grammar induction for semantic parsing In In
+Proceedings of EMNLP
+Lu et al 2008 Lu W Ng H T Lee W S and Zettle-
+moyer L S 2008 A generative model for parsing natu-
+ral language to meaning representations In Proceedings of
+EMNLP-08
+1974 Formal Philoso-
+Montague 1974 Montague R
+phy Selected Papers of Richard Montague Yale University
+Percy Michael and Dan 2011 Percy L Michael J and
+Dan K 2011 Learning dependency-based compositional
+semantics In Proceedings of ACL-HLT 590599
+Steedman 2000 Steedman M 2000 The syntactic process
+MIT Press
+Wong and Mooney 2006 Wong Y W and Mooney R J
+2006 Learning for semantic parsing with statistical machine
+translation In Proceedings of HLTNAACL 439446
+Wong and Mooney 2007 Wong Y W and Mooney R J
+2007 Learning synchronous grammars for semantic parsing
+with lambda calculus In Proceedings of ACL 960967
+Zettlemoyer and Collins 2005 Zettlemoyer
+Collins M 2005 Learning to map sentences to logical
+form Structured classication with probabilistic categorial
+grammars In AAAI 658666
+Zettlemoyer and Collins 2007 Zettlemoyer
+Collins M 2007 Online learning of relaxed ccg gram-
+In Proceedings of
+mars for parsing to logical form
+EMNLP-CoNLL 678687
+Zettlemoyer and Collins 2009 Zettlemoyer
+Collins M 2009 Learning context-dependent mappings
+from sentences to logical form In ACL
+Language understanding as a step towards human level intelligence - automatizing
+the construction of the initial dictionary from example sentences
+School of Computing Informatics and DSE
+School of Computing Informatics and DSE
+Chitta Baral
+Arizona State University
+chittaasuedu
+Juraj Dzifcak
+Arizona State University
+jurajdzifcakasuedu
+Abstract
+For a system to understand natural language it needs to be
+able to take natural language text and answer questions given
+in natural language with respect to that text it also needs to
+be able to follow instructions given in natural language To
+achieve this a system must be able to process natural lan-
+guage and be able to capture the knowledge within that text
+Thus it needs to be able to translate natural language text
+into a formal language We discuss our approach to do this
+where the translation is achieved by composing the mean-
+ing of words in a sentence Our initial approach uses an in-
+verse lambda method that we developed and other methods
+to learn meaning of words from meaning of sentences and an
+initial lexicon We then present an improved method where
+the initial lexicon is also learned by analyzing the training
+sentence and meaning pairs We evaluate our methods and
+compare them with other existing methods on a corpora of
+database querying and robot command and control
+Introduction and Motivation
+We consider natural language understanding as an important
+aspect of human level intelligence But what do we mean by
+language understanding In our view a system that under-
+stands language can among other attributes i take natural
+language text and then answer questions given in natural lan-
+guage with respect to that text and ii take natural language
+instructions and execute those instructions as a human would
+A system that can do the above must have several func-
+tional capabilities such as a It must be able to process lan-
+guage b It must be able to capture knowledge expressed
+in the text c It must be able to reason plan and in gen-
+eral do problem solving and for that it may need to do ef-
+cient searching of solutions d It must be able to do high
+level execution and control as per given directives and e
+To scale it must be able to learn new language aspects for
+eg new words These functional capabilities are often
+compartmentalized to different AI research topics How-
+ever good progress in each of these areas over the last few
+decades provides an opportunity to use results and systems
+from them and build up on that to develop a natural language
+understanding system
+Copyright ccid13 2011 Association for the Advancement of Articial
+Intelligence wwwaaaiorg All rights reserved
+Over the last two decades our group has been focusing
+in the research of developing suitable knowledge represen-
+tation languages The research by a broader community has
+led to KR languages and systems that allow us to represent
+various kinds of knowledge and the KR systems allow us to
+reason plan and do declarative problem solving using them
+Various search techniques are embedded in some of these
+systems and one such system from Potsdam CLASP1 has
+been doing very well in SAT competitions2 Similarly var-
+ious languages and systems have been developed that can
+take directives in a formal language and use it in high level
+execution and control These cover the aspects c and d
+mentioned above
+In our current research we use the existing results on c
+and d and develop an overall architecture that addresses
+the aspects a b and e to lead to a natural language un-
+derstanding framework
+The rst key aspect of our approach and our language un-
+derstanding framework is to translate natural language to
+appropriate formal languages Once that is achieved we
+achieve b and then together with the c and d compo-
+nents we achieve a The second key aspect of our ap-
+proach and our language understanding framework is that
+we can reason and learn about how to translate new words
+and phrases This allows our overall system to scale up to
+larger vocabularies and thus we achieve e
+In this paper we rst give a brief presentation of our sys-
+tem and framework which was reported in an earlier limited
+audience conferenceworkshop We then present some orig-
+inal work to enhance what was done then
+Translating English to Formal languages
+Our approach to translate English to formal languages is in-
+spired by Montagues path-breaking thesis Montague 1974
+of viewing English as a formal language We consider each
+word to be characterized by one or more -calculus for-
+mulas and the translation to be obtained by composing ap-
+propriate -calculus formulas of the words as dictated by a
+PCCG Probabilistic Combinatorial Categorial Grammars
+The big challenge in this approach is to be able to come up
+with the right -calculus formulas for various words Our
+1httpwwwcsuni-potsdamdeclasp
+2httpwwwsatcompetitionorg
+approach initially presented in Baral et al 2011 utilizes
+inverse -calculus operators and generalization to obtain se-
+mantic representations of words and learning techniques to
+distinguish in between them The system architecture of our
+approach is given in gure 1 The left block shows an overall
+system to translate a sentence into a target formal language
+using the PCCG grammar and the lexicon while the right
+block shows the learning module to learn the meaning of
+new words via Inverse  and generalization methods and
+assigning weights to multiple meaning of words We now
+elaborate on some important parts of the system
+Inverse  computation
+The composition semantics of -calculus basically com-
+putes the meaning of a phrase a b by  or  depend-
+ing on the CCG parse Now suppose we know the meaning
+a b to be  and also know the meaning of a as  By
+inverse  we refer to the obtaining of  given  and  De-
+pending on whether  is  or  we have two inverse
+operators InverseR and InverseL We now give a quick
+glimpse of InverseR as given in Baral et al 2011 Further
+details are given in Gonzalez 2010
+ Let G H represent
+J 1J 2J n represent
+w represent variables and 1n represent
+atomic terms
+formulas
+typed terms v1 to vn v and
+ Let f  represent a typed atomic formula Atomic formu-
+las may have a different arity than the one specied and
+still satisfy the conditions of the algorithm if they contain
+the necessary typed atomic terms
+ Typed terms that are sub terms of a typed term J are de-
+ If the formulas we are processing within the algorithm
+do not satisfy any of the if conditions then the algorithm
+returns null
+typed -calculus
+noted as Ji
+Denition 1 Consider two lists of typed -elements A and
+B ai  an and bj  bn respectively and a formula H
+The result of the operation HA  B is obtained by replac-
+ing ai by bi for each appearance of A in H
+Denition 2 The function InverseRH G is dened as
+Given G and H
+1 If G is vvJ set F  InverseLH J
+2 If J is a sub term of H and G is vHJ  v then F  J
+3 G is not vvJ J is a sub term of H and G is
+wHJJ1  Jm  wJp  Jq with 1  pqs 
+m then F  v1  vsJJ1  Jm  vp  vq
+To illustrate InverseR assume that in the example given
+in table 2 the semantics of the word in is not known
+We can use the Inverse operators to obtain it as follows
+Using the semantic representation of the whole sentence
+answerriverloc2stateidcid48arkansascid48
+semantics of the word Name xanswerx we can
+use the respective operators to obtain the semantics of the
+rivers in Arkansas as riverloc2stateidcid48arkansascid48
+Repeating
+recursively
+process
+yyloc2stateidcid48arkansascid48 as
+the representation
+of in Arkansas and xyyloc2x as the desired
+meaning of in 3
+Generalization and trivial solution
+Using IN V ERSE L and IN V ERSE R we are able to
+obtain new semantic representations of particular words in
+the training sentences To go beyond that we use a no-
+tion of generalization that we developed For example con-
+sider the non-transitive verb y who category as per a
+CCG4 Steedman 2000 is SN P  Lets assume we ob-
+tain a new semantic expression for y as xf lyx using
+IN V ERSE L and IN V ERSE R Generalization looks
+up all the words of the same syntactic category SN P  It
+then identies the part of the semantic expression in which
+y is involved In our particular case its the subexpres-
+sion f ly We can then assign the expression xwx to the
+words w of the same category For example for the verb
+swim we could add xswimx to the dictionary This
+process can be performed en masse by going through the
+dictionary and expanding the entries of as many words as
+possible or on demand by looking up the words of the
+same categories when a semantic representation of a word in
+a sentence is required Even with generalization we might
+still be missing large amounts of semantics information to be
+able to use IN V ERSEL and IN V ERSER To make up
+for this we allow trivial solutions where words or phrases
+are assigned the meaning xx xyyx or similarly
+simple representations which basically mean that this word
+may be ignored The trivial solutions are used as a last resort
+approach if neither inverse nor generalization are sufcient
+Translation and the Overall Learning Algorithm
+Earlier we mentioned that a sentence is translated to a rep-
+resentation in a formal language by composing the meaning
+of the words in that sentences as dictated by a CCG How-
+ever in presence of multiple meaning of words probabilistic
+CCG is used where the probabilities of a particular transla-
+tion is computed using weights associated with each word
+and meaning pair For a given sentence the translation that
+has the higher probability is picked This raises the question
+of how does one obtain the weights The weights are ob-
+tained using standard parameter estimation approaches with
+the goal that the weights should be such that they maximize
+the overall probability of translating each of the sentences
+3A very brief review of the  representation is as follows The
+formula xanswerx basically means that x is an input and
+when that input is given then it replaces x in the rest of the for-
+mula This application of a given input in expressed via the symbol
+ Thus xanswerxa reduces to answera
+4In a combinatorial categorial grammar CCG words are asso-
+ciated with categories The meaning of the category SN P is that
+if a word of category N P comes from the left then by combining
+it with a word of category SN P we get a phrase of category S
+For example if the word a has a category SN P and the word
+b has category NP then the two words can be combined to the
+phrase b a which will have the category S Similarly the cate-
+gory SN P means that a word of category N P has to come from
+the right for us to be able to combine
+Figure 1 Overall system architecture
+in the training set of sentences and their desired meaning
+to their desired meaning We now present our overall learn-
+ing algorithm that combines inverse  generalization and
+parameter estimation
+ Input A set of training sentences with their corresponding desired representations S 
+Si Li  i  1n where Si are sentences and Li are desired expressions Weights
+are given an initial value of 01 An initial feature vector 0
+ Output An updated lexicon LT 1 An updated feature vector T 1
+ Algorithm
+ Set L0  IN IT IAL DICT ION ARY S
+ For t  1    T
+ Step 1 Lexical generation
+ For i  1n
+ For j  1n
+ Parse sentence Sj to obtain Tj
+ Traverse Tj
+ apply IN V ERSE L IN V ERSE R and GEN ERALIZED to nd new
+-calculus expressions of words and phrases 
+ Set Lt1  Lt  
+ Step 2 Parameter Estimation
+ Set t1  U P DAT Et Lt15
+ return GEN ERALIZELT  LT  T 
+Automatic generation of initial dictionary
+In tables 6 and 7 we compare the performance of our sys-
+tems INVERSE INVERSE and INVERSEi with other
+systems that have similar goals However although other
+systems had other issues we were not happy that our sys-
+tems required a manually created initial dictionary consist-
+ing of -calculus representations of a set of words In the
+rest of the paper we present an approach to overcome that by
+automatically coming up with candidates for the initial dic-
+tionary and letting the parameter estimation module gure
+out the correct meaning In particular we present methods
+to automatically come up with possible -calculus represen-
+tation of nouns and various other words that are part of the
+initial vocabulary in Baral et al 2011 Unlike Baral et
+al 2011 where each of the word in the initial vocabulary is
+given a unique -calculus representation our approach does
+not necessarily come up with a single -calculus representa-
+tion of the words that are in the initial vocabulary in Baral
+5For details on  computation please see Zettlemoyer and
+Collins 2005
+et al 2011 but sometimes may come up with multiple pos-
+sibilities
+We will now illustrate our approach in obtaining the initial
+dictionary and the use of CCG and -calculus in obtaining
+semantic representations of sentences on the Geoquery cor-
+pus at httpwwwcsutexaseduusersmlgeohtml Table 1
+shows several examples of sentences with their desired rep-
+resentations while table 2 shows a sample CCG parse with
+its corresponding semantic derivation
+To be able to automatically create the entries in the ini-
+tial dictionary as given by Baral et al 2011 we need to
+answer the following two questions How do we nd the ex-
+pression xanswerx and how do we assign it to the word
+Name The word answer isnt given anywhere by the
+sentence Similarly How do we know that the semantic ex-
+pression for Arkansas should be stateidcid48arkansascid48
+The rst question can be answered by looking at several
+possible semantic representations as given in table 1 They
+share one common aspect which is that they all contain
+the predicate answer as the outermost expression Thus
+we can assume that xanswerx should be part of any
+derivation as given by table 2 In general using the grammar
+derivations for the meaning representations we can compare
+various representations and look for common parts which
+we will refer to as common structures We identify these
+common parts and assign them to certain relevant words
+in the sentence such as assigning the common expression
+xanswerx to the word Name To answer the sec-
+ond question we again look at the grammar derivations for
+nouns and analyze them to be able to obtain the semantic
+expression for Arkansas as stateidcid48arkansascid48
+Table 2 shows an example syntactic and semantic deriva-
+tion for the sentence Name the rivers in Arkansas The
+syntactic categories for each are given by the upper part
+of the table
+These are then combined using combi-
+natorial rules Steedman 2000 to obtain the rest of the
+syntactic categories For example the word Arkansas
+of category N is combined with the word in of cate-
+gory N PN N to obtain the syntactic category of in
+Arkansas N PN The lower portion of the table lists the
+Sentence
+Name the rivers in Arkansas
+How many people are there in New York
+How high is Mount McKinley
+Name all the lakes of US
+Name the states which have no surrounding states
+Representation
+answerriverloc2stateidcid48arkansascid48
+answerpopulation1stateidcid48newyorkcid48
+answerelevation1placeidcid48mountmckinleycid48
+answerlakeloc2countryidcid48usacid48
+answerexcludestateall nextto2stateall
+Table 1 Example translations
+N PN P
+N PN P
+N PN P
+riverloc2stateidcid48arkansascid48
+N PN N
+Arkansas
+xriverx
+xriverx
+xyyloc2x
+yyloc2stateidcid48arkansascid48
+riverloc2stateidcid48arkansascid48
+Arkansas
+stateidcid48arkansascid48
+xanswerx
+xanswerx
+xanswerx
+xanswerx
+answerriverloc2stateidcid48arkansascid48
+Table 2 CCG and -calculus derivation for Name the rivers in Arkansas
+semantic representations of each words using -calculus
+These are combined by applying the formulas one to an-
+other following the syntactic parse tree For example
+the semantics of Arkansas stateidcid48arkansascid48 is ap-
+plied onto the semantics of in xyyloc2x yielding
+yyloc2stateidcid48arkansascid48
+Let us rst discuss the common structures of a logical
+form For example for the Geoquery corpus as shown in
+table 1 many queries are of the form answerX where X
+is a structure corresponding to the actual query Similarly by
+analyzing the Robocup corpus we realize that all the queries
+are of the form A doB  def iner C B or def inec
+C B where C is an identier and A and B are some other
+constructs in the given language The main attribute of these
+expressions is that they dene the structures of the desired
+meaning representation
+The second component of the dictionaries were the se-
+mantic representations of nouns Unlike the common struc-
+tures these need to be generated for as many nouns as possi-
+ble to ensure that the system is capable to learn the missing
+semantic representations For example in GeoQuery a noun
+Arkansas is represented as stateidcid48arkansascid48 6 For
+Robocup a compound noun player 5 can be represented
+as player our 5
+Thus our task in being able to automatically obtain these
+is two fold We rst need to identify the common structures
+and nd the appropriate -calculus formulas and pick the
+words to which we will assign them The second part of our
+goal is to nd the corresponding -calculus expressions for
+nouns and compound nouns
+We will assume this process is done on the training data
+and full syntactic parse of the sentences as well as the parse
+of the desired formal representation are given
+Common structures
+In order to look for the common
+structures we will compare the derivation structures of var-
+ious formulas and look for common structures in them To
+6We are using the funql representation although the same ap-
+proach is applicable for the prolog one
+limit the potential search and with respect to our previous
+experience we will only look for the common parts at top
+parts of the derivation Also in order to be more precise and
+keep the computation within reasonable bounds instead of
+looking at the whole grammar for meaning representations
+we will look at the derivations of the meaning representa-
+tions of the training data This is a reasonable assumption
+as in general the amount of structures in the target language
+can be assumed to be less than the amount of training data
+as in the case of Geoquery and CLANG
+Denition 3 Given a context free grammar G with an initial
+symbol S a set of non-terminals N a set of terminals T  a
+set of production rules P and a string w  x1  xn where
+xis are terminal or non-terminal symbols a production d is
+a transformation x1  xn  x1  xi1 A xi1  xn
+such that xi  A is in P  We will say that xi  A corre-
+sponds to d
+Given a sequence of productions d  d1  dn a deriva-
+tion tree t corresponding to d is given as
+- If n  1 let X  X1 X2  Xn be the rule corre-
+sponding to d1 Then t is a tree with X as the root node
+which has n children in order left to right X1 X2  Xn
+- If tcid48 is a derivation tree corresponding to d1  dn1
+and X  X1 X2  Xn is the rule corresponding to dn
+then t is given as tcid48 with n children added in order left to
+right X1 X2  Xn to the left most leaf X of tcid48
+A  tree is a pair V t where V is a list of  bound
+variables and t is a tree where each interior node of t is
+a non terminal symbol from N and each leaf node of t is a
+terminal symbol from T or a variable from V 
+Given two sequences of productions d1 and d2 with their
+corresponding derivation trees t1 and t2 a  tree V tc is a
+common template of t1 and t2 iff there exists two sequences
+of applications s1  X1  Xn and s2  Y1  Yn such
+that when we apply each Xi to each vi i  1  n in tc we
+obtain a subtree of t1 and when we apply each Yi to each vi
+i  1  n in tc we obtain a subtree of t2
+cid46
+cid46
+cid46
+cid38
+cid38
+cid38
+answer
+ST AT E
+cid46
+cid46
+cid46
+answer
+COU N T RY
+cid38
+cid38
+cid38
+cid46
+cid46
+cid46
+ST AT E
+stateid
+ST AT EN AM E
+cid38
+cid38
+cid38
+Table 3 Sample derivation trees
+cid48virginiacid48
+Example derivation trees and a common template are
+given in tables 3 and 4
+cid46  cid38
+answer
+the initial
+Table 4 Sample common template
+Thus based on the above denitions
+the following parts of
+to look for
+the common structures in the desired meaning repre-
+look for common trees between
+sentations we will
+symbol
+derivations which are rooted at
+As an example consider
+derivation obtained directly from the Geoquery cor-
+pus for answerriverloc2stateidcid48arkansascid48 and
+answerlakeloc2countryidcid48usacid48
+ S 1a answerRIV ER
+ 2a answerriverRIV ER
+ 3a answerriverloc2ST AT E
+ S 1b answerP LACE
+ 2b answerlakeP LACE
+ 3b answerlakeloc2COU N T RY 
+Starting from the initial non-terminal S we can see that
+the rules 1a and 1b are already different They share a
+common part in having the terminal symbols answer and
+ Thus if we replace all the non-terminals in the common
+parts of the derivation with  bound variables we obtain the
+common part of the derivations as vanswerv where v
+is the new  bound variable
+In general having a derivation we start at the initial sym-
+bol and follow the derivation tree level by level while com-
+paring the nodes in the derivation tree We then collect all
+the common terminals from this subtree and replace all the
+different non-terminals with  bound variables Note that
+there might be multiple such structures as in the case of
+Robocup corpus In that case we would store and use all of
+them and the learning part of the system would take care of
+picking the proper ones
+After nding the common structures between the deriva-
+tions we need to nd the words to which we assign them
+to Since the structures are supposed to dene the common
+structures of the desired representations it is reasonable to
+try to assign them to words which in a sense dene the
+sentences In our case we look for words that are usually
+last to combine in the CCG derivation The reasoning is that
+when looking for the common structures we looked at the
+top parts of the derivation of meaning representations Thus
+it is reasonable to try to assign them to words which are in
+the top parts of the derivation in the syntactic parse of the
+sentence Note that these words might not be the ones with
+most complex categories In practice such words are usu-
+ally verbs wh-words or some adverbs
+Denition 4 Given a CCG parse tree T of a sentence s and
+a word w from s a word w is a top word if there is no other
+word wcid48 from s such that levelwcid48  levelw
+Given a set of training pairs Si Li i  1  k where
+Si is a sentence and Li is the corresponding desired logical
+form together with a syntactic parse of Si and the derivation
+of Li we can obtain the candidate common structures using
+the following algorithm denoted as IN IT IALC
+ Input
+A set of training sentences with their corresponding desired representations S  Si Li 
+i  1n where Si are sentences and Li are desired expressions A CCG grammar G for
+sentences Si A CFG grammar G for representations Li
+ Output
+An initial lexicon L0
+ Algorithm
+ Step 1 Word selection
+ For i  1n
+ Parse Si using the CCG grammar G to obtain parse tree ti Find all the top words of ti
+and store them in Wi
+Ti and Tj 
+ Step 2 -expression generation
+ For i  1n
+ For j  1n
+ Parse derivations Li and Lj using the CFG grammar G to obtain the derivation trees
+ Starting from roots compare Ti and Tj and nd the largest common template V T 
+ Concatenate all the leafs of T together to form a -expression  For each v  V  add
+ Add  as semantic expression to each of the words in Wi and Wj 7
+ Set L0  iWi
+ return L0
+such that T that is rooted at the initial symbol of the grammar S
+v in front of 
+In order to derive potential -expression candi-
+dates for nouns instead of looking at the top of the deriva-
+tion trees and nding words we match the nouns with the
+terminals in the leafs of the derivation tree and then look
+7This step exhaustively assigns the new semantics to all the top
+words While not optimal the learning part of the overall algorithm
+takes care of guring out the proper assignment
+for non-terminals which can produce it As we traverse up-
+wards towards the root we look for other terminals which
+are produced by the non-terminals we encounter At each
+encountered non-terminal we generate potential candidate
+-expressions by analyzing the current subtree and store
+them As in the previous case we leave it to the parame-
+ter learning part of the overall algorithm to gure out the
+proper ones Our approach can be illustrated as follows
+cityloc2stateidcid48virginiacid48
+Give me the cities in Virginia also given by table 3
+ CIT Y 1f cityCIT Y 
+ CIT Y 2f loc2ST AT E
+ ST AT E 3f stateidST AT EN AM E
+ ST AT EN AM E 4f
+rules deriving
+sentence
+an example of
+from the
+cid48virginiacid48
+look at
+Let us assume that the noun we are interested in is Vir-
+ginia First we will attempt to match it to a terminal in
+the derivation which in this case is cid48virginiacid48 We will
+then traverse the tree upwards In this case we rst reach
+the non-terminal ST AT EN AM E Since cid48virginiacid48 is the
+only child we add cid48virginiacid48 as the potential candidate rep-
+resentation of Virginia Continuing recursively we arrive
+at the non-terminal ST AT E It has additional terminal sym-
+bols as children stateid and  We try to match these with
+the sentence and after being unsuccessful we concatenate
+on the leafs of the current subtree to generate another poten-
+tial candidate which yields stateidcid48virginiacid48 Continu-
+ing to traverse we arrive at the non-terminal CIT Y in the
+rule 2f  As in the previous case it has terminal symbols
+loc2 and  as children and we are unable to match them
+onto the sentence Thus we again concatenate at the leaves
+leading to loc2stateidcid48virginiacid48 as a potential represen-
+tation candidate for the word Virginia Continuing up-
+wards in the tree we reach the non-terminal symbol CIT Y
+given by the rule 1f  In this case we can match one of its
+children the terminal city with some words in the sentence
+and we stop This approach produces three possible repre-
+sentations for Virginia cid48virginiacid48 stateidcid48virginiacid48
+loc2stateidcid48virginiacid48 However during the training
+process the rst one does not yield any new semantic data
+using the inverse lambda operators while the third one is too
+specic and can only be used in very few sentences Con-
+sequently their weights are very low and they are not used
+leaving stateidcid48virginiacid48 as the relevant representation
+We will now dene an algorithm to obtain the candi-
+date noun expressions from the training set denoted by
+IN IT IALN  For our experiments maxlevel was set to
+2 and accuracy was set to 07
+ Input A set of training sentences with their corresponding desired representations S 
+Si Li  i  1n where Si are sentences and Li are desired expressions A CCG
+grammar G for sentences Si A CFG grammar G for representations Li
+F N t - given a CCG parse tree t returns all the nouns in t nM AT CHw - returns a
+set of terminal symbols partially matching the string w with accuracy a Returns a single non
+terminal if w is a single word The accuracy for nM AT CHw is given by the partial string
+matching given as the percentage of similar parts in between the strings M CY KX - given
+a set of terminal and non terminal symbols nds the non-terminal symbol which can yield all of
+them using a modied CYK algorithm
+maxlevel M - maximum number of levels allowed to traverse in the derivation trees
+ Output An initial lexicon Lcid48
+ Algorithm
+ Step 1 -expression generation
+ For i  1n
+ Parse Si using the CCG grammar to obtain ti
+ Parse Li using the CFG grammar to obtain Ti
+ Set W  F N ti
+ For each wj  W 
+ Set X  nM AT CHw
+ Repeat a maximum of M times
+ Set N  M CY KX
+ Set T to be a subtree of Ti rooted at the N
+ For each leaf node n of T which is a match of some word wcid48 of the sentence Si if
+the path from n to N contains a non-terminal symbol replace n with a new  bound
+variable v and add v to 
+ Concatenate all the leaf nodes of T to form cid48
+ Set    cid48 where  represents string concatenation
+ Add wj   to Lcid48
+ Set N  M CY KN 
+If N has two or more non-terminal children break
+If N has a child which terminal symbol can be matched to any word of Si but wj 
+ return Lcid48
+The algorithm stops when it encounters other terminals
+because we are looking for the representations of specic
+words We assume each word is represented as a lambda cal-
+culus formula Once we encounter a terminal corresponding
+to some other word of the sentence we assume that word
+has its own representation which we do not want to add to
+the representation of the current noun we are investigating
+The algorithm produces results such as x answerx for
+the words list name what and stateidcid48virginiacid48 for the
+word V irginia In case of CLANG corpus some of the re-
+sults are xyxdo y xydef iner cid48xcid48 y for each of
+the words call let if
+Combining the output of both algorithms yields an initial
+lexicon which can be used by the system Some of the results
+obtained by the algorithms are given in table 5
+Virgina
+Mississippi
+player 5
+mideld
+Obtained representations
+stateidcid48virginiacid48
+x answerx
+stateidcid48mississippicid48 riveridcid48mississippicid48
+x answerx
+xyxdo y
+xydef iner cid48xcid48 y
+xyxdo y
+xydef iner cid48xcid48 y
+player our 5
+xx midf ield
+Table 5 Examples of learned initial representa-
+Evaluation
+Similarly to Zettlemoyer and Collins 2009 we used the
+standard GEOQUERY and CLANG corpora for evalua-
+tionThe GEOQUERY corpus contained 880 English sen-
+tences with their respective database queries in f unql lan-
+guage The CLANG corpus contained 300 entries specify-
+ing rules conditions and denitions in CLANG
+In all the experiments we used the CC parser of Clark
+and Curran 2007 to obtain syntactic parses for sentences
+In case of CLANG most compound nouns including num-
+bers were pre-processed We used the standard 10 fold cross
+validation and proceeded as follows A set of training and
+testing examples was generated from the respective corpus
+These were parsed using the CC parser to obtain the syn-
+tactic tree structure Next the syntactic parses plus the
+grammar derivations of the desired representations for the
+training data were used to create a corresponding initial dic-
+tionary These together with the training sets containing the
+training sentences with their corresponding semantic repre-
+sentations SRs were used to train a new dictionary with
+corresponding parameters Note that it is possible that many
+of the words were still missing their SRs however note that
+our generalization approach was also applied when comput-
+ing the meanings of the test data This dictionary was then
+used to parse the test sentences and the highest scoring parse
+was used to determine precision and recall Since many
+words might have been missing their SRs the system might
+not have returned a proper complete semantic parse To mea-
+sure precision and recall we adopted the measures given by
+Wong and Mooney 2007 and Ge and Mooney 2009 Pre-
+cision denotes the percentage of of returned SRs that were
+correct while Recall denotes the percentage of test examples
+with pre-specied SRs returned F-measure is the standard
+harmonic mean of precision and recall For database query-
+ing a SR was correct if it retrieved the same answer as the
+standard query For CLANG an SR was correct if it was an
+exact match of the desired SR except for argument ordering
+of conjunctions and other commutative predicates
+To evaluate our system a comparison with the perfor-
+mance results of several alternative systems with available
+data is given
+In many cases the performance data given
+by Ge and Mooney 2009 are used We compared our
+system with the following ones The SYN0 SYN20 and
+GOLDSYN systems by Ge and Mooney 2009 the system
+SCISSOR by Ge and Mooney 2005 an SVM based system
+KRIPS by Kate and Mooney 2006 a synchronous gram-
+mar based system WASP by Wong and Mooney 2007 the
+CCG based system by Zettlemoyer and Collins 2007 the
+work by Lu et al 2008 and the INVERSE and INVERSE
+systems given by Baral et al 2011 The results for differ-
+ent copora if available are given by the tables 6 and 78 The
+work by Percy Michael and Dan 2011 reports a 911 re-
+call on geoquery corpus but uses a 600 to 280 split
+A-INVERSE
+INVERSE
+INVERSE
+GOLDSYN
+SCISSOR
+Lu at al
+Precision
+F-measure
+Table 6 Performance on GEOQUERY
+A-INVERSE
+INVERSEi
+INVERSE
+GOLDSYN
+SCISSOR
+Lu at al
+Precision
+F-measure
+Table 7 Performance on CLANG
+8 The IN V ERSE  i and A  IN V ERSE  i denotes
+evaluation where denec and dener at the start of SRs were
+treated as being equal
+The results of our experiments indicate that our approach
+outperforms the existing parsers in F-measure and illustrate
+that our approach scales well and is applicable for sentences
+with various lengths In particular it is even capable of out-
+performing the manually created initial dictionaries given by
+Baral et al 2011 The main reason seems to be that unlike
+in Wong and Mooney 2007 our approach actually benets
+from a more simplied nature of funql compared to PRO-
+LOG The resulting -calculus expressions are often sim-
+pler as they do not have to account for variables and mul-
+tiple predicates The increase in accuracy mainly resulted
+from the decrease of number of possible semantic expres-
+sions of words As we understand the work by Baral et al
+2011 would sometimes include many meanings of words
+Our approach reduces this number A decrease was caused
+by not being able to automatically generate some expres-
+sions that were manually added in Baral et al 2011 The
+automatically obtained dictionary contained around 32 of
+the semantic data of the manually created one
+Most of the failures of our system can be attributed to the
+lack of data in the training set In particular new syntactic
+categories or semantic constructs rarely seen in the training
+set usually result in complete inability to parse those sen-
+tences In addition given the syntactic parses a complex
+semantic representations in lambda calculus are produced
+which are then often propagated via generalization and can
+produce bad translation and interfere with learning Addi-
+tionally many of the words will have several possible rep-
+resentations and the training set distribution might not prop-
+erly represent the desired one The CC parser that we used
+was primarily trained on news paper text Clark and Curran
+2007 and thus did have some problems with these differ-
+ent domains and in some cases resulted in complex semantic
+representations of words This could be improved by using
+a different parser or by simply adjusting some of the parse
+In the previous paragraphs we compared our system with
+similar systems in terms of performance We now give a
+qualitative comparison of our approach with other learning
+based approaches that can potentially translate natural lan-
+guage text to formal representation languages Zettlemoyer
+and Collins 2005 Kate and Mooney 2006 Wong and
+Mooney 2006 Wong and Mooney 2007 Lu et al 2008
+Zettlemoyer and Collins 2007 Ge and Mooney 2009
+Kwiatkowski et al 2010 Kwiatkowski et al 2011
+Percy Michael and Dan 2011 Zettlemoyer and Collins
+2005 uses a set of hand crafted rules to learn syntactic cat-
+egories and semantic representations of words using combi-
+natorial categorial grammar CCG Steedman 2000 and
+-calculus formulas Gamut 1991 The same approach
+is adopted in Zettlemoyer and Collins 2007 Kanazawa
+2001 Kanazawa 2003 and Kanazawa 2006 focuses on
+computing the missing -expressions but do not provide a
+complete system In Ge and Mooney 2009 a word align-
+ment approach is adopted to obtain the semantic lexicon and
+rules which allow semantic composition are learned Com-
+pared to Ge and Mooney 2009 we do not generate word
+alignments for the sentences and their semantic representa-
+tions We only use a limited form of pattern matching to
+initialize our approach with several basic semantic represen-
+tations We focus on the simplest cases the top and bottom
+of the trees rather than performing a complete analysis of
+the trees We assign each word a -calculus formula as its
+semantics and use the native -calculus application  to
+combine them rather than computed composition rules The
+learning process then gures out which of the candidate se-
+mantics to use We use a different syntactic parser which
+dictates the direction of the semantic composition Both ap-
+proaches use a similar learning model based on Zettlemoyer
+and Collins 2005 The work by Kwiatkowski et al 2010
+uses higher-order unication Instead of using inverse they
+perform a split operation which can break a  expression
+into two However this approach is not capable of learn-
+ing more complex  calculus formulas and lacks general-
+ization Percy Michael and Dan 2011 uses dependency-
+based compositional semanticsDCS with lexical triggers
+which loosely correspond to our initial dictionaries
+Conclusion and Discussion
+In this work we presented an approach to translate natural
+language sentences into semantic representations Using a
+training set of sentences with their desired semantic repre-
+sentations our system is capable of learning the meaning
+representations of words
+It uses the parse of desired se-
+mantic representations under an unambiguous grammar to
+obtain an initial dictionary inverse  operators and gener-
+alization techniques to automatically compute the semantic
+representations based on the syntactic structure of the syn-
+tactic parse tree and known semantic representations without
+any human supervision Statistical learning approaches are
+used to distinguish the various potential semantic represen-
+tations of words and prefer the most promising one In this
+work we are able to overcome some of the deciencies of
+our initial work in Baral et al 2011 Our approach here is
+fully automatic and it generates a set of potential candidate
+words for each noun based solely on the context free gram-
+mar of the target language and the training data The result-
+ing method is capable of outperforming many of the existing
+systems on the standard copora of Geoquery and CLANG
+There are many possible extensions to our work One of
+the possible direction is to experiment with additional cor-
+pora which uses temporal logic as a target language Other
+directions include the improvements in inverse lambda com-
+putation and application of other learning methods such as
+sparse learning
+References
+Baral et al 2011 Baral C Gonzalez M Dzifcak J and
+Zhou J 2011 Using inverse  and generalization to trans-
+late english to formal languages In Proceedings of the Inter-
+national Conference on Computational Semantics Oxford
+England January 2011
+Clark and Curran 2007 Clark S and Curran J R 2007
+Wide-coverage efcient statistical parsing with ccg and log-
+linear models Computational Linguistics 33
+Gamut 1991 Gamut L 1991 Logic Language and Mean-
+ing The University of Chicago Press
+Ge and Mooney 2005 Ge R and Mooney R J 2005 A
+statistical semantic parser that integrates syntax and seman-
+tics In Proceedings of CoNLL 916
+Ge and Mooney 2009 Ge R and Mooney R J 2009
+Learning a compositional semantic parser using an existing
+syntactic parser In Proceedings of ACL-IJCNLP 611619
+Gonzalez 2010 Gonzalez M A 2010 An inverse lambda
+calculus algorithm for natural language processing Masters
+thesis Arizona State University
+Kanazawa 2001 Kanazawa M 2001 Learning word-to-
+meaning mappings in logical semantics In Proceedings of
+the Thirteenth Amsterdam Colloquium 126131
+Kanazawa 2003 Kanazawa M 2003 Computing word
+meanings by interpolation In Proceedings of the Fourteenth
+Amsterdam Colloquium 157162
+Kanazawa 2006 Kanazawa M 2006 Computing inter-
+polants in implicational logics Ann Pure Appl Logic
+1421-3125201
+Kate and Mooney 2006 Kate R J and Mooney R J
+2006 Using string-kernels for learning semantic parsers
+In Proceedings of COLING 439446
+Kwiatkowski et al 2010 Kwiatkowski T Zettlemoyer L
+Goldwater S and Steedman M 2010
+Inducing proba-
+bilistic ccg grammars from logical form with higher-order
+unication In In Proceedings of EMNLP
+Kwiatkowski et al 2011 Kwiatkowski T Zettlemoyer L
+Goldwater S and Steedman M 2011 Lexical generaliza-
+tion in ccg grammar induction for semantic parsing In In
+Proceedings of EMNLP
+Lu et al 2008 Lu W Ng H T Lee W S and Zettle-
+moyer L S 2008 A generative model for parsing natu-
+ral language to meaning representations In Proceedings of
+EMNLP-08
+1974 Formal Philoso-
+Montague 1974 Montague R
+phy Selected Papers of Richard Montague Yale University
+Percy Michael and Dan 2011 Percy L Michael J and
+Dan K 2011 Learning dependency-based compositional
+semantics In Proceedings of ACL-HLT 590599
+Steedman 2000 Steedman M 2000 The syntactic process
+MIT Press
+Wong and Mooney 2006 Wong Y W and Mooney R J
+2006 Learning for semantic parsing with statistical machine
+translation In Proceedings of HLTNAACL 439446
+Wong and Mooney 2007 Wong Y W and Mooney R J
+2007 Learning synchronous grammars for semantic parsing
+with lambda calculus In Proceedings of ACL 960967
+Zettlemoyer and Collins 2005 Zettlemoyer
+Collins M 2005 Learning to map sentences to logical
+form Structured classication with probabilistic categorial
+grammars In AAAI 658666
+Zettlemoyer and Collins 2007 Zettlemoyer
+Collins M 2007 Online learning of relaxed ccg gram-
+In Proceedings of
+mars for parsing to logical form
+EMNLP-CoNLL 678687
+Zettlemoyer and Collins 2009 Zettlemoyer
+Collins M 2009 Learning context-dependent mappings
+from sentences to logical form In ACL

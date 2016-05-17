@@ -1,0 +1,774 @@
+Using the DIFF Command
+for Natural Language Processing
+Masaki Murata and Hitoshi Isahara
+Communications Research Laboratory
+2-2-2 Hikaridai Seika-cho Soraku-gun Kyoto 619-0289 Japan
+murataisaharacrlgojp
+WWW home page httpwwwcrlgojpkhnnlpmembersmurataindexhtml
+Abstract Di is a software program that detects dierences between
+two data sets and is useful in natural language processing This paper
+shows several examples of the application of di They include the detec-
+tion of dierences between two dierent datasets extraction of rewriting
+rules merging of two dierent datasets and the optimal matching of two
+dierent data sets Since di comes with any standard UNIX system it
+is readily available and very easy to use Our studies showed that di is
+a practical tool for research into natural language processing
+1 Introduction
+Di a software program that detects dierences between two sets of data has
+numerous applications in natural language processing In this paper we rst
+describe di and then give several examples of how di can be used in natural
+language processing These examples include the detection of dierences the
+merging of two sets of dierent data the extraction of rewriting rules and the
+best matching of two dierent sets of data1
+We summarize the value of this paper below
+ Since di is one of the basic programs that comes with UNIX systems it is
+readily available and very easy to use As this paper shows di is also appli-
+cable to various kinds of studies in the eld of natural language processing
+This combination makes the program particularly valuable
+ Paraphrasing has been become an active area of study 2 Section 32 shows
+that we can use di to examine the dierences between a spoken language
+and the corresponding written language and in acquiring the rules for the
+transformations between the spoken and written languages Di is not only
+useful for such studies but is also applicable to other kinds of studies in
+the eld of paraphrasing This paper will provide a basis for such further
+application of di
+ In general di is used to detect dierences between two data However it
+can also be used to merge data and to match data optimally Section 4 covers
+1 This papar is an English rough translation of our papers 13
+several interesting studies of the use of di in merging and best-matching
+tasks These examples are the alignment of a paper and a corresponding pre-
+sentation and a question-answering system This paper thus has originality
+in terms of topics researched and approach to the research
+2 Di and Mdi
+In this section we describe di Di is a software program of Unix systems that
+is used to compare les The program displays line-by-line dierences between a
+pair of text les while retaining the order of the data For example suppose we
+have the following two les
+File 1
+school
+File 2
+university
+When we give these data to di the dierence is displayed in the following way
+ school
+ university
+Di has a -D option which is very useful When we use di with this option
+common parts as well as dierences are displayed That is les can be merged
+by using this option However the output of di -D is in a form which is used for
+C preprocessor such as Ifdef and this is dicult for people to read Therefore
+in this paper we give the dierences in the following way
+ begin 
+The parts which only exist in the first file
+-----------------
+The parts which only exist in the second file
+ end 
+where  begin  indicates the beginning of the dierences 
+end  indicates the end of the dierences and -----------------
+indicates the boundary between the two sets of data In this paper we refer to
+di in the case where the les are merged by using the -D option and the dier-
+ences are displayed in the above form as mdi
+When we give our earlier pair of les to mdi we obtain the following result
+ begin 
+school
+-----------------
+university
+ end 
+I go to matchs while school and university are dierences The output of
+mdi is easy to examine and understand because it also displays unlike di the
+common parts
+We can reproduce the two original les from the output of mdi When we
+take the common part and the upper part of the dierences we obtain the
+content of the rst le When we take the common part and the lower part of
+the dierences we obtain the content of the second le We can reproduce all of
+the original data in this way
+Since mdi only displays the common part of the data once it is able to
+reduce the amount of data Since it is possible to fully reproduce the original
+data from mdis output we are able to say that mdi compresses the data
+while retaining the original information
+Since the output of di is dicult to read and the output of mdi contains
+all information output by di we use mdi for our explanations in the following
+sections In the following sections lets look at some actual examples of the
+application of mdi to natural language processing
+3 Detecting dierences and acquiring transformation
+In this section we describe the studies where we used mdi to detect dierences
+and then acquired transformation rules from the dierences In more concrete
+terms we give the following two examples
+ Detection of dierences between the outputs of multiple systems
+ Examination of dierences to acquire transformation rules
+31 Detection of dierences between the outputs of multiple
+systems
+We have been using multiple morphological analyzers to improve the quality of
+the results of morphological analysis
+Suppose that we use two morphological analyzers to analyze We like ap-
+ples the results are as follows
+System 1
+System 2
+Preposition
+The word like is ambiguous in terms of part of speech POS and can take
+Verb or Preposition The POS of like in the above sentence is Verb and
+the analysis by System 2 was wrong Here when we give the two results to mdi
+we obtain the following results
+Preposition
+ begin 
+-----------------
+ end 
+apples Noun
+Mdi makes it easy for us to detect dierences between the results produced by
+multiple systems In this case we notice that there are dierences in the line for
+like Here we determine beforehand that a worker corrects the outputs and
+judges which is correct when such dierences are detected When the output of
+the rst system is correct he does nothing and when the output of the second
+system is correct he marks the beginning of  with an x When
+we do so we can automatically select the better result of each dierence from the
+results marked by the worker We simply delete the lower part of the dierence
+where there is no x and delete the upper part of the dierence when there is
+an x As a result we produce a more accurate overall result than either of the
+two original results There are many cases when both parts of a dierence are
+incorrect In such cases we manually rewrite the data correctly above 
+
+When we use this method the only incorrect data that is not corrected are
+the data on which both the systems have performed exactly the same wrong
+analysis Many errors can thus be corrected What we want to say here is that
+we must prepare multiple systems that have dierent characteristics If we use
+two systems that often produce the same wrong analysis we will fail to correct
+a large number of errors
+Di3 which is another unix program is available for analysing the outpus
+of three systems Di3 detects dierences among three les
+Although we have given an example of morphological analysis we can also
+use mdi to detect dierences between the results of other forms of analysis as
+long as the results are expressed in a line-by-line form
+Although we have described a study where we detected dierences between
+the outputs of multiple systems we are also able to detect and correct errors in
+tagged corpora by comparing the tagged corpora and the results of analysis of
+the corpora by a certain system2
+32 Examining dierences and acquiring transformation rules
+In this section we describe our study of the use of mdi to detect dierences be-
+tween a spoken language and the corresponding written language In this study
+we used the alignment between data on the spoken language and on the written
+language to examine the dierences between the spoken and written languages
+on the basis of the results of mdi We thus acquired rules for transforming the
+2 There are studies on the correction of errors in tagged corpora 5
+Table 1 Examples of written data and the corresponding data in spoken form
+The written-language sample
+describe
+meaning
+general
+sorting
+performed
+The spoken-language sample
+describe
+meaning
+general
+sorting
+spoken language to the written language along with the inverse transformation
+rules We used presentations at academic conferences as examples of the spoken
+language and used papers which had the same content as the presentations as
+examples of the writtten language
+For example we supposed that data in the spoken and written languages are
+given as in Table 13 The data in the table are transformed so that each line has
+one word before we apply mdi Applying mdi to the data produces the results
+shown in Table 2 By extracting the dierences from these results we obtain the
+results shown in Table 3
+The results show us that uh is inserted in the spoken language and that
+performed can in this case be paraphrased as done We can use mdi to
+detect dierences between the spoken language and the written language and
+then examine them linguistically We can also consider the detected dierences as
+rules for the transformation between written and spoken languages For example
+the occurrence of uh can be regarded as indicating a rule that we may insert
+uh into the written-language data as part of transforming it into the spoken
+language The dierence in terms of whether performed or done is used
+can be regarded as a rule that we transform performed to done when we
+transform data from the written to the spoken language We thus nd that we
+are able to use mdi to detect the transformation rules
+In this section we used data in the written and spoken language However we
+can study a variety of data in a similar way For example when we apply mdi to
+written texts before and after spelling and grammar are checked we can nd out
+3 Although we have given English sentences in the table we actually performed these
+experiments on Japanese-language materials
+Table 2 The result of applying mdi to the written-language sample and the
+corresponding spoken-language sample
+ begin 
+
+ end 
+describe
+ begin 
+
+Contined in the right-hand column
+ end 
+meaning
+general
+sorting
+ begin 
+performed
+
+ end 
+Table 3 Extraction of dierences
+The written-language data The spoken-language data
+In this paper we
+Today Id like to
+performed
+how we should modify the sentences to eliminate spelling and grammatical errors
+and thus acquire rules for checking spelling and grammar When we use mdi on
+texts and the results of their automatic summarization we can clearly see how
+the texts were summarized and can thus acquire the rules used in automatic
+summarization In other cases of paired textual data too we will be able to
+apply mdi to examine the data in the various ways that such pairs can be
+obtained and to obtain the rules for transformation
+4 The merging and best matching of two dierent sets of
+In this section we describe studies of the use of dis function of optimally
+merging data4 We describe the following two examples
+ The alignment of presentations and corresponding papers
+ A question-answering system using the function of nding the the best match
+4 In di best matching is performed by maximizing the extent of the common parts
+Chapter 1
+the contents of Chapter 1
+Chapter 1
+Chapter 2
+the contents of Chapter 2
+Chapter 2
+Chapter 3
+the contents of Chapter 3
+Chapter 3
+Fig 1 Structure in the paper
+ begin 
+Chapter 1
+content of the paper only
+
+content of the presentation only
+ end 
+content of the paper and presentation
+ begin 
+content of the paper only
+
+Contined in the right-hand column
+content of the presentation only
+ end 
+content of the paper and presentation
+ begin 
+Chapter 1
+Chapter 2
+content of the paper only
+
+content of the presentation only
+ end 
+Fig 2 Results of applying mdi to a paper and a corresponding presentation
+41 Alignment of a paper with the corresponding presentation
+In this section we align a paper with the corresponding presentation 6 The pa-
+per and corresponding presentation is the same example as was used in describing
+the acquisition of the rules for transformation from written to spoken-language
+data Section 32 The presentation was made at an academic conference and
+the paper corresponds to this presentation When we are able to align each part
+of a presentation with a corresponding part of the paper this form of alignment
+is very useful For example when we listen to a presentation we are able to refer
+to the part of the paper that corresponds to the part of we are now listening
+When we read a paper we are able to refer to the part of the presentation that
+corresponds to the part of the paper we are now reading 6 In this section we
+consider the use of mdi to align a paper with the corresponding presentation
+Here lets try to determine the parts of the presentation to which each chap-
+ter of the paper corresponds by using mdi We suppose that the content is laid
+out in the same order in the paper and in the presentation In advance we place
+symbols such as Chapter 1 as shown in Figure 1 into the paper This is so
+that we are easily able to recognize the chapters of the paper By applying mdi
+to the data set that consists of a presentation after both have been transformed
+so that each line has one word we obtained the results shown in Figure 2 Next
+Chapter 1
+content of the presentation only
+content of the paper and presentation
+content of the presentation only
+Chapter 1
+Chapter 2
+content of the presentation only
+Fig 3 Results of insertion of information on sections in a presentation
+we obtained the results shown in Figure 3 by eliminating the upper parts of the
+dierences ie those that correspond to the paper and leaving symbols such
+as Chapter 1 in place The symbols such as Chapter 1 are only inserted
+in the data of the presentation We are then able to recognize the chapter of the
+paper that corresponds with a given part of the presentation
+To put this simply we place information to indicate chapters in the data of
+presentations We then use the merging function of mdi to match the parts of
+the paper and presentation Then by eliminating the content of the paper we
+are left with information on the chapters We can easily align a paper with a
+corresponding presentation at the level of chapters by using mdi
+42 A question-answering system using best matching
+In this section we describe our question-answering system that utilizes mdis
+best-matching function 24
+A question-answering system receives a question and outputs an answer For
+example when Where is the capital of Japan is given it returns Tokyo
+When we consider now much knowledge is in written natural language form
+we see that the system only has to match a given question with a sentence a
+knowledge sentence that includes the knowledge then select the word in the
+sentence that corresponds to the interrogative pronoun of the question sentence
+For example in the case of the previous question the system detects this knowl-
+edge sentence in a knowledge database Tokyo is the capital of Japan Tokyo
+is output as the answer since corresponds to the interrogative pronoun in the
+sentence Here we consider the use of mdi in answering questions
+Firstly we transform the interrogative pronoun in the question sentence into
+X and change  into  at the end of the sentence We then obtain X is the
+capital of Japan We thus obtain Tokyo is the capital of Japan from the
+knowledge base We obtain the results in Figure 4 a by applying mdi to the
+two sentences We consider the part that is paired with X in the dierences as
+the answer and correctly obtain Tokyo
+Even if there are dierences between the compared sentences we can still use
+mdi to correctly extract the answer For example suppose that the knowledge
+sentence is Tokyo is the capital in Japan In this case the result of mdi is
+ begin 
+-----------------
+capital
+ begin 
+-----------------
+capital
+ begin 
+-----------------
+a Case 1
+b Case 2
+Fig 4 Results of mdi in the question-answering system
+as in Figure 4 b Although the number of dierences increased the part that
+corresponds to X remains Tokyo and the correct answer has been detected
+The question-answering system we have proposed repeats to transform the
+question sentence and knowledge sentence so that the two sentences are as similar
+as possible It then extracts the answer by matching the sentences when they
+are at this point Since we use the similarity between two sentences in that
+time we have to dene the degree of the similarity between sentences Since we
+can recognize the common parts and the dierent parts by using mdi we can
+calculate the degree of similarity as the number of characters in the common
+partthe number of all characters5 Here if we suppose that we have a rule
+for transforming in to of we match the data after transforming Tokyo is
+the capital in Japan to Tokyo is the capital of Japan and we are able to
+obtain the answer more reliably by decreasing the number of dierences
+5 Conclusion
+In this paper we describe a lot of examples of the use of di in various problems
+of natural language processing In Section 31 we describe how we apply di to
+a system that combines multiple systems and thus obtain higher precisions than
+from any of individual systems Studies on combination of systems are very well
+known We describe how such combination can easily be performed by di In
+Section 32 we showed that di is easily able to examine the dierences between
+a spoken and written language and acquire rules for the transformation between
+5 Here we use mdi to calculate the degree of similarity of the sentences Mdi is also
+useful in this way
+the spoken and written language We handled the paraphrasing of written lan-
+guage into spoken language However the study on paraphrasing covers a wide
+range automatic extraction of compressed sentences sentence polishing-up to
+modify sentences correctly and transformations from dicult sentences to plain
+sentences In these studies too it will be easy to apply di to various forms of
+examination and to the extraction of various transformation rules This paper
+will become a basis for studies of paraphrasing an area in which there has been
+increasing activity In Section 4 we showed examples of the merging of data and
+the optimal matching of data Since di is generally used to detect dierences
+Section 4 which shows applications of di to merging and matching presents a
+new and original approach In the section we showed that it is easy to apply di
+to interesting studies of two kinds the alignment of a paper with a corresponding
+presentation and a question-answering system
+In this paper we have described many examples of the application of di
+to natural language processing We hope that di will be applied to an ever-
+widening range of studies
+Acknowlegement
+We were given data for the experiments on alignment of a paper with a corre-
+sponding presentation by Kiyotaka Uchimoto of the Communications Research
+Laboratory
+References
+1 Masaki Murata and Hitoshi Isahara Nlp using di IPSJ-WGNL 2001-NL-144
+2001 in Japanese
+2 Masaki Murata and Hitoshi Isahara Universal model for paraphrasing Using trans-
+In NLPRS2001 Workshop on Automatic
+formation based on a dened criteria
+Paraphrasing Theories and Applications 2001
+3 Masaki Murata and Hitoshi Isahara NLP using DIFF  use of convenient tool
+for detecting dierences MDIFF  Journal of Natural Language Processing 92
+2002 in Japanese
+4 Masaki Murata Masao Utiyama and Hitoshi Isahara Question answering system
+using syntactic information 1999 httpxxxlanlgovabs csCL9911006
+5 Masaki Murata Masao Utiyama Kiyotaka Uchimoto Qing Ma and Hitoshi Isa-
+hara Correction of the modality corpus for machine translation based on machine-
+learning method 7th Annual Meeting of the Association for Natural Language
+Processing 2001 in Japanese an English translation of this paper is available at
+httparXivorgabscs0105001
+6 Kiyotaka Uchimoto Chikashi Nobata Kimiko Ohta Masaki Murata Qing Ma and
+Hitoshi Isahara Segmenting the transcription of a talk by aligning the transcription
+with its corresponding paper 7th Annual Meeting of the Association for Natural
+Language Processing pages 317321 2001
+Using the DIFF Command
+for Natural Language Processing
+Masaki Murata and Hitoshi Isahara
+Communications Research Laboratory
+2-2-2 Hikaridai Seika-cho Soraku-gun Kyoto 619-0289 Japan
+murataisaharacrlgojp
+WWW home page httpwwwcrlgojpkhnnlpmembersmurataindexhtml
+Abstract Di is a software program that detects dierences between
+two data sets and is useful in natural language processing This paper
+shows several examples of the application of di They include the detec-
+tion of dierences between two dierent datasets extraction of rewriting
+rules merging of two dierent datasets and the optimal matching of two
+dierent data sets Since di comes with any standard UNIX system it
+is readily available and very easy to use Our studies showed that di is
+a practical tool for research into natural language processing
+1 Introduction
+Di a software program that detects dierences between two sets of data has
+numerous applications in natural language processing In this paper we rst
+describe di and then give several examples of how di can be used in natural
+language processing These examples include the detection of dierences the
+merging of two sets of dierent data the extraction of rewriting rules and the
+best matching of two dierent sets of data1
+We summarize the value of this paper below
+ Since di is one of the basic programs that comes with UNIX systems it is
+readily available and very easy to use As this paper shows di is also appli-
+cable to various kinds of studies in the eld of natural language processing
+This combination makes the program particularly valuable
+ Paraphrasing has been become an active area of study 2 Section 32 shows
+that we can use di to examine the dierences between a spoken language
+and the corresponding written language and in acquiring the rules for the
+transformations between the spoken and written languages Di is not only
+useful for such studies but is also applicable to other kinds of studies in
+the eld of paraphrasing This paper will provide a basis for such further
+application of di
+ In general di is used to detect dierences between two data However it
+can also be used to merge data and to match data optimally Section 4 covers
+1 This papar is an English rough translation of our papers 13
+several interesting studies of the use of di in merging and best-matching
+tasks These examples are the alignment of a paper and a corresponding pre-
+sentation and a question-answering system This paper thus has originality
+in terms of topics researched and approach to the research
+2 Di and Mdi
+In this section we describe di Di is a software program of Unix systems that
+is used to compare les The program displays line-by-line dierences between a
+pair of text les while retaining the order of the data For example suppose we
+have the following two les
+File 1
+school
+File 2
+university
+When we give these data to di the dierence is displayed in the following way
+ school
+ university
+Di has a -D option which is very useful When we use di with this option
+common parts as well as dierences are displayed That is les can be merged
+by using this option However the output of di -D is in a form which is used for
+C preprocessor such as Ifdef and this is dicult for people to read Therefore
+in this paper we give the dierences in the following way
+ begin 
+The parts which only exist in the first file
+-----------------
+The parts which only exist in the second file
+ end 
+where  begin  indicates the beginning of the dierences 
+end  indicates the end of the dierences and -----------------
+indicates the boundary between the two sets of data In this paper we refer to
+di in the case where the les are merged by using the -D option and the dier-
+ences are displayed in the above form as mdi
+When we give our earlier pair of les to mdi we obtain the following result
+ begin 
+school
+-----------------
+university
+ end 
+I go to matchs while school and university are dierences The output of
+mdi is easy to examine and understand because it also displays unlike di the
+common parts
+We can reproduce the two original les from the output of mdi When we
+take the common part and the upper part of the dierences we obtain the
+content of the rst le When we take the common part and the lower part of
+the dierences we obtain the content of the second le We can reproduce all of
+the original data in this way
+Since mdi only displays the common part of the data once it is able to
+reduce the amount of data Since it is possible to fully reproduce the original
+data from mdis output we are able to say that mdi compresses the data
+while retaining the original information
+Since the output of di is dicult to read and the output of mdi contains
+all information output by di we use mdi for our explanations in the following
+sections In the following sections lets look at some actual examples of the
+application of mdi to natural language processing
+3 Detecting dierences and acquiring transformation
+In this section we describe the studies where we used mdi to detect dierences
+and then acquired transformation rules from the dierences In more concrete
+terms we give the following two examples
+ Detection of dierences between the outputs of multiple systems
+ Examination of dierences to acquire transformation rules
+31 Detection of dierences between the outputs of multiple
+systems
+We have been using multiple morphological analyzers to improve the quality of
+the results of morphological analysis
+Suppose that we use two morphological analyzers to analyze We like ap-
+ples the results are as follows
+System 1
+System 2
+Preposition
+The word like is ambiguous in terms of part of speech POS and can take
+Verb or Preposition The POS of like in the above sentence is Verb and
+the analysis by System 2 was wrong Here when we give the two results to mdi
+we obtain the following results
+ begin 
+-----------------
+ end 
+apples Noun
+Preposition
+Mdi makes it easy for us to detect dierences between the results produced by
+multiple systems In this case we notice that there are dierences in the line for
+like Here we determine beforehand that a worker corrects the outputs and
+judges which is correct when such dierences are detected When the output of
+the rst system is correct he does nothing and when the output of the second
+system is correct he marks the beginning of  with an x When
+we do so we can automatically select the better result of each dierence from the
+results marked by the worker We simply delete the lower part of the dierence
+where there is no x and delete the upper part of the dierence when there is
+an x As a result we produce a more accurate overall result than either of the
+two original results There are many cases when both parts of a dierence are
+incorrect In such cases we manually rewrite the data correctly above 
+
+When we use this method the only incorrect data that is not corrected are
+the data on which both the systems have performed exactly the same wrong
+analysis Many errors can thus be corrected What we want to say here is that
+we must prepare multiple systems that have dierent characteristics If we use
+two systems that often produce the same wrong analysis we will fail to correct
+a large number of errors
+Di3 which is another unix program is available for analysing the outpus
+of three systems Di3 detects dierences among three les
+Although we have given an example of morphological analysis we can also
+use mdi to detect dierences between the results of other forms of analysis as
+long as the results are expressed in a line-by-line form
+Although we have described a study where we detected dierences between
+the outputs of multiple systems we are also able to detect and correct errors in
+tagged corpora by comparing the tagged corpora and the results of analysis of
+the corpora by a certain system2
+32 Examining dierences and acquiring transformation rules
+In this section we describe our study of the use of mdi to detect dierences be-
+tween a spoken language and the corresponding written language In this study
+we used the alignment between data on the spoken language and on the written
+language to examine the dierences between the spoken and written languages
+on the basis of the results of mdi We thus acquired rules for transforming the
+2 There are studies on the correction of errors in tagged corpora 5
+Table 1 Examples of written data and the corresponding data in spoken form
+The written-language sample
+describe
+meaning
+general
+sorting
+performed
+The spoken-language sample
+describe
+meaning
+general
+sorting
+spoken language to the written language along with the inverse transformation
+rules We used presentations at academic conferences as examples of the spoken
+language and used papers which had the same content as the presentations as
+examples of the writtten language
+For example we supposed that data in the spoken and written languages are
+given as in Table 13 The data in the table are transformed so that each line has
+one word before we apply mdi Applying mdi to the data produces the results
+shown in Table 2 By extracting the dierences from these results we obtain the
+results shown in Table 3
+The results show us that uh is inserted in the spoken language and that
+performed can in this case be paraphrased as done We can use mdi to
+detect dierences between the spoken language and the written language and
+then examine them linguistically We can also consider the detected dierences as
+rules for the transformation between written and spoken languages For example
+the occurrence of uh can be regarded as indicating a rule that we may insert
+uh into the written-language data as part of transforming it into the spoken
+language The dierence in terms of whether performed or done is used
+can be regarded as a rule that we transform performed to done when we
+transform data from the written to the spoken language We thus nd that we
+are able to use mdi to detect the transformation rules
+In this section we used data in the written and spoken language However we
+can study a variety of data in a similar way For example when we apply mdi to
+written texts before and after spelling and grammar are checked we can nd out
+3 Although we have given English sentences in the table we actually performed these
+experiments on Japanese-language materials
+Table 2 The result of applying mdi to the written-language sample and the
+corresponding spoken-language sample
+ begin 
+
+ end 
+describe
+ begin 
+
+Contined in the right-hand column
+ end 
+meaning
+general
+sorting
+ begin 
+performed
+
+ end 
+Table 3 Extraction of dierences
+The written-language data The spoken-language data
+In this paper we
+Today Id like to
+performed
+how we should modify the sentences to eliminate spelling and grammatical errors
+and thus acquire rules for checking spelling and grammar When we use mdi on
+texts and the results of their automatic summarization we can clearly see how
+the texts were summarized and can thus acquire the rules used in automatic
+summarization In other cases of paired textual data too we will be able to
+apply mdi to examine the data in the various ways that such pairs can be
+obtained and to obtain the rules for transformation
+4 The merging and best matching of two dierent sets of
+In this section we describe studies of the use of dis function of optimally
+merging data4 We describe the following two examples
+ The alignment of presentations and corresponding papers
+ A question-answering system using the function of nding the the best match
+4 In di best matching is performed by maximizing the extent of the common parts
+Chapter 1
+the contents of Chapter 1
+Chapter 1
+Chapter 2
+the contents of Chapter 2
+Chapter 2
+Chapter 3
+the contents of Chapter 3
+Chapter 3
+Fig 1 Structure in the paper
+ begin 
+Chapter 1
+content of the paper only
+
+content of the presentation only
+ end 
+content of the paper and presentation
+ begin 
+content of the paper only
+
+Contined in the right-hand column
+content of the presentation only
+ end 
+content of the paper and presentation
+ begin 
+Chapter 1
+Chapter 2
+content of the paper only
+
+content of the presentation only
+ end 
+Fig 2 Results of applying mdi to a paper and a corresponding presentation
+41 Alignment of a paper with the corresponding presentation
+In this section we align a paper with the corresponding presentation 6 The pa-
+per and corresponding presentation is the same example as was used in describing
+the acquisition of the rules for transformation from written to spoken-language
+data Section 32 The presentation was made at an academic conference and
+the paper corresponds to this presentation When we are able to align each part
+of a presentation with a corresponding part of the paper this form of alignment
+is very useful For example when we listen to a presentation we are able to refer
+to the part of the paper that corresponds to the part of we are now listening
+When we read a paper we are able to refer to the part of the presentation that
+corresponds to the part of the paper we are now reading 6 In this section we
+consider the use of mdi to align a paper with the corresponding presentation
+Here lets try to determine the parts of the presentation to which each chap-
+ter of the paper corresponds by using mdi We suppose that the content is laid
+out in the same order in the paper and in the presentation In advance we place
+symbols such as Chapter 1 as shown in Figure 1 into the paper This is so
+that we are easily able to recognize the chapters of the paper By applying mdi
+to the data set that consists of a presentation after both have been transformed
+so that each line has one word we obtained the results shown in Figure 2 Next
+Chapter 1
+content of the presentation only
+content of the paper and presentation
+content of the presentation only
+Chapter 1
+Chapter 2
+content of the presentation only
+Fig 3 Results of insertion of information on sections in a presentation
+we obtained the results shown in Figure 3 by eliminating the upper parts of the
+dierences ie those that correspond to the paper and leaving symbols such
+as Chapter 1 in place The symbols such as Chapter 1 are only inserted
+in the data of the presentation We are then able to recognize the chapter of the
+paper that corresponds with a given part of the presentation
+To put this simply we place information to indicate chapters in the data of
+presentations We then use the merging function of mdi to match the parts of
+the paper and presentation Then by eliminating the content of the paper we
+are left with information on the chapters We can easily align a paper with a
+corresponding presentation at the level of chapters by using mdi
+42 A question-answering system using best matching
+In this section we describe our question-answering system that utilizes mdis
+best-matching function 24
+A question-answering system receives a question and outputs an answer For
+example when Where is the capital of Japan is given it returns Tokyo
+When we consider now much knowledge is in written natural language form
+we see that the system only has to match a given question with a sentence a
+knowledge sentence that includes the knowledge then select the word in the
+sentence that corresponds to the interrogative pronoun of the question sentence
+For example in the case of the previous question the system detects this knowl-
+edge sentence in a knowledge database Tokyo is the capital of Japan Tokyo
+is output as the answer since corresponds to the interrogative pronoun in the
+sentence Here we consider the use of mdi in answering questions
+Firstly we transform the interrogative pronoun in the question sentence into
+X and change  into  at the end of the sentence We then obtain X is the
+capital of Japan We thus obtain Tokyo is the capital of Japan from the
+knowledge base We obtain the results in Figure 4 a by applying mdi to the
+two sentences We consider the part that is paired with X in the dierences as
+the answer and correctly obtain Tokyo
+Even if there are dierences between the compared sentences we can still use
+mdi to correctly extract the answer For example suppose that the knowledge
+sentence is Tokyo is the capital in Japan In this case the result of mdi is
+ begin 
+-----------------
+capital
+ begin 
+-----------------
+capital
+ begin 
+-----------------
+a Case 1
+b Case 2
+Fig 4 Results of mdi in the question-answering system
+as in Figure 4 b Although the number of dierences increased the part that
+corresponds to X remains Tokyo and the correct answer has been detected
+The question-answering system we have proposed repeats to transform the
+question sentence and knowledge sentence so that the two sentences are as similar
+as possible It then extracts the answer by matching the sentences when they
+are at this point Since we use the similarity between two sentences in that
+time we have to dene the degree of the similarity between sentences Since we
+can recognize the common parts and the dierent parts by using mdi we can
+calculate the degree of similarity as the number of characters in the common
+partthe number of all characters5 Here if we suppose that we have a rule
+for transforming in to of we match the data after transforming Tokyo is
+the capital in Japan to Tokyo is the capital of Japan and we are able to
+obtain the answer more reliably by decreasing the number of dierences
+5 Conclusion
+In this paper we describe a lot of examples of the use of di in various problems
+of natural language processing In Section 31 we describe how we apply di to
+a system that combines multiple systems and thus obtain higher precisions than
+from any of individual systems Studies on combination of systems are very well
+known We describe how such combination can easily be performed by di In
+Section 32 we showed that di is easily able to examine the dierences between
+a spoken and written language and acquire rules for the transformation between
+5 Here we use mdi to calculate the degree of similarity of the sentences Mdi is also
+useful in this way
+the spoken and written language We handled the paraphrasing of written lan-
+guage into spoken language However the study on paraphrasing covers a wide
+range automatic extraction of compressed sentences sentence polishing-up to
+modify sentences correctly and transformations from dicult sentences to plain
+sentences In these studies too it will be easy to apply di to various forms of
+examination and to the extraction of various transformation rules This paper
+will become a basis for studies of paraphrasing an area in which there has been
+increasing activity In Section 4 we showed examples of the merging of data and
+the optimal matching of data Since di is generally used to detect dierences
+Section 4 which shows applications of di to merging and matching presents a
+new and original approach In the section we showed that it is easy to apply di
+to interesting studies of two kinds the alignment of a paper with a corresponding
+presentation and a question-answering system
+In this paper we have described many examples of the application of di
+to natural language processing We hope that di will be applied to an ever-
+widening range of studies
+Acknowlegement
+We were given data for the experiments on alignment of a paper with a corre-
+sponding presentation by Kiyotaka Uchimoto of the Communications Research
+Laboratory
+References
+1 Masaki Murata and Hitoshi Isahara Nlp using di IPSJ-WGNL 2001-NL-144
+2001 in Japanese
+2 Masaki Murata and Hitoshi Isahara Universal model for paraphrasing Using trans-
+In NLPRS2001 Workshop on Automatic
+formation based on a dened criteria
+Paraphrasing Theories and Applications 2001
+3 Masaki Murata and Hitoshi Isahara NLP using DIFF  use of convenient tool
+for detecting dierences MDIFF  Journal of Natural Language Processing 92
+2002 in Japanese
+4 Masaki Murata Masao Utiyama and Hitoshi Isahara Question answering system
+using syntactic information 1999 httpxxxlanlgovabs csCL9911006
+5 Masaki Murata Masao Utiyama Kiyotaka Uchimoto Qing Ma and Hitoshi Isa-
+hara Correction of the modality corpus for machine translation based on machine-
+learning method 7th Annual Meeting of the Association for Natural Language
+Processing 2001 in Japanese an English translation of this paper is available at
+httparXivorgabscs0105001
+6 Kiyotaka Uchimoto Chikashi Nobata Kimiko Ohta Masaki Murata Qing Ma and
+Hitoshi Isahara Segmenting the transcription of a talk by aligning the transcription
+with its corresponding paper 7th Annual Meeting of the Association for Natural
+Language Processing pages 317321 2001

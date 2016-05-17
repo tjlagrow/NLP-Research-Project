@@ -1,0 +1,1410 @@
+IMPLEMENTATION OF NLIZATION FRAMEWORK 
+FOR VERBS PRONOUNS AND DETERMINERS WITH 
+EUGENE 
+Harinder Singh1 and Parteek Kumar2 
+12Computer Science  Engineering Department Thapar University Patiala India 
+singhharinderoutlookcom 
+parteekbhatiathaparedu 
+ABSTRACT 
+UNL  system  is  designed  and  implemented by  a  nonprofit organization  UNDL  Foundation  at  Geneva  in 
+1999  UNL  applications  are  application  softwares  that  allow  end  users  to  accomplish  natural  language 
+tasks  such  as translating  summarizing  retrieving or  extracting  information  etc  Two  major  web  based 
+application  softwares  are  Interactive  ANalyzer  IAN  which  is  a  natural  language  analysis  system  It 
+represents  natural  language  sentences  as  semantic  networks  in  the  UNL  format  Other  application 
+software  is  dEep-to-sUrface  GENErator  EUGENE  which  is  an  open-source  interactive  NLizer  It 
+generates  natural  language  sentences  out  of  semantic  networks  represented  in  the  UNL  format  In  this 
+paper NLization framework with EUGENE is focused while using UNL system for accomplishing the task 
+of machine translation In whole NLization process EUGENE takes a UNL input and delivers an output in 
+natural language without any human intervention It is language-independent and has to be parametrized 
+to  the  natural  language  input  through  a  dictionary  and  a  grammar  provided  as  separate  interpretable 
+files In this paper it is explained that how UNL input is syntactically and semantically analyzed with the 
+UNL-NL  T-Grammar  for  NLization  of  UNL  sentences  involving  verbs  pronouns  and  determiners  for 
+Punjabi natural language 
+KEYWORDS 
+ Rule based Approach Interlingua Multilingual NLization UNL  
+1 INTRODUCTION 
+Today all over the world work is in progress by  various governmenteducational organizations 
+and  some  individual  researchers  for  technological  development  of  most  widely  spoken  natural 
+languages  Machine  Translation  is  most  challenging  task  which  is  to  be  accomplished  before 
+excelling  further  in  other  sub  domains  of  NLP  Natural  Language  Processing  The  process  of 
+translating  a  text  written  in  some  language  to  another  languages  text  is  called  Machine 
+Translation  
+There are many approaches used for machine translation Interlingua based approach which is a 
+rule based can be adopted for multilingual machine translation as depicted in Figure 1 
+In  this  approach  the  target  language  is  first  transformed  into  some  intermediate  form  while 
+preserving  the  semantic  information  associated  with  the  words  of  source  language  This 
+intermediate  form  is  independent  of  source  language  From  this  intermediate  form  variety  of 
+natural  languages  can  be  generated  by  a  separate  process  using  respective  language  word 
+dictionaries and sets of grammar rules If traditional statistical approach is followed then total of 
+nn-1 systems will be required for n number of languages in multilingual machine translation 
+But  interlingua  approach  for  machine  translation  system  is  a  novel  approach  here  only  2n 
+language systems are required ie two systems per language 
+Figure 1  Model of Interlingual based Machine Translation 
+Universal  Networking  Language  ie  UNL  system  is  based  on  interlingua  approach 
+UNL  system  is  designed  and  implemented  by  UNDL  foundation  which  is  a  non-profit 
+organization based in Geneva Switzerland in 1996 UNL system comprises of two components 
+one  is  UNLizer  for  converting  the  source  language  to  UNL  form  an  intermediate  form  and 
+other is NLizer for generating target language from UNL form using respective language word 
+dictionaries  and  sets  of  grammar  rules  UNLization  and  NLization  are  different  for  different 
+languages because sentence structures of different languages are different 
+In this paper NLization for Punjabi language    for  verb  pronouns and determiners from UNL 
+form  an  intermediate  form  is  discussed  EUGENE  dEep-to-sUrface  Natural  language 
+GENErator is an open-source interactive NLizer which is a new deconverter based on a high-
+level  linguist-driven  three-layered  formalism  developed  by  UNDL  Foundation  It  generates 
+natural  language  sentences  out  of  semantic  networks  represented  in  the  UNL  format  In  its 
+current release it is a web application developed in Java 1 
+2 RELATED WORK 
+Initially DeCo was a tool  for NLization which was proposed by UNDL  foundation in 2000 
+This  DeConverter  actually  transforms  the  input  a  UNL  expression  into  a  directed  graph 
+structure  with  hyper-nodes  DeConversion  of  a  UNL  expression  is  carried  out  by  applying 
+DeConversion  rules  to  these  nodes  It  processes  the  nodes  from  the  entry  node  to  find  an 
+appropriate  word  for  each  node  and  generates  a  word  sequence  of  target  language  In  this 
+process  the  system  makes  use  of  syntactic  rules  in  order  to  produce  syntactic  structure  of  the 
+target  language  and  morphological  rules  to  generate  its  morphemes  as  depicted  in  Figure  2 
+DeConversion  process  ends  when  all  words  for  all  nodes  are  found  and  a  word  sequence  of 
+target sentence is completed  
+Figure 2  Structure of the DeConverter 2 
+Here  G  indicates  generation  windows  and  C  indicates  condition  windows  of  the 
+DeConverter The DeConverter operates on the node-list through generation windows Condition 
+windows are used to check conditions for applying a rule In the initial stage the entry node of a 
+UNL expression exists in the node-list and at the end of DeConversion the node-list is converted 
+to list of equivalent morphemes  of the target language arranged syntactically to  produce target 
+language sentence 2 
+3 EUGENE SPECIFICATIONS 
+ EUGENE  is  a  fully  automatic  engine  It  takes  a  UNL  input  and  delivers  an  output  in 
+natural  language  without  any  human  intervention  3  It  is  language-independent  and  as  a 
+universal  engine  EUGENE  must  be  parameterized  to  the  target  languages  with  few  files  for 
+UNL-NL generation These files are processed by EUGENE through following tabs 
+31 UNL Input 
+UNL Documents containing universal semantic network to be used for the generation of natural 
+language texts are inputted into the system using first tab of EUGENE 
+32 Dictionary 
+An  editor  and  for  inputting  a  lexical  database  where root  words are  mapped  into  natural 
+language  entries  along  with  the  corresponding  features  to  be  provided  according  to  the UNL 
+Dictionary Specifications  
+33 T-Rules 
+An  editor  and  inputting  transformation  grammars  ie  a  set  of  transformation  rules  used  to 
+convert the UNL  graphs into natural language sentences to be  provided according to the UNL 
+Grammar Specifications 
+34 D-Rules 
+An editor and for inputting disambiguation grammars  ie a set of disambiguation rules used 
+to improve the results of the tokenization and of the transformation 
+35 EUGENE 
+A  console  from  where  the  output  corresponding  to  the  UNL  input  sentence  can  be  generated 
+The out can be displayed in five different trace levels It takes a UNL input processes it using T-
+rules and Dictionary loaded finally delivers an output in natural language without any human 
+intervention 
+In the next subsection features of Punjabi language and positioning of different part of speech in 
+a sentence of Punjabi language discussed in brief  
+4 FUTURE OF PUNJABI LANGUAGE 
+Punjabi  is  an  Indo-Aryan  language  and  is  constitutionally  recognized  language  of  India  Indo-
+Aryan languages form a subgroup of the Indo-Iranian group of languages which in turn belong 
+to  Indo-European  family of languages Punjabi is widely spoken in north-west  India Pakistan 
+United States  Australia  United  Kingdom  and  Canada  There  are  more  than  91  million  native 
+speakers  of  Punjabi  language  which  makes  it  approximately  the  12th  most  widely  spoken 
+language in the world 4 
+Punjabi has word classes in the form of noun pronoun adjective cardinal ordinal main verb 
+auxiliary verb adverb postposition conjunction interjection and particle Punjabi nouns change 
+forms for number singular or plural and case in sentences Punjabi nouns have assigned gender 
+masculine or feminine eg  kandh fence is used in feminine gender and  mz table 
+is  used  in  masculine  gender Punjabi has  six  types  of  pronouns  These  are  personal  pronouns 
+eg   mai  i  reflexive  pronouns  eg   p  some  what  equivalent  to honorific  form  of 
+English second person  you demonstrative pronouns  eg  uh that indefinite pronouns 
+eg  k etc relative pronouns to join two clauses in a complex sentence  eg  j and 
+interrogative pronouns  eg  kau whoetc In Punjabi language adjectives usually precede 
+the  nouns  but  follow  the  pronouns  The  example  of  adjective  preceding  noun  is    
+ 
+sh mu handsome boy and the example of adjective following pronoun is    
+ mai sh h I am handsome In a Punjabi sentence verbs must agree with the subject 
+or object of the sentence in terms of gender number and person Punjabi verbs change forms for 
+gender number person and tense The verbs have assigned transitivity and causality In Punjabi 
+there  are  two  auxiliary  verbs     hai  for  present  tense  eg       rm  amb 
+khnd hai Ram eats mango and  s for past tense eg        rm n 
+amb khdh s Ram had eaten mango All the forms of these two auxiliary verbs can equally 
+be used for both the genders 2 For future tense in sentences EGA form of main verb is used 
+and in those sentences auxiliary 
+5 IMPLEMENTATION FOR NLIZATION OF PUNJABI 
+The  proposed  NLization  system  for  Punjabi  has  been  tested  on  five  types  of  part  of  speech 
+sentences which are Determiners Nouns Verbs Pronouns Sentence Structure and Cardinals 
+Here in this paper NLization for Determiners Verbs and Pronouns types of parts of speech are 
+discussed  Table  1  depicts  the  number  T-rules  and  Dictionary  words  written  corresponding  to 
+each type of part of speech 
+Table1  Number of T-rules and Dictionary words for each type of part of speech sentences 
+No of Sentences 
+Pronouns 
+Determiners 
+Dictionary 
+Detailed description for processing of these sentences is given in next subsection 
+51 NLization of Verbs 
+The process of NLization of input UNL sentence containing verb to natural language sentence is 
+illustrated with an example sentence given in 1 
+Example English sentence is He has arrived                    
+UNL expression for this example sentence is given in 2 
+agtarrive0Bpresentperfect 00013male 
+                      
+unl  
+   1 
+   2 
+Equivalent Punjabi sentence   
+Transliterated Punjabi sentence uh phunch chukka hai 
+               
+  
+  3 
+UNL expression in this example contains two root words first is a verb ie arrive and second 
+is pronoun  ie 00013 third person pronoun The NLization process of UNL sentence is 
+described in Table 2 
+52 NLization of Pronouns 
+The  process  of  NLization  of  input  UNL  sentence  containing  pronouns  to  natural  language 
+sentence is illustrated with an example sentence given in 4 
+Example English sentence is They love each other          
+UNL expression for this example sentence is given in 5 
+agtlove03presentreciprocal 00013pl 
+unl  
+Equivalent Punjabi sentence is  
+   
+     
+Transliterated Punjabi sentence is uh ik duje nun pyar karde han 
+       
+        
+       
+   4 
+   5 
+   6 
+UNL expression in this example contains two root words first is a verb ie arrive and second 
+is  pronoun  ie  00013    third  person  pronounThe  NLization  process  UNL  sentence    is 
+described in Table 3 
+52 NLization of Determiners  
+The  process  of  NLization  of  input  UNL  sentence  containing  determiners  to  natural  language 
+sentence is illustrated with an example sentence given in 7 
+Example English sentence is A lot of their books            
+UNL expression for this example sentence is given in 8 
+posbook05multal 00033pl 
+unl  
+Equivalent Punjabi sentence is         
+Transliterated Punjabi sentence is uhna dian bhot kitaban          
+             
+        
+    7 
+   8 
+   9 
+UNL expression in this example contains two root words first is a noun ie book and second 
+is  pronoun  ie  00013  or  third  person  pronounThe  NLization  process  of  example  10 
+UNL sentence is described in Table 4 
+Table 2  NLization process of example 2 UNL sentence 
+Rule Fired 
+xM7x-M7FLX 
+PSTSNGMCLPGSANT
+0   
+PSTSNGFEMPGSANT
+0   
+PSTPLRFEMANT0 
+  
+Description 
+This  paradigm  M7  has 
+been  defined  to  attach 
+corresponding  postfix  to 
+verbs  in  Punjabi  Here 
+attribute  FLX  indicate 
+that  word  has  been 
+processed for inflection 
+Action Taken 
+arrive07notpresent 
+perfect 
+Result 
+ 
+perfect 
+07notpresent
+Nothing is appended to UW 
+  phunch  because  this 
+ 
+root  word  does  not  have  any 
+combination  of  attributes  as 
+are involved in this rule   
+PSTPLRMCL0   
+PRSSNGMCLPGSPER
+0  
+PRSSNGFEMPGSPER
+0  
+PRSPLRFEM0  
+ PRSPLRMCL0  
+ 
+PRSSNGFEMPGSPER
+0  
+PRSPLRFEM0   
+PRSPLRMCL0   
+PRSSNGMCLPGS0  
+ 
+PRSSNGFEMPGS0  
+ 
+PRSPLRFEMPGS0 
+  
+PRSPLRMCLPGS0  
+ 
+PSTSNGMCLPGS0  
+ 
+PSTSNGFEMPGS0  
+ 
+PSTPLRFEMPGS0 
+  
+PSTPLRMCLPGS0  
+ 
+PSTMCLSNGANT0 
+  
+PSTFEMSNGANT0 
+PSTMCLPLRANT0 
+  
+PSTFEMPLRANT0 
+  
+PERPRSMCLSNG0  
+  
+  
+PERPRSFEMSNG0 
+  
+PERFUTMCLSNG0 
+   
+PERFUTFEMSNG0 
+   
+FUTMCLPGSSNG0 
+  
+FUTFEMPGSSNG0 
+ FUTMCLSNG 
+0 
+FUTFEMSNGPGSPER
+RES0 
+xM2x- 
+M2FLXAGT0 
+  
+This  paradigm  M2  has 
+been  defined  to  attach 
+word   
+   nun  for  UNL 
+AGT  Here 
+relation 
+attribute 
+indicate  that  word  has 
+inflections 
+processed 
+FLX 
+agtaVpresentperfect 
+PRSbR 
+agta PERPRS-presentb 
+It adds PER and PRS 
+the  verb 
+attributes 
+depending 
+attributes associated with 
+because 
+PRSPER 
+combination is necessary 
+appending 
+appropriate  postfix 
+Punjabi root word verb  
+agtaMCLbRmale 
+agta MCL-
+NUMNUMSNG b-male 
+MCL 
+SNG  attributes  to  the 
+verb because of male 
+attribute  associated  with 
+the second node b as 
+PRSPERMCLSN
+necessary  for  appending 
+appropriate  postfix 
+Punjabi root word 
+combination 
+To 00013male 
+Result013male 
+Nothing  is  appended  to  UW 
+  uh  because  this  root 
+word  does  not  have  AGT 
+attribute with it  
+Toagtarrive07not 
+presentperfect 
+00013male 
+Result  
+agtarrive07notperfect 
+00013 
+Nothing  is  appended  to  any 
+Punjabi  root  word  as  postfix 
+present 
+removed  from  second  node 
+b  and  PRS  and  PES 
+are added to first node a   
+attribute 
+Toagtarrive07not 
+presentperfect 
+00013male 
+Result  
+agtarrive07notperfect 
+00013 
+Nothing  is  appended  to  any 
+Punjabi  root  word  as  postfix 
+removed  from  second  node 
+b  and  MCL  and  SNG 
+male  attribute 
+agtaVbRb a 
+resolves 
+agt 
+relation  places  pronoun 
+before 
+introduces  new  node  of 
+single 
+between two nodes 
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It fires the corresponding 
+paradigm  rule  to  inflect 
+the root word  uh 
+are added to first node a 
+agtarrive07notperfect 
+00013male 
+Result 
+L00013 -02 L-02 
+arrive07notperfect 
+Intermediate Output 
+   
+  
+uh phunch 
+To00013 
+Result013 
+Nothing  is  appended  to  root 
+word    uh  because  AGT 
+was not associated with it  
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It fires the corresponding 
+paradigm  rule  to  inflect 
+ 
+the  root  word   
+phunch to make it  
+ 
+    phunch  chukka 
+Toarrive07perfect 
+  
+Result 
+07perfect 
+  
+Final Output 
+   
+  
+uh phunch chukka hai 
+  
+Table 3 NLization process of example 5 UNL sentence 
+Rule Fired 
+xM2x- 
+M2FLXAGT0 
+  
+agtaVreciprocalb3
+plb 
+ aPER3PSPLR 
+Description 
+This  paradigm  M2  has 
+to  attach 
+been  defined 
+   nun  for  UNL 
+word   
+AGT  Here 
+relation 
+attribute FLX is indicate 
+that  word 
+processed for inflections 
+Action Taken 
+To 00013pl 
+Result013pl 
+Nothing  is  appended  to  root 
+word    uh  because  this 
+root  word  does  not  have 
+AGT attribute with it 
+resolves 
+agt 
+relationship 
+places 
+pronoun  before  verb  and 
+introduces  new  node  of 
+single space   between 
+two  nodes  It  also  adds 
+3PS 
+attributes  of  verb  when 
+reciprocal 
+attribute 
+was  with  first  and  3 
+pl  were  associated 
+with second node b in 
+UNL sentence 
+PLR 
+agtlove03present 
+reciprocal 00013pl 
+Result  
+L00013pl -02 
+ L-02 
+love03presentreciprocal
+Intermediate Output 
+   
+uh piyar 
+Vreciprocalx 
+    
+  x-reciprocal 
+VpresentATEINFPER3P
+SNUM PLRxx-
+present    
+resolves 
+attribute 
+reciprocal  associated 
+with  verb  and  removes  it 
+resolution  It  adds   
+   
+   ik duje nun before 
+verb  
+resolving 
+It  appends       
+karde han on right of verb 
+present 
+only  if  INF  indefinite 
+tense  and  3PS  PLR 
+added  manually 
+rule  are 
+second 
+associated with the verb  
+attribute 
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the root word  uh 
+love03presentreciproc
+Result  
+L    
+L-05 love03present 
+ 04 -05  
+Intermediate Output 
+    
+     
+uh ik duje nu piyar 
+To love03present 
+Result  
+Llove03 -06 
+L-06  07 
+Intermediate Output 
+     
+ uh ik duje nu piyar 
+      
+To00013 
+Result013 
+Final Output 
+     
+ uh ik duje nu piyar 
+      
+Nothing  is  appended  to  root 
+word    uh  because  AGT 
+was not associated with it 
+Table 4  NLization process of example 8 UNL sentence 
+Rule Fired 
+xM2x-M2FLX 
+SNG0 PLR0 
+xM3xM3FLX 
+SNG0 PLR0 
+Description 
+This  paradigm  M2  has 
+been  defined 
+to  attach 
+word    nan  when 
+attribute 
+associated with root word 
+Here  attribute  FLX  is 
+indicate 
+that  word  has 
+processed 
+inflections  
+PLR 
+This  paradigm  M2  has 
+been  defined 
+to  attach 
+word    to  the  right 
+denoting  multiple 
+books  in  Punjabi  to  the 
+root word in Punjabi only 
+Action Taken 
+To 00013pl 
+Result013pl 
+Nothing  is  appended  to  root 
+word    uh  because  this 
+root word does not have PLR 
+attribute   with it   
+To book05 
+Result 05 
+Nothing 
+is  added  because 
+number information of the root 
+word is SNG initially  
+posaFEMNmultalb3
+plPOD 
+bPLR   a 
+Nmultala 
+   
+a-multal-NUM NUM 
+NVDFLXinflectedx
+FLX-FLXinflectedx 
+NVDFLXinflectedx
+FLX-FLXinflectedx 
+when root word has PLR 
+attribute  associated  with 
+pos 
+resolves 
+relationship 
+places 
+pronoun  before  object 
+also  introduces        
+in  bw  them  because  first 
+node  a  has  attributes 
+multal  multiple  and 
+FEM female  
+resolves 
+multiple 
+adding 
+multal 
+attribute  by 
+  boht 
+  
+the  noun  and 
+number 
+to  PLR 
+before 
+updates 
+information 
+ie plural    
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the  root  word   
+kitab it 
+attaches  word    to 
+the  right  for  denoting 
+multiple 
+Punjabi 
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the root word   uh It 
+attaches word  nan to 
+the right in Punjabi 
+To posbook05multal 
+00033pl 
+Result  
+L00033pl  01 
+L  01 
+book05multal 
+Intermediate Output 
+   
+uh dian kitab 
+To book05multal 
+Result  
+L 02 -04 L-04 
+book05 
+Intermediate Output 
+     
+uh dian boht kitab 
+To book05 
+Result 05 
+Intermediate Output 
+     
+ uh dian boht kitaban 
+To 013pl 
+Result  05 
+Final Output 
+     
+ uhna dian boht kitaban 
+6 RESULT AND DISCUSSION  
+In  this  paper  it  is  described  in  detail  that  how  UNL  input  sentence  can  be  converted  into 
+Punjabi natural language for Determiners Verbs and Pronouns phrases using dictionary words 
+and  T-rules  in  the  EUGENE  console  5  As  a  whole  near  about  140  sentences  are  processed 
+successfully  with  exact  desired  output  All  other  sentences  which  fall  in  these  three  categories 
+can also be processed easily by same set of written rules and by appending new dictionary words 
+to the respective dictionaries  
+There is a feature available on the UNDL foundations website which is  F-measure 6 which 
+rates  the  output  of  NLization  output  generated  using  EUGENE  tool  with  the  actual  expected 
+Punjabi natural langauge sentences on the scale of 0-1 We can upload both the files saved in 
+UTF-8 txt format and this gives us F-measure for it F-measure for all the processed sentences is 
+come out to be more than 90 as depicted in Figure 3  
+Figure 3  Combined F-measure for determiners pronouns and verbs 7 
+7 CONCLUSIONS 
+Many issues come while processing these UNL sentences some changes  made in the rules for 
+the  later  sentences  may  cause  the  earlier  sentences  to  get  effected  Every  time  care  should  be 
+taken while making changes to the rules for creating generalized rule sets So writing the rules 
+and editing them according to the grammar and sentence structure in Punjabi natural language is 
+bit tedious task but once the rules and dictionary gets written we can process all other sentences 
+which fall in these categories EUGENE tool is very effective tool for accomplishing this task It 
+has  very  high  quality  because  of  its  quality  features  like  high  availability  usability  high 
+performance due to these features changes and crosschecking of sentences can be made readily 
+ACKNOWLEDGEMENTS 
+We would like to thank our colleague research scholars    for their comments and suggestions for 
+the  paper  We  would  also  like  to  thank  our  head  of  department  Dr  Maninder  Singh  for 
+motivating and for being ideal for us 
+REFERENCES 
+R  Martins 
+httpwwwunlwebnetwikiTools Accessed 27 October 2012 
+Networking 
+Universal 
+Language 
+UNL 
+Tools 
+online 
+Kumar  P  Sharma  R  K  2012  UNL  Based  Machine  Translation  System  for  Punjabi  Language 
+PhD Dissertation Thapar University Patiala India  
+R  Martins  Universal  Networking  Language  UNL  EUGENE  Specifications  online 
+httpwwwunlwebnetwikiEUGENE Accessed 24 November 2012  
+Lewis  Paul  M  Eds  2009  Ethnologue  Languages  of  the  World  6th  edn  SIL  International 
+Dallas 
+Universal  Networking  Language 
+httpdevundlfoundationorggenerationindexjsp  Accessed 24 November 2012  
+UNL  EUGENE  Tool  version  101 
+Online 
+R  Martins 
+httpwwwunlwebnetwikiF-measure Accessed 30 November 2012  
+Universal  Networking 
+Language 
+UNL 
+F-measure 
+Online 
+F-meaure 
+Online 
+httpwwwunlwebnetunlariumindexphpgrammarfmeasure Accessed 30 November 2012  
+foundation 
+Grammar 
+Punjabi 
+R  Martins 
+httpwwwunlwebnetwikiX-bartheory Accessed 30 October 2012  
+Universal  Networking  Language 
+UNL  X-bar  Theory 
+R  Martins 
+httpwwwunlwebnetwikiSyntacticstructures Accessed 30 October 2012  
+Universal  Networking  Language 
+UNL  Syntactic  structure 
+Online 
+Online 
+Corpus UC-A1 Online httpwwwunlwebnetwikiUC-A1 Accessed 29 December 2013 
+Corpus UC-A2 Online httpwwwunlwebnetwikiUC-A2 Accessed 10 February 2003 
+Corpus UC-B1 Online httpwwwunlwebnetwikiUC-B1 Accessed 10 February 2013 
+Authors 
+Harinder Singh is pursuing his Master of Engineering in Software Engineering 
+from  Thapar  University  Patiala  He  is  undergoing  the  thesis  of  his  ME 
+entitled  Implementation  of  NLization  Framework  for  Punjabi  Language  with 
+EUGENE  in  the  supervision  of  Parteek  Kumar  His  current  research  interest 
+includes  UNL  Based  DeConversion  UNL  Dictionary  Specs  and  UNL 
+Grammar Specs 
+Parteek  Kumar  is  Assistant  Professor  in  the  Department  of  Computer  Science 
+and  Engineering  at  Thapar  University  Patiala  He  has  more  than  fifteen  years 
+of  academic  experience  He  has  earned  his  BTech  from  SLIET  and MS  from 
+BITS Pilani He has completed his PhD on  UNL Based Machine  Translation 
+System for Punjabi Language from Thapar University He has published more 
+than 50 research papers and articles in Journals Conferences and Magazines of 
+repute  His  research  work  with  UNDL  foundation  Geneva  Switzerland 
+provides  international  exposure  to  him  and  he  was  a  member  for  Advanced 
+UNL  School  at  Alexandria  EGYPT  in  2012  He  has  also  undergone  various 
+faculty  development  programme  from  industries  like  Sun  Microsystems  TCS 
+and  Infosys  He  has  authored  six  books  including  Simplified  Approach  to 
+DBMS  He  is  acting  as  Co-PI  for  the  research  Project  on  Development  of 
+Punjabi  WordNet  sponsored  By  Department  of  Information  Technology 
+Ministry of Communication and Information Technology Govt of India 
+IMPLEMENTATION OF NLIZATION FRAMEWORK 
+FOR VERBS PRONOUNS AND DETERMINERS WITH 
+EUGENE 
+Harinder Singh1 and Parteek Kumar2 
+12Computer Science  Engineering Department Thapar University Patiala India 
+singhharinderoutlookcom 
+parteekbhatiathaparedu 
+ABSTRACT 
+UNL  system  is  designed  and  implemented by  a  nonprofit organization  UNDL  Foundation  at  Geneva  in 
+1999  UNL  applications  are  application  softwares  that  allow  end  users  to  accomplish  natural  language 
+tasks  such  as translating  summarizing  retrieving or  extracting  information  etc  Two  major  web  based 
+application  softwares  are  Interactive  ANalyzer  IAN  which  is  a  natural  language  analysis  system  It 
+represents  natural  language  sentences  as  semantic  networks  in  the  UNL  format  Other  application 
+software  is  dEep-to-sUrface  GENErator  EUGENE  which  is  an  open-source  interactive  NLizer  It 
+generates  natural  language  sentences  out  of  semantic  networks  represented  in  the  UNL  format  In  this 
+paper NLization framework with EUGENE is focused while using UNL system for accomplishing the task 
+of machine translation In whole NLization process EUGENE takes a UNL input and delivers an output in 
+natural language without any human intervention It is language-independent and has to be parametrized 
+to  the  natural  language  input  through  a  dictionary  and  a  grammar  provided  as  separate  interpretable 
+files In this paper it is explained that how UNL input is syntactically and semantically analyzed with the 
+UNL-NL  T-Grammar  for  NLization  of  UNL  sentences  involving  verbs  pronouns  and  determiners  for 
+Punjabi natural language 
+KEYWORDS 
+ Rule based Approach Interlingua Multilingual NLization UNL  
+1 INTRODUCTION 
+Today all over the world work is in progress by  various governmenteducational organizations 
+and  some  individual  researchers  for  technological  development  of  most  widely  spoken  natural 
+languages  Machine  Translation  is  most  challenging  task  which  is  to  be  accomplished  before 
+excelling  further  in  other  sub  domains  of  NLP  Natural  Language  Processing  The  process  of 
+translating  a  text  written  in  some  language  to  another  languages  text  is  called  Machine 
+Translation  
+There are many approaches used for machine translation Interlingua based approach which is a 
+rule based can be adopted for multilingual machine translation as depicted in Figure 1 
+In  this  approach  the  target  language  is  first  transformed  into  some  intermediate  form  while 
+preserving  the  semantic  information  associated  with  the  words  of  source  language  This 
+intermediate  form  is  independent  of  source  language  From  this  intermediate  form  variety  of 
+natural  languages  can  be  generated  by  a  separate  process  using  respective  language  word 
+dictionaries and sets of grammar rules If traditional statistical approach is followed then total of 
+nn-1 systems will be required for n number of languages in multilingual machine translation 
+But  interlingua  approach  for  machine  translation  system  is  a  novel  approach  here  only  2n 
+language systems are required ie two systems per language 
+Figure 1  Model of Interlingual based Machine Translation 
+Universal  Networking  Language  ie  UNL  system  is  based  on  interlingua  approach 
+UNL  system  is  designed  and  implemented  by  UNDL  foundation  which  is  a  non-profit 
+organization based in Geneva Switzerland in 1996 UNL system comprises of two components 
+one  is  UNLizer  for  converting  the  source  language  to  UNL  form  an  intermediate  form  and 
+other is NLizer for generating target language from UNL form using respective language word 
+dictionaries  and  sets  of  grammar  rules  UNLization  and  NLization  are  different  for  different 
+languages because sentence structures of different languages are different 
+In this paper NLization for Punjabi language    for  verb  pronouns and determiners from UNL 
+form  an  intermediate  form  is  discussed  EUGENE  dEep-to-sUrface  Natural  language 
+GENErator is an open-source interactive NLizer which is a new deconverter based on a high-
+level  linguist-driven  three-layered  formalism  developed  by  UNDL  Foundation  It  generates 
+natural  language  sentences  out  of  semantic  networks  represented  in  the  UNL  format  In  its 
+current release it is a web application developed in Java 1 
+2 RELATED WORK 
+Initially DeCo was a tool  for NLization which was proposed by UNDL  foundation in 2000 
+This  DeConverter  actually  transforms  the  input  a  UNL  expression  into  a  directed  graph 
+structure  with  hyper-nodes  DeConversion  of  a  UNL  expression  is  carried  out  by  applying 
+DeConversion  rules  to  these  nodes  It  processes  the  nodes  from  the  entry  node  to  find  an 
+appropriate  word  for  each  node  and  generates  a  word  sequence  of  target  language  In  this 
+process  the  system  makes  use  of  syntactic  rules  in  order  to  produce  syntactic  structure  of  the 
+target  language  and  morphological  rules  to  generate  its  morphemes  as  depicted  in  Figure  2 
+DeConversion  process  ends  when  all  words  for  all  nodes  are  found  and  a  word  sequence  of 
+target sentence is completed  
+Figure 2  Structure of the DeConverter 2 
+Here  G  indicates  generation  windows  and  C  indicates  condition  windows  of  the 
+DeConverter The DeConverter operates on the node-list through generation windows Condition 
+windows are used to check conditions for applying a rule In the initial stage the entry node of a 
+UNL expression exists in the node-list and at the end of DeConversion the node-list is converted 
+to list of equivalent morphemes  of the target language arranged syntactically to  produce target 
+language sentence 2 
+3 EUGENE SPECIFICATIONS 
+ EUGENE  is  a  fully  automatic  engine  It  takes  a  UNL  input  and  delivers  an  output  in 
+natural  language  without  any  human  intervention  3  It  is  language-independent  and  as  a 
+universal  engine  EUGENE  must  be  parameterized  to  the  target  languages  with  few  files  for 
+UNL-NL generation These files are processed by EUGENE through following tabs 
+31 UNL Input 
+UNL Documents containing universal semantic network to be used for the generation of natural 
+language texts are inputted into the system using first tab of EUGENE 
+32 Dictionary 
+An  editor  and  for  inputting  a  lexical  database  where root  words are  mapped  into  natural 
+language  entries  along  with  the  corresponding  features  to  be  provided  according  to  the UNL 
+Dictionary Specifications  
+33 T-Rules 
+An  editor  and  inputting  transformation  grammars  ie  a  set  of  transformation  rules  used  to 
+convert the UNL  graphs into natural language sentences to be  provided according to the UNL 
+Grammar Specifications 
+34 D-Rules 
+An editor and for inputting disambiguation grammars  ie a set of disambiguation rules used 
+to improve the results of the tokenization and of the transformation 
+35 EUGENE 
+A  console  from  where  the  output  corresponding  to  the  UNL  input  sentence  can  be  generated 
+The out can be displayed in five different trace levels It takes a UNL input processes it using T-
+rules and Dictionary loaded finally delivers an output in natural language without any human 
+intervention 
+In the next subsection features of Punjabi language and positioning of different part of speech in 
+a sentence of Punjabi language discussed in brief  
+4 FUTURE OF PUNJABI LANGUAGE 
+Punjabi  is  an  Indo-Aryan  language  and  is  constitutionally  recognized  language  of  India  Indo-
+Aryan languages form a subgroup of the Indo-Iranian group of languages which in turn belong 
+to  Indo-European  family of languages Punjabi is widely spoken in north-west  India Pakistan 
+United States  Australia  United  Kingdom  and  Canada  There  are  more  than  91  million  native 
+speakers  of  Punjabi  language  which  makes  it  approximately  the  12th  most  widely  spoken 
+language in the world 4 
+Punjabi has word classes in the form of noun pronoun adjective cardinal ordinal main verb 
+auxiliary verb adverb postposition conjunction interjection and particle Punjabi nouns change 
+forms for number singular or plural and case in sentences Punjabi nouns have assigned gender 
+masculine or feminine eg  kandh fence is used in feminine gender and  mz table 
+is  used  in  masculine  gender Punjabi has  six  types  of  pronouns  These  are  personal  pronouns 
+eg   mai  i  reflexive  pronouns  eg   p  some  what  equivalent  to honorific  form  of 
+English second person  you demonstrative pronouns  eg  uh that indefinite pronouns 
+eg  k etc relative pronouns to join two clauses in a complex sentence  eg  j and 
+interrogative pronouns  eg  kau whoetc In Punjabi language adjectives usually precede 
+the  nouns  but  follow  the  pronouns  The  example  of  adjective  preceding  noun  is    
+ 
+sh mu handsome boy and the example of adjective following pronoun is    
+ mai sh h I am handsome In a Punjabi sentence verbs must agree with the subject 
+or object of the sentence in terms of gender number and person Punjabi verbs change forms for 
+gender number person and tense The verbs have assigned transitivity and causality In Punjabi 
+there  are  two  auxiliary  verbs     hai  for  present  tense  eg       rm  amb 
+khnd hai Ram eats mango and  s for past tense eg        rm n 
+amb khdh s Ram had eaten mango All the forms of these two auxiliary verbs can equally 
+be used for both the genders 2 For future tense in sentences EGA form of main verb is used 
+and in those sentences auxiliary 
+5 IMPLEMENTATION FOR NLIZATION OF PUNJABI 
+The  proposed  NLization  system  for  Punjabi  has  been  tested  on  five  types  of  part  of  speech 
+sentences which are Determiners Nouns Verbs Pronouns Sentence Structure and Cardinals 
+Here in this paper NLization for Determiners Verbs and Pronouns types of parts of speech are 
+discussed  Table  1  depicts  the  number  T-rules  and  Dictionary  words  written  corresponding  to 
+each type of part of speech 
+Table1  Number of T-rules and Dictionary words for each type of part of speech sentences 
+No of Sentences 
+Pronouns 
+Determiners 
+Dictionary 
+Detailed description for processing of these sentences is given in next subsection 
+51 NLization of Verbs 
+The process of NLization of input UNL sentence containing verb to natural language sentence is 
+illustrated with an example sentence given in 1 
+Example English sentence is He has arrived                    
+UNL expression for this example sentence is given in 2 
+agtarrive0Bpresentperfect 00013male 
+                      
+unl  
+   1 
+   2 
+Equivalent Punjabi sentence   
+Transliterated Punjabi sentence uh phunch chukka hai 
+               
+  
+  3 
+UNL expression in this example contains two root words first is a verb ie arrive and second 
+is pronoun  ie 00013 third person pronoun The NLization process of UNL sentence is 
+described in Table 2 
+52 NLization of Pronouns 
+The  process  of  NLization  of  input  UNL  sentence  containing  pronouns  to  natural  language 
+sentence is illustrated with an example sentence given in 4 
+Example English sentence is They love each other          
+UNL expression for this example sentence is given in 5 
+agtlove03presentreciprocal 00013pl 
+unl  
+Equivalent Punjabi sentence is  
+   
+     
+Transliterated Punjabi sentence is uh ik duje nun pyar karde han 
+       
+        
+       
+   4 
+   5 
+   6 
+UNL expression in this example contains two root words first is a verb ie arrive and second 
+is  pronoun  ie  00013    third  person  pronounThe  NLization  process  UNL  sentence    is 
+described in Table 3 
+52 NLization of Determiners  
+The  process  of  NLization  of  input  UNL  sentence  containing  determiners  to  natural  language 
+sentence is illustrated with an example sentence given in 7 
+Example English sentence is A lot of their books            
+UNL expression for this example sentence is given in 8 
+posbook05multal 00033pl 
+unl  
+Equivalent Punjabi sentence is         
+Transliterated Punjabi sentence is uhna dian bhot kitaban          
+             
+        
+    7 
+   8 
+   9 
+UNL expression in this example contains two root words first is a noun ie book and second 
+is  pronoun  ie  00013  or  third  person  pronounThe  NLization  process  of  example  10 
+UNL sentence is described in Table 4 
+Table 2  NLization process of example 2 UNL sentence 
+Rule Fired 
+xM7x-M7FLX 
+PSTSNGMCLPGSANT
+0   
+PSTSNGFEMPGSANT
+0   
+PSTPLRFEMANT0 
+  
+Description 
+This  paradigm  M7  has 
+been  defined  to  attach 
+corresponding  postfix  to 
+verbs  in  Punjabi  Here 
+attribute  FLX  indicate 
+that  word  has  been 
+processed for inflection 
+Action Taken 
+arrive07notpresent 
+perfect 
+Result 
+ 
+perfect 
+07notpresent
+Nothing is appended to UW 
+  phunch  because  this 
+ 
+root  word  does  not  have  any 
+combination  of  attributes  as 
+are involved in this rule   
+PSTPLRMCL0   
+PRSSNGMCLPGSPER
+0  
+PRSSNGFEMPGSPER
+0  
+PRSPLRFEM0  
+ PRSPLRMCL0  
+ 
+PRSSNGFEMPGSPER
+0  
+PRSPLRFEM0   
+PRSPLRMCL0   
+PRSSNGMCLPGS0  
+ 
+PRSSNGFEMPGS0  
+ 
+PRSPLRFEMPGS0 
+  
+PRSPLRMCLPGS0  
+ 
+PSTSNGMCLPGS0  
+ 
+PSTSNGFEMPGS0  
+ 
+PSTPLRFEMPGS0 
+  
+PSTPLRMCLPGS0  
+ 
+PSTMCLSNGANT0 
+  
+PSTFEMSNGANT0 
+PSTMCLPLRANT0 
+  
+PSTFEMPLRANT0 
+  
+PERPRSMCLSNG0  
+  
+  
+PERPRSFEMSNG0 
+  
+PERFUTMCLSNG0 
+   
+PERFUTFEMSNG0 
+   
+FUTMCLPGSSNG0 
+  
+FUTFEMPGSSNG0 
+ FUTMCLSNG 
+0 
+FUTFEMSNGPGSPER
+RES0 
+xM2x- 
+M2FLXAGT0 
+  
+This  paradigm  M2  has 
+been  defined  to  attach 
+word   
+   nun  for  UNL 
+AGT  Here 
+relation 
+attribute 
+indicate  that  word  has 
+inflections 
+processed 
+FLX 
+agtaVpresentperfect 
+PRSbR 
+agta PERPRS-presentb 
+It adds PER and PRS 
+the  verb 
+attributes 
+depending 
+attributes associated with 
+because 
+PRSPER 
+combination is necessary 
+appending 
+appropriate  postfix 
+Punjabi root word verb  
+agtaMCLbRmale 
+agta MCL-
+NUMNUMSNG b-male 
+MCL 
+SNG  attributes  to  the 
+verb because of male 
+attribute  associated  with 
+the second node b as 
+PRSPERMCLSN
+necessary  for  appending 
+appropriate  postfix 
+Punjabi root word 
+combination 
+To 00013male 
+Result013male 
+Nothing  is  appended  to  UW 
+  uh  because  this  root 
+word  does  not  have  AGT 
+attribute with it  
+Toagtarrive07not 
+presentperfect 
+00013male 
+Result  
+agtarrive07notperfect 
+00013 
+Nothing  is  appended  to  any 
+Punjabi  root  word  as  postfix 
+present 
+removed  from  second  node 
+b  and  PRS  and  PES 
+are added to first node a   
+attribute 
+Toagtarrive07not 
+presentperfect 
+00013male 
+Result  
+agtarrive07notperfect 
+00013 
+Nothing  is  appended  to  any 
+Punjabi  root  word  as  postfix 
+removed  from  second  node 
+b  and  MCL  and  SNG 
+male  attribute 
+agtaVbRb a 
+resolves 
+agt 
+relation  places  pronoun 
+before 
+introduces  new  node  of 
+single 
+between two nodes 
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It fires the corresponding 
+paradigm  rule  to  inflect 
+the root word  uh 
+are added to first node a 
+agtarrive07notperfect 
+00013male 
+Result 
+L00013 -02 L-02 
+arrive07notperfect 
+Intermediate Output 
+   
+  
+uh phunch 
+To00013 
+Result013 
+Nothing  is  appended  to  root 
+word    uh  because  AGT 
+was not associated with it  
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It fires the corresponding 
+paradigm  rule  to  inflect 
+ 
+the  root  word   
+phunch to make it  
+ 
+    phunch  chukka 
+Toarrive07perfect 
+  
+Result 
+07perfect 
+  
+Final Output 
+   
+  
+uh phunch chukka hai 
+  
+Table 3 NLization process of example 5 UNL sentence 
+Rule Fired 
+xM2x- 
+M2FLXAGT0 
+  
+agtaVreciprocalb3
+plb 
+ aPER3PSPLR 
+Description 
+This  paradigm  M2  has 
+to  attach 
+been  defined 
+   nun  for  UNL 
+word   
+AGT  Here 
+relation 
+attribute FLX is indicate 
+that  word 
+processed for inflections 
+Action Taken 
+To 00013pl 
+Result013pl 
+Nothing  is  appended  to  root 
+word    uh  because  this 
+root  word  does  not  have 
+AGT attribute with it 
+resolves 
+agt 
+relationship 
+places 
+pronoun  before  verb  and 
+introduces  new  node  of 
+single space   between 
+two  nodes  It  also  adds 
+3PS 
+attributes  of  verb  when 
+reciprocal 
+attribute 
+was  with  first  and  3 
+pl  were  associated 
+with second node b in 
+UNL sentence 
+PLR 
+agtlove03present 
+reciprocal 00013pl 
+Result  
+L00013pl -02 
+ L-02 
+love03presentreciprocal
+Intermediate Output 
+   
+uh piyar 
+Vreciprocalx 
+    
+  x-reciprocal 
+VpresentATEINFPER3P
+SNUM PLRxx-
+present    
+resolves 
+attribute 
+reciprocal  associated 
+with  verb  and  removes  it 
+resolution  It  adds   
+   
+   ik duje nun before 
+verb  
+resolving 
+It  appends       
+karde han on right of verb 
+present 
+only  if  INF  indefinite 
+tense  and  3PS  PLR 
+added  manually 
+rule  are 
+second 
+associated with the verb  
+attribute 
+NVDJRFLXinflectedx
+FLX-FLXinflectedx 
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the root word  uh 
+love03presentreciproc
+Result  
+L    
+L-05 love03present 
+ 04 -05  
+Intermediate Output 
+    
+     
+uh ik duje nu piyar 
+To love03present 
+Result  
+Llove03 -06 
+L-06  07 
+Intermediate Output 
+     
+ uh ik duje nu piyar 
+      
+To00013 
+Result013 
+Final Output 
+     
+ uh ik duje nu piyar 
+      
+Nothing  is  appended  to  root 
+word    uh  because  AGT 
+was not associated with it 
+Table 4  NLization process of example 8 UNL sentence 
+Rule Fired 
+xM2x-M2FLX 
+SNG0 PLR0 
+xM3xM3FLX 
+SNG0 PLR0 
+Description 
+This  paradigm  M2  has 
+been  defined 
+to  attach 
+word    nan  when 
+attribute 
+associated with root word 
+Here  attribute  FLX  is 
+indicate 
+that  word  has 
+processed 
+inflections  
+PLR 
+This  paradigm  M2  has 
+been  defined 
+to  attach 
+word    to  the  right 
+denoting  multiple 
+books  in  Punjabi  to  the 
+root word in Punjabi only 
+Action Taken 
+To 00013pl 
+Result013pl 
+Nothing  is  appended  to  root 
+word    uh  because  this 
+root word does not have PLR 
+attribute   with it   
+To book05 
+Result 05 
+Nothing 
+is  added  because 
+number information of the root 
+word is SNG initially  
+posaFEMNmultalb3
+plPOD 
+bPLR   a 
+Nmultala 
+   
+a-multal-NUM NUM 
+NVDFLXinflectedx
+FLX-FLXinflectedx 
+NVDFLXinflectedx
+FLX-FLXinflectedx 
+when root word has PLR 
+attribute  associated  with 
+pos 
+resolves 
+relationship 
+places 
+pronoun  before  object 
+also  introduces        
+in  bw  them  because  first 
+node  a  has  attributes 
+multal  multiple  and 
+FEM female  
+resolves 
+multiple 
+adding 
+multal 
+attribute  by 
+  boht 
+  
+the  noun  and 
+number 
+to  PLR 
+before 
+updates 
+information 
+ie plural    
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the  root  word   
+kitab it 
+attaches  word    to 
+the  right  for  denoting 
+multiple 
+Punjabi 
+It  fires  the  corresponding 
+paradigm  rule  to  inflect 
+the root word   uh It 
+attaches word  nan to 
+the right in Punjabi 
+To posbook05multal 
+00033pl 
+Result  
+L00033pl  01 
+L  01 
+book05multal 
+Intermediate Output 
+   
+uh dian kitab 
+To book05multal 
+Result  
+L 02 -04 L-04 
+book05 
+Intermediate Output 
+     
+uh dian boht kitab 
+To book05 
+Result 05 
+Intermediate Output 
+     
+ uh dian boht kitaban 
+To 013pl 
+Result  05 
+Final Output 
+     
+ uhna dian boht kitaban 
+6 RESULT AND DISCUSSION  
+In  this  paper  it  is  described  in  detail  that  how  UNL  input  sentence  can  be  converted  into 
+Punjabi natural language for Determiners Verbs and Pronouns phrases using dictionary words 
+and  T-rules  in  the  EUGENE  console  5  As  a  whole  near  about  140  sentences  are  processed 
+successfully  with  exact  desired  output  All  other  sentences  which  fall  in  these  three  categories 
+can also be processed easily by same set of written rules and by appending new dictionary words 
+to the respective dictionaries  
+There is a feature available on the UNDL foundations website which is  F-measure 6 which 
+rates  the  output  of  NLization  output  generated  using  EUGENE  tool  with  the  actual  expected 
+Punjabi natural langauge sentences on the scale of 0-1 We can upload both the files saved in 
+UTF-8 txt format and this gives us F-measure for it F-measure for all the processed sentences is 
+come out to be more than 90 as depicted in Figure 3  
+Figure 3  Combined F-measure for determiners pronouns and verbs 7 
+7 CONCLUSIONS 
+Many issues come while processing these UNL sentences some changes  made in the rules for 
+the  later  sentences  may  cause  the  earlier  sentences  to  get  effected  Every  time  care  should  be 
+taken while making changes to the rules for creating generalized rule sets So writing the rules 
+and editing them according to the grammar and sentence structure in Punjabi natural language is 
+bit tedious task but once the rules and dictionary gets written we can process all other sentences 
+which fall in these categories EUGENE tool is very effective tool for accomplishing this task It 
+has  very  high  quality  because  of  its  quality  features  like  high  availability  usability  high 
+performance due to these features changes and crosschecking of sentences can be made readily 
+ACKNOWLEDGEMENTS 
+We would like to thank our colleague research scholars    for their comments and suggestions for 
+the  paper  We  would  also  like  to  thank  our  head  of  department  Dr  Maninder  Singh  for 
+motivating and for being ideal for us 
+REFERENCES 
+R  Martins 
+httpwwwunlwebnetwikiTools Accessed 27 October 2012 
+Networking 
+Universal 
+Language 
+UNL 
+Tools 
+online 
+Kumar  P  Sharma  R  K  2012  UNL  Based  Machine  Translation  System  for  Punjabi  Language 
+PhD Dissertation Thapar University Patiala India  
+R  Martins  Universal  Networking  Language  UNL  EUGENE  Specifications  online 
+httpwwwunlwebnetwikiEUGENE Accessed 24 November 2012  
+Lewis  Paul  M  Eds  2009  Ethnologue  Languages  of  the  World  6th  edn  SIL  International 
+Dallas 
+Universal  Networking  Language 
+httpdevundlfoundationorggenerationindexjsp  Accessed 24 November 2012  
+UNL  EUGENE  Tool  version  101 
+Online 
+R  Martins 
+httpwwwunlwebnetwikiF-measure Accessed 30 November 2012  
+Universal  Networking 
+Language 
+UNL 
+F-measure 
+Online 
+F-meaure 
+Online 
+httpwwwunlwebnetunlariumindexphpgrammarfmeasure Accessed 30 November 2012  
+foundation 
+Grammar 
+Punjabi 
+R  Martins 
+httpwwwunlwebnetwikiX-bartheory Accessed 30 October 2012  
+Universal  Networking  Language 
+UNL  X-bar  Theory 
+R  Martins 
+httpwwwunlwebnetwikiSyntacticstructures Accessed 30 October 2012  
+Universal  Networking  Language 
+UNL  Syntactic  structure 
+Online 
+Online 
+Corpus UC-A1 Online httpwwwunlwebnetwikiUC-A1 Accessed 29 December 2013 
+Corpus UC-A2 Online httpwwwunlwebnetwikiUC-A2 Accessed 10 February 2003 
+Corpus UC-B1 Online httpwwwunlwebnetwikiUC-B1 Accessed 10 February 2013 
+Authors 
+Harinder Singh is pursuing his Master of Engineering in Software Engineering 
+from  Thapar  University  Patiala  He  is  undergoing  the  thesis  of  his  ME 
+entitled  Implementation  of  NLization  Framework  for  Punjabi  Language  with 
+EUGENE  in  the  supervision  of  Parteek  Kumar  His  current  research  interest 
+includes  UNL  Based  DeConversion  UNL  Dictionary  Specs  and  UNL 
+Grammar Specs 
+Parteek  Kumar  is  Assistant  Professor  in  the  Department  of  Computer  Science 
+and  Engineering  at  Thapar  University  Patiala  He  has  more  than  fifteen  years 
+of  academic  experience  He  has  earned  his  BTech  from  SLIET  and MS  from 
+BITS Pilani He has completed his PhD on  UNL Based Machine  Translation 
+System for Punjabi Language from Thapar University He has published more 
+than 50 research papers and articles in Journals Conferences and Magazines of 
+repute  His  research  work  with  UNDL  foundation  Geneva  Switzerland 
+provides  international  exposure  to  him  and  he  was  a  member  for  Advanced 
+UNL  School  at  Alexandria  EGYPT  in  2012  He  has  also  undergone  various 
+faculty  development  programme  from  industries  like  Sun  Microsystems  TCS 
+and  Infosys  He  has  authored  six  books  including  Simplified  Approach  to 
+DBMS  He  is  acting  as  Co-PI  for  the  research  Project  on  Development  of 
+Punjabi  WordNet  sponsored  By  Department  of  Information  Technology 
+Ministry of Communication and Information Technology Govt of India 
