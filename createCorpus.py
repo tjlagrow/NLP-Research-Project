@@ -49,10 +49,10 @@ print("Finished with download_pdf.py !")
 print("###################################")
 print
 
-import PDFparser
+import pdfParserTool
 print
 print("###################################")
-print("Finished with PDFparser.py !")
+print("Finished with pdfParserTool.py !")
 print("###################################")
 print
 

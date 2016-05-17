@@ -5,7 +5,7 @@ Language: Python 2.7x
 
 """
 import os
-NUM_OF_PDF = 365
+NUM_OF_PDF = 100
 
 def filterText():
 
