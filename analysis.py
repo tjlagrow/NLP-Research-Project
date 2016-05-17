@@ -51,12 +51,11 @@ def searching():
                             }).execute()
             ### End Example #####
 
-            bigram_measures = nltk.collocations.BigramAssocMeasures()
-            trigram_measures = nltk.collocations.TrigramAssocMeasures()
-            finder = nltk.TrigramCollocationFinder.from_words(text)
-            results = finder.nbest(trigram_measures.pmi, 10)
+            trigrams = nltk.trigrams(text)
+            fdist = nltk.FreqDist(trigrams)
+
             print("Trigrams")
-            print(results)
+            print(fdist.most_common(10))
 
             for word in interesting_words:
                 print(word)
