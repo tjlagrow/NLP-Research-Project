@@ -13,10 +13,10 @@ import os, shutil
 with open("ngram-intermediate.txt", "w"):
     pass
 
-# To clear the links_for_pdf.txt
+# To clear the nounsFinal.txt
 with open("nounsFinal.txt", "w"):
     pass
 
-# To clear the links_for_pdf.txt
+# To clear the Final.txt
 with open("Final.txt", "w"):
     pass
