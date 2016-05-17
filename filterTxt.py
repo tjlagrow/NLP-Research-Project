@@ -30,5 +30,31 @@ def filterText():
 
 		i += 1
 
+
+def removeWhitespace():
+	i = 1
+	while i <= NUM_OF_PDF:
+		name = "{}{}{}".format("doc", i, ".txt")
+		filename = os.path.join(os.path.abspath("Text_Docs"), name)
+
+
+		f = open(filename,"r")
+		raw = f.read()
+		mod_raw = []
+		for character in raw:
+			if character.isalnum() or character == " " or character == "\n":
+				mod_raw.append(character)
+
+		new_raw = ""
+		new_raw = new_raw.join(mod_raw)
+
+		f = open(filename,"w")
+		f.write(new_raw)
+		print "{}{}".format("Filtered file: ", name)
+		f.close()
+
+		i += 1
+
 if __name__ == '__main__':
 	filterText()
+	removeWhitespace()

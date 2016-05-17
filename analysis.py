@@ -38,7 +38,7 @@ def searching():
             raw = text.read()
             mod_raw = []
             for character in raw:
-                if character.isalnum() or character == " ":
+                if character.isalnum() or character == " " or character == "\n":
                     mod_raw.append(character)
 
             new_raw = ""
