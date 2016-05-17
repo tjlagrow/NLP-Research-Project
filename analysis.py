@@ -132,6 +132,13 @@ def noun_parsing():
             with open("nounsFinal.txt", "a") as nounFile:
                 nounFile.write("{}{}".format(np, "\n"))
         nounsDic = Counter(nouns)
+        with open("wordcloud.txt", "a") as output:
+            for entry in nounsDic.most_common(n=30):
+                for i in range(entry[1]):
+                    output.write("{}\n".format(entry[0]))
+        with open("wordcloud.txt", "r") as input:
+            text = input.read()
+            wordcloud_make(text, "astrophysics", "helix.png")
         print(nounsDic)
         with open("Final.txt", "a") as file:
                 file.write("{}{}".format(nounsDic, "\n"))
