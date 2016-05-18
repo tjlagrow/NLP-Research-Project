@@ -1,0 +1,1330 @@
+Quadratic Hawkes processes for nancial prices
+Pierre Blanc Jonathan Donier Jean-Philippe Bouchaud
+September 28 2015
+Abstract
+We introduce and establish the main properties of QHawkes Quadratic Hawkes models
+QHawkes models generalize the Hawkes price models introduced in E Bacry et al 2014
+by allowing all feedback eects in the jump intensity that are linear and quadratic in past
+returns A non-parametric t on NYSE stock data shows that the o-diagonal component of
+the quadratic kernel indeed has a structure that standard Hawkes models fail to reproduce
+Our model exhibits two main properties that we believe are crucial in the modelling and the
+understanding of the volatility process rst the model is time-reversal asymmetric similar
+to nancial markets whose time evolution has a preferred direction Second it generates
+a multiplicative fat-tailed volatility process that we characterize in detail in the case of
+exponentially decaying kernels and which is linked to Pearson diusions in the continuous
+limit Several other interesting properties of QHawkes processes are discussed in particular
+the fact that they can generate long memory without necessarily be at the critical point
+Finally we provide numerical simulations of our calibrated QHawkes model which is indeed
+seen to reproduce with only a small amount of quadratic non-linearity the correct magnitude
+of fat-tails and time reversal asymmetry seen in empirical time series
+1 Introduction fBMs GARCHs and Hawkes
+The hunt for a perfect statistical model of nancial markets is still going on Since the primi-
+tive Brownian motion model rst proposed by Bachelier droves of more and more sophisticated
+mathematical frameworks have been devised to describe the salient stylized facts of nancial time
+series namely fat power-law tails of the return distribution volatility or trading activity clus-
+tering with slow decay of correlations negative return-volatility correlations the so-called leverage
+eect etc The two most successful family of models to date are a GARCH-like models with
+slowly decaying memory kernels eg FIGARCH models and b stochastic volatility models where
+the log-volatility follows a fractional Brownian motion with a small Hurst exponent eg the Mul-
+tifractal Random Walk 4 or more recently the rough volatility model of Gatheral Jaisson and
+Rosenbaum 19 Although these models are remarkably parsimonious and convincingly capture
+many features of nancial time series they are still unsatisfactory on several counts First the
+returns in these models are conditionally Gaussian and therefore never fat enough even with a
+uctuating volatility Non-Gaussian residuals or jumps must be introduced by hand to match
+empirical probability distributions Second these models are not derived from deeper assump-
+tions on the underlying mechanisms giving rise to fat-tails and volatility clustering The theorist
+dream would be to start from eg agents with simple trading rules or behavioral biases and
+nd that upon aggregation their collective actions lead to a certain class of stochastic model
+Many attempts in this direction have been documented in particular agent-based models of mar-
+kets stylized population dynamics models or Minority Games  for reviews see eg
+12 16
+Still it is fair to say that none of these proposals has yet been widely accepted as a convincing
+micro-based explanation of the stylized facts recalled above
+A further less discussed but in our eyes highly relevant stylized fact is related to the time-
+reversal asymmetry TRSTRA of nancial time series As initially emphasized by Zumbach
+37 following earlier ideas 29 30 31 nancial time series are not statistically symmetrical
+when past and future are interchanged see 36 There are at least two distinct eects that
+break this symmetry one is the leverage eect alluded to above past returns r aect negatively
+future volatilities  but not the other way round This is an eect that breaks both TRS and
+the up-down symmetry r  r There is another eect though that is invariant under r  r
+namely past large scale realized volatilities are more correlated with future small scale realized
+volatilities than vice-versa 37 A more transparent way to explain this rather abstract notion is
+as follows take r to be daily returns say and  to be an estimator of volatility based on say
+ve minute returns Then consider as in 14 the average cid104r2
+tcid105t with   0 which measures
+the correlation between past daily volatilities with future ve minutes volatilities The Zumbach
+eect rephrased and empirically conrmed in 14 is that cid104r2
+tcid105t  cid104r2
+t cid105t It is clear that
+this criterion is invariant under r  r and is thus unrelated to the leverage eect Where does
+such an asymmetry come from and what are the models consistent with TRA
+Interestingly all continuous time stochastic volatility models from the famous CIR-Heston
+model 15 23 to the Multifractal Random Walk model alluded to above obey TRS by construc-
+tion and therefore cannot account for the empirical TRA of nancial time series GARCH-like
+models on the other hand do lead to strong TRA 37 in fact stronger than seen in data 14
+This is expected GARCH models do encode a feedback from past to future large past realized
+returns lead to large future volatilities This self-exciting mechanism is actually very similar to the
+one underlying Hawkes processes invented in the context of earthquake statistics that have
+attracted a considerable amount of interest recently for recent reviews see 5 28 In a nancial
+context Hawkes processes can be seen as a mid-way between purely stochastic models and agent
+based models One postulates that the activity rate at time t t depends on the history of the
+point process itself Nst via the auto-regressive relation
+t 2
+cid90 t
+t   
+t  s dNs
+cid82 
+where  is a baseline intensity and  is a non-negative measurable function such that 1 
+0 dss  1 Hawkes processes are called self-exciting because every jump dNs cid54 0 increases
+the probability of future events for t  s via the kernel  this in turn leads to activity clustering
+with an enticing causal interpretation each event is a new signal for the rest of the market
+triggering more activity When calibrated on nancial data two remarkable features of the Hawkes
+process are found 10 20 21 5 its kernel s shows long-range power-law decay s1 and
+its L1 norm 1 is very close to unity meaning that the process is on the verge of becoming
+unstable see however 17 This is quite interesting since this is precisely the regime where the
+corresponding continuous time limit for the squared volatility identied here with the activity
+is a fractional CIR-Heston process 26 with local Hurst exponent H    12 This seems to
+close the loop since  is empirically found to be close to 12 20 one has at hand a micro-
+model the Hawkes process that generates on coarse-grained scales a rough volatility process
+which generalizes the CIR-Heston model to account for a slow multi-timescale decay of volatility
+Unfortunately the situation is not as rosy yet rst the fractional CIR-Heston process has tails that
+are much too thin exponentially decaying to account for the empirical distribution of volatility
+Jaisson and Rosenbaum 26 therefore suggest to interpret the Hawkes process as a model for the
+log-volatility but this is not natural Second following our discussion on TRS above the fractional
+CIR-Heston process as on fact the normal CIR-Heston one is strictly TRS and therefore fails to
+capture the observed TRA of nancial time series
+The long story above sets the stage for our contribution which is in an attempt to address the
+above deciencies of the Hawkes formalism  when applied to nancial time series  and take a
+step closer to the perfect model alluded to in our opening sentence We propose a generalized
+version of the Hawkes process called the QHawkes below that includes features of the QARCH
+model introduced by Sentana 33 and revisited in depth in 14 The idea is that the self-exciting
+mechanism is not only from market activity onto market activity but also from actual price changes
+onto market activity To make our motivation clear consider a sequence of price moves all with
+the same amplitude r   One expects that local trends ie a succession of price moves in
+the same direction up or down triggers more volatility than a succession of compensated price
+moves even though the high-frequency activity  the number of price moves  is exactly the same
+The extra term we need to include in our generalized Hawkes process beyond being motivated
+by empirical data will encode mathematically this eect We will see how this modication not
+only generates the needed fat tails in the return distribution coming from the fact that the log-
+activity will indeed appear as a natural variable but also accounts quantitatively for the TRA of
+returns at least on the intraday time scales on which we calibrate the model We will see that in
+a particular case the continuous-time limit of our model boils down to a simple tractable two-
+dimensional Pearson diusion which can then be used as a low-frequency proxy for the volatility
+process
+The outline of the paper is as follows we rst introduce our general model in Section 2 and
+highlight some of its core properties Section 22 introduces a particular sub-family of factorized
+QHawkes processes which we call ZHawkes after Zumbach since it captures the Zumbach mecha-
+nism for generating TRA discussed above Section 3 works out the parallel with QARCH models
+which we calibrate on intra-day US stock data using the methodology similar to 14 showing a
+non-zero o-diagonal structure We show in Section 4 that in the case of exponential kernels the
+process is Markovian and we write the corresponding stochastic dierential equation as well as its
+continuous counterpart Finally we show in Section 5 using numerical simulations that the order
+of magnitude of the TRA generated by our ZHawkes process matches data quite well and produce
+a volatility process with the right amount of fat-tails Section 6 then concludes
+2 The QHawkes model
+21 A general model
+Similarly to Hawkes processes 1 the QHawkes Quadratic Hawkes process Ptt0 is a self-
+exciting point process whose intensity t is dependent on the past realization of the process itself
+As the name suggests we model the intensity of price changes as the most general self-exciting
+point process that is Quadratic in dPst
+cid90 t
+cid90 t
+cid90 t
+t   
+Lt  s dPs 
+Kt  s t  u dPs dPu
+where P is the high-frequency price which is a pure jump process with signed increments More
+precisely whenever an event occurs between t and t  dt with probability tdt the price jumps
+by an amount  where  is a random variable of zero mean and variance 2 A simple case that
+we will consider below is    with probability 1
+2  where  can be seen as the tick size In
+the above equation L  R  R is a leverage kernel coupling linearly price changes to market
+activity and K  R  R  R is a quadratic feedback kernel  is again the baseline intensity
+term as cid82 t
+of the process in the absence of any feedback Note that the above equation can be seen as a
+systematic expansion of the intensity of price changes in powers of past price changes truncated
+to second order One could of course generalize the model further by adding e g a third order
+ K3t  s t  u t  vdPsdPudPv etc but we will not consider this path
+Although it is necessary to account for the leverage eect on daily time scales we will nd later
+that on intra-day scales the kernel L is not signicant so for many applications one can focus on
+the quadratic kernel only and write
+further in the following
+cid82 t
+cid82 t
+cid90 t
+cid90 t
+t   
+Kt  s t  u dPs dPu
+It is easy to see that model 3 is a generalisation of the simple Hawkes process for prices introduced
+in 3 when choosing unit price jumps dPt  dNt where  can be seen as the tick and discarding
+any o-diagonal quadratic eects so that Kt s  tts we recover a Hawkes process of kernel
+s  Ks s1
+It is well known that the linear Hawkes process 1 can be seen as a branching process where
+each immigrant event from the exogenous intensity  gives birth to a number of children
+events distributed as a Poisson law of parameter nH  1 where 1 is the L1 norm of
+the kernel  Each of these children in turn gives birth to a second generation of children with
+with leverage ie t   cid82 t t  sdNs  1cid82 t Lt  sdPs with adequately redened kernels  and L
+1In fact if the kernels K K3 etc to arbitrary order are all diagonal the model boils down to a Hawkes process
+such that s  Ls    0 to ensure positivity of the intensity
+the same probability law and so on When nH  1 each immigrant gives birth on average to
+nH 1  nH    descendants nH can thus be seen as a measure of endogeneity of the process
+since it corresponds to the fraction of events that are triggered internally reaching zero in the case
+of simple Poisson process and one in the special case of Hawkes process without ancestors 10
+The intuition behind the QHawkes in terms of a branching process is very similar except that now
+the rate of events also depends on the interaction between the pairs of events We will consider
+a positive feedback Ks t  0 such that two mother events with the same sign ie two prices
+moves in the same direction increase the probability of a new event to be triggered in the future
+increase future volatility whereas compensated events have inhibiting eects in line with
+and directly motivated by the empirical observations of 14 as emphasized in the introduction
+22 A special case the ZHawkes model
+Motivated by the discussion in the introduction and by the empirical intraday results presented
+below we will specialize the QHawkes model to the case where there is no leverage L  0 and
+the quadratic feedback kernel K is of the form
+Kt s  tts  ktks
+ie the sum of a diagonal Hawkes component and of a factorisable rank one kernel We assume
+that  k  R  R are two positive measurable functions that satisfy
+cid90 
+cid90 
+1 
+u du   
+k21 
+ku2 du  
+Equation 2 becomes in that case
+t    Ht  Z 2
+ The Hawkes term is given by
+cid90 t
+t  s dNs
+Nt  Nt 
+2 Pt  Pt2
+ The Zumbach term given by Z 2
+t where
+cid90 t
+kt  s dPs
+We call Zt the Zumbach term since it is directly inspired by the series of empirical observations
+made by G Zumbach on the volatility process 3736 Indeed Zt is simply a moving average
+of the past returns with positive un-normalized weights k  Therefore this term will indeed
+be such that a sequence of returns in the same direction triggers more future volatility than
+compensated returns as empirically observed 362
+Besides its empirical motivations the factorization property of the ZHawkes kernel signicantly
+reduces the risk of over-tting since we will be left with two one-dimensional kernels instead of
+the two-dimensional kernel in Eq 2 As we see below this simplied setup still captures the main
+phenomenology of price volatility with in particular time-reversal asymmetry and fat tails even
+for short-ranged kernels
+23 Mathematical framework
+Let us start by specifying the mathematical denition of the objects present in Equation 2
+2Although Zumbach describes this eect at the daily time scale whereas we will here study intra-day time scales
+sizes  of common law p on RBR We assume that cid82
+ PttR is a pure jump process of stochastic intensity ttR with unpredictable iid jump
+R 2 pd 
+R  pd  0 and cid82
+2   ie that jumps are centered and have a nite variance
+ Ft  Ps s  t is the natural ltration of P 
+ mdt d is the Punctual Poisson Measure associated to P  such that for all t  R and
+A  BR
+cid3  t pA
+The quadratic kernel K  R  R  R is assumed to satisfy
+ Symmetry s t  0 Kt s  Ks t
+ Positivity f  L2R cid82 
+ Non-explosion cid82 
+cid82 
+K denes an integral operator TK  L2R  L2R which maps f  L2R to TKf  t cid55
+0 Kt sf s ds If K is continuous this operator is Hilbert-Schmidt and thus compact and
+one has Kt t  0 for all t  0 see 11 We dene the trace of K
+0 Kt sf tf s dt ds  0
+Kt t dt  
+Ecid2mt t  h Acid12cid12Ft
+cid82 
+cid90 
+TrK 
+Kt t dt  
+The leverage kernel L  R  R is assumed to be a measurable function By analogy with QARCH
+models see 14 it should be dominated by K in some way to ensure the positivity of the intensity
+t see footnote 1 above Since the leverage kernel is found empirically negligible in the sequel
+we leave this positivity condition for future research
+24 Necessary condition for time stationarity
+In the case of linear Hawkes processes it has been shown that stationarity is obtained as soon as
+the norm of the kernel veries cid107cid1071  1 Intuitively this means that each event triggers on average
+less than one child event so that the clusters generated by each ancestor eventually die out If
+this condition is violated the probability that an ancestor generates an innite number of events is
+non-zero which can result in a stationary process only in the case cid107cid1071  1 and   0 studied in
+10 see also 20 Because of the quadratic feedback the QHawkes process cannot be interpreted
+as a simple branching process making things somewhat trickier The goal of this section is to nd
+a necessary condition for rst order time stationarity
+We dene the jump process Nt that has the same jump times as Pt with N  P 22
+ 1 i P   for any jump time   and re-write Equation 2 as
+t    Lt  Ht  2Mt
+ Kt  u t  r dPr is Fuut-adapted for t xed Since P is a martingale one
+cid82 t
+Ht cid82 t
+cid82 t
+with the notations 
+where tu cid82 u
+cid20cid90
+has E Mt  0 and E Lt  0 Therefore
+cid20cid90 t
+E t   
+   E
+cid90 t
+ Lt  u dPu
+ Kt  u t  u dNu
+ tu dPu
+leverage
+Hawkesdiagonal
+o-diagonal
+cid21
+Kt  s t  s 2 mds d
+cid21
+Kt  s t  s s ds
+by denition of the punctual Poisson measure mds d We obtain
+cid90 t
+E t   
+Kt  s t  s E s ds
+A necessary condition for the process ttR to be in a stationary state is that its expected value
+  E t is constant positive and nite This yields     TrK thus if   0
+1  TrK
+This leads to the necessary stationarity condition3
+  0 and TrK  1
+or   0 and TrK  1
+In the special case of the ZHawkes process the endogeneity ratio is then given by
+TrK  1  k21  nH  nZ
+where nH is the standard Hawkes norm while nZ  k21 is the Zumbach norm
+The existence of a nite average intensity  is of course necessary for the process to reach
+a stationary state However the existence of higher moments of the intensity require stronger
+conditions on Kt s similarly to the QARCH case studied in 14 In particular the decay of the
+o-diagonal part of K must be fast enough to ensure the existence of two-point and three-point
+correlations of the process see below
+25 Auto-correlation structure in the QHawkes model
+It is quite useful for such type of models to investigate the relation between the input kernels
+and the auto-correlation functions of the generated process Indeed since the latter is directly
+observable on the data the underlying kernels can then obtained by inverting such relations For
+linear Hawkes processes one nds a Wiener-Hopf equation that relates the two-points correlation
+function to the 1-d kernel 2 In our case one also needs to consider the three-points correlation
+function which will lead to a set of closed relations
+26 Exact set of equations
+We take the model with no leverage L  0 Equation 5 becomes see notations above
+t    Ht  2Mt
+We dene for  cid54 0 and 1  0 2  0 1 cid54 2 the correlation functions
+dNt
+dNt
+cid21
+cid20 dNt
+cid20 dNt
+C   E
+D1 2 
+dPt1
+dPt2
+cid20
+cid21
+dPt1
+dPt2
+cid21
+C is then extended continuously at zero as in 22 Let us note that by construction C is even and
+D is symmetric One nds the following exact equations between the auto-correlation functions
+C D and the kernel K cf the derivation in Appendix A
+cid90 
+cid90 
+C   K   
+du Ku uC  u  2
+dr K  u   rDu r
+cid21
+cid20
+cid90 
+cid90 2
+cid90 
+D1 2 2K1 2C2  1  
+21
+du K2  u 2  uDu  2  1 u
+21
+du K1 2  uD2  1 2  1  u
+3In the case of linear Hawkes processes this condition is also sucient to obtain stationarity in the case TrK  1
+whereas the case TrK  1 is more subtle see 10
+cid82
+where   1
+R 4 pd is the fourth moment of price jumps   1 for constant price jumps
+As C  and D1 2 are directly measurable on the data one can in principle infer the kernel
+Ks t by inverting the above equations
+261 Asymptotic behaviour
+Whereas the above equations 9 and 10 are dicult to solve in general one can investigate the
+joint tail behaviour as    when both the kernel and the auto-correlation functions have power
+law decays Let us assume that
+
+K  
+K v1  v2
+D  
+D v1  v2
+Kv1 v2 2
+ c0 1
+
+ c1 
+ c2 cid48
+
+Dv1 v2 2
+diagonal   0
+o-diagonal   12
+2-points AC
+3-points AC diagonal
+3-points AC o-diagonal
+where c0 c1 c2 are constants and Kv1 v2 Dv1 v2 are bounded functions of v1 v2 The con-
+straint   0 comes from the fact that 1 must be nite whereas   12 insures that the second
+and third moments are nite as well We will furthermore assume for simplicity that   1 which
+is the interesting case in practice and that the asymptotic behaviour of K1 2  1
+stricted to a narrow channel around the diagonal 1  2 cid28 1 2 beyond which the o-diagonal
+power-law takes over
+The exponents  and  can then be related to  and  by plugging these ansatzs into Eqs 9
+and 10 and carefully matching the asymptotic behaviours One nds several possible phases for
+the auto-covariance structure
+1 In the non critical case TrK  1 we nd
+  3  4    1  
+2  3    3  4    4  2
+2    2  3    4  2
+cid48
+ 1  
+cid48
+cid48
+ 1  
+ 3  1
+  
+  
+  
+The interpretation of these three phases is straightforward In the rst phase 12 the tail of
+the auto-correlation functions directly comes from the tail of the diagonal part of K direct
+eects then dominate quadratic feedback eects In the last two phases 1314 however
+a more sophisticated phenomenon comes into play as o-diagonal eects feedback in such a
+way that they generate correlations with slower decay than that of the diagonal part of the
+kernel itself In these phases there is a possibility that   1 corresponds to a long memory
+process provided 1
+4  This result is important as it means that QHawkes processes
+need not be critical ie TrK  1 to generate long memory unlike standard linear Hawkes
+processes 10 32 20 21
+2    3
+2 In the critical case TrK  1   0 the situation is subtler as in the standard Hawkes
+case where the relation between  and  completely changes and the condition 0    12
+must hold for the process to even exist 10 In the present case a similar mechanism operates
+and leads to
+  34    1  2
+cid48
+23    34    4  2  2
+1  2    23    4  2  2
+ 1  
+cid48
+cid48
+  
+  
+ 1  
+ 3    1
+  
+provided 0    12 and   1  2 otherwise the critical process does not exist or is
+trivial So in this critical case the process is always long-memory ie   1 or ceases to
+exist as for the linear Hawkes process
+3 The intra-day QHawkes model
+31 QHawkes as a limit of QARCH
+In this section we investigate the link between the QHawkes model given by 2 and the discrete
+QARCH model introduced by Sentana in 33 and revisited in depth in 14 This will give us a
+way to calibrate the QHawkes on discretely sampled price time series For a xed time step   0
+t  Pt  Pt
+The QHawkes model appears as the limit in some sense when   0 of the QARCH model
+t r
+tcid48
+we dene for all t  R
+cid114
+Ecid104
+cid105
+2cid12cid12Ft
+ the price or log-price increment between time t and time t   r
+ the volatility at time t 
+cid88
+2cid12cid12Ft
+cid88
+ 2 Pcid0Pt  Pt cid54 0cid12cid12Ft
+cid1  o
+K  cid48
+Ecid104
+L  r
+t  
+cid481
+ 
+cid105
+ 2 t   o
+where 2
+ 2 L   L   and K  cid48  K  cid48  Indeed for t  R
+which implies the scaling
+ 0
+2 t
+Thanks to this link between the two models it is possible to calibrate a QARCH model on intra-
+day 5 minutes bin returns as in 8 14 and obtain some qualitative and quantitative insight on
+the structure of the underlying QHawkes model Indeed the direct calibration of the latter would
+be signicantly harder  more noisy and computationally more demanding  and certainly beyond
+the scope of the present paper
+32 Intra-day calibration of a QARCH model
+QARCH models have mainly been calibrated on daily data so far 33 14 To give a starting
+point to our study of quadratic eects in high-frequency volatility we calibrate a discrete QARCH
+on intra-day ve-minute returns
+321 Dataset and notations
+We consider the same dataset as in 1 which is composed of stock prices on intra-day ve-minute
+It includes 133 stocks of the New York Stock Exchange that have been traded without
+interruption between 1 January 2000 and 31 December 2009 This yields 2499 trading days with
+78 ve-minute bins per day For each bin the open close high and low prices O C H L  0 are
+available We consider the log-price process and dene on each bin
+ The return r  lnCO
+ The Rogers-Satchell volatility RS 
+322 Normalization procedure
+cid112
+lnHO  lnHC  lnLO  lnLC
+To be able to consider that intra-day prices are approximately independent realizations of a
+stationary stochastic process we need to normalize the data carefully As a matter of fact strong
+intra-day seasonalities may corrupt the calibration results This can be avoided to some extent
+through a cross-sectional and historical normalization We take advantage of our large dataset to
+compute a cross-sectional intra-day volatility pattern for each trading day and we normalize the
+returns by this pattern which dampens the eect of collective shocks on a given day On the other
+hand we use the intra-dayovernight model volatility model of 9 to factor out daily feedback
+eects and focus on pure intra-day dynamics To fully explain our normalization protocol we
+introduce the following notations
+ The 5-min bin index 1  b  78 the day index 1  t  2499 and the stock index 1  u  133
+ The empirical averages cid104xutcid105 means conditional average of x over bins for stock u and day
+t xed  cid104xubcid105 and cid104xtbcid105 are dened similarly as the conditional averages over daysstocks
+cid104xcid105  cid104xcid105 means average of x over stocks days and bins
+We compute the cross-sectional volatility pattern of day t that we use to normalize the data of
+stock u as
+b  1  78 cid55 vutb 
+cid113
+cid104r2
+ucid48cid54utbcid105
+For stock u the value r2
+utb is excluded from the average so that the normalization protocol does
+not cap the large returns of stock u articially We also consider the open-to-close volatility D
+of day t for stock u as computed by the intra-dayovernight model of 9 with the data of stock u
+over the days 1  t  1 For t  1 we x D
+The normalization protocol is as follows u t b
+u1  1
+normalization by open-to-close volatility
+ rutb  rutbD
+ rutb  rutbvutb
+utb  RS
+utb  RS
+utbD
+utbvutb
+cross-sectional intra-day normalization
+We further exclude trading days that involve at least one bin where the absolute return is greater
+than the average plus six standard deviations This represents approximately 7 of trading days
+ie one day every three weeks Combined with the cross-sectional pattern normalization this data
+treatment strongly dampens the impacts of exceptional news events which would require a special
+treatment and that we do not aim to model here Eventually we set the mean of the squares to
+one and the average return to zero to make the stock universe more homogeneous u t b
+cid113
+cid113
+ rutb  rutb
+ RS
+utb  RS
+ rutb  rutb  cid104rucid105 so that cid104rcid105  0
+ucid105 so that cid104r2cid105  1
+cid104r2
+ucid105 so that cid104RS2
+cid104RS2
+cid105  1
+323 Calibration results
+The calibration process is similar to 14 and 9 A rst estimate of the kernels is obtained with
+the Generalized Method of Moments which uses a set of correlation functions that are empirically
+observable Then using this estimate as a starting point we use Maximum Likelihood Estimation
+assuming that the residuals are t-distributed which accounts for fat tails that remain in the
+residuals This second step signicantly improves the precision of the calibration results compared
+to a solo GMM estimation
+We nd it worth to notice that as opposed to the daily calibration results of 14 a clear o-
+diagonal structure appears in the feedback matrix in the intra-day case see Figure 1 Also the
+intra-day leverage kernel is found to be close to zero justifying the fact that we mainly consider
+L  0 throughout the paper
+The spectral decomposition of quadratic kernel see Figure 2
+suggests that K is the superposition of a positive rank-one matrix and a diagonal one Indeed we
+obtain to a good approximation see Figure 3
+K cid48
+   cid48  k kcid48
+   g
+k   k0 exp 
+with g  009   060 k0  014   015 Note that   015 corresponds to a characteristic
+time of about thirty minutes bin size 1 for the decay of the o-diagonal component We
+Figure 1 QARCH kernels calibrated on ve-minute intra-day returns for US stocks The maximum
+lag is 18 bins ie one hour and a half of trading time Left heatmap of the quadratic kernel
+White coecients are close to zero blue ones are negative and yelloworangered ones are positive
+with darker shades as they increase in absolute value We see that all the signicant coecients
+are positive with a non-negligible o-diagonal component Right
+leverage kernel It is hardly
+distinct from zero and can be considered as pure noise as opposed to daily models where it is
+signicantly negative
+Figure 2 Spectral decomposition of the quadratic QARCH kernel Left ranked eigenvalues
+plain dark line and diagonal coecients dashed One can see that the diagonal coecients are
+very close to the eigenvalues except for the rst eigenvalue which is signicantly larger than the
+maximum of the diagonal Right eigenvectors corresponding to the ve largest eigenvalues The
+rst eigenvector plain dark line is a positive decaying kernel the others are close to the canonical
+vectors ei   i 
+then x the o-diagonal part of the kernel K to its tted value k kcid48  k2
+and we recalibrate the diagonal of K with a longer maximum lag of 60 bins ve hours of trading
+We obtain
+0 exp  cid48
+lr   gcid48cid48
+with the new coecients gcid48  009 cid48  076 not far from those obtained above on a shorter time
+span The residuals t of the QARCH model dened by
+rt  tt
+where rt is the ve-minute return and t is the QARCH volatility are modeled with Students
+t-distribution The calibration of the model with K cid48   cid48  k kcid48 yields   79
+degrees of freedom for the residuals which gives a kurtosis   45 This has to be compared with
+123456789101112131415161718181716151413121110987654321-0015-001-0005000050010015102030405060708090LeverageLagminL00020040060080101201424681012141618EigenvaluesLag5-minbinsEigenvaluesDiagonalcoecients-1-05005124681012141618EigenvectorsLag5-minbinsFigure 3 Fit of the kernel K by the sum of a power-law diagonal matrix and an exponential
+rank-one matrix Left heatmap of the dierence between the tted matrix and the original one
+The coecients are small white or lightly-colored except for the upper-left corner the original
+matrix features a stronger short-term feedback Right kernels   and k  that minimize the
+matrix distancecid80K cid48  cid48  k kcid482 The rank-one kernel k is plotted in red and
+is larger for small  s and the diagonal kernel  is plotted in blue both in log-log scale The
+dashed lines are the power-law t for   with exponent   06 and the exponential t for k 
+with characteristic time about 30 min
+Figure 4 Long-range kernel K Left heatmap of the long-range kernel with the o-diagonal
+xed as its exponential rank-one t and with the diagonal calibrated with no constraints Right
+Hawkes kernel    K   k2  tted on 60 bins The kernel   is plotted in log-log scale
+with its power-law t with exponent cid48  076 dashed
+the tail exponent r of rt itself which is as is well known in the range 3  4 see also Fig 5
+below Since  is more than twice r the QARCH model with Gaussian residuals and this specic
+form of K accounts to a good extent for the fat tails of ve-minute returns that appear to be
+nearly entirely induced by the quadratic feedback mechanism We will justify theoretically and
+numerically why this is the case in Sections 4 and 5
+In the QARCH model the endogeneity ratio of the volatility ie the proportion of the volatility
+that stems from feedback eects is given by the trace TrK of the quadratic kernel With our
+parametrization and a maximum lag of q  1 one has
+qcid88
+qcid88
+TrK 
+  
+k2 
+We use the ts k   k0 exp  and lr   gcid48cid48
+to compute TrK for q  78 which is
+1234567891011121314151617181817161514131211109876543210010110100KernelsandkLagmink1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606059585756555453525150494847464544434241403938373635343332313029282726252423222120191817161514131211109876543210010110100Kernellong-rangeLagminthe total number of ve-minute bins in a trading day We obtain
+  cid39 074
+k2  cid39 006  TrK cid39 080
+qcid88
+qcid88
+This endogeneity ratio implies that 80 of the intra-day volatility is due to endogenous feedback
+eects Interestingly it is close to the value obtained for QARCH and ARCH models at a daily
+time scale see 14 and 9 Note that although high the endogeneity ratio is signicantly below
+the critical limit TrK  1 which is the value found by calibrating a standard linear Hawkes
+process to activity data on much longer time horizons Ref 20 21 report nH  09 on a time
+window of a few hours and nH  099 when the kernel is extended to 40 days We discuss this
+issue further in Section 42
+4 Volatility distribution in the ZHawkes model
+41 SDE in the exponential case
+If the kernels  and k of the ZHawkes model have an exponential form the process is Marko-
+vian and one can write a stochastic dierential equation to describe its evolution Although this
+assumption is only justied for k this case allows one to gain a good intuition on the model so
+we investigate this limit in details It also turns out that the Markovian case is actually extremely
+interesting mathematically
+For the sake of simplicity let us assume that the price jumps are binary    and we set  
+1 without loss of generality Besides we note kt  2nZ expt and t  nH  expt
+where nH is the Hawkes norm and nZ the Zumbach norm We require
+TrK  nH  nZ  1
+Then the model can be written in this case t    Ht  Z 2
+t where
+cid26 dHt   Ht dt  nH dNt 
+dZt   Zt dt  k0 dPt
+The processes N and P jump simultaneously with intensity t and amplitudes N  1 and P 
+1 with equal probability Although quite simple this system of jump SDEs lacks tractability
+compared to a continuous diusion Thus we turn to the low-frequency asymptotics that one
+obtains as the number of jumps in a given time window becomes large while their amplitudes are
+scaled down accordingly This is the object of the following section
+42 Low-frequency asymptotics
+The low-frequency asymptotics of nearly critical Hawkes processes with short-ranged kernels have
+been investigated in details by Jaisson and Rosenbaum 25 26 They show that for suitable scaling
+and convergence to the critical point nH  1 the short memory Hawkes-based price process of
+Bacry et al 6 converges towards a Heston process since the Hawkes intensity converges towards
+a CIR volatility process The same authors 26 show that when the kernel exhibits power-law
+behaviour t  t1 with 12    1 the limiting process for the intensity is a fractional
+Brownian motion with Hurst exponent H    1
+2  When  is close to 12 as empirical data
+suggests 20 the roughness of the latter process is in agreement with the empirical results of
+4 19 who nd a Hurst exponent H close to zero the log-volatility H  0 for the multifractal
+model of 4 However it is unclear how the Hawkes process intensity can be identied with the
+log-volatility A fat-tailed behaviour cannot be reproduced by a simple linear Hawkes process as
+it is absent from Heston-CIR processes see also below
+Here we want to investigate the low-frequency asymptotics of the Markovian ZHawkes model
+which as we shall see reveals very interesting new features induced by quadratic feedback eects
+Choosing a time scale T  0 that will eventually diverge we dene the processes H T
+t  HtT 
+t  PtT  with the parameters T and T that may depend on T  but
+t  ZtT  N T
+with xed endogeneity parameters nH and nZ Equation 19 gives
+t  NtT and P T
+cid26 d H T
+cid2 H T
+d Z T
+t  T
+ T Z T
+t T dt  nH d N T
+t T dt  T d P T
+cid3 
+T  2T nZ and the common jump intensity of N T and P T is T   H T
+t 2 Since
+where 2
+the signs of the jumps of P T are assumed to be unpredictable and equal to 1 the innitesimal
+generator of the process is given by
+cid27
+AT f h z  T h T hf h z  T z T zf h z
+t  Z T
+ Tcid2  h  z2cid3cid26 1
+f h  nH T  z  T   f h z
+for any functions f twice continuously dierentiable on 0 R We now consider the following
+f h  nH T  z  T  
+scaling
+T  T
+ T  T
+with    0 Since we xed the values of nH and nZ our procedure can be called a constant
+endogeneity rescaling as opposed to the scaling used by Jaisson and Rosenbaum in 25 and 26
+where the endogeneity ratio nH of the process needs to converge to unity as T goes to innity
+Our choice is partly motivated by the calibration results of Section 32 for intra-day returns that
+yield an endogeneity ratio in the range 07  09 close to what is obtained at the daily time scale
+in 14 and 9 and signicantly away from the critical value nH  1 Equations 21 and 22 then
+combine as
+cid19
+cid19
+cid18
+cid18
+cid26 1
+ Tcid2  h  z2cid3 T
+cid18
+cid19
+AT f h z   h hf h z   z zf h z
+ z 
+ f h z
+where we introduced   2nZ We turn to the low-frequency asymptotics As T goes to innity
+one has
+cid18
+f h z  cid21  nH h  nH   z2cid3 hf h z  zzf h z  nZcid2  h  z2cid3 2
+f h z 
+zzf h z o
+hf h z
+ z 
+cid19
+therefore AT f h z converges to
+The operator A
+ is the innitesimal generator of the diusion
+cid27
+cid19
+cid18 1
+zzf h z
+ d H
+d Z
+cid104
+1  nH  H
+  Z
+t dt  
+cid16
+cid12cid17cid105
+ cid0 Z
+t cid0 Z
+cid12
+  H
+cid113
+where W is a standard Brownian motion A standard argument of Kallenberg 27 Theorem 1925
+then gives the convergence of the process  H T  Z T  to  H Z as T goes to innity Hence one
+does not need that the norm of the process tends to 1 ie that the process is nearly critical for
+a non-degenerate limit process to be obtained The above limiting process is the major result of
+this section Although it was derived for a Markovian ZHawkes process we believe that this is the
+limiting process for the whole class of non-critical ZHawkes processes with short memory and is
+the analogue of the Heston-CIR limiting process for Hawkes as in 25 The limiting behaviour
+corresponding to long-memorycritical ZHawkes processes in the spirit of 26 is left for future
+investigations We now investigate some of the properties of the limiting process Eq 23 in
+particular the induced tail of the volatility distribution
+43 Tail of the volatility distribution
+From now on we drop the superscript  on H and Z the fact that we are studying the limiting
+process is implied Let us note rst that there is no Brownian part in the SDE for H so that it
+can be solved explicitly as a deterministic function of  Zsst
+Ht  H  nH 
+exp1  nH t  s Z 2
+H 
+1  nH
+In the considered limit Ht can thus be written as the sum of a constant term and an exponential
+moving average of the square of Zs We get the autonomous but non-Markovian SDE for Zt
+cid90 t
+cid115
+cid21
+d Zt   Zt dt  
+H  Z 2
+t  nH 
+431 ZHawkes without Hawkes
+exp1  nH t  s Z 2
+We rst consider the simpler case where the Hawkes feedback is zero ie nH  0 This corresponds
+to the case where only the Zumbach term is present in the starting model ie t    Z 2
+Equation 4 As we see in the sequel this simpler model is still rich enough to reproduce some
+interesting empirical properties of the volatility process One gets
+d Zt   Zt dt  
+  Z 2
+which is a particular case of Pearson diusions which are extensively described and classied by
+Forman and Sorensen 18 The process Z ts in Case 3 of their classication see 18
+Section 21 with the dictionary   0    and a  nZ Therefore Zt is ergodic and its
+stationary law is a Student t-distribution with 1  1nZ degrees of freedom and scale parameter
+cid112nZ1  nZ This implies that stationary law of the square of Z is a F-distribution with
+1 and 1  1nZ degrees of freedom and scale parameter nZ1  nZ We will denote as
+Vt  2cid2  Z 2
+cid3
+the low-frequency squared volatility of the price we reintroduced the jump size  for completeness
+A straightforward change of variables yields the stationary density qv of the process V as
+cid20cid90 t
+cid113
+cid16
+cid16 1
+cid16 v
+cid17cid16
+cid17
+cid17
+cid17cid112vv  v
+cid16 3
+qv v C v
+cid17
+1vv
+where v  2 is the baseline level of the squared volatility For the tail exponent of the
+distribution of Vt we get a power-law tail
+with C an explicit constant We nd this result interesting for two reasons First one obtains a
+power-law behavior that emerges naturally from the fact that since the volatility behaves as  Zt for
+large values of Zt the process describing its dynamics is simply a multiplicative Brownian motion
+with drift see 25 This is at variance with the diagonal Hawkes counterpart of 25 where the
+coecient in front of the Brownian noise is only the square-root of the volatility which inevitably
+leads to a process that has a characteristic scale and thin tails Second the stationary distribution
+of V only depends on the Zumbach norm nZ that can be seen as the endogeneity of the process
+This last result suggests that similar to Hawkes processes where the asymptotic properties only
+depend on the norm nH as soon as the kernel is short-ranged the distribution 26 of the squared
+volatility should hold for any short-ranged kernel
+Another remark is that as soon as nZ  13 the variance 2
+V of the activity V explodes while
+its mean V remains nite up to nZ  1 Now when tting the time series generated by this
+cid112V W 2
+V W  for a suitable choice of
+process using a simple Hawkes process one nds nH  1
+window size W see 21 Therefore the vanishing of the meanvariance ratio necessarily imposes
+that the tted Hawkes process must be critical ie nH  1 What we argue here is that this
+apparent criticality may in fact be induced by quadratic feedback eects but does not necessarily
+imply that the true underlying process is critical
+VtdWt the asymptotic stationary distribution for the returns is given by
+Finally note that in the diusive limit where the price process satises the equation d P 
+pr r
+Ccid48
+r1 
+  1 
+The fat-tail volatility that is generated by our model naturally produces a fat-tail distribution of
+instantaneous returns with exponent  for the cumulative distribution equal to 1  1nZ  2
+The more endogenous the fatter the tails for the returns this interpretation seems intuitive
+For a critical process nZ  1 the tail is such that the volatility of the returns diverges A tail
+exponent for the cumulative distribution   3 the so-called inverse cubic law observed on a
+large universe of traded products is obtained for nZ  05 Note however that the value of nZ
+obtained above from calibrating the model is much smaller nZ  006 leading to   18 far
+too large to explain the tail of nancial returns We will see now that quite interestingly the
+interaction with a non-critical Hawkes kernel can substantially reduce the value of 
+432 ZHawkes with Hawkes
+The case when nH  0 is more complicated but remarkably the tail exponent of the activity
+distribution qv can still be analytically computed in some limits The idea is to realize that when
+Z   the distribution of H conditional to a certain large value of Y  Z 2 is of the form
+ H Y  
+ o Y 
+ Y  
+Correspondingly one can show that the far-tail of the distribution of Vt  2cid2  Z 2
+where F  is a certain scaling function which obeys a dierential equation derived in Appendix B
+cid3 is still
+cid18 H
+cid19
+a power-law given by
+cid16 3
+qv v Ccid48cid48 v
+cid90 
+where Ccid48cid48 is another constant and a is dened as
+cid17
+2nZ 1a 
+dx x F x
+Introducing   2
+as the ratio of the correlation time scale of the Hawkes process to the one
+of the ZHawkes process a full solution for F can be found in the two limits   0 and   
+allowing one to x the value of a One nds see Appendix B
+cid20
+cid21
+1  nH
+1  
+1  nH  nZ
+1  nH 2
+  0
+1  nZ
+ nZ  
+Two other limiting cases can be exactly solved one is when nH  0 one nds that a
+still holds provided a
+a as the solution of a second degree equation see Appendix B
+1nZ 
+cid28 1 and the other is nZ  0 for which we nd an explicit expression for
+The corresponding exponent for the asymptotic tail of the cumulative distribution of returns
+is now given by
+  1 
+nZ1  a
+ for nH  0 ZHawkes without Hawkes one recovers the previous case where a  0 and
+  1  1nZ
+ for 0  nH  1 and   0 Hawkes much faster than ZHawkes the exponent  is
+decreased to   1  1  nH nZ  O
+ for 0  nH  1 and    Hawkes much slower than ZHawkes the exponent  is again
+decreased from   1  1nZ by an amount  1
+ In the case nZ  0 one nds   1  b
+see Appendix B
+ where b can be computed in terms of nH and 
+The results of this section are we believe quite interesting First the two-dimensional limit
+process dened by Eqs 23 leads to power-law tails for the volatility that can be exactly char-
+acterized in some limits From a theoretical point of view the possibility of computing exactly
+the tail exponent in this model is potentially important if our ZHawkes process turned out to be
+a central ingredient to model the dynamics of nancial markets Second we have found that al-
+though the Hawkes kernel per-se does not lead to power-law tails ie    when nZ  0 the
+Hawkes kernel actually cooperates with the ZHawkes kernel to make the tails of the distribution
+fatter The case of empirical interest is nZ  006 nH  08 leads to   1  1  nH nZ  4
+for   0 which indeed remains in the experimental range for a non-Markovian ZHawkes process
+with parameters calibrated on intraday data as will be shown by numerical simulations in the next
+section
+We nd this phenomenon quite remarkable whereas the Hawkes feedback alone is not able
+to explain fat-tails only a relatively small amount of quadratic Zumbach feedback generates
+power-law tails in the correct range remember that nZ  006 cid28 nH  Note however that this
+ZHawkes family of models leads a continuously varying exponent as a function of the parameters
+rather than a xed universal exponent like in many physical situations This begs the question
+is there any mechanism that would explain why the feedback parameters nZ nH   lie in a rather
+restricted interval such as to explain the apparent universality of the tail exponent of mature
+nancial markets
+5 Numerical simulation results
+51 Empirical tails of the volatility process
+In this section we compare numerically the volatility process generated by the ZHawkes model
+with a standard Hawkes-based price model and with the nancial data studied in Section 321
+We simulate a ZHawkes model with an exponential Zumbach part and a power-law Hawkes part
+with parameters inspired by the QARCH calibration of Section 32 for t expressed in minutes
+t  00016  1  001  t
+12
+kt  0003  exp003  t
+so that nH  08 nZ  01 and TrK  09 Note that to simulate a stationary ZHawkes model
+we choose a decay exponent above 1 for  although the QARCH calibration suggests a slower decay
+for t corresponding to intraday time scales Although not fully satisfactory this is the simplest
+way to enforce stationarity without having to introduce a more complicated functional form for
+t that would model overnight eects and daily time scales As a benchmark we also simulate
+a standard Hawkes-based price process nZ  0 with   1  001  t13 nH  099 which is
+close to the calibration results of 20
+It is important to note that to simulate the ZHawkes and the Hawkes model we choose constant
+price jumps P   Therefore our numerical results for the distribution of the volatility can
+by no means be attributed to the kurtosis of individual price jumps
+For both simulated and real data we consider the Rogers-Satchell volatility times series for
+ve-minute bins We use the Hill exponent 24 as an estimator of the empirical tail exponent of
+the volatility
+cid80n
+hill  1 
+i1 logimin
+where min is some cuto and i  min are the volatilities in the far tail region of the distribution
+One obtains hill  450 for the normalized ve minutes returns of US stocks in agreement with
+many previous determinations of this exponent hill  507 for the ZHawkes model and hill  124
+for the standard Hawkes-based model without ZHawkes feedback Even with a norm close to one
+and a slowly-decaying kernel the standard Hawkes model cannot reproduce the tails observed on
+US stock data Instead the ZHawkes model with a norm strictly below unity and a short-lived
+Zumbach eect naturally produces fat tails very similar to those observed empirically even with
+a rather small nZ These observations are illustrated by Figures 5 and 6
+Figure 5 Cumulative density function of the Rogers-Satchell volatility for US stock data plain
+line simulated Hawkes data red dashed line and simulated ZHawkes data blue dot-dashed
+line Notice how well the empirical distribution function is reproduced by the ZHawkes model
+calibrated as in Section 323
+52 Time-reversal asymmetry of ZHawkes processes
+Another salient feature of nancial markets is as discussed in the introduction the time-reversal
+asymmetry TRA of the price time series The authors of 14 study this feature for stock data on
+the one hand and for a simulated FIGARCH volatility process on the other The chosen observable
+is the cross-correlation of present Rogers-Satchell volatilities 2
+t  to
+that of present squared returns with past volatilities which is found to be such that cid104r2
+t cid105t 
+cid104r2
+tcid105t for   0 both for real data and FIGARCH processes
+This observation is one of the main motivations for the model introduced in the present paper
+since standard models that use Brownian SDEs are TRS by construction and cannot reproduce this
+asymmetry In this section we measure the amount of TRA for the simulated ZHawkes process
+and for the Hawkes benchmark described in the previous section and for the nancial dataset
+studied in Section 321
+t with past squared returns r2
+t 2
+As in Sections 32 we consider the returns and the Rogers-Satchell volatilities dened for intra-
+day ve-minute bins Here the maximum lag q is xed to 36 36 bins of 5 minutes  3 hours of
+trading and the lag index  varies between 1 and q We introduce
+ The cross-correlation function of the Rogers-Satchell volatility and absolute returns
+t  rtcid105  cid104RScid105cid104rcid105
+cid104r2cid105  cid104rcid1052
+cid113
+cid104RS2cid105  cid104RScid1052cid112
+cid104RS
+cid80
+Ccid48  Ccid48
+qcid80
+maxCcid48Ccid48
+cid481
+cid481
+C  
+ The time asymmetry ratio
+  
+ 1 1
+1e-071e-061e-0500001000100101100101110100PxxZHawkesHawkesDatax3x4Figure 6 Time series of Rogers-Satchell volatility Above real data  below simulated ZHawkes
+data  left period of calm  right cluster of intense activity
+Note that we choose to compute the cross-correlation function using the absolute returns instead
+of the squared returns since it yields results that are less noisy and more robust to tail events and
+thus less sensitive to the normalization method
+We compare the time asymmetry ratios   for real stock returns returns simulated with the
+ZHawkes model and returns simulated with a standard Hawkes-based price model The results
+are illustrated by Figure 7 The standard Hawkes model perhaps surprisingly does not generate
+any detectable TRA    103 for all   Thus it is clear that the Hawkes model with
+no o-diagonal quadratic feedback cannot reproduce the time asymmetry observed in intra-day
+volatility for which   is one hundred times larger On the other hand the ZHawkes model
+with parameters in line with the QARCH calibration of Section 3 features some time asymmetry
+which is not only of the correct sign but also reproduces the right order of magnitude without any
+further parameter adjustment However the function  cid55   is found to be concave for the
+ZHawkes model as expected on general grounds and strangely convex for stock data Even with
+a thorough normalization protocol intra-day returns are not rigorously stationary and we believe
+that the convexity of  cid55   observed on real data is spurious as it should should saturate to
+a value less than 1 beyond some time scale Such convexity would probably be hard to reproduce
+with a simple model unless it some non-stationary is added by hand
+6 Conclusion
+The central message of our study is that the standard Hawkes feedback where past activity increase
+the intensity of the current activity fails at accounting for two essential features of the dynamics
+of markets a the fat-tails in the activityvolatility cannot be reproduced and b the time-reversal
+051015202530024681012Rogers-SatchellvolatilityTimedaysDatacalm051015202530024681012Rogers-SatchellvolatilityTimedaysDataclusters051015202530024681012Rogers-SatchellvolatilityTimedaysZHawkescalm051015202530024681012Rogers-SatchellvolatilityTimedaysZHawkesclustersFigure 7 Time asymmetry ratio   for US stock data plain line simulated Hawkes model red
+line and simulated ZHawkes model blue dot-dashed line Note that the Hawkes process does
+not generate any detectable TRA
+asymmetry between past daily volatilities and future intraday volatilities or vice-versa is completely
+absent within the Hawkes framework This was not a priori obvious since Hawkes processes are
+constructed on the idea of a feedback from the past We have thus proposed QHawkes processes
+as simple intuitive generalisations of the Hawkes process which posit that the feedback is in fact
+not only on the past activity but on past price returns themselves
+A QHawkes model can be seen as a consistent denition of a Quadratic ARCH QARCH model
+as a continuous-time point-processes This in fact allowed us to calibrate a QHawkes model on the
+intraday returns of 133 NYSE stocks We nd that the matrix kernel of the QHawkes has a diagonal
+part corresponding to the standard Hawkes component and a o-diagonal rank-one part that we
+call ZHawkes It corresponds to Zumbachs insight that local trends in the price both up or down
+generate more future activity ZHawkes processes have some interesting properties that standard
+Hawkes processes lack namely i the quadratic feedback naturally produces a multiplicative
+dynamics for the volatility generating power-law tails for the volatility and the returns ii it
+can generate long memory without necessarily be at its critical point iii it reproduces a level of
+time-reversal asymmetry TRA that is fully compatible with what is measured on actual nancial
+data The continuous limit SDE corresponding to exponential kernels is found to be a tractable two-
+dimensional generalization of Pearson diusions In particular the tail exponent of the volatility
+can be exactly computed in several cases and quite remarkably fall within the empirical range
+even when the ZHawkes kernel is of small amplitude These mathematically tractable diusions
+are reminiscent of the log-normal volatility processes considered in 34 4 7 and more recently
+19 and provide a natural microscopic mechanism for a multiplicative process for the volatility
+itself which up to now has remained quite a mysterious hypothesis 26
+We hope our paper motivates more developments on the family of QHawkes models We have
+indeed only touched upon the mathematical properties and the empirical relevance of such models
+but we believe that deeper work on the subject would be valuable in particular concerning the
+precise calibration of the model itself A completely open question at this stage is the treatment
+of overnights and the generalisation of the model to describe longer time scales our calibration
+was restricted to intraday data generalizing the QARCH description proposed by two of us in
+9 In particular we know that time-reversal asymmetry can still be detected on time scales of
+days or weeks 37 14 and this can certainly not be reproduced with a ZHawkes kernel decaying
+over 30 minutes as found here Similarly multiplicative log-normal models for the volatility have
+commonly been considered for daily returns How much is the fat-tailed long memory of the
+volatility recently described within the context of standard Hawkes process should in fact be
+traced to the QHawkes mechanism proposed here is in our opinion a very interesting question for
+-0050005010150220406080100120140160180LagminDataZHawkesHawkesfuture research
+To conclude we believe that a comprehensive understanding of the volatility process from
+the scale of the event up to macroscopic scales would seem very valuable in several respects
+in particular that of market design One would perhaps understand how a change in market
+microstructural rules eg the tick size may aect its macroscopic properties eg volatility
+Finding a solid behavioural microscopic foundations to the volatility process seems crucial when
+fully understood simple constraints on the agents might then change the overall macroscopic
+market behaviour We hope that our generalized Hawkes process could provide some clues on this
+Acknowledgments
+We want to thank R Chicheportiche J Gatheral S Hardiman Th Jaisson I Mastromatteo and
+M Rosenbaum for many insightful discussions on these issues
+References
+1 R Allez and J-P Bouchaud Individual and collective stock dynamics intra-day seasonalities
+New Journal of Physics 132025010 2011
+2 E Bacry K Dayri and J-F Muzy Non-parametric kernel estimation for symmetric hawkes
+processes application to high frequency nancial data The European Physical Journal B
+855112 2012
+3 E Bacry S Delattre M Homann and J-F Muzy Modelling microstructure noise with
+mutually exciting point processes Quantitative Finance 1316577 2013
+4 E Bacry J Delour and J Muzy Modelling nancial time series using multifractal random
+walks Physica A Statistical Mechanics and its Applications 29918492 2001
+5 E Bacry I Mastromatteo and J-F Muzy Hawkes processes in nance arXiv preprint
+arXiv150204592 2015
+6 E Bacry and J-F Muzy Hawkes model for price and trades high-frequency dynamics Quan-
+titative Finance 14711471166 2014
+7 L Bergomi Smile dynamics ii Available at SSRN 1493302 2005
+8 P Blanc Modelisation de la volatilite des marches nanciers par une structure arch mul-
+tifrequence Masters thesis Universite de Paris VI Pierre et Marie Curie
+9 P Blanc R Chicheportiche and J-P Bouchaud The ne structure of volatility feedback
+ii overnight and intra-day eects Physica A Statistical Mechanics and its Applications
+4025875 2014
+10 P Bremaud L Massoulie et al Hawkes branching point processes without ancestors Journal
+of applied probability 381122135 2001
+11 J Buescu Positive integral operators in unbounded domains Journal of Mathematical Anal-
+ysis and Applications 2961244255 2004
+12 D Challet M Marsili Y-C Zhang et al Minority games
+interacting agents in nancial
+markets OUP Catalogue 2013
+13 S Chatterji Cours danalyse Tome 3 Equations dierentielles ordinaires et aux derivees par-
+tielles Number vol 1 in Cours danalyse Presses polytechniques et universitaires romandes
+14 R Chicheportiche and J-P Bouchaud The ne-structure of volatility feedback i Multi-scale
+self-reexivity Physica A Statistical Mechanics and its Applications 410174195 2014
+15 J C Cox J E Ingersoll Jr and S A Ross An intertemporal general equilibrium model of
+asset prices Econometrica Journal of the Econometric Society pages 363384 1985
+16 M Cristelli L Pietronero and A Zaccaria Critical overview of agent-based models for eco-
+nomics Proceedings of the International School of Physics Enrico Fermi Course CLXXVI
+Complex Materials in Physics and Biology edited by F Mallamace and HE Stanley 2011
+17 V Filimonov and D Sornette Apparent criticality and calibration issues in the hawkes
+self-excited point process model application to high-frequency nancial data Quantitative
+Finance ahead-of-print122 2015
+18 J L Forman and M Srensen The pearson diusions A class of statistically tractable
+diusion processes Scandinavian Journal of Statistics 353438465 2008
+19 J Gatheral T Jaisson and M Rosenbaum Volatility is rough Available at SSRN 2509457
+20 S J Hardiman N Bercot and J-P Bouchaud Critical reexivity in nancial markets a
+hawkes process analysis The European Physical Journal B 861019 2013
+21 S J Hardiman and J-P Bouchaud Branching-ratio approximation for the self-exciting
+hawkes process Physical Review E 906062807 2014
+22 A G Hawkes Spectra of some self-exciting and mutually exciting point processes Biometrika
+5818390 1971
+23 S L Heston A closed-form solution for options with stochastic volatility with applications
+to bond and currency options Review of nancial studies 62327343 1993
+24 B M Hill et al A simple general approach to inference about the tail of a distribution The
+annals of statistics 3511631174 1975
+25 T Jaisson and M Rosenbaum Limit theorems for nearly unstable hawkes processes arXiv
+preprint arXiv13102033 2013
+26 T Jaisson and M Rosenbaum Rough fractional diusions as scaling limit of nearly unstable
+heavy tailed hawkes processes to appear 2015
+27 O Kallenberg Foundations of modern probability Springer Science  Business Media 2002
+28 P J Laub T Taimre and P K Pollett Hawkes processes arXiv preprint arXiv150702822
+29 Y Pomeau Symetrie des uctuations dans le renversement du temps Journal de Physique
+436859867 1982
+30 J B Ramsey and P Rothman Characterization of the time irreversibility of economic time
+series Estimators and test statistics CV Starr Center for Applied Economics New York
+University Faculty of Arts and Science Department of Economics 1988
+31 J B Ramsey and P Rothman Time irreversibility and business cycle asymmetry Journal
+of Money Credit and Banking pages 121 1996
+32 A Saichev and D Sornette Generation-by-generation dissection of the response function in
+long memory epidemic processes The European Physical Journal B 753343355 2010
+33 E Sentana Quadratic arch models The Review of Economic Studies 624639661 1995
+34 E M Stein and J C Stein Stock price distributions with stochastic volatility an analytic
+approach Review of nancial Studies 44727752 1991
+35 A C Zaanen Linear analysis 1956
+36 G Zumbach Time reversal invariance in nance Quantitative Finance 95505515 2009
+37 G Zumbach and P Lynch Heterogeneous volatility cascade in nancial markets Physica A
+Statistical Mechanics and its Applications 2983-4521529 2001
+A Exact equations relating the kernel and the auto-correlation
+du  Ecid104 dNu
+cid105
+du  
+functions
+cid20
+For u cid54 s Ecid2 dNu
+To simplify notations we write in this appendix only t  Kt t
+ Ecid2At
+cid3  2Ecid2Mt
+cid21
+cid21
+cid20 dNu
+cid90 t
+For s  t one has Ct  s    
+t  uE
+du and for u  s Ecid104cid0 dNu
+cid3 du  Cus
+cid21
+cid21
+cid90 t
+cid21
+ t  s 
+cid20
+cid20
+On the other hand
+ TrK
+cid3
+cid12cid105
+where  is the kurtosis of the law  of the jumps of P   1 if P   Thus
+t  uCu  sdu
+cid20 dNs
+cid21
+cid20
+cid90 t
+cid90 t
+cid90 u
+cid90 u
+cid90 s
+Kt  u t  rE
+since P and P 3 are centered which implies that Ecid2 dNs
+cid90 
+t    0 and s  0 we obtain
+cid90 
+Kt  u t  rDs  u s  rdrdu
+C     
+  uCudu  2
+K  u   rDu rdrdu
+cid90 
+2 Ecid104
+cid3  0 for u  s Taking
+2 Ecid104
+ The rst
+cid105
+cid105
+cid20 dNu
+cid21
+term gives
+For t  t1  t2 one has Dt  t1 t  t2  1
+cid90 t
+cid20
+cid21
+Since r  u in the integral and t2  t1 the expected value is zero if u cid54 t1 For u  t1 we have
+t  uDu  t1 u  t2du
+t  uE
+cid90 t
+cid90 u
+Kt  u t  rE
+du  2Ecid104 dNt1
+cid105
+cid90 t1
+Kt  t1 t  rE
+cid90 t
+cid20 dPt1
+cid20 dNt1
+cid105
+ Thus
+cid21
+cid21
+cid21
+cid20
+cid12 dPt2
+The second term is given by
+Ecid104cid0 dPu
+du  2Ecid104 dNu
+cid105
+cid21
+cid20
+2 Ecid104 dNt1
+dr  Ecid104 dNt1
+Ecid104 dNt1
+cid105
+For r cid54 t2 one has 1
+cid21
+cid20
+cid105
+cid105
+dr  Dt1  t2 t1  rdr On the other hand r  t2 yields
+ Ct1  t2  
+ We obtain
+cid90 t1
+ Kt  t1 t  t2Ct1  t2  
+Kt  t1 t  rDt1  t2 t1  rdr
+We eventually obtain by taking 2  t  1  t  t1 t2  0
+D1 2  2K1 2C2  1  
+2  uDu  2  1 udu
+cid90 2
+cid90 21
+21
+K1 2  uD2  1 2  1  udu
+B Asymptotic analysis of the Hawkes  ZHawkes process
+In order to analyze the coupled Hawkes  ZHawkes processes we rst write the Fokker-Planck
+equation for the joint probability h y of h  H and y  Y  Z 2 Setting t  t as the new
+time we nd
+h 1  nH h  nH   y 
+y nZ  1y  nZ  h   2nZ
+y2 y  h  y 
+We will study the stationary distribution of the process such that the left-hand side of the
+above equation is zero We introduce the conditional distribution of h for a given y hy and
+the marginal distribution of y y as
+cid90 
+y 
+dh h y
+hy 
+h y
+and the generating function of hy as
+Zzy 
+cid90 
+dh ezhhy
+cid90 
+such that Z0y  1 and Zcid480y  a is the conditional average of h for a given y
+Now we assume and self consistently check that for large y hy is of the form 1yF hy
+which means that h is a random variable of order y This implies
+Zzy  Gx  zy
+Gx 
+du ezu F u
+Multiplying Eq32 by ezh and integrating over h then leads in the stationary state to
+ xy 1  nH Gcid48
+cid8Gx  Gcid48
+x  nH Gx  
+x y2ycid9  0
+ 2nZ
+y nZ  1Gx  nZGcid48
+x yy
+where we have assumed y cid29  In the asymptotic limit y behaves as a power law y 
+Ay1 Indeed injecting this ansatz into the last equation leads to a non-trivial equation for
+Gx where y and A have completely disappeared
+x 1  nH Gcid48
+x  nH Gx   nZHx  nZxHcid48
+cid2x2Hcid48cid48
+x  Gx  xGcid48
+x  1  Hxcid3 
+x  21  xHcid48
+ 2nZ
+where we have introduced the shorthand Hx  Gx  Gcid48x Let us rst analyze this equation
+for x  0 without any further assumptions one has with G0  1 and Gcid480  a
+2nZ1  a
+    2nZ1  1  a
+  0   
+nZ1  a
+where the unphysical solution   0 was discarded We thus need to solve Eq 37 for Gx and
+determine a from the value of Gcid480 An easy case is   0 One immediately nds
+1  nH Gcid48
+x  nH Gx  0  G0x  enH x1nH 
+leading to a
+Gx  G0x  g1x  2g2x      To rst order in  the equation for g1 reads
+0  nH 1  nH  The small  expansion is also conveniently performed by setting
+1  nH gcid48
+1x  nH g1x  G0x
+and thus with the right boundary condition for g1x
+g1x 
+To rst order one thus nds
+cid20 nH 1  nH  nZ
+1  nH 2
+cid21
+1  nH 2 x
+cid21
+cid20 nH 1  nH  nZ
+1  nH 3
+cid20
+1  nH 
+1  
+ea
+21  nH 3 x2
+cid21
+1  nH  nZ
+1  nH 2  O2
+In the opposite limit    one nds that Gx  1 solves the equation as expected since in
+this limit h cannot follow the dynamics of y and therefore one expects that in the limit y  
+F u  u and thus Gx  1 When  is large but not innite one can expect that F u has a
+width of order 1 and thus that Gx is a function of x This means that each derivative of
+G brings an extra factor 1 Setting a  a and matching the terms in Eq 37 we nd
+  x1  nZGcid48
+x  a  nH xGx
+ln Gx  
+1  nZ
+nH x  a  nH 1  nZ ln  1  nZx 
+which shows that our assumption that Gx is a function of x singles out a  nH 1  nZ as
+the only possibility in which case
+Gx  e
+This means that in this limit hy  h  nH
+Finally let us consider the limit nZ  0 for a nite  The idea now is to postulate that for
+small nZ hy is stronlgy peaked around ay with a width that goes to zero as nZ This
+1nZ  y
+translates into the following ansatz for Gx
+ nH x
+1nZ  
+Gx  eaxGnZx
+cid20 1  a21  nH  a
+Gz  exp
+terms are of order 1nZ and lead to an equation that is identically satised The next two orders
+We can now analyze Eq 37 in the regime nZ  0 with xed z  nZx The leading order
+O1nZ and O1 allow us to x both the function Gz and the value of a We nd in
+particular
+cid21
+ nH 
+which shows that the distribution hy is in fact gaussian in that limit We also nd that a
+obeys the following equation
+a
+ nH     2a
+  a22
+  1  nH  
+In the general case Eq
+The solution takes a simple form in the limits   0 and    where we recover the results
+obtained above
+37 is a third order linear ODE for Gx imposing the correct
+boundary condition Gx   selects special values of a for any triplet nH  nZ  The largest
+admissible value of a corresponding to the smallest value of the tail exponent will be the physical
+solution Unfortunately we have not been able to make progress yet on this general case

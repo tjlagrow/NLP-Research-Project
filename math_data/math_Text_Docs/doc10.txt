@@ -1,0 +1,1157 @@
+January 11 2016
+Hawkes Graphs
+Paul Embrechts and Matthias Kirchner
+RiskLab Department of Mathematics ETH Zurich Ramistrasse 101 8092 Zurich
+Switzerland
+This paper introduces the Hawkes skeleton and the Hawkes graph These notions summarize the
+branching structure of a multivariate Hawkes point process in a compact and fertile way In particular
+we explain how the graph view is useful for the specication and estimation of Hawkes models from
+large multitype event streams Based on earlier work we give a nonparametric statistical procedure
+to estimate the Hawkes skeleton and the Hawkes graph from data We show how the graph estimation
+may then be used for choosing and tting parametric Hawkes models Our method avoids the a priori
+assumptions on the model from a straighforward MLE-approach and it is numerically more exible
+than the latter A simulation study conrms that the presented procedure works as desired We give
+special attention to computational issues in the implementation This makes our results applicable
+to high-dimensional event-stream data such as dozens of event streams and thousands of events per
+component
+Introduction
+This paper discusses the specication and estimation of Hawkes point process models from large
+multitype event-stream datasets such as neural spike-trains internet search-queries or limit-
+order-book data in high-frequency nance Our approach uses the notion of a Hawkes skeleton
+and a Hawkes graph These concepts turn out to be fertile beyond statistical estimation
+The Hawkes process was introduced in Hawkes 1971ab as a stationary point process on R
+whose points are assigned to a nite number of types The stochastic intensity of a Hawkes pro-
+cess depends on the past of the process itself given the occurrence of an event the intensities
+the expected mean number of events per time unit and event typetypically jump upwards and
+then decay This structure can alternatively be represented as a multitype branching-process
+with immigration see Hawkes 1974 The crucial parameters of a Hawkes model are the excite-
+ment functions or emphasizing the branching interpretation the reproduction intensities that
+govern these self- and crosseects For a textbook reference that covers many aspects of the
+Hawkes process see Daley and Vere-Jones 2003 Maximum likelihood estimation of Hawkes
+processes has been treated in Ogata 1988 covering calibration issues and introducing a numer-
+ically benecial recursive method for the exponential decay case Liniger 2009 deals especially
+with the construction of the multivariate and marked case whereas Bacry et al 2012 intro-
+duces a nonparametric estimation method that is based on the covariance density estimate of
+the data
+In the present paper we formally introduce the Hawkes graph The Hawkes graph summarizes
+the branching structure of a multitype Hawkes point process as a directed graph with weighted
+vertices and edges The vertices represent the possible event-types of the corresponding Hawkes
+process an edge i j denotes non-zero excitement from event-type i to event-type j The vertex
+This work was supported by RiskLab Zurich and the Swiss Finance Institute
+January 11 2016
+weights are the corresponding immigration intensities the weight of an edge i j is the expected
+number of type-j children that an type-i event generates The Hawkes skeleton is the Hawkes
+graph disregarding the weights The graphical description is a natural summary of the Hawkes
+process The network view on Hawkes processes has been considered in Song et al 2013 Hall
+and Willett 2014 Delattre et al 2015 and Bacry et al 2015 Many properties of multi-
+variate Hawkes processes such as feedback cascades connectivity or criticality are properties
+that are most naturally described via graph terminology In this paper we mainly use the graph
+structure as a tool for estimating high-dimensional Hawkes processes Concerning Hawkes pro-
+cess estimation we see three main problems with the standard parametric likelihood approach
+First of all it uses many unjustied assumptions on the shape of the excitement functions
+Secondly the distribution of the MLE-estimator is in general not known In particular the
+likelihood approach does not provide tests to decide whether excitement from one event type to
+another exists at all Finally there are numerical issues that make it dicult to apply MLE in
+a straightforward way with large high-dimensional event-stream datasets
+Our approach leaves the choice of the excitement functions open to the very last We apply
+an estimation procedure developed in Kirchner 2015a This procedure is based on a limit-
+representation of the Hawkes process that we studied in Kirchner 2015b we discretize the
+original process and interpret it as an autoregressive model of bin-counts The latter is statisti-
+cally estimated using conditional least-squares Here the asymptotic distribution of the resulting
+estimators can be obtained Our procedure is numerically more robust than the standard MLE
+approach However for high-dimensional data our procedure also cannot be applied in a straight-
+forward manner In combination with the concept of a Hawkes skeleton and graph we tackle
+the numerical diculties by the following three-step algorithm
+i Given a large multitype event-stream dataseat we rst apply a specic testing scheme
+to decide whether there is any eect from a specic event type to any other event type
+The test result yields the Hawkes-skeleton estimate In this rst step we use a parameter
+allowing us to tune for a very coarse discretization this keeps the computational com-
+plexity under control Despite the resulting discretization error this approach typically
+yields a superset of the true skeleton Under the paradigm that the graph of the true
+underlying multivariate Hawkes model is typically sparse this estimated superset is still
+sparse
+ii In a second step we estimate the Hawkes graph given the skeleton estimate The Hawkes
+graph quanties the remaining excitement eects The sparseness of the estimated
+Hawkes-skeleton from i reduces the complexity of the estimation problem consider-
+ably there are only few excitements left to estimate and there are fewer explanatory
+types per event type namely the estimated parent sets Consequently we may now
+choose a much ner discretization parameter and thus retrieve more precise edge and
+vertex weight estimatesincluding condence intervals for all estimated values
+iii As a by-product the calculations in ii yield estimates for the values of the non-zero
+excitement-functions on a nite equidistant grid We exploit these estimation results
+graphically to choose appropriate parametric function-families Finally we t the cho-
+sen parametric functions to the corresponding estimates by a non-linear least-squares
+method This yields parameter estimates for parametric Hawkes models
+The multistep-procedure described above also works in a high-dimensional setting such
+as dozens of event streams and thousands of events per component the approach can be
+implemented in a straightforward way
+The paper is organized as follows Section 2 gives denitions In Section 3 we cite earlier
+results that allow for non-parametric estimation of Hawkes processes we apply these methods
+to estimate the Hawkes skeleton the Hawkes graph and the remaining non-zero excitement
+functions For illustration of the concepts involved we present a simulation study in Section 4
+January 11 2016
+In Section 5 we discuss directions for further research
+2 Denitions
+In this section we recall the branching construction of a multivariate Hawkes process and intro-
+duce the Hawkes skeleton as well as the Hawkes graph The graph representation summarizes
+the branching structure of a Hawkes process in a compact and insightful manner
+21 Multivariate Hawkes processes
+Throughout the paper let  PF be a complete probability space rich enough to carry all ran-
+dom variables involved We give a constructive denition of the Hawkes process that emphasizes
+the branching view For a similar construction see Hawkes 1974 or Chapter 4 in Liniger 2009
+The building blocks are Poisson random-measures on R endowed with the Borel -algebra BR
+Definition 21 Let   R  R0 be a locally integrable function We say that M is a Poisson
+random-measure on RBR with intensity function  whenever both of the following two
+conditions hold
+i If A1 A2     An  BR with AiAj   then M A1 M A2     M An are mutually
+ii M A  Poiscid0cid82
+independent
+A tdtcid1  A  BR
+We write M  PRMdt
+In the denition above we use the convention that X  Pois 0  X  0 as and X 
+Pois   X   as
+A multivariate or synonymously multitype Hawkes process is a model for the occurrence of
+events on R where the events are assigned to a nite number of types The dierent event-types
+are represented as in general dependent random counting-measures For each event type there
+is an immigration process Each immigrant event independently generates a family These families
+consist of cascades of Poisson random measures A Hawkes process is the superposition of all
+such families We formalize this construction in the denitions below To emphasize the intuition
+behind the names of immigrants generations and families we use the somewhat unusual letters
+I G and F for the corresponding processes
+Definition 22
+i For i j  1 2     d2 let hij  R  R0 locally integrable hijt  0 t  0
+  ijt  PRMhijdt mutually independent over i j t  1 2     d2
+ij
+R We call the functions hij reproduction intensities
+ii For i0  1 2     d dene the recursions
+Gi00
+  1ji0 0 
+j  1 2     d
+Gi0g
+ 
+ij
+Gi0g1
+j  1 2     d
+g  N 
+cid90
+dcid88
+cid16
+For g  N0 Gi0g 
+ated by a type-i0 event at time zero
+Gi0g
+     Gi0g
+is the g-th generation process gener-
+cid17cid62
+January 11 2016
+iii For i0  1 2     d dene
+Fi0 
+cid88
+Gi0g
+The random measure Fi0 is the Hawkes i0-family ie a family generated by a type-i0
+event at time 0
+cid90
+cid16
+We call
+cid17cid62
+ where for j  1 2     d
+g1  Y i0
+g2      Y i0
+the embedded generation process of the Hawkes i0-family Fi0
+The branching structure of the Hawkes family is encoded in recursion 2 Note that the
+Hawkes family is a particular example for the births in a general branching process as dened in
+Jagers 1975 The following denition claries how the Hawkes family process is related to the
+prototypic branching process the GaltonWatson process
+Definition 23 For i0  1 2     d let Fi0 be a Hawkes i0-family and let Gi0ggN be
+the corresponding generation processes constructed in Denition 22 above For g  N0 dene
+cid16
+cid17
+individual has Poiscid82 hijdt ospring of type j see Section 23 in Haccou et al 2005 This
+is why aij  cid82 
+0 hijtdt 1  i j  d are called branching coecients and why the matrix
+A  aij  R0 is called branching matrix If the spectral radius of the branching matrix is
+strictly smaller than 1 it then follows that with probability 1 the total number of events in
+all Hawkes families will almost surely remain nite In other words that for i0  1 2     d the
+embedded generation processes die out in nite time
+Definition 24 For i0  1 2     d let i0  0 be immigration intensities and let Ii0 
+ 
+PRMi0dt independent over i0 be Hawkes immigration processes Furthermore let Fi0
+Fi0t  t where Fi0t t  R i0  1 2     d are independent copies of the generic Hawkes
+family processes Fi0 from Denition 22 abovealso independent from the immigration pro-
+cesses Set
+The embedded generation processes are multitype GaltonWatson processes where each type-i
+j tdt
+N cid0N1     Ndcid1cid62
+cid90
+dcid88
+ I i0dt
+The random counting-measure N is a d-variate or d-type Hawkes process If NiT  1 for
+some i  1 2     d we say that T is a type-i event or synonymously an event in component
+i The Hawkes process N is subcritical if the corresponding embedded generation processes are
+subcritical ie if the spectral radius of its branching matrix is strictly smaller than 1
+From Hawkes 1974 we have that in the subcritical case a Hawkes process N constructed as
+in Denition 24 above is a stationary solution to the system of implicit equations
+jt  lim
+cid20
+dcid88
+tcid90
+cid0t t  cid1cid12cid12cid12
+cid16
+cid17cid21
+Ncid0a bcid1 a  b  t
+ j 
+hijt  sN i ds 
+j  1 2     d
+January 11 2016
+We call t  j     jcid62 the conditional intensity of N In terms of intensities the
+value of a reproduction function at time t hijt denotes the eect of an event T i in component
+i on the intensity of component j at time T i  t
+Remark 1 
+In most work on Hawkes processes including the original introduction Hawkes
+1974 and also including our earlier work Kirchner 2015ab the function hij models the excite-
+ment from component j on component i This somewhat counter-intuitive notation stems from
+the linear algebra used when writing 3 with matrix multiplication In the present graph-driven
+work hij aij and i j  E all refer to the eect from component i on component j
+22 Hawkes skeleton and Hawkes graph
+We interpret the branching structure of the Hawkes process in terms of causality The overall
+goal of causality research is to describe dependencies in a directed mannerrather than applying
+commutative concepts such as correlation or dependence see Pearl 2009 for a recent overview
+The notion of causality is subtle For Hawkes processes however the use of the term seems
+justied in the context of event streams things cannot become much more causal than in the
+recurrent parentchildren relation of a branching process if we delete an event in the branching
+construction from the denitions in Section 21 above its ospring vanishes Sowithout dis-
+cussing causality formallywe postulate that given an event in component i it directly causes
+Poisaij new events in component j This makes the branching coecient aij an obvious mea-
+sure for the strength of the causal eect from component i to component j Such causal eects
+are often represented as directed graphs In the literature on causality a graphical approach
+for modeling the interdependence of event streams for instance can be found in Meek 2014 or
+Gunawardana et al 2014without any mentioning of Hawkes This shows how natural the
+denition of a Hawkes graph is First we introduce some general graph terminology
+Definition 25 A graph G is a 2-tuple VE where V  1 2     d is a set of vertices and
+E  V  V a set of edges Vertex i is a parent of vertex j if i j  E we write PAj  i 
+i j  E Vertex j is a source vertex if PAj   For n  1 k0 k1     kn  V n1 is a
+walk of length n from vertex i to vertex j if k0  i kn  j and kl1 kl  E l  1 2     n
+k0 k1     kn  V n1 is a closed walk starting in i if it is a walk from i to i Vertex i is an
+ancestor of j if there exists a walk from i to j We denote the sets of ancestors of a vertex i by
+ANi The vertices i and j are connected if there exists a set kl1 kl l  1     n  k0 
+i kn  j kl kl1  E or kl1 kl  E for some n  1     d A graph is strongly connected if
+all pairs of its vertices are connected A graph is fully connected if i j  E i j  1 2     d2
+Note that in our denition a graph allows cycles and in particular loops Also note that a
+vertex may or may not be an ancestor and in particular a parent of itself
+1 2     d reproduction intensities hij and branching coecients aijcid82 hijtdt see Def-
+Let N be a d-variate Hawkes process with immigration intensities
+N  V
+N of N consists of a set of vertices
+Definition 26
+initions 22 and 24 The Hawkes graph skeleton G
+N  1 2     d and a set of edges
+cid110
+i j  V
+N  V
+N  aij  0
+cid111
+For j  1 2     d we denote the parent and ancestor sets with respect to the Hawkes skeleton
+by PANj and ANNj For the Hawkes graph GN  VNEN of N each vertex and each edge
+January 11 2016
+of the corresponding skeleton is supplied with a weight
+cid110
+cid26
+i i 
+i  V
+i j aij 
+N and i is the i-th immigration intensity of N
+i j  E
+N and aij 
+hijtdt
+cid90
+cid27
+cid111
+We call the branching matrix A  aij  Rdd0 of N the adjacency matrix of GN
+i A Hawkes graph is strongly respectively fully connected if the corresponding skeleton is
+ii Vertex j of a Hawkes graph is a redundant vertex if j  0 and in addition i  0 for
+strongly respectively fully connected see Denition 25
+all i  ANNj
+iii A Hawkes graph is subcritical if
+cid88
+cid88
+g W i
+g   
+i  1 2     d
+where W i
+in a Hawkes graph w  i0 i1     ig we dene the walk weights w  cid81g
+g denotes the set of closed walks starting in i of length g in G
+N and for any walk
+l1 ail1il
+with ail1il the corresponding edge-weights
+As a side remark note that the term Hawkes graph already has been used for the graph
+representation of a specic nite group that has been introduced in Hawkes 1968 Neither the
+author of the latter paper T Hawkes nor its content has anything to do with our notion of a
+Hawkes graph
+Obviously the Hawkes graph does not fully specify the corresponding Hawkes process it
+only captures the structure of the embedded generation processes from Denition 23 together
+with the immigration intensities Despite this simplication the Hawkes graph gives relevant
+insight for the underlying Hawkes process For example connectivity and redundancy of nodes
+are two graph-based concepts that become increasingly important the higher the dimension
+of the considered model is If a Hawkes graph is disconnected we may consider the strongly
+connected subgraphs separately and correspondingly use separate lower-dimensional Hawkes
+processes The notion of redundant vertices is important because typically we only want to
+consider accessible event types If the Hawkes graph of some Hawkes process has redundant
+vertices the model is typically misspecied Furthermore one can show that the criterion for
+subcritical Hawkes graphs in 4 corresponds to the underlying Hawkes process being subcritical
+that is the spectral radius of the branching matrix being strictly less than 1 However the
+criterion in 4 for the Hawkes graph gives a more concrete meaning to the somewhat abstract
+eigenvalue-based criterion for the Hawkes process It can be used when constructing Hawkes
+graphs respectively models Andif the graph is sparse and the closed walks are not too
+numerousone can check subcriticality without even calculating any eigenvalue see Section 41
+Also the walk weights w themselves might be worth calculating in some applications for any
+walk in a Hawkes graph w  i0 i1     ig we have that
+ail1il  E Y i0
+i  1 2     d
+  Y i0
+where Yi0
+gd  is the embedded generation process from Denition 23
+Last but not least the graph structure obviously allows for attractive self-explaining illustrations
+see Figures 1 and 2 In the following proposition we collect some specic statistical information
+g2      Y i0
+g1  Y i0
+gcid89
+January 11 2016
+that may be calculated from the adjacency matrix of a Hawkes graph
+Proposition 27 Let A  aij be the adjacency matrix of a subcritical Hawkes graph with
+VN  2 Then we have that
+i aij is the expected number of type-j events stemming directly from a type-i event
+ii aij  0  i  PAj
+iii aij  0 j  1 2     d  vertex i is a sink vertex
+iv aij  0 i  1 2     d aij  0 i  1 2     d  vertex j is a source vertex
+v Anij  0  there is a walk of length n from i to j
+vi Anij  0 for some n  1 2     d  1  i  ANj
+vii aij  0 i j  1 2     d  the Hawkes graph is fully connected
+viii A is irreducible  the Hawkes graph is strongly connected
+ix 1dd  A is invertible the limit Rdd0 cid51 eij  lim
+n
+cid80n
+k1 Ak exists and is equal to
+A1dd  A1
+x the value eij is the expected total number of ospring in the j-th component of a Hawkes
+i-family without counting the initial event or equivalently with the notation from Def-
+inition 23 eij  Ecid80
+xi for i  1 2     d ci  cid80d
+i-family again without counting initial event or equivalently ci  Ecid80d
+g1 Y i
+j1 eij is the expected total number of events in a Hawkes
+g1 Y i
+The properties above can easily be checked They may help to describe the role and the
+relationships between Hawkes process components respectively Hawkes graph vertices Two
+specic Rd0-vectors might be particularly meaningful statistical summaries of a Hawkes graph
+cid80d
+Definition 28 Let N be a d-variate Hawkes process Furthermore let A be the adjacency
+matrix of the corresponding Hawkes graph Consider Rdd0 cid51 eij  A1dd  A1 and ci 
+cid80
+j1 eij from Proposition 27 For i j  1 2     d dene
+dcid88
+dcid88
+ci  ci
+and fj  ejj
+We call cii1d the cascade coecients and fjj1d the feedback coecients
+One way of tuning a specic Hawkes graph can be achieved by deleting all outgoing edges of
+selected vertices The coecients dened above summarize the eect of such a deletion In view
+of Proposition 27 we have the following interpretations the cascade coecients are important
+from a systemic point of view They allow to compare the d vertices with respect to their
+total eect on the system Which type of events trigger large cascades Values larger than 1d
+indicate a relatively large impact values smaller than 1d a relatively small impact The feedback
+coecients are more important from an individual point of view They indicate how much of
+the total reproduction excitement again disregarding immigration intensities that each vertex
+experiences is due to closed walks ie feedback We illustrate both concepts in Section 41
+3 Estimation
+In this section we give a summary of earlier work where we introduced a nonparametric esti-
+mation procedure for the multivariate Hawkes process Based on this approach we introduce an
+estimation procedure for the Hawkes skeleton and the Hawkes graph In particular we clarify
+how one can bypass numerical problems in high-dimensional settings Finally we explain how
+one can use the results for completely specifying and estimating a parametric Hawkes model
+January 11 2016
+31 Earlier results
+cid16
+In earlier work we showed that the distributions of the bin-count sequences of a Hawkes process
+can be approximated by the distribution of so called integer-valued autoregressive time series
+INARp see Kirchner 2015b This approximation yields an estimation method for the Hawkes
+process we t the approximating model on observed bin-counts of point process data The
+resulting estimates can be used as estimates of the Hawkes reproduction intensities on a nite and
+equidistant grid see Kirchner 2015a For illustration consider a univariate Hawkes process N
+with reproduction intensity h and immigration intensity  Given data from N in a time window
+0 T    0 small bin counts X 
+some p  N large we calculate
+ Ncid0n  1 ncid1 k  1 2     n  Ncid00 T cid1 and
+cid32
+ncid88
+0  pcid88
+k  
+X 
+cid332
+
+ 
+     
+ argmin
+
+
+l X 
+
+k  and the immigration intensity  by   
+Given 6 we estimate the reproduction-intensity values hk k  1 2     p of N by
+hk  
+0  The multivariate case is con-
+ceptually equivalent but somewhat cumbersome notationwise Furthermoredue to the special
+distribution of the errorsthe covariance matrix of the estimates is nonstandard This is why we
+give all formulas in some detail The following denitions and properties are taken from Kirchner
+2015amodulo transposition as stated in Remark 1
+cid62
+Definition 31 Let N  N1 N2     Nd
+be a subcritical d-variate Hawkes process with
+immigration intensity   Rd0 0d and reproduction intensities hij  R0  R0 i j 
+1 2     d2 Let T  0 and consider a sample of the process on the time interval 0 T  For
+some   0 construct the Nd
+0-valued bin-count sequence from this sample
+cid17
+cid18
+k  1 2     n  cid98T cid99 
+j1d
+Dene the multivariate Hawkes estimator with respect to some support s   s  T 
+cid16cid0k  1 kcid3cid17cid19cid62
+cid171
+Zcid62 Z
+cid16
+cid98Hs 
+ X
+cid17
+cid16
+cid16
+     X
+Zcid62 Y  Rdp1d 
+cid62 X
+p1cid62    X
+cid62 1
+p1cid62 X
+cid62    X
+cid62 1
+X
+npcid62 1
+n2cid62    X
+n1cid62 X
+X
+  Rnpdp1
+cid17cid62  Rnpd 
+is the design matrix and Y x1     xn 
+p1 X
+p2     X
+Z and Y depend on  Additional notation claries what the entries of the matrix cid98H in 8
+For the following considerations we drop the  s superscript Note that also the matrices
+January 11 2016
+actually estimate
+cid98Hk 
+h21k h22k    h2dk
+ h11k h12k    h1dk
+
+  cid98H  Rdp1d where
+cid98H1
+  cid98Hp
+In Kirchner 2015a we nd that for large T  small  and large p the entries of cid98H are approxi-
+cid16cid98Hcid62cid17  Rddp1 can be consistently estimated by
+cid99S2 
+mately jointly normally distributed around the true values Furthermore the covariance matrix
+cid171  1dd
+cid171  1dd
+hd1k hd2k    hddk
+ Rddp1ddp1 
+ 
+cid18cid16
+cid18cid16
+Zcid62 Z
+Zcid62 Z
+cid19
+cid19
+k  p  1 p  2     n
+Here Z is the design matrix from 9 and W cid80n
+kp1 wk wcid62
+cid19cid62
+cid17cid62
+cid16
+k   pcid88
+cid98Hcid62
+cid32cid18cid16
+cid17cid62
+cid17cid62
+cid32
+cid16
+    
+ 1dd
+l X
+k  Rddp1ddp1 where for
+cid33
+cid33
+ Rddp11 
+Above we consider vecHcid62 instead of vecH in order to apply the results from Kirchner
+2015b more directly see Remark 1 We will discuss below how one retrieves specic values
+from the covariance matrix estimation in 11 The estimator from Denition 31 above depends
+on a support s 0  s  T and a bin size  0    s Automatic methods for the choice
+of these estimation parameters are discussed in Kirchner 2015b In the context of the present
+paper we assume s xed Often an upper bound for the support of the reproduction functions
+can be guessed from the context of the data The choice of  however will be crucial in the high-
+dimensional context We will use it as a tuning parameter for controlling numerical complexity
+32 Estimation of the Hawkes skeleton
+Our rst goal is to identify the edges of the Hawkes skeleton from data see Denition 26
+The idea is simple for i j  1 2     d2 we estimate the edge weight aij cid82 hijtdt by
+aij  cid80p
+can check whether aij is signicantly larger than zero If this is the case we set i j  cid98E In
+hijk see 10 for the notation Calculating the covariance estimate 11 we
+order to ease implementation we explicitly give the necessary transformations for the estimates
+from Denition 31 and discuss numerical issues
+Definition 32 Given d-variate event stream data on 0 T  calculate the Hawkes estimator
+Hskels from Denition 31 with respect to some s 0  s  T and some skel 0  skel  s
+For j  1 2     d let bj  0 1dp11 be column vectors with all entries zero but 1s at entries
+k  1d  j k  1 2     p  cid98sskelcid99 Let B  b1 b2     bdcid62 and calculate
+aij1ijd  skelB Hskels 
+January 11 2016
+Fix skel  0 1 and dene the Hawkes-skeleton estimator as a graph cid98G  1 2     dcid98E
+cid111
+cid110
+cid98E 
+i j  1 2     d2  aij  ijz1
+1skel
+Here for   0 1 z1
+calculation of ij1ijd will be given in Algorithm 1 below
+ denotes the -quantile of a standard normal distribution Ecient
+cid98Eare typically much smaller than d2 respectively that PAG
+The main point of this rst estimation step is that we hope that E and consequently
+are typically much smaller than d If this is the case the knowledge of the skeleton simplies
+the estimation of the Hawkes graph considerably
+j and consequently cid99PAG
+The role of skel On one hand the smaller we choose the bin size the better the discrete
+approximation described in Section 31 works On the other hand the matrices involved in
+the calculation of the Hawkes estimator from Denition 31 become increasingly large when 
+decreases More specically 8 involves the construction and multiplication of matrices with
+about ds rows and about T  columns Furthermore we have to invert matrices of size
+cid100dscid101  cid100dscid101 The crucial observation is that in the Hawkes-skeleton estimation we may
+choose skel quite large for two reasons
+that PANj  cid99PANj with high probability Given reasonable values for skel say
+i The probability of missing a true edge in the skeleton estimation is very smalleven
+if we choose skel as large as skel  s In other words for j  1 2     d we have
+skel  001
+ii The actual quantitative estimation of the interactions between dierent event types will
+be performed in a second step when we consider the Hawkes graph In this second step
+due to the sparseness of the Hawkes skeleton we are typically able to choose a much
+ner bin-size graph So we may ignore the bias stemming from too rough discretization
+in the rst step
+By choosing skel  sk for some small k  N in the calculations of Denition 32 above even
+Hawkes-skeleton estimates of very high-dimensional models such as d  20 become computa-
+tionally tractable
+1skel
+ijz1
+The role of skel A value of skel  1 will yield a fully connected estimated graph as Hawkes
+skeleton When skel decreases the skeleton estimate becomes sparser and sparser However for
+skel  001 we typically still overestimate the true edge set Under H0  aij  0 we have that
+  skel Because of the multiple testing setup over i j the dependency
+PH0aij  2
+between the tests and the typically very rough discretization the parameter skel  0 1 should
+not so much be thought of as an actual condence level It is more a exible tuning parameter
+that allows for controlling the degree of sparseness in the estimated graph Despite this warning
+note that in the simulation study from Section 42 the corresponding empirical rates are very
+close to the dierent choices of skel
+Variance estimate calculation The most elaborate step from a computational point of view
+in Denition 31 is the calculation of the covariance estimator in 11 Here we deal with matrices
+of size cid100d2scid101cid100d2scid101 Furthermore we have to calculate approximately T  vectors of size
+d2s and calculate and sum their crossproducts wk wcid62
+k  This is the numerical bottleneck of the
+procedurein particular for high-dimensional setups For the Hawkes skeleton estimator from
+Denition 32 we simplify the calculation First of all we note that in the matrix cid98S2 from 11
+January 11 2016
+we estimate many more covariance values than we actually need for the marginal distribution
+of the edge-weight estimates After some linear algebra we nd that one can avoid the tedious
+computation of the W matrix from 11 by the following matrix manipulations
+Let E  0 1d2d2pd be a matrix with all entries zero but for i j 
+Algorithm 1
+1 2     d in row i  1d  j we have 1s at entries k  1d2  i  1d  j k  1 2     d
+Let El denote the l-th row of E With cid98S2 from 11 and for i j  1 2     d2 we have
+i1djcid98S2 Ei1dj are the variance estimates for the aij f rom 13 These
+ij  2 Ecid62
+i Compute Ecid0Zcid62 Z1 Zcid62cid1  1dd  Rd2dnp and stack the rows of the result in a
+ii Set U  Y  Zcid98H  Rnpd Denoting Up1 Up2     Uncid62  U we have that
+that 2
+estimates can be computed in the following way
+vector Row-wise ll this vector in a d2n  p  d matrix C
+cid32
+k   pcid88
+cid98Hcid62
+l X
+cid33
+k  p  1 p  2     n
+Furthermore let Urep  Rd2npd be a matrix consisting of d2 repetitions of the U
+matrix stacked on top of each other
+iii Point-wise multiply C from i and Urep from ii and square the row sums of the
+resulting matrix Row-wise ll the resulting vector into a d2np matrix and compute
+the row sums of this matrix
+iv Row-wise ll the result from iii into a d  d matrix This yields
+cid16
+cid17
+1ijd
+33 Estimation of the Hawkes graph
+Given an estimate cid98G
+N of the Hawkes skeleton G
+N from Denition 32 we consider the estimation
+of the Hawkes graph GN see Denition 26 We aim to estimate vertex as well as edge weights
+and to calculate corresponding condence bounds for both That is after the more structural
+dimensionality of the model considerably in a rst obvious step we divide the graph cid98G
+Hawkes skeleton estimation from Section 32 we now quantify the various interactions between
+strongly-connected subgraphs and treat them separately In a second step we identify cid99PANj 
+the observed event-streams Typically after the skeleton estimation we can reduce the eective
+N into its
+i  VN  i j  cid98E
+N for all j  VN From the branching construction of a Hawkes process
+respectively of Hawkes families in Denitions 22 and 24 we have that any event in component
+j is either an immigrant stemming from a Poisson random measure with constant intensity j
+or has a direct explanation through an event in one of its parent components PANj That
+is in a multivariate version of 6 it suces to regress the bin-counts of component j on the
+bin-counts in PANj The constant term in this regression will represent the j-th immigration
+intensity Considering only the parents instead of d other components in the conditional-least-
+squares regression increases numerical and estimation eciency In applications however we do
+not know the true parent set PANj So we have to substitute PAN with the estimate cid99PAN
+As long as PANj  cid99PANj this is not an issue from the branching construction we have
+that component j conditional on NiA  A  B t i  PANj is independent of the
+past of all other components NiA  A  B t i  PANj Consequently additional
+vertices in the estimated parent sets do not introduce additional bias in this graph estimation
+Apart from this restriction of the regression variables on estimated parent types we apply
+the conditional-least-squares approach as in Denition 31 This time however due to reduction
+of dimensionality we will typically be able to choose a much smaller bin-size  than for the
+skeleton estimation before To ease implementation below we give convenient notations and the
+necessary calculations
+January 11 2016
+cid99PAjkeeping in mind that the rst has to be substituted by the latter in most applications
+First we drop the N subscript for the parent sets PAj Also we write PAj instead of
+For k  1 2     n j  1 2     d and some   0 let Xgraph
+denote the j-th component of the
+d-variate bin-count sequence at time k with respect to N see 7 Furthermore set dj  PAj
+Xgraph
+kPAj 
+In 15 and in all denitions below we denote i1 i2     idj  PAj such that i1  i2   
+idj  The idea is to regress all d event types separately on the past of their parents with Ansatz
+Xgraph
+ Xgraph
+     Xgraph
+cid17cid62
+cid16
+cid105
+Ecid104
+cid12cid12cid12Xgraph
+Xgraph
+nkPAj k  1 2     p
+ graph
+cid88
+pcid88
+iPAj
+graph
+kij Xgraph
+nki
+j  1 2     d
+Ansatz 16 should be compared with 6 Note that j itself may or may not be an element of
+PAj In other words there might be an autoregressive part in 16 or not
+Let G
+Definition 33
+N be a Hawkes skeleton estimate with respect to some d-variate
+Hawkes process data N Given PAjj12n a bin size graph  0 and a support s with
+0  graph  s  T  p  cid98sgraphcid99 calculate the conditional-least-squares estimates
+cid98Hgraphs
+graph
+cid16
+cid171
+Zcid62
+j Yj  Rpdj11
+Zcid62
+j  1 2     dj
+with design matrices
+
+pPAj cid62 Xgraph
+Xgraph
+p1PAjcid62 Xgraph
+Xgraph
+p1PAjcid62   
+pPAj cid62   
+Xgraph
+Xgraph
+1PAj cid62 1
+2PAj cid62 1
+n1PAjcid62 Xgraph
+n2PAjcid62    Xgraph
+npPAjcid62 1
+Xgraph
+  Nnpdjp1
+j  1 2     d
+Xgraph
+ Xgraph
+and vectors of responses
+cid16
+ j  1 2     d we dene the Hawkes-graph estimator cid98GN  cid98VNcid98EN with
+cid91
+cid110
+il j ailj  i1     idj  PAj ailj  bcid62
+Given cid98Hgraphs
+cid98VN  j j  j  1 2     d and
+cid98EN 
+cid17cid62  Nnp1
+ljcid98Hgraphs
+     Xgraph
+j  1 2     d
+cid111
+j1d
+where for l  1 2     dj bl j  0 1djp11 is a column vector with zeroes in all compo-
+nents but 1s in components k  1dj  l k  1 2     p Furthermore for graph  0 1 we
+dene the condence intervals j  jz1
+ and for il  PANj ailj  iljz11 graph
+We give the calculation of ilj and j in Algorithm 2 below
+1graph
+January 11 2016
+As before additional notation claries what the entries of the cid98Hgraphs
+estimate
+cid98HPAjjgraph
+cid98HPAjj2graph
+cid98HPAjjpgraph
+cid98HPAjjkgraph 
+  cid98Hj with
+cid16hi1jkgraph hi2jkgraph     hidj jkgraph
+matrix actually
+cid17cid62
+k  1 2     p and i1 i2     idj  PAj 
+Finally we provide ecient computations for the covariance estimates that are necessary for
+the condence intervals around the estimated edge and vertex weights
+Algorithm 2 Let j  1 2     d such that PAj  0 and let i1 i2     idj  PAj
+with i1  i2       idj  For il j l  1 2     dj let eil j  0 1djp11 be a column
+vector with all entries zero but 1s at components k 1dj  l 1 k  1 2     p We compute
+ilj in the following way
+i Compute Clj  eil jcid62cid0Zcid62
+ii Set Uj  Yj graph Zj cid98Hj  Rnp1 Denoting Up1j Up2j     Unjcid62  Uj
+cid1  R1np
+j Zj1 Zcid62
+we have that
+cid32
+Xgraph
+graph  pcid88
+graphcid98Hcid62
+PAjjmgraph Xgraph
+kmPAj
+cid33
+for k  p  1 p  2     n
+cid0Zcid62
+iii Pointwise multiply Cj and Uj The sum of the squares of the result yields 2
+cid1  Rdjp1np multiply it point-wise with Uj from above take the sum of
+For the variance estimates corresponding to the j-th vertex weight consider the last row of
+squares of the results and multiply the result with 2
+j Zj1 Zj
+graph this yields 2
+ilj  R0
+Remark 2  The bin size graph for the graph estimation in Denition 33 will typically be
+much smaller than the bin-size skel for the skeleton estimation in Denition 32 Depending on
+the application after the graph estimation one might also want to delete edges with edge weight
+estimates non-signicantly dierent from zero or treat vertex weight estimates respectively im-
+migration intensities that are non-signicantly dierent from zero as zero see Figure 2 Also note
+that the latter could possibly be tested with a dierent signicance parameter vertex than the
+signicance parameter graph from the edge-weight estimation In any case the resulting Hawkes
+graph estimations ought to be checked for redundant vertices see Denition 25 If the estimate
+has redundant vertices the results are typically inconsistent with the dataas we typically ob-
+serve data in all components Therefore if a tted model has redundant vertices we increase
+skel graph andor vertex Thus we obtain more estimated non-zero immigration intensities
+andor larger estimated edge sets We proceed with increasing the signicance parameters until
+there are no redundancies left
+Given a Hawkes-graph estimate as in Denition 33 one may examine connectivity issues path-
+weights graph distances feedback and cascade coecients exploit graphical representations
+etc see the example in Section 4
+January 11 2016
+34 Estimation of the non-zero excitement functions
+For many applications the results discussed above may already suce In other applications
+however the graph estimation will only be a preliminary step and one would like to examine
+how the various excitements are distributed over time In other words one would like to explicitly
+estimate the reproduction intensities
+Parametric estimation Given the Hawkes estimator from Denition 31 the Hawkes model
+is not yet completely specied In particular 17 only yields estimates of the reproduction
+intensities on a gridcid26cid16
+cid17
+cid27
+ hijk
+k12p
+i  cid99PAj j  1 2     d
+One obvious possibility to complete the model specication would be the application of any kind
+of smoothing method on 21 We want to consider another approach we exploit 21 graphically
+examine loglog-plots idlog-plots check for local maxima convexconcave regions etc and
+identify appropriate parametric families The parameters can then be tted to the estimates 21
+via non-linear least-squares
+Definition 34 Consider a Hawkes-graph estimation as in Denition 33 with respect to some
+d-variate Hawkes process data and a bin size graph  0 For j  1 2     d and i  cid99PAj let
+ R  R0 be function families parametrized by ij  Iij  Rdij  With the notation
+hij
+from 21 let
+cid16
+cid0kgraph
+cid172
+cid1  hijkgraph
+i j  cid98E
+ij  argminIij
+and dene the parametric reproduction-intensity estimates
+pcid88
+cid40
+hpar
+hij
+cid18cid90
+hpar
+cid98Apar 
+t  R
+t  R
+i j  cid98E
+i j  cid98E
+cid19
+1ijd
+cid16
+cid17cid62
+cid16
+1dd  cid98Aparcid62cid17
+the parametric branching-matrix estimate
+and the parametric immigration-intensity estimates
+par 
+where emp denotes the observed empirical intensity emp  Ncid00 T cid1T  Rd10 
+     par
+emp
+par
+Remark 3  The denition of par in 23 is motivated by the equality
+cid16
+1dd  cid98Aparcid62cid171
+par  emp
+In other words with this choice of par the observed unconditional intensity exactly equals the
+estimated unconditional intensity This might be relevant in some applications eg simulation
+January 11 2016
+from a tted model The results from the simulation study below suggest that the parameter-
+estimates obtained from above are asymptotically normally distributed Finally note that it
+might often be more ecient to consider weighted least-squares in 22
+The above may be the only feasible way to retrieve parametric estimates MLEat least if it
+is applied in a straightforward mannermight require far too much computing time if the data
+contains many event streams with many events
+4 Example
+We illustrate the concepts introduced above with a ten-dimensional Hawkes model We perform
+a simulation study and apply the estimation methods from Sections 32 33 and 34 to the
+Hawkes skeleton the Hawkes graph and the reproduction intensity parameters
+41 Example model
+We consider a 10-dimensional Hawkes process N with immigration intensities
+cid40
+i  1 7 10
+i  2 4 5 6 7 8 9
+and reproduction intensities hij i j  1 2     102 dened for t  R by
+
+hijt 
+15 t
+1t1205
+1t1201
+i j  1 2 2 4 8 9
+i j  1 1 2 3 3 5 4 3 4 5 4 6 5 3 7 8 9 7
+i j  5 7
+Here  denotes a Gamma density with shape parameter 6 and rate parameter 4
+t  1t0t5 exp4t465 In Hawkes graph terminology we have 13 edges supplied
+with three dierent kinds of edge weights a heavy weight 15 for three edges a light weight
+05 for seven edges and one edge with a super-light weight 01 An illustration of the
+corresponding graph GN is much more meaningful than 25 see the left graph in Figure 1
+From this gure the various direct and indirect dependencies can be read o in a very direct
+way only the large nodes have non-zero immigration intensity a fat edge corresponds to an
+edge weight of 15 a thin edge corresponds to an edge weight of 05 the dashed line corresponds
+to the super-light edge weight 01 We examine the Hawkes-graph properties introduced in
+Denitions 26 and 28
+Redundancy The Hawkes graph GN has no redundant vertices all small vertices have a
+large vertex as one of their ancestors If vertex 1 were small the vertices 123456 would be
+redundant as they could not generate events
+Connectivity The Hawkes graph GN is not strongly connected The graph can be divided in
+two separate strongly-connected Hawkes subgraphs with vertex sets 1 2 3 4 5 6 7 8 9 and
+10 Deleting edge 5 7 01 would yield three separate strongly-connected Hawkes subgraphs
+January 11 2016
+Criticality The Hawkes graph GN is subcritical  all vertices but vertex 10 are part of closed
+walks It suces to check criterion 4 for vertices i  1 2 7 For vertex 1 we nd that
+and 1 1     1
+  05g g  N 
+cid124
+g times
+cid123cid122
+cid125
+Consequentlycid80
+cid124
+g times
+cid123cid122
+cid125
+g  1 1     1
+cid80
+2   W 2
+ g  N
+g  cid80
+g1 05g   For vertex 2 we nd that
+4  W 2
+1  W 2
+5   W 2
+3  2 4 6 2 4 6 2   
+g W 1
+3  2 4 6 2 W 2
+2 4 6 2 4 6 2  03752     criterion 4
+With 2 4 6 2  15  05  05  0375
+again follows For vertex 7 one argues analogously In other words as long as closed walks
+do not overlap we can construct large subcritical Hawkes graphs without calculating any
+eigenvalues When closed walks overlap the underlying combinatorics typically become too
+involved as to proceed in this manner In this case one could calculate the spectral radius
+of the adjacency matrix of the involved edges only For example if we wanted to introduce
+another edge 9 5 a95 in model 25 respectively Figure 1 we would have to calculate
+the spectral radius of the adjacency matrix corresponding to the Hawkes graph with edges
+3 5 05 5 3 05 5 7 01 7 8 05 8 9 05 9 5 a95 9 7 05
+the discussion
+after 4
+Cascade and feedback coecients We calculate the coecients from Denition 28 with
+respect to the example model
+cascadecoecients
+feedbackcoecients
+The cascade and feedback coecients are a summary of the branching dynamics of the process
+that is not regarding immigration intensities Cascade coecients consider the rst vertex Given
+exactly one immigrant event in each vertex approximately 42 of all the subsequent events will
+stem from the family triggered by vertex 1 whereas vertex 10 does not trigger any cascade at
+all Feedback coecients again given exactly one immigrant in each vertex for each vertex we
+check which proportion of all events is due to the immigrant in the vertex itself In our example
+for vertex 8 this means that we decrease its activity by 24 if we delete its outgoing edge For
+vertex 10 the feedback-coecient notion makes no sense because it experiences no excitement
+from any other vertex
+42 Simulation study
+We simulate nsim  1000 realizations of the Hawkes process N from Section 41 We use the
+branching construction from Denitions 22 and 24 as simulation algorithm In each realization
+alphaskel nedges
+Table 1 skel  02
+total heavy
+superlight
+January 11 2016
+Figure 1 Hawkes process simulation Hawkes graph and estimated Hawkes skeleton The left graph represents
+the Hawkes graph corresponding to the Hawkes process example from Section 41 the graph is a summary of
+the immigration and branching structure of the model edges from one vertex to another vertex denote non-
+zero reproduction intensities respectively excitement Fat edges refer to heavy excitement 15 expected children
+events in branching construction thin edges to small excitement 05 expected children and the dotted line refers
+to a very small excitement 01 expected children see 25 Large vertices correspond to nonzero immigration-
+intensities 1 and small vertices to the zero immigration-vertices see 24 The barcode plots illustrate a 30
+time-units window of a simulated realization of the model after some burn-in we observe events of ten types
+respectively in ten components One goal of our paper is to retrieve the graph on the left from such a realization
+As a rst step towards this aim we calculate the Hawkes-skeleton estimate from Denition 33 with respect to
+a coarse bin-size skel  1 and a sparseness parameter skel  005 The right graph illustrates this estimate
+This skeleton will be used in a second step to retrieve the Hawkes-graph estimate see Figure 2 Comparing the
+skeleton with the true graph on the right we see that we catch all the twelve of the thirteen true edges We miss
+edge 5 7 Furthermore we introduce four additional wrong edges 1 8 2 58 6 9 5 and 10 9 The three
+crucial points to notice are i The false-positive edges do not introduce additional bias in the graph estimation
+ii Due to the coarse skel-value the calculation of the skeleton estimate is computationally simple iii The
+resulting skeleton estimate is nearly as sparse as the true skeleton and thus reduces the complexity of the graph
+estimation with a very ne graph-parameter extremely See Figure 2 for the Hawkes-graph estimation with
+respect to the skeleton estimate from above
+1234567891012345678910January 11 2016
+alphaskel nedges
+Table 2 skel  05
+total heavy
+superlight
+Table 3 skel  1
+alphaskel nedges
+total heavy
+superlight
+Table 4 skel  2
+alphaskel nedges
+total heavy
+superlight
+we simulate a time window of 500 time units This typically yields between 500 and 2000 events
+per component Given each of these realized event streams we calculate the Hawkes-skeleton
+estimator from Denition 32with respect to dierent values of skel and skel Given these
+skeleton estimates we calculate the Hawkes-graph estimator from Denition 33including con-
+dence bounds for all vertex and edge weights Finally we analyze the scatterplots for branching-
+intensity estimates choose parametric function families and t the parameters on the estimates
+by nonlinear least-squares Figures 1 and 2 illustrate the procedure
+0005 001 005 01 025 We denote the estimated edge sets by cid98Ekk12nsim and the
+Hawkes-skeleton estimation We x s  5 and
+for each simulated event-stream we
+calculate the Hawkes-skeleton estimates from Denition 32 with respect to this support
+parameter s bin-sizes skel  02 05 1 2 and various sparseness-parameters skel 
+true edge set by E Using this notation we summarize the results of the simulation study in
+Tables 1 2 3 and 4 with the following statistics
+size of
+estimated edge-sets
+true number
+is 13
+cid80nsim
+a nedges average
+k1 Eknsim
+b total fraction of correctly estimated edges that is
+cid80nsim
+cid80
+ijE 1ijcid98Ek
+nsimE
+Note that 1  total is the false-negative rate
+c heavylightsuperlight more detailed version of b above fractions of correctly estimated
+edges with heavy 15 light 05 and super-light 01 edge weights
+January 11 2016
+d zero fraction of correctly left-out edges ie of pairs i j  cid98V 
+Nk such that i j  VN
+cid80nsim
+cid80
+cid0d2  Ecid1
+ij E 1ij cid98Ek
+Note that 1  zero is the false-positive rate
+First we consider the estimations with respect to bin-size skel  02 see Table 1 We note from
+the last column zero that the false-positive rate is indeed very close to the value of the chosen
+theoretical signicance level skel Going back to Denition 32 we see that the larger skel
+the more edges are included in the Hawkes-skeleton estimation This is reected in all of the
+columns However even for very small skel we detect all of the edges with a heavy edge-weight
+and most of the edges with light edge weight The edge 5 7 with the super-light weight 01 is
+obviously a hard-to-detect alternative to the zero hypothesis Note that Tables 2 3 and 4 look
+roughly the same as Table 1 one abovethough the estimates were calculated with respect to
+completely dierent bin-sizes skel
+So in this rst estimation step we may use a very coarse bin-size skel This makes the
+calculations underlying skeleton estimation feasible even for much higher dimensions
+The main purpose of the skeleton estimation is to lay the ground for the graph estimation that
+itself depends on a given estimated skeleton see Denition 33 Missing edges in the skeleton
+estimate will typically introduce a bias for the graph-weight estimates We therefore want to
+keep the false-negative rate in the skeleton estimation very small As a consequence we need
+skel large Note that false-positive edges do not add additional bias in the graph estimation see
+Section 33 So the increase of the false-positive rate that is the decrease in the zero-column
+does not prevent us from increasing the skel-parameter Note however that the whole reason
+of the two-step estimation procedure is that in the rst step we want to take advantage of the
+sparseness of the underlying true Hawkes graph and reduce the complexity of the a priori fully
+connected network Too many additional false-positive edges would hamper this advantage
+In this sense not only skel but also skel can be understood as a parameter controlling the
+numerical complexity of the method the smaller skel the sparser the estimated skeleton the
+less complex the computations for the Hawkes-graph estimate from Denition 33 We see in
+our tables that for all choices of skel and all values of skel we typically catch all the true
+edges ie the false-negative rate is really small In the next section we will see that the graph
+estimates are not very sensitive to the skel parameter in the skeleton estimation
+Simulation study Hawkes-graph estimation As a next step we quantify the estimated
+excitements That is given a Hawkes skeleton we estimate the corresponding graph as in De-
+nition 33 see Figure 2
+We do this both with respect to the true skeleton and with respect to the estimated skeletons
+from the rst estimation step For comparison we apply the skeletons with respect to dierent
+skel-parameters we only consider the ones with respect to skel  1 As opposed to the skeleton
+estimation we may now use a much smaller bin-size graph  01 In the present example this
+is about the lower bin-size bound for tolerable computing time for the simulation study using a
+23 GHz Intel Core processor about 10sec for each of the estimations Furthermore we apply
+s  5 and graph  005 in the calculation For each simulation we also calculate the condence
+bounds for all vertex and edge weights Table 42 reports the coverage rates
+The coverage rates of the graph estimations that were calculated with respect to the true
+underlying skeleton correspond well with the signicance parameter graph  005 Naturally
+the coverage rates for the estimates with respect to the estimated skeleton are smaller as soon as
+the estimated skeleton misses an edge eg the edge 5701 with the super-light weight the
+model calibration balances this missing possibility of excitement by increased baseline intensities
+or increased edge weights The larger skel the lower the probabilty of missing an edge the
+January 11 2016
+Figure 2 Hawkes-graph estimation Given a single simulation of length T  1000 from the example model in
+Section 41 we calculate the Hawkes-graph estimator from Denition 33 with respect to the Hawkes-skeleton
+estimation from Figure 1 we apply a bin-size graph  0025 and a signicance parameter graph  005 This
+calculation allows us to supply each vertex and each node from this estimated skeleton with condence intervals
+for their weights in the corresponding Hawkes graph The edge widths are chosen proportional to the estimated
+edge-weights Estimated edge-weights that are not signicantly larger than zero are illustrated as a dashed edge
+Similarly vertices where the condence interval for the vertex weight contains 0 are plotted as smaller circlesthe
+corresponding condence bounds are left away in this case Comparing the results with the true Hawkes graph
+in Figure 1 respectively with the Hawkes process parametrization in 24 and 25 we see that for all correct
+edges the true weights are covered by the condence intervals And for the wrong additional edges from the
+skeleton estimation 1 8 2 58 6 9 5 we see that their weights are not signicantly dierent from zero
+graph  005 The estimated edge weight for the wrong edge 10 9 is signicantly larger than zero but still
+small All vertex weights but the weight of vertex 7 are also covered by the condence intervals The weight of
+vertex 7 is overestimated because in the skeleton estimation we missed the light edge 5 7 01 this missing
+explanatory variable for the events in component 7 is compensated by a too large vertex weight in the graph
+estimation Deleting all insignicant edges and setting the vertex weight of the insignicant vertex-weights to
+zero we recover the original underlying graph almost perfectly
+12345678910039 059136 168003 01039 055041 051002 019034 054022 057136 159037 059038 05405 069014 022139 168005 013033 051007 042084 122129 159095 107January 11 2016
+Table 5 graph  01 and graph  005
+appliedskeleton
+alphaskel  0005
+alphaskel  001
+alphaskel  005
+alphaskel  01
+alphaskel  025
+true skeleton
+vertexweightcoverage
+edgeweightcoverage
+Figure 3 Parametric estimation From a realization of the example model from Section 41 we calculate Hawkes-
+skeleton and Hawkes-graph estimate from Denitions 32 and 33 see Figures 1 and 2 As a by-product of these
+calculations we retrieve estimates for the values of the reproduction intensities h12 circles in left panel on an
+equidistant grid see 20 The grey solid line in the left panel refers to the true underlying functions see 25
+For the pointwise estimates in the top right panel the underlying parametric Gamma-family can be guessed We
+t the three necessary parameters by non-linear least squares as described in Section 34 the dotted line refers
+to the corresponding estimated parametric functions The boxplots collect the parameter estimates for each of
+the 1000 estimations of the simulation study the grey horizontal lines refer to the true values Repeating this
+procedure for all estimated reproduction intensities we can fully specify a Hawkes model
+better the coverage rates Note however that at the same time the corresponding skeleton
+estimate becomes increasingly dense and with it the graph estimation becomes increasingly
+time-consuming
+Parametric reproduction intensity estimation Finally we check how the various excite-
+ments are distributed over time As examples we examine the reproduction intensity h12 From
+the calculation of the Hawkes graph estimate we retrieve estimates of the excitement function
+values on an equidistant grid see 20 Based on the scatter plots of these estimates we choose
+appropriate parametrized function families Given such parametric functions the parameters are
+t to the point-wise estimates via non-linear least-squares see Figure 3 QQ-plots not included
+support asymptotic normality for the parameter estimates
+llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll01234505000510timeintensityshapeestrateestfactorest246810January 11 2016
+5 Conclusion
+We introduce the Hawkes graph and the Hawkes skeleton We describe the immigration and
+branching structure of a Hawkes process in a graph-theoretical framework Combining the new
+concepts with an estimation procedure from earlier work we develop a statistical estimation
+method for the Hawkes graph The key idea is that in a preliminary step we only test if there
+is excitement from any vertex to another vertex at all We show that this rst step is relatively
+simple to implement The knowledge of the Hawkes skeleton makes the second step the esti-
+mation of the Hawkes graph much more ecientboth from a computational and statistical
+point of view The simulation study shows that the procedure works as desired As long as the
+true underlying graph is sparse eg if the typical number of parents of a node is not larger
+than ve and does not depend on the dimension of the process the approach may be applied in
+even higher-dimensional situations In any case the method may be a useful tool for preliminary
+analysis when examining large multi-type event stream data in the Hawkes framework It might
+be worthwile to study the distributional properties of the parameter estimates from Section 34
+in more detail
+Note that the graph representation would also apply for discrete-time event-stream models ie
+for multivariate time series of counts More specically the present paper could have been devel-
+oped in complete analogy for multivariate integer-valued autoregressive time series INAR
+which can be interpreted as discrete-time versions of the Hawkes process see Kirchner 2015b
+In this latter case all results that we apply in our paper would be valid without taking any
+discretization error into account In any case when applied to real data the discretization error
+is not the major drawback of our method our method does indeed solve the important problem
+of how to decide whether an edge between two components exists at all But for the specica-
+tion of a Hawkes process we need to solve anothereven more importantissue We want to
+be able to decide whether we observe a complete Hawkes graph or whether our data lack some
+non-redundant vertices In particular the method presented will also yield reasonable results for
+data stemming from models with no or less underlying causality The seeming excitement can
+then be explained by a confounding factor that we do not observe and ignore We believe in
+view of the widespread interpretation of the Hawkes model as a causal model an interpreta-
+tion we share it would be of utmost importance to derive tests for the presence of such hidden
+confounding in the event-stream context
+Acknowledgements
+This research has been supported by the ETH RiskLab and the Swiss Finance Institute The
+authors wish to express their gratitude to all the R-programmers providing and maintaining
+powerful statistical software For our work the igraph package Csardi and Nepusz 2006 and
+the Matrix package Bates and Maechler 2015 have been particularly helpful We thank Vladimir
+Ulyanov for his comments on an earlier version of the paper which improved the presentation a
+References
+Bacry E Dayri K and Muzy J Non-parametric kernel estimation for symmetric Hawkes processes
+Application to high frequency data The European Physical Journal B 2012 85 157
+Bacry E S Gaas and Muzy JF A generalization error bound for sparse and low-rank multivariate
+Hawkes processes ArXiv e-prints 2015
+Bates D and Maechler M Matrix Sparse and Dense Matrix Classes and Methods R package version
+11-5 2015 httpCRANR-projectorgpackageMatrix
+January 11 2016
+Csardi G and Nepusz T The igraph software package for complex network research InterJournal
+2006 Complex Systems 1695
+Daley D and Vere-Jones D An Introduction to the Theory of Point Processes Second Edition  Vol I
+and II  2003 Springer
+Delattre S Fournier N and Homann M Hawkes processes on large networks PNAS 2015 105
+Gunawardana A Meek C and Xu P A model for temporal dependencies in event streams Microsoft
+Research 2014
+Haccou P Jagers P and Vatutin V Branching Processes 2005 Cambridge University Press
+Hall EC and Willett RM Tracking Dynamic Point Processes on Networks ArXiv e-prints 2014
+Hawkes A Point spectra of some mutually-exciting point processes Journal of the Royal Statistical
+Society Series B 1971a 33 438443
+Hawkes A Spectra of some self-exciting and mutually-exciting point processes Biometrika 1971b 58
+8390
+Hawkes A A cluster representation of a self-exciting point process Journal of Applied Probability 1974
+11 493503
+Hawkes T On the class of the Sylow tower groups Mathematische Zeitschrift 1968 105 393398
+Jagers P Branching Processes with Biological Applications 1975 John Wiley and Sons
+Kirchner M An estimation procedure for the Hawkes process Working Paper ETH Zurich 2015a
+Kirchner M Hawkes and INAR processes Working Paper ETH Zurich 2015b
+Liniger T Multivariate Hawkes Processes PhD thesis ETH Zurich 2009
+Meek C Toward learning graphical and causal process models Microsoft Research 2014
+Ogata Y Statistical models for earthquake occurences and residual analysis for point processes Journal
+of the American Statistical Association 1988 83 927
+Pearl J Causality Models Reasoning and Inference Second Edition  2009 Cambridge University
+Song L Zha H and Zhou K Learning social infectivity in sparse low-rank networks using multi-
+dimensional Hawkes processes Proceedings of the 16th International Conference on Articial Intelli-
+gence and Statistics AISTATS 2013 31

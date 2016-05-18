@@ -1,0 +1,1065 @@
+EPJ manuscript No
+will be inserted by the editor
+Non-parametric kernel estimation for symmetric Hawkes
+processes Application to high frequency nancial data
+Emmanuel Bacry1 Khalil Dayri1 and Jean-Francois Muzy12 a b
+1 CMAP UMR 7641 CNRS Ecole Polytechnique 91128 Palaiseau France
+2 SPE UMR 6134 CNRS Universite de Corse 20250 Corte France
+December 9 2011
+Abstract We dene a numerical method that provides a non-parametric estimation of the kernel shape
+in symmetric multivariate Hawkes processes This method relies on second order statistical properties
+of Hawkes processes that relate the covariance matrix of the process to the kernel matrix The square
+root of the correlation function is computed using a minimal phase recovering method We illustrate our
+method on some examples and provide an empirical study of the estimation errors Within this framework
+we analyze high frequency nancial price data modeled as 1D or 2D Hawkes processes We nd slowly
+decaying power-law kernel shapes suggesting a long memory nature of self-excitation phenomena at the
+microstructure level of price dynamics
+PACS 0250Ey Stochastic processes  0545Tp Time series analysis  0270Rr General statistical meth-
+ods  8965Gh Economics econophysics nancial markets business and management
+1 Introduction
+Although the concept of self excitement was commonly
+used for a long time by seismologists see 30 and the ref-
+erences therein Alan Hawkes was the rst to provide a
+well dened point process with a self exciting behavior 13
+1419 This model was introduced to reproduce the rip-
+ple eects generated after the occurrence of an earthquake
+311 Since then it has been successfully used in many
+areas ranging from seismology see eg 23 for a recent
+review biology 28 to even criminology and terrorism
+2110 cf 19 and references therein for a detailed review
+of Hawkes processes and their applications As far as -
+nancial applications are concerned since transactions and
+price changes are discrete events Hawkes processes have
+naturally been generating more and more interest Appli-
+cations can be found in the eld of order arrival rate mod-
+eling 16729 noise microstructure dynamics 2 volatil-
+ity clustering 11 extreme values and VaR estimation 8
+and credit modeling 12
+Hawkes models account for a self exciting behavior of
+events by which the arrival of one event increases the prob-
+ability of occurrence of new ones In its most basic form
+and in the one dimensional case the Hawkes process is a
+counting process dened by t the rate of arrival of events
+a This research is part of the Chair Financial Risks of the
+Risk Foundation
+b The nancial data used in this paper have been
+provided by the company QuantHouse EUROPEASIA
+httpwwwquanthousecom
+t   Z t
+tsdNs
+where   0 is a constant background rate Nt is the
+cumulative counting process and  a positive real function
+called decay kernel We can clearly see in equation 1 that
+when some event occurs at time t we have dNt  1 and
+hence dt  0 The inuence of the event is transmitted
+to future times through  such that at time u  t the
+increase in t due to the time t event is ut Thus a self
+exciting behavior is observed
+A basic issue in applications of Hawkes processes con-
+cerns their estimation In early applications parametric
+estimation used spectral analysis by means of the Bartlett
+spectrum the Fourier transform of the autocovariance of
+the process 45 and it was indeed through that light
+that Hawkes presented his model A maximum likelihood
+method for estimating the parameters of exponential power
+law and Laguerre class of decay kernels was developed in
+2624 and it became the standard method for estimating
+Hawkes processes Furthermore the Laguerre decay ker-
+nels were seen to be very pertinent decay kernels because
+they allowed to account for long term dependencies as well
+as oering short term exibility More recently other types
+of estimation procedures were developed When the form
+of the decay kernel is unknown non-parametric methods
+are desirable because they give an idea of their general
+shape For example by using the branching property of
+the Hawkes process 32 the authors in 20 and 18 were
+able to provide Expectation-Maximization algorithms to
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+estimate both background rate and the decay kernel In
+28 the authors present also an algorithmic method for
+decay estimation by using a penalized projection method
+In this paper we propose an alternative simple non
+parametric estimation method for multivariate symmet-
+ric Hawkes processes based on the Bartlett spectrum We
+present the method and its numerical feasibility without
+going too much in details about convergence speeds or
+error optimization By studying one dimensional and 2-
+dimensional examples we show that our approach pro-
+vides reliable estimates on both fast and slowly decaying
+kernels We then apply our method to high frequency -
+nancial data and nd power-law kernels This implies that
+the arrival of events display long range correlations a phe-
+nomenon well known in nance similarly to what was sug-
+gested in 6
+This paper is organized as follows In section 2 we in-
+troduce a basic version of a multivariate Hawkes processes
+We place ourselves in the context of an ndimentional lin-
+ear Hawkes process with a constant background rate and a
+nonnegative decay kernel We set some notations and give
+out a martingale representation of the rate function t in
+Eq 1 In section 3 we study the autocovariance of the
+process Along the same line as 14 we establish its rela-
+tionship with the decay kernel in both direct and Fourier
+spaces The estimation method in the case of symmet-
+ric Hawkes processes is then provided in section 4 This
+method based on a Hilbert transform phase recuperation
+method is explicitly detailed in both univariate and spe-
+cial symmetric bivariate cases In section 5 the method
+is illustrated by numerical examples for both exponential
+and power law kernels We also address some statistical is-
+sues concerning the estimation errors Finally in section 6
+we apply our method to high frequency nancial data for
+which we deduce a long range nature of the decay kernels
+2 Multivariate Hawkes Processes
+21 Notations and Denitions
+As introduced by Hawkes in 13 and 14 let us consider
+an n-dimensional point process Ntt0 where N i
+t 1  i 
+n represents the cumulative number of events in the ith
+component of the process Nt up to time t
+The conditional intensity vector at any time t is as-
+sumed to be a random process that depends on the past
+t   Z t
+tsdNs
+where  is a vector of size n with strictly positive compo-
+nents i  0 and t is an n  n matrix referred to as the
+decay kernel
+Notations 1 In the following
+ MnpR resp MnpC denotes the set of n  p ma-
+trices with values in R resp C For any matrix M
+resp vector v M ij resp vi denotes its elements
+its Laplace transform
+ For any function ft bfz  RR eztftdt corresponds to
+ By extension if Mt  MnpR then cMz  MnpC
+corresponds to the matrix whose elements are the Laplace
+transforms of the elements of Mt
+Using these notations one of the main results of Hawkes
+is that if
+H1 the kernel t  Mnn is positive ij
+t  0 t and
+causal t  0 t  0
+H2 the spectral radius of b0 ie its largest eigen value
+is strictly smaller than 1
+then Ntt0 is a n-dimensional point process with sta-
+tionary increments The conditional intensity t is itself a
+stationary process with mean
+  Et  EdNtdt
+  I b01
+Combining this last equation with Eq 2 one easily gets
+0 udu and consequently
+   R t
+tsds   R 
+where I refers to the n  n identity matrix
+Before moving on we need to introduce some more
+notations that will be used all along the paper
+Notations 2 If At  MmnR and Bt  MnpR then
+the convolution product of At and Bt is naturally dened
+as A  Bt  RR AsBtsds  RR AtsBsds Of course it
+is associative and distributive however it is generally not
+commutative unless At and Bt are commutative The
+neutral element is It ie the diagonal matrix with Dirac
+distribution on the diagonal In the following we will use
+the notation 
+A  dNt ZR
+AtsdNs
+Combining both Notations 1 and 2 it is easy to show that
+the convolution theorem on matrices translates in
+A  Bz  bAzbBz
+22 Martingale representation of t
+We roughly follow a similar path to Hawkes in 14 Let
+Mtt0 be the martingale compensated process of Ntt0
+dened by
+dMt  dNt  tdt 
+Then t can be represented as a stochastic integral with
+respect to the martingale Mtt0
+Proposition 1 One has
+t      dMt
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+where t is dened as
+Proof By using equation 5 we can write
+n
+Xn1
+refers to the nth auto-convolution of t ie
+where n
+n
+z  bzn
+Proof Using equations 2 and 5 one has
+t      dNt      dMt    t
+and consequently
+I    t      dMt
+Let us note that the inverse of It  t for the convolution
+product is nothing but ht  It  t Thus convoluting
+on each side of the last equation by ht one gets since
+h  t  t
+t  h      dMt
+Since  is a constant one has h    bh0 Using the
+convolution theorem one gets bh0  I  b01  
+which proves the proposition
+3 The covariance matrix of Hawkes processes
+The kernel estimator we are going to build is based on
+the empirical auto-covariance of Ntt0 This section is
+devoted to the covariance matrix of the n-dimensional
+Hawkes processes However we rst discuss some useful
+results about their innitesimal auto-covariance function
+31 The innitesimal covariance
+Let us dene the innitesimal covariance matrix
+tt  EdNtdNt 
+where M denotes the hermitian conjugate of a matrix
+M  Along the same way as Hawkes in 14 tt can be
+related to the decay kernel  We present in proposition 2
+an equation linking the innitesimal covariance matrix to
+ and  but unlike Hawkes we express  explicitly as a
+function of  and  instead of an integral equation in 
+This result will be at the heart of the estimation method
+we propose in this paper
+Proposition 2 Let Ntt0 be an n-dimensional Hawkes
+process with intensity t as dened in Section 21 as-
+following result
+suming both H1 and H2 Let et  t We have the
+EdNtdNt cid16  tt  tt   tt
+ e  ttcid17 dtdt
+where  is the diagonal matrix dened by ii  i for all
+1  i  n and t is the Dirac distribution
+EdNtdNt  EdMt  tdtdMt  t dt
+ EdMtdMt 
+EtdMt dt
+EdMtt dt
+Ett dtdt
+We begin by noticing that thanks to martingale prop-
+erty EdMtdMt  0 t 6 t As for when t  t we
+have for all 1  i  j  n
+t   0
+since the N is and hence the M is for 1  i  n have no
+jump in common Moreover for i  j we have
+t   idt
+t   idt since the jumps of Nt are of size 1 To
+because EdM i
+sum up the term 9 becomes
+t  and EdN i
+t   EdN i
+EdMtdMt  ttdtdt
+The remaining terms can be then calculated along the
+same line Replacing ts expression from equation 6 in
+the term 10 gives
+or in other words
+EtdMtdt  Ecid16  dMtdMtcid17 dt
+EtdMt dt ZR
+EtdMt dt ZR
+tsstdsdtdt
+tsEdMsdMtdtds
+and thanks to equation 13
+that is simplied to
+EtdMt dt  tt dtdt
+Similarly the term 11 becomes
+EdMtt dt  ttdtdt
+and nally using Eq 13 the term 12 can be written
+cid18 ZR
+cid18 ZR
+Ett dtdt cid16Et   E  dMttcid17 dtdt
+tsEdMst dscid19 dtdt
+tstsdscid19 dtdt
+Ett dtdt cid16 e  ttcid17 dtdt
+which ends the proof of the proposition
+By setting u  t  s we get
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+32 The covariance matrix
+and conversely
+The normalized covariance matrix of the Hawkes process
+can be dened at scale h and lag   by
+  h1Cov Nth  Nt Nth  Nt  
+where we normalized by h in order to avoid a trivial scale
+dependence Let us note that since the increments of Nt
+are stationary the previous denition does not depend on
+t Thus it can be rewritten as
+dNs  hZ  h
+dNs  h 18
+It is clear that this quantity can be easily estimated on
+real data using empirical means As we will see the non
+parametric estimation of the decay kernel we propose in
+this paper is based on these empirical estimations More
+precisely it is based on the following Theorem
+Theorem 1 Let gh
+as a function of gh
+t  1  th  vh
+can be expressed
+and  
+  gh
+Proof Let us begin the proof by noticing that for any func-
+tion f with values in R we have
+fttdtdt  f  gh
+ gh gh ghe  19
+h1Z h
+0 Z  h
+dNsZ  h
+ Z h
+dNsh  hZ  h
+0 Z  h
+dNs  h2
+dNtdNt  h2 
+It follows that
+Using equation 8 we can split dNtdNt into four parts
+and write
+tt
+0 Z  h
+ tt  tt e  ttcid17 dtdt
+By applying equation 20 to each of the terms under the
+double integral we get equation 19 and achieve the proof
+It is more convenient to rewrite the result of theorem
+z  Eq 7 trans-
+n
+32 in Laplace domain Since
+lates into 
+z  bn
+z  bzI bz1
+Xn1bn
+Theorem 32 gives way to the following corollary
+Corollary 1 In Laplace domain equation 19 becomes
+bz  I bz1cz
+z bgh
+I bz I bz 
+4 Non-parametric estimation of the kernel t
+41 The estimation principle
+In this paper we aim at building an estimator of t based
+on empirical measurements of vh
+ Let us note that empir-
+ical measurements of vh
+are naturally obtained replacing
+probabilistic mean by empirical mean in Eq 18 see 3
+for proof of convergence of the empirical mean towards
+the probabilistic mean Thus in order to build an es-
+timator we need to express t as a function of vh
+z which exactly corresponds
+to inverting Eq 23 ie computing the square root of
+the Laplace domain since a given bz corresponds to a
+unique bz through Eq 22 it translates in trying to
+express bz as a function ofbvh
+I  bz I bz  Indeed knowing bz one easily gets
+bz from Eq 22 and nally t Actually let us note
+that from a practical point of view we dont need to work
+in the full complex domain z  C of the Laplace trans-
+form Working with the Fourier transform restriction ie
+z  i with   R is enough to recover t
+ The rst problem that
+seems to appear for inverting this formula 23 ie ex-
+only for z  i is the
+t  1
+i  42h sin2h2
+h  n  Z n 6 0 Actually
+Dealing with cancelations ofbgh
+pressing bz as a function of bvh
+scalar termbgh
+th  its Fourier transform bgh
+cancels for all  of the form 2n
+this is not a real problem as long as
+  in the empirical estimation of vh
+that may vanish Indeed since gh
+is sampled using
+a sampling period  greater than h2
+have a compact support
+i can be considered to
+  is small enough so that bvh
+Indeed if this is the case then the estimation ofbvh
+i prac-
+tically obtained by taking the Discrete Fourier Transform
+DFT of the sampled signal vh
+kk will be equal on
+  to the product of the DFT of gh
+does not vanish since    h h and
+a real problem So in the following we will write
+as h is small enough so that  can be chosen greater than
+h and small enough dividing on both hand sides Eq 23
+is not from a practical estimation point of view
+the DFT of  e    e   Consequently as long
+by bgh
+without bothering with eventual cancelations ofbgh
+I bz I bz  bvh
+z bgh
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+The proof is based on the following theorem
+Theorem 2 Paley-Wiener 27 Lets suppose that we
+observe the amplitude bfi of the Fourier transform of a
+real lter ft If
+logbfi
+1  2 d  
+then the lter gt dened by its Fourier transform
+bgi  elog bfiiHlog bfi
+is the only causal lter ie supported by R which is
+z  1  Dkk
+be innite unless z  0
+Proof of the Lemma It is a simple application of this the-
+i 1 Indeed let us
+1 is a minimal phase lter
+ie that both the poles and zeros are such that z  0
+z 1 then it is a pole of
+ Let z be a zero of 1  Dkk
+a phase minimal lter1 and which satises bgi  bfi
+orem with bfi pEkk
+rst show thatbgz  1Dkk
+z and consequently of bz However from H1 and
+H2 one concludes that bz  R 
+Thus 1 is an eigenvalue of b0 which is in contradiction
+Consequentlybgz  1  Dkk
+z 1 has no pole
+z 1 is a minimal phase lter
+Moreover since every coecients of t are positive and in
+L1 the Fourier transforms Dkk
+i  for any k are continuous
+functions of  and goes to 0 at innity Along with the fact
+z 1 has no pole and has its zeros on the half-
+that 1  Dkk
+z 1
+satises 30 The theorem above can be applied and the
+Lemma follows
+plane z  0 we easily conclude that bfi  1Dkk
+z 1 It thus satises Dkk
+ Let z be a pole of 1Dkk
+with H2 Thus 1  Dkk
+ezttdt cannot
+Main steps for kernel estimation The dierent steps
+for the nal kernel estimator in the fully symmetric case
+can be summarized as follows
+ Set  small enough see Section 41 and x h  
+ Estimate the unconditional intensity 
+ Estimate the auto-covariance operator vh
+and com-
+pute its Fourier transformbvh
+ Compute IbiIbi using Eq 24 Diagonalize
+ Compute the diagonal matrix Di using 29
+ Go back to the initial basis and Inverse Fourier trans-
+it and compute the matrix Ei dened by Eq 27
+for z  i using Eq
+the estimation process once we have estimated vh
+Computing the square root of I  bz I  bz  In
+consequently through DFT bvh
+24 we can estimate I  bz I  bz  We need to
+go from there to the estimation of bz then using Eq
+22 we get bz and then by inverse Fourier transform t
+it means being able to go from 1  bz2 to bz There is
+clearly a phase determination problem We will see that
+in dimension n  1 this phase is uniquely determined
+by the hypothesis H1 and H2 However in dimension
+n  1 they are many possible solutions and determining
+the correct one is not necessarily possible in general We
+need to make a strong additional hypothesis
+This problem requires therefore to take the square root
+of the left hand side of Eq 24 In dimension n  1
+42 Further hypothesis on the kernel t
+In the following we suppose that
+H3   I with  i Ei
+onalized into a matrix D with some constant unitary
+matrix U that does not depend on z
+t    R and bz can be diag-
+bz  UDzU
+Let us point out that though always true in dimension
+n  1 H3 is a strong hypothesis for dimension n  2
+Clearly it is satised in the case all the components of
+the process are identically distributed ie the process is
+invariant under arbitrary permutations Other cases are
+very specic and consequently are not discussed in this
+43 The estimator
+Using Eq 21 along with H3 one gets that I  bz is
+diagonalizable in the same basis U and that
+and thus from 24 one gets
+I bz  UI  Dz 1U
+z Ubgh
+Ez  Ubvh
+z  1  Dkk
+z 2
+where Ez is the diagonal matrix with the real positive
+coecients 
+form to get the estimation of t
+So the estimation problem reduces to being able to re-
+z  1 
+z 2 This problem is solved by the following Lemma
+cover the coecients Dkk
+from the coecients Ekk
+44 Some particular cases
+Lemma 1 Let k be xed Let z  i with   R Then
+441 The one dimensional case n  1
+1  Dkk
+i 1  e
+2 log E kk
+i iH 1
+2 log E kk
+i 
+As we already pointed out the hypothesis H3 is always
+true in this case since all the functions are scalar functions
+where the operator H refers to the Hilbert transform
+1 a minimal phase lter 25 is a lter whose all the zeros and
+the poles of its Laplace transform satisfy z  0
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+Thus the phase determination problem is solved without
+adding any assumption apart from H1 and H2 The kernel
+estimator simply consists in rst computing
+1 bi2  bvh
+bgh
+and then inverse Fourier transform of
+bi  1  e log 1 biiHlog 1 bi
+442 The bisymmetric 2-dimensional case n  2
+In the two-dimensional case the hypothesis H3 is satised
+in the particular case
+1  2
+and the kernel t is bisymmetric ie has the form
+t cid18 11
+t cid19
+decomposed as follows
+The matrix of the Laplace transform bz can be indeed
+bz  Ucid18 b11
+where U  12cid18 1 1
+1 1cid19
+z b12
+z cid19 U
+z b12
+Diagonalizing and identifying the diagonal coecients
+in both hand sides of 27 leads to
+i b 12
+i b 12
+ 1 b 11
+ 1 b 11
+i bvh12
+bvh11
+bgh
+i bvh12
+bvh11
+bgh
+bz  I bz1bz
+Applying the same method used in the case n  1 to
+we apply
+these last two equations we get an estimate of b  Finally
+giving b Applying the inverse transform to b we nally
+In the following section we illustrate these results and
+get 
+our methods on numerical simulations of 1D and 2D Hawkes
+processes
+5 Numerical illustrations
+Let us discuss some examples illustrating the estimation
+method as dened previously using simulated Hawkes pro-
+cesses All the simulations have been performed with the
+thinning algorithm described in 22
+We estimate vh
+from the realization of a Hawkes pro-
+cess Xt t  0 1D or 2D We then strictly follow the
+method described in previous section in order to estimate
+the decay kernel  vh
+is sampled at rate  ie   n
+up to a maximum lag max As explained in Section 41
+in order to avoid problems related to the zeros ofbgh we
+naturally choose h   From a practical point of view
+ has to be chosen small enough in order to avoid Fourier
+aliasing
+51 The case n  1
+511 Exponential kernel
+We rst simulate a one dimensional Hawkes process with
+an exponential kernel
+t  et1t0
+where we choose   1   1   4 This gives
+b0  14   43 The simulated sample contains 130000
+jumps it is approximately T  105 seconds long In g-
+ure 1a we have reported the estimated kernel function
+t circles on top of the true kernel solid line We see
+that the estimated kernel function is up to some noise
+very close to the real kernel
+512 Power Law Decay
+We now consider a power-law decaying kernel dened as
+t  t   1t0
+1 1 We
+with   1 In this case we have b0   
+choose   32 and   5 and   2 makingb0  05  1
+and   2 again with 130000 jumps T  65000 secs The
+kernel estimated on a single sample is reported in 1b
+Once again one can see that up to an additive noise the
+estimated kernel ts well the real one Let us point out
+that since the decay is much slower than in the previous
+exponential case we chose the maximum lag max to be
+ten times as much
+513 Error Analysis
+Let us briey discuss some issues related to the errors asso-
+ciated with our kernel estimates In ref 3 a central limit
+theorem has been proved that shows that asymptotically
+the errors of the empirical covariance function estimates
+are normally distributed with a variance that decreases as
+T 1 or N1 for  xed One thus expects the same kind
+of results in the estimates of the components of 
+Let us dene the L2 estimation error as
+Xk1
+k  e
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+Fig 1 Non parametric estimation of a one dimensional
+Hawkes process using method described in Section 441 from a
+unique realization with 130000 jumps Estimated  and ana-
+lytical kernel solid line are shown a Case of the exponential
+decay kernel  Eq 39 with   1   4 We used   001
+and max  2 b Case of the power-law decay kernel  Eq
+40 with   32   5 and   2 We used   005
+and max  20
+where e is the estimated kernel In Fig 2a we have
+reported e2 as a function of the sample length T for the
+same realization as the one used in Fig 1a As expected
+one observes a behavior very close to T 1 Let us now look
+at the error between the analytical  and the estimated
+one for a xed t  0 We nd that for each t the series
+of errors are centered gaussian and mainly uncorrelated
+Their variance increases as t decreases to 0 The normality
+of the observed errors is illustrated in Fig 2b where
+we report for 3 dierent values of t the qq-plots of the
+empirical error pdf with standardized variance versus
+the normal pdf
+Let us point out that the estimation error depends
+a priori on the sampling rate  Numerical simulations
+show that there is an optimal choice for the sampling rate
+parameter  Indeed we found that the estimation error
+Standard Gaussian Quantiles
+Fig 2 Error analysis of a one dimensional Hawkes process
+with the same exponential kernel as in Fig 1a with   001
+and max2 a Mean square error as a function of the sam-
+ple length T in log-log coordinates The solid-line corresponds
+to the curve the expected T 1 behavior b qq-plots of the
+Normal probability distribution function pdf versus empiri-
+cal error pdf for t for three dierent values of t Here T  105
+seconds is xed The empirical error pdfs have been normal-
+ized to have the same variance the variance increases as t goes
+is minimum for a nite value    which is neither
+large nor close to 0 For instance for the process used in
+Fig 1a we found   015 The fact that there exists
+such a minimum is not that surprising On the one hand
+if  is too large the error is dominated by Fourier aliasing
+On the other hand if  is too small estimating v
+a xed   0 corresponds to estimating the correlation
+between the increments at scale  of two point processes
+Such an estimation is well known to converge to 0 when
+the time-scale  goes to 0 In the Finance literature see
+eg 2 this is known as the Epps eect Of course the
+optimal value  is not known a priori However it is
+natural to think that it is inversely proportional to  On
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+practical situations we advocate to start choosing  of the
+order of 01 and then play around this value
+52 The bisymmetric 2-dimensional case n  2 with an
+exponential kernel
+Let us now consider a 2-dimensional bisymmetric Hawkes
+process introduced in Section 442 Both the diagonal
+term d and the anti-diagonal term a cf Eq 35
+have an exponential form
+t  11
+t  12
+t  22
+t  21
+t  dedt1t0
+t  aeat1t0
+We use the following parameters for the simulations d 
+05 d  8 a  1 a  4 and 1  2  1 conse-
+quently   145 We simulate about 60000 jumps for
+each of the two components of the Hawkes process The
+Figure 3 below shows the theoretical solid lines and esti-
+mated versions of d in Fig 3a and a in Fig 3b
+We see that as in the 1D case we get a reliable estimate
+of both kernels
+2 consists in describing high frequency price dynamics
+as the dierence between two coupled Hawkes processes
+representing respectively up and down discrete price vari-
+ations The authors emphasized that such model allows
+one to account for the main stylized facts characterizing
+the observed noise microstructure namely the signature
+plot and the Epps eect see end of Section 621 for a
+short remark on these eects
+We use level 1 data ie trades and best limit data
+provided by QuantHouse Trading Solutions2 of the 10-
+years Euro-Bund Bund and on the futures contracts on
+the Dax index In this paper we use 75 days covering
+the period between 2009-06-01 and 2009-09-15 The most
+liquid maturity is always chosen In order to minimize sea-
+sonal eect every day only the data between 9 AM and
+11 AM GMT are kept during which the rate of incom-
+ing orders can be considered as stationary moreover we
+ignored the days with too little trades The data has mil-
+lisecond accuracy and it has been treated in such a way
+that each market order is equivalent to exactly one trade
+61 Estimation in the case of the one-dimensional
+model for Bund data
+Fig 3 Non parametric estimation of the two dimensional
+Hawkes bisymmetric exponential kernel  Eq 42 from a
+unique realization with 60000 jumps We chose d  05
+d  8 a  1 a  4 and 1  2  1   14545
+We used   005 and max  2 Estimated  and analytical
+kernel solid line are shown a Estimation of the diagonal
+term d
+ b Estimation of the anti-diagonal term a
+6 Application to high frequency market data
+As mentioned in the introduction Hawkes point processes
+have found many applications and notably as models for
+high frequency nancial data Indeed because of the dis-
+crete and correlated nature of trade and limit order arrival
+times point processes are natural models of market dy-
+namics at the microstructure level One can mention for
+instance Ref 16 where buy and sell trades arrivals are
+represented by a bivariate Hawkes process with exponen-
+tial kernels see also 17 Another approach developed in
+In the following we test our method on the process of in-
+coming trade times market orders for the Bund Future
+This is a 1-dimensional point process consequently we
+use the estimator described in Section 441 Every single
+day we compute an estimation of the function vh
+n with
+h    01 and n  100 These quantities are then av-
+eraged on all the 75 days and we perform the  estimation
+using this averaged quantity
+The results are shown in the gure 4 The so-obtained
+estimation of  clearly displays a power law decay Fig
+4b A t with the function t gives   01  and
+  14
+Let us point out that we studied the stability of this
+estimation as the value for  is changed Table 1 clearly
+shows that as  decreases there is a pretty large dis-
+crepancy on the estimated values of both both  and 
+Though these values seem to stabilize when  reaches 01
+which could indicate that this choice is not far from the
+optimal value  see Section 513
+2 httpwwwquanthousecom
+3 When one market order hits several limit orders it results
+in several trades being reported
+4 Strictly speaking a decay kernel of the form t1 is not
+admissible for our model Indeed its integral diverges both at
+t  0 and at innity So it is admissible as long as we consider
+that this behavior has two cut-o for small and large t This
+hypothesis will be implicitly made in the following
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+0146276
+0117503
+0098624
+0092975
+0089227
+-141515
+-130292
+-105329
+-103596
+-099899
+Table 1 Results of the Power Law t t applied to the
+estimated Hawkes kernel for the rate of incoming market orders
+of the Bund Futures We show the results for dierent values of
+the parameter  As  decreases the estimations for both 
+and  stabilize and seem to indicate that the choice of   01
+is not far from the optimal value 
+Xt  N 
+t  Nt 
+We look at the two dimensional point process
+Nt cid19
+Nt cid18 N 
+As advocated in Ref 2 2 dimensional Hawkes processes
+are suited to model the so-dened Nt A simple bisym-
+metric exponential kernel with a null diagonal term is
+able to reproduce remarkably the so-called signature plot
+Moreover in the case of 2 assets each of them modeled by
+a 2-dimensional Hawkes and their interaction modeled by
+a simple symmetric cross term leading to a 4-dimensional
+Hawkes process these models have also been able to re-
+produce the so-called Epps eect
+The Signature plot and the Epps eect are two of the
+main stylized facts of nancial time-series at a microstruc-
+ture level It is not the goal of this paper to go into more
+details about them however it is interesting to point out
+that the quantity vh
+on which our estimation procedure
+is based includes both the Signature plots basically cor-
+responding to the diagonal terms of the h  vh
+0 matrix
+function and the Epps eect basically corresponding to
+the non diagonal terms of the same function
+Fig 4 1-dimensional non parametric estimation of  for the
+point process of incoming market orders of the Bund futures
+We used   h  01 and max  100 a The estimation
+clearly displays a slow decay b Log-Log plot the gure a
+above reveals that in good approximation the kernel can be
+considered as decaying as t A power-law least-square t
+solid line provides the exponent   105
+62 Estimation in the case of the two-dimensional
+622 Validating hypothesis H3
+621 The two dimensional model
+In order to apply our estimation framework in dimension
+2 we rst need to check the hypothesis H3 This hypoth-
+esis is two-folded
+In this Section we apply our estimation framework to the
+process that was initially introduced in 2 for modeling
+the changes in the mid-price of a given asset Let Xt be the
+mid-price we decompose it as the sum of the cumulative
+positive jumps N 
+t and the cumulative negative jumps5
+ First of all on Fig 5 we show for each single day
+an estimation of 1   versus 2   The plot
+shows that 1  2 with a very small variation and
+therefore that we are within our assumption that  
+I with   1  2
+5 strictly speaking the jumps have not always the same am-
+plitude Though for the Bund most of them are 1-tick large
+it is not the case for the DAX data If it is not the case N 
+resp N 
+t  just represent the point process with jumps al-
+ways equal to 1 with the same arrival time as the upward
+resp downward jumps of Xt
+ Secondly we need to show that the kernel matrix di-
+agonalizes in a basis that is constant Actually Fig
+6 shows that vh
+and consequently the kernel is in
+good approximation bisymmetric which implies that
+it diagonalizes on a constant basis Indeed we see that
+vh11
+ in
+ in Fig 6a is very close to vh22
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+Fig 6a for all   0 In the same way we see that
+vh12
+ in Fig 6b is also up to some estimation
+noise equal to vh21
+ in Fig 6b for all   0
+same results are obtained for   0
+Let us point out that the choice of the midpoint price
+series is motivated by two factors First if we choose the
+series of traded prices we have because of a non-zero
+spread value an important spurious bouncing eect os-
+cillation between best bid and best ask prices that is very
+hard to capture by our modeling approach see 2 and
+we get negative decay functions on the diagonal of  11
+and 22 see Section 623 for a longer discussion on the
+inuence of the bouncing eect on the kernel estimation
+Second if we choose the series of the last traded prices
+of buy orders only as in 2 the bouncing artifact disap-
+pears however the symmetry of  and  is naturally
+no longer veried The series of midpoint prices has the
+advantage of having a reduced bouncing eect and of pre-
+senting identically distributed N  and N processes6
+Fig 5 Estimated 1   versus 2   for every single
+day 75 total in the 2-dimensional model for mid-price of the
+Bund futures Each dot represents a single day The solid line
+corresponds to    We see that in good approximation
+   validating the rst part of hypothesis H3
+623 Kernel estimation
+We use the framework developed in Section 442 in order
+to estimate 
+6 Still when actually going through the estimation process
+for stability reasons we chose  to be the average of the esti-
+mated  and  and similarly vh11
+have been
+averaged as well as vh12
+and vh21
+and vh22
+Fig 6 Estimation of vh
+for   0 on 75 days from 9am to
+11am in the framework of the 2-dimensional model for mid-
+price of the Bund futures We see that the matrix vh
+good approximation bisymmetric Same results would be ob-
+tained for   0 That completes with Fig 5 the validation
+of hypothesis H3 a vh11
+and vh21
+ b vh12
+ and vh22
+The result of the non parametric estimation is shown
+in gure 7 We immediately notice that the diagonal term
+d  11 is an order of magnitude smaller than the non
+diagonal one a  12 and can be considered as being
+zero This means that N  and N are not self exciting
+and exclusively mutually exciting The log-log plot in Fig
+8 of the anti-diagonal term a  12 displays a power-
+law behavior t with   0095 and   099 which
+is unsurprisingly close to the values we found for the 1-
+dimensional model in Section 61
+Figure 9 show the estimation of the bisymmetric ker-
+nel on Dax Futures time-series Here the diagonal kernel
+is of the same order it can even be greater than the
+anti-diagonal term This property that was not observed
+for the Bund can be interpreted using tick size considera-
+tions Indeed the tick size of Dax Futures is well known to
+be very small in the sense that the agents trading on this
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+Fig 7 Non parametric estimation of the bisymmetric kernel 
+for the mid-price of the Bund futures using 75 days between
+9am to 11am We used   h  05 and max  200 The
+diagonal term d  11 appears to be negligible compared to
+the anti-diagonal term a  12 conrming that the N and
+N are mutually but not self exciting a Estimation of the
+diagonal term d
+ b Estimation of the anti-diagonal term
+Fig 8 Log-Log plot of the anti-diagonal kernel a  12
+estimated for the Bund futures  shown on Fig 7b It shows
+that in good approximation this term can be considered as
+decaying as t A power law t solid line gives the exponent
+  1
+asset only care for moves that are greater than 1 tick or
+equivalently for successive moves of 1 tick in the same di-
+rection This translates into the fact that at the scale of
+1-tick there is hardly no bouncing eect negative auto-
+correlation of the returns On the contrary on the Bund
+the tick size is well known to be too big ie when the
+price goes up by 1-tick most of the time the next move is a
+downward move ie the bouncing eect is very strong In
+the framework of our model it is clear that the strongest
+the bouncing eect the smaller the anti-diagonal term
+Actually looking carefully at the Fig 7a the bouncing
+eect on the Bund is so strong that though much smaller
+than the anti-diagonal kernel the estimated diagonal ker-
+nel seems to become signicantly negative compared to
+the estimation noise which dees the assumption of our
+model Indeed if 11 becomes negative there is a priori in
+theory no guarantee that t remains positive and a nega-
+tive rate of arrival is unacceptable Of course in practice
+since these negative values are much smaller than the anti-
+diagonal kernel the probabilities for t to become negative
+are clearly negligible The bouncing eect is most appar-
+ent on the series of trade prices bouncing between best
+ask and best bid prices and while it is heavily dampened
+when we use the series of midpoint prices we see that it
+is still too strong to be fully captured by our model see
+the discussions in 2 and in 9
+Fig 9 Non parametric estimation of the bisymmetric kernel
+ for the mid-price of the Dax futures using 75 days between
+9am to 11am We used   h  05 and max  200 Contrar-
+ily to the Bund kernel Fig 7 the diagonal term d  11
+appears to be of the same order as the anti-diagonal term
+a  12 This is due to the tick size of the Dax which is
+much smaller than the tick size of the Bund a Estimation
+of the diagonal term d
+  12  b Estimation of the
+anti-diagonal term a
+  08
+7 Conclusion and prospects
+In this paper we have introduced a non parametric method
+to estimate the shape of the self-exciting kernels for sym-
+metric Hawkes processes Our method can be implemented
+very easily since it relies on the computation of the empiri-
+cal covariance matrix and mainly uses Fourier transforms
+As illustrated on specic numerical examples 1D and 2D
+it provides reliable results for series of about 105 events
+long This method can be very helpful to get a precise
+idea of the kernel functional shape before proceeding to
+a classical parametric eg maximum likelihood estima-
+tion In a future work we will consider a natural extension
+of the method in order to account for random marks as-
+sociated with each events as eg in the ETAS model for
+earthquakes 2315
+As far as nancial time series are concerned we have
+shown that for both Bund and Dax Futures high fre-
+quency data the Hawkes kernels are slowly power law
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+decaying Even if this observation has to be conrmed
+by further studies it is noteworthy that the values of
+the kernel power-law exponent we found   1 cor-
+responds to the onset of stationarity Our ndings can be
+of great interest since they allow one to nely describe at
+high frequency the market activity as a long-memory self-
+exciting process This can notably allow one to improve
+the results of Ref 2 where the authors restrict themselves
+to exponential kernels to reproduce noise microstructure
+main features using Hawkes processes On a more general
+ground one can hope that our ndings will be helpful to
+bridge the gap between a theory of price variations at the
+microstructure level and the standard coarse scale models
+with long range correlated volatility
+References
+1 L Adamopoulos Cluster models for earthquakes Regional
+comparisons Journal of the International Association for
+Mathematical Geology 84463475 August 1976
+2 E Bacry S Delattre M Homann and J F Muzy Mod-
+eling microstructure noise with mutually exciting point
+processes Accepted for publication in Quantitative Fi-
+nance 2011
+3 E Bacry S Delattre M Homann and J F Muzy Scal-
+ing limits for hawkes processes and nancial data mod-
+elling preprint 2011
+4 M S Bartlett The spectral analysis of point pro-
+cesses
+Journal of the Royal Statistical Society Series
+B Methodological 252264296 January 1963 Arti-
+cleType research-article  Full publication date 1963 
+Copyright 1963 Royal Statistical Society
+5 M S Bartlett The spectral analysis of Two-Dimensional
+point processes Biometrika 5134299311 December
+1964 ArticleType research-article  Full publication date
+Dec 1964  Copyright 1964 Biometrika Trust
+6 L Bauwens and N Hautsch Modelling nancial high fre-
+quency data using point processes
+In T Mikosch J-P
+Kreiss R A Davis and T G Andersen editors Hand-
+book of Financial Time Series pages 953979 Springer
+Berlin Heidelberg 2009
+7 C G Bowsher Modelling security market events in con-
+tinuous time Intensity based multivariate point process
+models Journal of Econometrics 1412876912 Decem-
+ber 2007
+8 V Chavez-Demoulin A C Davison and A J McNeil
+Estimating value-at-risk a point process approach Quan-
+titative Finance 52227234 April 2005
+9 K A Dayri Market Microstructure and Modeling of the
+Trading Flow PhD thesis Ecole Polytechnique December
+10 P J Brantingham E Lewis G Mohler and A Bertozzi
+Self-exciting point process models of the insurgency in iraq
+11 P Embrechts J T Liniger and L Lu Multivariate
+hawkes processes an application to nancial data Journal
+of Applied Probability 48367378 August 2011
+12 K Giesecke and L R Goldberg A top down approach to
+Multi-Name credit SSRN eLibrary 2007
+13 A Hawkes Point spectra of some mutually exciting point
+processes Biometrika 588390 April 1971
+14 A Hawkes Spectra of some Self-Exciting and mutually
+exciting point processes Journal of the Royal Statisti-
+cal Society Series B Methodological 33-3438443 April
+15 A Helmstetter and D Sornette Subcritical and supercrit-
+ical regimes in epidemic models of earthquake aftershocks
+J Geophys Res 1072237 2002
+16 P Hewlett Clustering of order arrivals price impact and
+trade path optimisation In Workshop on Financial Mod-
+eling with Jump processes 2006
+17 J Large Measuring the resiliency of an electronic limit or-
+der book Journal of Financial Markets 101125 2007
+18 E Lewis and G Mohler A nonparametric EM algorithm
+for a multiscale hawkes process Joint Satistical Meetings
+2011 2011
+19 J T Liniger Multivariate Hawkes Processes PhD thesis
+ETH Zurich 2009
+20 D Marsan and O Lenglin Extending earthquakes reach
+through cascading Science 31958661076 1079 Febru-
+ary 2008
+21 G Mohler M Short P Brantingham F Schoenberg
+and G Tita
+Self-Exciting point process modeling of
+crime Journal of the American Statistical Association
+106493100108 March 2011
+22 Y Ogata On lewis simulation method for point processes
+Ieee Transactions On Information Theory 272331 Jan-
+uary 1981
+23 Y Ogata Seismicity analysis through point-process mod-
+eling A review Pure and Applied Geophysics 1552-
+4471507 August 1999
+24 Y Ogata and H Akaike On linear intensity models for
+mixed doubly stochastic poisson and self- exciting point
+processes Journal of the Royal Statistical Society Series
+B Methodological 441102107 January 1982 Arti-
+cleType research-article  Full publication date 1982 
+Copyright 1982 Royal Statistical Society
+25 A V Oppenheim R W Schafer and J R Buck Discrete-
+time signal processing Prentice-Hall signal processing se-
+ries Prentice Hall 1999
+26 T Ozaki Maximum likelihood estimation of hawkes self-
+exciting point processes Annals of the Institute of Statis-
+tical Mathematics 311145155 December 1979
+27 REAC Paley and N Wiener Fourier transforms in
+the complex domain Colloquium Publications - Ameri-
+can Mathematical Society American Mathematical Soci-
+ety 1934
+28 P Reynaud-Bouret and S Schbath Adaptive estimation
+for hawkes processes application to genome analysis The
+Annals of Statistics 38527812822 October 2010 Zen-
+tralblatt MATH identier 120062135 Mathematical Re-
+views number MathSciNet MR2722456
+29 I M Toke Econophysics of order-driven markets chapter
+Market making behaviour in an order book model and
+its impact on the bid-ask spread Springer Verlag 2011
+30 D Vere-Jones Stochastic models for earthquake occur-
+rence Journal of the Royal Statistical Society Series B
+Methodological 321162 January 1970 ArticleType
+research-article  Full publication date 1970  Copyright
+1970 Royal Statistical Society
+31 D Vere-Jones and T Ozaki Some examples of statistical
+estimation applied to earthquake data Annals of the Insti-
+tute of Statistical Mathematics 341189207 December
+Emmanuel Bacry et al Non-parametric Hawkes kernel estimation
+32 J Zhuang Y Ogata and D Vere-Jones Stochastic declus-
+tering of Space-Time earthquake occurrences Journal of
+the American Statistical Association 97458pp 369380

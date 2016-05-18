@@ -1,0 +1,881 @@
+Learning Network of Multivariate Hawkes Processes
+A Time Series Approach
+Jalal Etesami
+Department of Industrial and
+Enterprise Systems Engineering
+University of Illinois
+at Urbana-Champaign
+Urbana IL 6180 USA
+etesami2illinoisedu
+Negar Kiyavash
+Department of Industrial and
+Enterprise Systems Engineering
+and Department of Electrical
+and Computer Engineering
+UIUC Urbana IL 6180 USA
+kiyavashillinoisedu
+Kun Zhang
+Department of Philosophy
+Carnegie Mellon University
+Pittsburgh PA 15213 USA
+kunz1andrewcmuedu
+Kushagra Singhal
+Department of Electrical
+and Computer Engineering
+UIUC Urbana IL 6180 USA
+ksingha2illinoisedu
+Abstract
+Learning the inuence structure of multiple time series data is of great interest to
+many disciplines This paper studies the problem of recovering the causal struc-
+ture in network of multivariate linear Hawkes processes In such processes the
+occurrence of an event in one process affects the probability of occurrence of new
+events in some other processes Thus a natural notion of causality exists between
+such processes captured by the support of the excitation matrix We show that
+the resulting causal inuence network is equivalent to the Directed Information
+graph DIG of the processes which encodes the causal factorization of the joint
+distribution of the processes Furthermore we present an algorithm for learning
+the support of excitation matrix or equivalently the DIG The performance of the
+algorithm is evaluated on synthesized multivariate Hawkes networks as well as a
+stock market and MemeTracker real-world dataset
+Introduction
+In many disciplines including biology economics social sciences and computer science it is im-
+portant to learn the structure of interacting networks of stochastic processes In particular succinct
+representation of the causal interactions in the network is of interest
+A lot of studies in the causality elds focus on causal discovery from time series To nd causal
+relations from time series one may t vector autoregressive models on the time series or more
+generally evaluate the causal inuences with transfer entropy 22 or directed information 19
+This paper considers learning causal structure for a specic type of time series multivariate linear
+Hawkes process 8 Hawkes processes were originally motivated by the quest for good statistical
+models for earthquake occurrences Since then they have been successfully applied to seismology
+15 biology 21 criminology 13 computational nance 5 12 14 etc It is desirable to develop
+specic causal discovery methods for such processes and study the properties of existing methods
+in this particular scenario
+In multivariate or mutually exciting point processes occurrence of an event arrival in one process
+affects the conditional probability of new occurrences ie the intensity function of other processes
+in the network Such interdependencies between the intensity functions of a linear Hawkes process
+are modeled as follows the intensity function of processes j is assumed to be a linear combination of
+different terms such that each term captures only the effects of one other process See Section 21
+Therefore a natural notion of functional dependence causality exists among the processes in the
+sense that in linear mutually exciting processes if the coefcient pertaining to the effects of process
+i is non-zero in the intensity function of process j we know that process i is inuencing process
+j This dependency is captured by the support of the excitation matrix of the network As a result
+estimation of the excitation kernel matrix of multivariate processes is crucial both for learning the
+structure of their causal network and for other inference tasks and has been the focus of research For
+instance maximum likelihood estimators were proposed for estimating the parameters of excitation
+matrices with exponential and Laguerre decay in 16 25 These estimators depend on existence of
+iid samples However often we do not have access to iid samples when analyzing time series
+Second-order statistics of the multivariate Hawkes processes were used to estimate the kernel matrix
+of a subclass of multivariate Hawkes processes called symmetric Hawkes processes 1 Utilizing the
+branching property of the Hawkes processes an expectation maximization algorithm was proposed
+to estimate the excitation matrix in 10
+We aim to investigate efcient approaches to estimation of excitation matrix of Hawkes processes
+from time series that does not require iid samples and investigate how the concept of causality in
+such processes is related to other established approaches to analyze causal effects in time series
+11 Summary of Results and Organization
+Our contribution in this paper is two fold First we prove that for linear multivariate Hawkes pro-
+cesses the causal relationships implied by the excitation matrix is equivalent to a specic factor-
+ization of the joint distribution of the system called minimal generative model Minimal generative
+models encode causal dependencies based on a generalized notion of Granger causality measured
+by causally conditioned directed information 20 One signicance of this result is that it provides
+a surrogate to directed information measure for capturing causal inuences for Hawkes processes
+Thus instead of estimating the directed information which often requires estimating a high dimen-
+sional joint distribution it sufces to learn the support of the excitation matrix Our second contri-
+bution is indeed providing an estimation method for learning the support of excitation matrices with
+exponential form using second-order statistics of the Hawkes processes
+Our proposed learning approach in contrast with the previous work 1 24 is not limited to sym-
+metric Hawkes processes In a symmetric Hawkes process it is assumed that the Laplace transform
+of the excitation matrix can be factored into product of a diagonal matrix and a constant unitary
+matrix Moreover it is assumed that the expected values of all intensities are the same A numerical
+method to approximate the excitation matrix from a set of coupled integral equations was recently
+proposed in 3 Our approach is based on an exact analytical solution to nd the excitation matrix
+Interestingly the exact approach turns out to be both more robust and less expensive in terms of
+complexity compared to the numerical method of 3
+The rest of this paper is organized as follows Background material some denitions and the
+notation are presented in Section 2 Specically therein we formally introduce multivariate Hawkes
+processes and directed information graphs In Section 3 we establish the connection between the
+excitation matrix and the corresponding DIG In Section 4 we propose an algorithm for learning
+the excitation matrix or equivalently the DIG of a class of stationary multivariate linear Hawkes
+processes Section 5 illustrates the performance of the proposed algorithm in inferring the causal
+structure in a network of synthesized mutually exciting linear Hawkes processes and in stock market
+Finally we conclude our work in Section 6
+2 Preliminary Denitions
+In this Section we review some basic denitions and our notation We denote random processes
+by capital letters and a collection of m random processes by X m  X1  Xm where m 
+1  m We denote the ith random process at time t by Xit the random process Xi from time
+is and a subset K  m of random process up to time t by X tK The Laplace
+s up to time t by X t
+transform and Fourier Transform of Xi are denoted respectively by
+cid90 
+cid90 
+LXis 
+FXi 
+Xitestdt
+Xitejtdt
+cid82
+1 The convolution between two functions f and g is dened as f  gt 
+where j 
+R f xgt  xdx The joint distribution of processes X n
+1   X n
+m is represented by PX n
+21 Multivariate Hawkes Processes
+Fix a complete probability space F P  Let N t denotes the counting process representing the
+cumulative number of events up to time t and let F tt0 be a set of increasing -algebras such that
+F t  N t The non-negative F t-measurable process t is called the intensity of N t if
+P N t  dt  N t  1F t  tdt  odt
+A classical example of mutually exciting processes a multivariate Hawkes process 8 is a multidi-
+mensional process N t  N1  Nm such that for each i  m
+Pcid0dNit  1F tcid1  itdt  odt
+P dNit  1F t  odt
+cid90 t
+mcid88
+cid90 t
+where F t  N t The above equations imply that EdNitdtF t  it Furthermore the
+intensities are all positive and are given by
+it  vi 
+ikt  tcid48dNktcid48
+The exciting functions iks are in cid961 such that it  0 for all t  0 Equivalently in matrix
+representation
+t  v 
+where  denotes an m  m matrix with entries ij dN   and v are m  1 arrays with
+entries dNi i and vi respectively Matrix  is called the excitation kernel matrix Figure
+1 illustrates the intensities of a multivariate Hawkes process comprised of two processes m  2
+with the following parameters
+t  tcid48dN tcid48
+cid1805
+cid19
+ t 
+cid18 01et
+05e09t
+cid19
+03e11t
+03et
+where ut is the unit step function
+Assumption 1 A joint distribution is called positive non-degenerate if there exists a reference
+measure  such that PX cid28  and dPX
+d  0 where PX cid28  denotes that PX is absolutely
+continuous with respect to 1
+Note that the Assumption 1 states that none of the processes is fully determined by the other pro-
+cesses
+22 Causal Structure
+A causal model allows the factorization of the joint distribution in some specic ways Generative
+model graphs are a type of graphical model that similar to Bayesian networks 17 represent a causal
+factorization of the joint 19 More precisely it was shown in 19 that under Assumption 1 the
+1A measure PX on Borel subsets of the real line is absolutely continuous with respect to measure  if for
+every measurable set B B  0 implies PX B  0
+Figure 1 Intensities of the multivariate Hawkes process
+joint distribution of a causal2 discrete-time dynamical system with m processes can be factorized as
+follows
+where Bi  i is the minimal3 set of processes that causes process Xi ie parent set of node
+i in the corresponding minimal generative model graph Such factorization of the joint distribution
+is called minimal generative model In Equation 5
+PXiX Bi
+mcid89
+ncid89
+PXiX Bi
+PXitF t1
+Bi
+Bi
+Bi  X t1
+and F t1
+Extending the denition of generative model graphs to continuous-time systems requires some tech-
+nicalities which are not necessary for the purpose of this paper Hence we illustrate the general idea
+through an example
+The following example demonstrates the minimal generative model graph of a simple continuous-
+time system
+Example 1 Consider a dynamical system in which the processes evolve over time horizon 0 T 
+through the following coupled differential equations
+dX1  f X1 X2dt  dW
+dX2  gX2dt  dU
+dX3  hX1 X2 X3dt  dV
+where W U and V are independent exogenous noises For small time dt this becomes
+dX1t  dt  f X1t X2t  dW t
+dX2t  dt  gX2t  dU t
+dX3t  dt  hX1t X2t X3t  dV t
+In this example since the system is causal the corresponding joint distribution can be factorized as
+follows
+PXj TkdtF Tk1dt 
+3cid89
+cid89
+2In causal systems given the full past of the system the present of the processes become independent
+3Minimal in terms of its cardinality
+0510150020406081Intensity 1Eventoccurrence time of N10510150051152Intensity 2Eventoccurrence time of N2shhhhhhhhhhhhhhhh
+VVVVVVVVVVVVVVVV
+Figure 2 Minimal generative model graph of Example 1
+where F Tk1dt  X Tk1dt
+123
+ Due to 6 we can rewrite 7 as
+PX  PX1X2PX2PX3X1X2
+Figure 2 demonstrates the corresponding generative model graph of the factorization in 8
+the joint distribution of a causal dynamical system can be factorized as PX 
+ where Bi  i is the parent set of node i in the corresponding minimal gen-
+cid81m
+In general
+i1 PXiX Bi
+erative model graph and
+cid89
+PXiX Bi
+PXiTkdtF Tk1dt
+3 Two Equivalent Notions of Causality for Multivariate Hawkes Processes
+In linear multivariate Hawkes processes a natural notion of causation exists in the following sense
+if ij cid54 0 then occurrence of an event in jth process will affect the likelihood of the arrivals in ith
+process Next we establish the relationship between the excitation matrix of multivariate Hawkes
+processes and their generative model graph To do so rst we discuss the equivalence of directed
+information graphs and generative models graphs which was established in 20
+31 Directed Information Graphs DIGs
+An alternative graphical model to encode statistical interdependencies in stochastic causal dynam-
+ical systems are directed information graphs DIGs 19 Such graphs are dened based on an
+information-theoretic quantity directed information DI and it was shown in 20 that under some
+mild assumptions they are equivalent to the minimal generative model graphs Hence DIGs also
+represent a minimal factorization of the joint distribution
+In a DIG to determine whether Xj causes Xi over a time horizon 0 T  in a network of m random
+processes two conditional probabilities are compared in KL-divergence sense one is the conditional
+probability of Xit  dt given full past ie F t  X t and the other one is the conditional
+probability of Xit  dt given full past except the past of Xj ie F tj  X tj It is
+declared that there is no inuence from Xj on Xi if the two conditional probabilities are the same
+More precisely there is an inuence from Xj on Xi if and only if the following directed information
+measure is positive 19
+IT Xj  XiXij  inf
+where i j  m  i j T denotes the set of all nite partitions of the time interval 0 T 
+23 and
+tT 0T 
+ItXj  XiXij
+where t  0  t0 t1  tn  T  Finally IX Y Z represents the conditional mutual informa-
+tion between X and X given Z and it is given by
+ItXj  XiXij 
+itk1
+ncid88
+cid16
+cid20
+cid17
+j0F tk1j
+cid21
+dPXYZ
+IX Y Z  EPXYZ
+32 Equivalence between Generative Model Graph and Support of Excitation Matrix
+As mentioned earlier the corresponding minimal generative model graph and the DIG of a causal
+dynamical system are equivalent Thus to characterize the corresponding minimal generative model
+graphs of a multivariate Hawkes system we study the properties of its corresponding DIG
+Proposition 1 Consider a set of mutually exciting processes N with excitation matrix t Under
+Assumption 1 IT Nj  NiNij  0 if and only if ij  0 over time interval 0 T 
+Proof See Section 71 cid3
+Proposition 1 signies that the support of the excitation matrix  determines the adjacency ma-
+trix of the DIG and vice versa Therefore learning DIG of a mutually exciting Hawkes processes
+satisfying Assumption 1 is equivalent to learning the excitation matrix given samples from each of
+the processes In other word in the presence of side information that the processes are Hawkes it
+is more efcient to learn the causal structure through learning the excitation matrix rather than the
+directed information needed for learning the DIG in general
+4 Learning the Excitation Matrix
+In this section we present an approach for learning the causal structure of a stationary Hawkes
+network with exponential exciting functions through learning the excitation matrix This method
+is based on second order statistic of the Hawkes processes and it is suitable for the case when no
+iid samples are available Note that when iid samples are available non-parametric methods
+for learning the excitation matrix such as MMEL algorithm 25 exist In this approach the exciting
+functions are expressed as linear combination of a set of base kernels and a penalized likelihood
+is used to estimate the parameters of the model As mentioned earlier we focus on learning the
+excitation matrix of multivariate Hawkes processes with exponential exciting functions This class
+of Hawkes processes has been widely applied in many areas such as seismology criminology and
+nance 15 21 13 5
+Denition 1 The excitation matrix of a multivariate Hawkes processes with exponential exciting
+functions is dened as follows
+Expm   Dcid88
+Dcid88
+Adedtut  Ad  Rmm
+Dcid88
+Adedtij  0 
+where d  0 is called the set of exciting modes
+Example 2 Consider a set of m  5 mutually exciting processes with the following exponential
+  1 D  N
+excitation matrix 2
+1
+ et
+ e2t
+ 0
+ e14t
+In this example D  3 and the exciting modes are 1 14 2 By Proposition 1 the adjacency
+matrix of the corresponding DIG of this network is given by the support of its excitation matrix
+Figure 3 depicts the corresponding DIG
+Before describing our algorithm we need to derive some useful properties of moments of the pro-
+cess A multivariate Hawkes process with the excitation matrix  has stationary increments ie the
+intensity processes is stationary if and only if the following assumption holds 8 6
+
+U
+aBBBBBB
+K
+
+S
+Figure 3 Corresponding DIG of the network in Example 2 with the excitation matrix given by 11
+Assumption 2 The spectral radius the supremum of the absolute values of the eigenvalues of the
+matrix  where ij  ij1 is strictly less than one ie   1
+In this case from 4 and Equation 2
+  Et  v 
+t  tcid48EdN tcid48
+t  tcid48dtcid48  v  
+cid90 t
+cid90 t
+cid20cid90 tz
+By Assumption 2cid80
+i converges to I  1 thus   I  1v The normalized co-
+variance matrix of a stationary multivariate Hawkes process with lag  and window size z  0 is
+dened by
+i0 
+cid90 t z
+cid21
+dN yT
+ T z
+z  
+dN x denotes the number of events in time interval t t  tcid48
+wherecid82 ttcid48
+Theorem 1 1 The Fourier transform of the normalized covariance matrix of a stationary multi-
+variate Hawkes process with lag  and window size z  0 is given by
+Fz
+sin2 z2
+I  F
+1 diag I  F
+where A denotes the Hermitian conjugate of matrix A and diag is a diagonal matrix with
+vector  as the main diagonal
+In order to learn the excitation matrix with exponential exciting functions we need to learn the
+exciting modes d the number of components D and coefcient matrices Ad Next results
+establishes the relationship between the exciting modes and the number of components D with the
+normalized covariance matrix of the process
+Corollary 1 Consider a network of a stationary multivariate Hawkes processes with excitation
+matrix t belonging to Expm Then the exciting modes of t are the absolute values of the
+zeros of 1T rFz1
+Proof See Section 72 cid3
+Next we need to nd the coefcient matrices Ad To do so we use the covariance density of the
+processes The covariance density of a stationary multivariate Hawkes process for   0 is dened
+   Ecid2dN t   dt  dN tdt  Tcid3 
+Since the processes have stationary increments we have    T  
+Lemma 1 8
+    diag        0
+It has been shown in 3 that the above equation admit a unique solution for   Next proposition
+provides a system of linear equations that allows us to learn the coefcient matrices
+Proposition 2 Consider a network of a stationary multivariate Hawkes processes with excitation
+matrix t  Expm and exciting modes 1  D Then Ad are a solution of the linear
+system of equations S  AH where Hm2m2 is a block matrix with i jth block given by
+diag  Lj  LT i
+j  i
+and A  A1  AD and S  L1 LD
+Proof See Section 73cid3
+Combining the results of Corollary 1 and Proposition 2 allows us to learn the excitation matrix of
+exponential multivariate Hawkes processes from the second order moments Consequently applying
+Proposition 1 the causal structure of the network can be learned by drawing an arrow from node i
+to j whencid80D
+d1Adji 0
+41 Estimation and Algorithm
+This section discusses estimators for the second order moments namely the normalized covariance
+matrix and the covariance density of a stationary multivariate Hawkes processes from data Once
+such estimators are available the approach of previous section maybe used to learn the network The
+most intuitive estimator for  dened by Equation 12 is N T T  It turns out that this estimator
+converges almost surely to  as T goes to innity 2 Furthermore 2 proposes an empirical
+estimator for the normalized covariance matrix as follows
+cid98zT   
+cid98T zcid99cid88
+Xiz  Xi1zXiz  Xi1z T 
+where Xt  N t  t In the same paper it has been shown that under Assumption 2 the above
+Tz  Notice
+that the normalized covariance matrix and the covariance density are related by dt dt  T  
+Therefore we can estimate the covariance density matrix using Equation 17 by choosing small
+estimator converges in cid962 to the normalized covariance matrix 13 iecid98zT   
+enough window size z   Namelycid98T
+  cid98 
+Algorithm 1
+1 Input  N T 
+2 Output  DIG
+3 cid98  N T T
+5 Computecid98zT   andcid98  using 17
+4 Choose   0 z  0 and small   0
+6 cid98dcid98D
+7 Compute Lcid98cid98d for d  1 cid98D
+d1  Zeros of 1T rFz1
+8 Solve the set of equations arises from 20 for cid98Ad
+9 Draw j i ifcid80cid98D
+d1cid98Adij 
+Algorithm 1 summarizes the steps of our proposed approach for learning the excitation matrix and
+consequently the causal structure of an exponential multivariate Hawkes process
+5 Experimental Results
+In this section we present our experimental results for both synthetic and real data
+
+U
+
+U
+U
+
+xrrrrrrrrrrr
+H
+U
+
+8rrrrrrrrrrr
+K
+a T  1000
+b T  2100
+c Numerical method
+d MMEL
+Figure 4 Recovered DIG of the network in Example 2 with the excitation matrix given by 11 a
+b Algorithm 1 with   02 z  2 and T  1000 2100 c the numerical method of 3 with
+Q  70 and T  2100 and d MMEL with 35 iid samples each of length 60 Our approach
+learns the graph with T  2100 while other approaches fail at the same sample size
+lZZZZZZ
+ZZZZZZ
+gNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNN
+9rrrrrrrrrrrrrrrr
+ukkkkkkkkkkk
+X00000000000000000000000000000
+
+E
+00000000000000000000000000000
+
+FFFFFFFFFFFFFFFFFFFFFFF
+o
+2dddddddddddddddddddd
+lYYYYYYYYYYYYYYYYYYYY
+4jjjjjjjjjjjjjjjjjjjjjjjj
+jUUUUUUUUUUUUUUUUUUUUUUUUUU
+
+tjjjjjjjjjjjjjjjjjjjjjjjj
+gNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+E
+W0000000000000000000000
+J
+99999999999999999
+
+bFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+zzzzzzzzz
+I
+0000000000000000000000000000000
+
+
+ysssssssssssssssssssssssssss
+
+zzzzzzzzzu
+
+
+
+lZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+jTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+fNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+1ccccccccccccccccccccccccccccc
+bEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+
+qccccccccccccccccccccccccccccc
+5jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+ujjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+T
+F
+
+
+lZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+jTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+fMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+Q
+bEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+W
+77777777777777777777777777
+ukkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+F
+ztttttttttttttttttttttttttttttt
+
+vmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+wwwwwwwwwwwwwwwwwwwwwww
+B
+F
+jUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+gNNNNNNNNNNNNNNNNNNNNNNNNNN
+
+888888888888
+CCCCCCCCCCCCCCCCCCC
+
+o
+3ffffffffffffffffffffffffff
+7nnnnnnnnnnnnnnnnnnn
+mZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+-ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+wwwwwwwwww 8
+UUUUUUUUUUUUUUUUUUUUUU
+LLLLLLLLLLLLL
+4iiiiiiiiiiii
+tiiiiiiiiiiii
+Figure 5 True causal structure of the synthesized example
+51 Synthetic Data
+We apply the proposed algorithms to learn the causal structure of the multivariate Hawkes net-
+work of Example 2 with v  05 04 05 1 03T  This network satises Assumption 2 since
+  016 The exciting modes are 1 14 2 We observed the arrivals of all processes during
+a time period T  Figure 4 depicts the outputs of algorithms 1 for   02 z  2 and observation
+lengths T  1000 2100 As illustrated in Figure 4 by increasing the length of observation T  the
+output graph converges the true DIG shown in Figure 3 As a comparison we applied the MMEL
+algorithm proposed in 25 to learn the excitation matrix for this example and the numerical method
+based on Nystrom method proposed in 3 with T  2100 and the number of quadrature Q  70
+Since MMEL requires iid samples we generate 35 iid samples each of length 60 to obtain
+Figure 4MMEL Our proposed algorithm outperforms both MMEL and the numerical method of
+Furthermore we conducted another experiment for a network of 15 processes with 102 edges il-
+lustrated in Figure 5 For a sample of length T  2500 our algorithm was able to recover 70
+edges correctly but identied 34 false arrows MMEL could only recover 58 arrows correctly while
+detecting another 41 false arrows The input for MMEL was 25 sequences each of length 100
+52 Stock Market Data
+As an example of how our approach may discover causal structure in real-world data we analyzed
+the causal relationship between stock prices of 12 technology companies of the New York Stock
+W
+Q
+888888888888888888
+cFFFFFFFFFFFF
+
+FFFFFFFFFFFF
+hQQQQQQQQQQQQQQQQQ
+cGGGGGGGGGGGGGGGGGGGGG
+R
+V
+qdddddddddddddd
+
+
+QQQQQQQQQQQQQQQQQQQQQ
+Z6666666666666666666666
+Q
+6666666666666666666666
+
+tiiiiiiiiiiiiiiiiiiii
+8pppppppppppppppppppp
+
+
+hQQQQQQQQQQQQQQQQQQQQQ
+3gggggggggggggggggg
+
+
+a Algorithm 1
+Q
+cFFFFFFFFFFFF
+888888888888888888
+W
+hQQQQQQQQQQQQQQQQQ
+V
+R
+cGGGGGGGGGGGGGGGGGGGGG
+F
+K
+QQQQQQQQQQQQQQQQQQQQQ
+Q
+Z6666666666666666666666
+6666666666666666666666
+
+tiiiiiiiiiiiiiiiiiiii
+8pppppppppppppppppppp
+
+
+hQQQQQQQQQQQQQQQQQQQQQ
+3gggggggggggggggggg
+
+eKKKKKKKKKKKKK
+qccccccccc
+b DIG
+qdddddddddddddd
+888888888888888888
+W
+cFFFFFFFFFFFF
+Q
+
+888888888888888888
+hQQQQQQQQQQQQQQQQQ
+R
+V
+
+K
+
+QQQQQQQQQQQQQQQQQQQQQ
+Q
+
+6666666666666666666666
+8pppppppppppppppppppp
+
+YYYYYYYYYYYYYYYYYYYYY
+
+3gggggggggggggggggg
+
+eKKKKKKKKKKKKK
+
+c MMEL
+Figure 6 Causal structures for the SP a using Algorithm 1 b by estimating the directed infor-
+mation DIG and c using MMEL algorithm
+Exchange sourced from Google Finance The prices were sampled every 2 minutes for twenty
+market days 03032008 - 03282008 Every time a stock price changed by 1 of its current
+price an event was logged on the stocks process In order to prevent the substantial changes in
+stocks prices due to the opening and closing of the market we ignored the samples at the beginning
+and at the end of each working day For this part we have assumed that the jumps occurring in
+stocks prices are correlated through a multivariate Hawkes process This model class was advocated
+in 11 2 Figure 6a illustrate the causal graph resulting from Algorithm 1 with z  30 and   2
+minutes
+To compare our learning approach with other approaches we applied the MMEL algorithm to learn
+the corresponding causal graph For this scenario we assumed that the data collected from each day
+is generated iid Hence a total of 20 iid samples were used Figure 6c illustrates the resulting
+graph As one can see Figures 6a and 6c convey pretty much a similar causal interactions in the
+dataset For instance both of these graphs suggest that one of the most inuential companies in that
+period of time was Hewlett-Packard HP Looking into the global PC market share during 2008 we
+nd that this was indeed the case4
+To use another modality we derive the corresponding DIG of this network applying Equation 9
+For this part we used the market based on the Black-Scholes model 4 in which the stocks prices
+are modeled via a set of coupled stochastic PDEs We assumed that the logarithm of the stocks
+prices are jointly Gaussian and therefore the corresponding DIs were estimated using Equation 24
+in 7 The resulting DIG is shown in Figure 6b Note that this DIG is derived from the logarithm
+of prices and not the jump processes we used earlier Still it shares a lot of similarities with the
+two other graphs For instance it also identies HP as one of the most inuential companies and
+Microsoft as one the most inuenced companies in that time period
+Alg 1 DIG MMEL
+This table shows the number of edges that each of the above approaches recovers and the number of
+edges that they jointly recover This demonstrates the power of exponential kernels even when data
+does not come from such a model class
+53 MemeTracker Data
+We also studied causal inuences in a blogosphere The causal ow of information between media
+sites may be captured by studying hyperlinks provided in one media site to others Specically the
+4Gartner httpwwwgartnercomnewsroomid856712
+craigslistorg
+yelpcom
+Am amazoncom
+spiegelde
+wikipediaorg
+youtubecom
+cnncom
+guardiancouk
+humaneventscom
+bbccouk
+Table 1 List of websites studied in MemeTracker experiment
+time of such linking can be modeled using a linear multivariate Hawkes processes with exponential
+exciting functions 25 18 This model is also intuitive in the sense that after emerging a new hot
+topic in the rst several days the blogs or websites are more likely feature that topics and it is
+also more likely that the topic would trigger further discussions and create more hyperlinks Thus
+exponential exciting functions are well suited to capture such phenomenon as the exiting functions
+should have relatively large values at rst and decay fast as time elapses
+For this experiment we used the MemeTracker5 dataset The data contains time-stamped phrase and
+hyperlink information for news media articles and blog posts from over a million different websites
+We extracted the times that hyperlinks to 10 well-known websites listed in Table 1 are created during
+August 2008 to April 2009 When a hyperlink to a website is created at a certain time an arrival
+events is recorded at that time More precisely in this experiment we picked 30 different phrases
+that appeared on different websites at different times If a website that published one of the phrases
+at time t also contained a hyperlink to one of the 10 listed websites an arrival event was recorded at
+time t for that website in our list
+Figure 7a illustrates the resulting causal structure learned by Algorithm 1 for z  12 hours and
+  1 hour In this graph an arrow from a node to another say node Ye to Yo means creating a
+hyperlink to yelpcom triggers creation of further hyperlinks to youtubecom
+We also applied the MMEL algorithm with one exponential kernel function to learn the excitation
+matrix For this experiment the data corresponding to each phrase was treated as an iid realization
+of the system The resulting causal structure is depicted in Figure 7b
+As Figure 7a illustrates the nodes can be clustered into two main groups Cr Ye Am Yo and
+Bb Cn Gu Hu Sp Wi The rst group consists of mainly merchandise and reviewing websites
+and the second group contains the broadcasting websites However this is not as clear in Figure
+7b This is because MMEL requires more iid samples phrases to be able to identify the correct
+arrows Note that as we increase the number of phrases 110 Figure 7c both graphs become
+similar with two clearly visible main clusters
+6 Conclusion and Future Work
+Learning the causal structure DIG of a stochastic network of processes requires estimation of
+conditional directed information 9 Estimating this quantity in general has high complexity and
+requires a large number of samples However the complexity of the learning task could be signi-
+cantly reduced if side information about the underlying structure of system dynamics is available
+As proved in 1 for multivariate Hawkes processes estimating the support of the excitation matrix
+sufces to learn the associated DIG Therefore all approaches for learning the excitation matrix
+of the multivariate Hawkes processes such as ML estimation 16 25 EM algorithm 10 non-
+parametric estimation techniques proposed in 2 and the proposed method in this paper may be
+used to learn the causal interactions in such networks The previous estimation approaches either
+5httpmemetrackerorgdatalinkshtml
+J
+B
+ J
+
+H
+
+X111111
+111111
+ZZZZZZZZZZZZZZZ
+
+88888888888
+J
+J
+
+G
+A
+
+o
+4hhhhhhhhhh
+J
+B
+ J
+88888888888
+ 
+88888888888
+
+ZZZZZZZZZZZZZZZl
+lZZZZZZZZZZZZZZZ
+
+3hhhhhhhhhhhhhhhhhhh
+J
+J
+
+tiiiiiiiiiiiiiiiiiii4
+4iiiiiiiiiiiiiiiiiii
+X111111
+111111
+A
+
+t
+o
+4hhhhhhhhhh
+J
+B
+ J
+
+
+X111111
+111111
+88888888888
+
+J
+
+G
+A
+
+4hhhhhhhhhh
+a Alg 1 30
+b MMEL
+c Both Alg 1  MMEL 110
+Figure 7 Recovered causal structure of the MemeTracker dataset using a Algorithm 1 b MMEL
+for 30 different phrases and c both Algorithm 1 and MMEL for 110 different phrases
+require iid samples such as MMEL or are limited to the class of symmetric Hawkes processes
+The proposed algorithm in this work allows us to learn the support of the excitation matrix in a larger
+class of matrices in the absence of iid samples
+7 Technical Proofs
+71 Proof of Proposition 1
+Suppose ij  0 3 implies that for every t  T  it is F tj N tj-measurable and
+from 2 we have
+Equivalently for every 0  tk1  tk
+Pcid0dNit  1F tcid1  P dNit  1F tj
+cid16
+cid17
+itk1
+j0F tk1j
+and thus ItNj  NiNij  0 for any nite partition t  T 0 T 
+For the converse we use proof by contradiction Suppose IT Nj  NiNij  0 and ij cid54 0
+Using the denition in 9 it is straightforward to observe that for any t  T 
+Similarly ItdtNj  NiNij  0 Consequently
+0  ItdtNj  NiNij  ItNj  NiNij
+ItNj  NiNij  0
+cid17
+cid16
+dNit N t
+j0F tj
+This implies P dNit  1F tj  itdt  odt or it is F tj-measurable Since we
+have assumed ij cid54 0 we obtain Njt is F tj-measurable for all t  T  In words jth process
+is determined by other processes which contradicts with the Assumption 1 that states there is no
+deterministic relationships between processes
+72 Proof of Corollary 1
+If the excitation matrix belongs to Expm from Equation 14 we have
+j  d
+diag1
+Adj  d
+cid32
+I  Dcid88
+cid33
+cid32
+I  Dcid88
+cid33
+4 sin2 z2
+Fz1
+where aij  cid80D
+By evaluating the trace of the above equation we obtain
+mcid88
+1  aii2
+cid88
+icid54j
+aij2
+4 sin2 z2
+T rFz
+1
+ mcid88
+g 
+icid54j
+ijjd
+ and Ad  ad
+ij  To learn the entire set jd we have to show
+that there are no pole zero cancellations in 19 That is the nominator and denominator of 19
+cid88
+have no common roots Let
+1  aii2
+j  d2
+ Dcid89
+aij2
+which is the nominator of Equation 19 It is straightforward to check that for   jk the above
+quantity is non-zero due to the fact that ds are distinct and Ak cid54 0 Since g is a polynomial
+with real coefcients from complex conjugate root theorem 9 we have gjk cid54 0 Therefore
+the set jd contains all the poles of 19
+73 Proof of Proposition 2
+From Lemma 1 the Laplace transform of the covariance density can be written as
+cid90 
+cid90 
+Ls  Ls diag  Ls
+tcid48T testcid48tdtcid48dt
+When t  Expm it can be shown that 1 becomes
+Dcid88
+Ls 
+s  d
+cid0diag  Ls  LT dcid1 
+If the set of exciting modes are given we can insert s  d for d  1     D in the above equation
+and obtain the system of D equations
+References
+1 Emmanuel Bacry Khalil Dayri and Jean-Francois Muzy Non-parametric kernel estimation
+for symmetric hawkes processes application to high frequency nancial data The European
+Physical Journal B 855112 2012
+2 Emmanuel Bacry Sylvain Delattre Marc Hoffmann and Jean-Francois Muzy Some limit
+theorems for hawkes processes and application to nancial statistics Stochastic Processes and
+their Applications 123724752499 2013
+3 Emmanuel Bacry and Jean-Francois Muzy Second order statistics characterization of hawkes
+processes and non-parametric estimation preprint arXiv14010903 2014
+4 Fischer Black and Myron Scholes The pricing of options and corporate liabilities The journal
+of political economy pages 637654 1973
+5 Clive G Bowsher Modelling security market events in continuous time Intensity based mul-
+tivariate point process models Journal of Econometrics 1412876912 2007
+6 Pierre Bremaud and Laurent Massoulie Stability of nonlinear hawkes processes The Annals
+of Probability pages 15631588 1996
+7 Jalal Etesami and Negar Kiyavash Directed information graphs A generalization of linear
+dynamical graphs In American Control Conference ACC 2014 pages 25632568 IEEE
+8 Alan G Hawkes
+Spectra of some self-exciting and mutually exciting point processes
+Biometrika 5818390 1971
+9 Alan Jeffrey Complex analysis and applications volume 10 CRC Press 2005
+10 Erik Lewis and George Mohler A nonparametric em algorithm for multiscale hawkes pro-
+cesses Preprint 2011
+11 Scott W Linderman and Ryan P Adams Discovering latent network structure in point process
+data preprint arXiv14020914 2014
+12 Thomas Josef Liniger Multivariate hawkes processes PhD thesis Diss Eidgenossische
+Technische Hochschule ETH Zurich Nr 18403 2009 2009
+13 George O Mohler Martin B Short P Jeffrey Brantingham Frederic Paik Schoenberg and
+George E Tita Self-exciting point process modeling of crime Journal of the American Statis-
+tical Association 106493 2011
+14 Ioane Muni Toke and Fabrizio Pomponio Modelling trades-through in a limited order book
+using hawkes processes Economics discussion paper 2011-32 2011
+15 Yosihiko Ogata Seismicity analysis through point-process modeling A review Pure and
+Applied Geophysics 1552-4471507 1999
+16 T Ozaki Maximum likelihood estimation of hawkes self-exciting point processes Annals of
+the Institute of Statistical Mathematics 311145155 1979
+17 Judea Pearl Probabilistic reasoning in intelligent systems networks of plausible inference
+Morgan Kaufmann 1988
+18 Julio Cesar Louzada Pinto Tijani Chahed and Eitan Altman Trend detection in social net-
+works using hawkes processes In Proceedings of the 2015 IEEEACM International Confer-
+ence on Advances in Social Networks Analysis and Mining 2015 pages 14411448 ACM
+19 Christopher Quinn Negar Kiyavash and Todd P Coleman Directed information graphs
+Transactions on Information Theory 611268876909 2015
+20 Christopher J Quinn Negar Kiyavash and Todd P Coleman Equivalence between minimal
+generative model graphs and directed information graphs In Information Theory Proceedings
+ISIT 2011 IEEE International Symposium on pages 293297 IEEE 2011
+21 Patricia Reynaud-Bouret Sophie Schbath et al Adaptive estimation for hawkes processes
+application to genome analysis The Annals of Statistics 38527812822 2010
+22 Thomas Schreiber Measuring information transfer Physical review letters 852461 2000
+23 Tsachy Weissman Young-Han Kim and Haim H Permuter Directed information causal es-
+timation and communication in continuous time Information Theory IEEE Transactions on
+59312711287 2013
+24 Shuang-Hong Yang and Hongyuan Zha Mixture of mutually exciting processes for viral dif-
+fusion In Proceedings of the 30th International Conference on Machine Learning ICML-13
+pages 19 2013
+25 Ke Zhou Hongyuan Zha and Le Song Learning triggering kernels for multi-dimensional
+hawkes processes In Proceedings of the 30th International Conference on Machine Learning
+ICML-13 pages 13011309 2013

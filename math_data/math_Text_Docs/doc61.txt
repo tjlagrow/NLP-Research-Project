@@ -1,0 +1,1808 @@
+September 8 2015
+An Estimation Procedure for the Hawkes Process
+Matthias Kirchner
+RiskLab Department of Mathematics ETH Zurich Ramistrasse 101 8092 Zurich
+Switzerland
+This version September 8 2015
+In this paper we present a nonparametric estimation procedure for the multivariate Hawkes point
+process The timeline is cut into bins andfor each component processthe number of points in
+each bin is counted The distribution of the resulting bin-count sequences can be approximated by
+an integer-valued autoregressive model known as the multivariate INARp model We represent
+the INARp model as a standard vector-valued linear autoregressive time series with white-noise
+innovations VARp We establish consistency and asymptotic normality for conditional least-squares
+estimation of the VARp respectively the INARp model After an appropriate scaling these time
+series estimates yield estimates for the underlying multivariate Hawkes process as well as formulas for
+their asymptotic distribution All results are presented in such a way that computer implementation
+eg in R is straightforward Simulation studies conrm the eectiveness of our estimation procedure
+Finally we present a data example where the method is applied to bivariate event-streams in nancial
+limit-order-book data We t a bivariate Hawkes model on the joint process of limit and market
+order arrivals The analysis exhibits a remarkably asymmetric relation between the two component
+processes incoming market orders excite the limit order ow heavily whereas the market order ow
+is hardly aected by incoming limit orders
+Keywords Hawkes process estimation integer-valued autoregressive time series contagion model
+intraday nancial econometrics
+JEL Classication C13 C14 C22 C51
+Introduction
+In this paper we introduce a nonparametric estimation procedure for the multivariate Hawkes
+point process see Denition 36 for the formal denition and Figure B1 for an illustrative
+summary of the main results The Hawkes process is a model for event streams Its alternative
+name selfexciting point process stems from the fact that any event has the potential to
+generate new events in the future Our estimator gives substantial information on this excitement
+nonmonotonicities or regime switches in the excitement of the tted Hawkes model can be
+detected the estimates may also help with the choice of parametric excitement-functions The
+asymptotic distribution of the estimator can be derived so that condence bounds are at hand
+Also note that the presented estimation method is numerically less problematic than the standard
+likelihood-approach Last but not least the gures generated from the estimation results are a
+graphical tool for representing large univariate and multivariate event datasets in a compact
+and at the same time informative way In particular the estimation results can be interpreted
+as measures for interaction and stability of empirical event-streams This will be highlighted in
+Email matthiaskirchnermathethzch
+September 8 2015
+the data example at the end of the paper where we apply the estimation procedure to the order
+arrival times in an electronic market
+The Hawkes process was introduced in Hawkes 1971ab as a model for event data from
+contagious processes Theoretical cornerstones of the model are Hawkes 1974 Bremaud and
+Massoulie 1996 2001 Liniger 2009 and Errais et al 2010 For a textbook reference that
+covers many aspects of the Hawkes process see Daley and Vere-Jones 2003 The main theo-
+retical reference for the following presentation is our own contribution Kirchner 2015 where
+we show that Hawkes processes can be approximated by certain discrete-time models
+By the omnipresence of event-type data the Hawkes process has become a popular model
+in many dierent contexts such as geology eg earthquake modeling in Ogata 1988 internet
+trac eg youTube clicks in Crane and Sornette 2008 biology eg genome analysis in
+Reynaud-Bouret and Schbath 2010 sociology eg crime data in Mohler et al 2011 or
+medicine eg virus spreading in Kim 2011 A most active area of scientic activity today is
+nancial econometrics with applications of Hawkes processes to the modeling of credit defaults
+in Errais et al 2010 extreme daily returns in Embrechts et al 2011 market contagion in
+At-Sahalia et al 2015 and numerous applications to limit-order-book modeling such as high-
+frequency price jumps in Bacry et al 2012 and Chavez-Demoulin and McGill 2012 order
+arrivals in Bacry et al 2011 or joint models for orders and prices on a market microstructure
+level in Muzy and Bacry 2014 Early publications applying the Hawkes model in the nancial
+context are Bowsher 2002 Chavez-Demoulin et al 2005 and McNeil et al 2005
+The paper is organized as follows Section 2 explains how Hawkes processes can be approx-
+imated by specic integer-valued time series and how this approximation yields an estimation
+procedure Section 3 denes the new Hawkes estimator formally and discusses its properties
+Section 4 renes the procedure by giving methods for a reasonable choice of the estimation pa-
+rameters Section 5 presents the data example where the ideas of the paper are applied to the
+analysis of intraday nancial data The last section concludes with a discussion on the implica-
+tions of the presented results Appendix A contains proofs and Appendix B presents illustrating
+gures Large parts of the paper are accompanied by examples with simulated data in favor
+of a linear reading ow we directly illustrate all new concepts with such examplesinstead of
+devoting a separate section to simulations
+2 Approximation of Hawkes processes
+In this section after dening the Hawkes process we introduce autoregressive integer-valued time
+series We clarify how this model approximates the Hawkes model and how this approximation
+yields an estimation procedure
+21 The Hawkes process
+From a geometric point of view a Hawkes process species a distribution of points on one or
+more lines Typically the lines are interpreted as time and the points as events Selfexciting
+point process is the common alternative name for the Hawkes process It highlights the basic
+idea of the model given an event the intensitythe expected number of events in one time
+unitshoots up selfexcites and then decays forgets its past gradually The shape of this
+decay is specied by a function namely the excitement function The denition and the proof
+of existence of a Hawkes process are subtle matters For rigorous theoretical foundation we
+refer to Liniger 2009 Chapter 6 We assume a basic underlying probability space  PF
+complete and rich enough to carry all random variables involved On this probability space we
+dene stochastic point-sets P  R of the form P      T1 T0 T1    with Tk  Tk1 k  Z
+September 8 2015
+having almost surely no limit points Furthermore we assume that the -algebras
+     P  a b  n  n  N0 a  b  t
+t  R
+cid32cid26
+cid27cid33
+are subsets of F By setting
+NP A   P  A  A  BR
+any stochastic point-set P denes a random measure NP on BR the Borel sets of R At this
+point we drop the P index the set P is completely specied by N  NP  In this paper we call
+a random measure N of this kind point process and we call the ltrationcid0HN
+cid1 cid0HP
+cid1 history
+of the point process The conditional intensity of a point process N is
+cid105
+N t  lim
+N t t  HN
+t  R 
+A Hawkes process is a stationary point process N with conditional intensity
+N t   
+ht  sN ds 
+t  R 
+nents ie N cid0N 1     N dcid1cid62
+The constant   0 is called baseline intensity and the function h  R0  R0 measurable is
+called excitement function Necessary existence-conditions are discussed below
+For d  N a d-variate Hawkes process N is a process with d point processes on R as compo-
+ Each component process counts points from random point-
+sets P1  R    Pd  R In this multivariate setup the counting processes N k k  1     d
+do not only selfexcite but in general also interact with each other crossexcite The base-
+line intensity  is a d-variate vector in Rd0 and the excitement function is a measurable d  d
+matrix-valued function H  hij1ijd  R0  Rdd0  The conditional intensity of a d-variate
+Hawkes process is Rd0-valued with
+Nt  lim
+Nt t  HN
+Ht  sN ds 
+t  R
+Ecid104
+cid105
+tcid90
+where for i  1     d tcid90
+cid32cid26
+cid27
+    Ncid0a bcid1  n
+Ht  sN ds
+ dcid88
+tcid90
+cid33
+0 a  b  t
+ n  Nd
+hijt  sN j ds
+of the matrix Ht denotes the eect of any event T j
+component i at time T j
+ In other words the entry hijt
+k  Pj in component j on the intensity of
+k  t See Figure B2 for an example of a bivariate Hawkes process In
+Ecid104
+tcid90
+September 8 2015
+Hawkes 1971b we nd the following sucient condition for existence if
+cid110k  k eigenvalue of matrix K
+cid111
+cid18cid82
+where K 
+sprK  max
+cid19
+hijtdt
+1ijd
+ then a process with conditional intensity as in 3 exists The
+matrix K in 5 is sometimes referred to as branching matrix and the entries of K as branching
+coecients These terms reect an alternative view on the process as a special cluster process
+Hawkes 1974
+In each of the components of a d-variate Hawkes process we observe cluster centers that stem
+from independent homogeneous Poisson processes with rates 1     d These cluster centers are
+also called immigrants or exogenous events Such an immigrant I j  R in component j triggers
+d inhomogeneous Poisson processes in components i  1     d with intensities hij
+1     d And each of these new points again produces d inhomogeneous Poisson processes in a
+similar way so that the clusters are built up as a cascade of inhomogeneous Poisson processes
+The non-immigrant events are called ospring or endogenous events Disregarding the time
+component and only considering this immigrantospring structure one actually has a branching
+process with immigration where the number of direct ospring in component i from an event
+cid0  I jcid1  i 
+in component j is Poiscid0Kij
+cid1 distributed
+22 Parametrization and estimation of Hawkes processes
+In most cases the data analysts choice of the excitement function H of a Hawkes process is a
+somewhat arbitrary parametric functionthe main decision being between exponential functions
+or power-law functions The function parameters are then estimated via standard likelihood
+maximization Power-law decay of the excitement functions often turns out to be more realistic
+in applications exponential decay yields a likelihood that is numerically easier to handle by
+recursive representation see Ogata 1988 In addition exponential excitement functions are
+mathematically attractive because they yield a Markovian structure for the conditional intensity
+see Errais et al 2010 Even if the choice between exponential and power-law decay is handled
+carefully these two functional families cannot catch regime switches or nonmonotonicities of
+excitement functions as in Figure B2 So it seems important to develop methods that can identify
+shapes of excitement in data with less stringent assumptions Another motivation for our research
+on estimation of the Hawkes model stems from numerical issuesespecially encountered in the
+multivariate case A third gap that we aim to close with our paper is the derivation of the
+asymptotic distribution of the estimates
+Note that in Bacry et al 2012 another nonparametric method for the estimation of the
+multivariate Hawkes process is developed it can be interpreted in our approximation framework
+We will touch this alternative approach in Section 32
+Intuition of the approximation
+The main idea is simple given a possibly multivariate Hawkes process we divide the time
+line into bins of size   0 and count the number of events in each bin for each component
+These bin counts form an N0-valued stochastic sequence Nd
+0-valued in the d-variate case
+The distribution of this sequence can be approximated by a well-known time series model We
+present the heuristics behind the approximation in the case of a univariate Hawkes process N
+with baseline intensity   0 and excitement function h with cid82 hdt  1 For some   0 we
+ Ncid0n  1 ncid1 n  Z  We want to argue that for small   0
+dene the bin-counts X 
+September 8 2015
+and large p  N we have that
+cid16 X 
+Ecid104 X 
+cid12cid12cid12
+Ecid104 X 
+cid17cid105   
+pcid88
+n1 X 
+n2   
+hk X 
+cid105cid32
+ncid90
+n1
+n1
+tHN
+n1
+We divide the approximation above in three separate approximation-steps
+nk n  Z 
+cid33
+cid105
+Ecid104
+n1cid90
+n1cid90
+np1
+pcid88
+2   
+hn  uN du
+   
+hn  uN du
+  
+hk X 
+nk n  Z 
+The estimator we are about to present ignores the three approximations above and treats
+them as equalities In doing so we make a distributional error 7 a cut-o error 8 and a
+discretization error 8 There is an integer-valued time series that solves the approximative
+bin-count equation 6 to the point the integer-valued autoregressive model of order p  N the
+INARp model
+24 The INARp model
+to manipulate the standard system of autoregressive dierence-equations Xn cid80 kXnk 
+The INARp process was rst proposed by Li and Yuan 1991 as a time series model for count
+data For the history and an exhaustive collection of properties of the model see da Silva 2005
+For a textbook reference see Fokianos and Kedem 2012 The main idea of the construction is
+n n  Z in such a way that its solution Xn is integer valued This is achieved by giving the
+error terms a distribution supported on N0 and substituting all multiplications with independent
+thinning-operations The following notation from Steutel and van Harn 1979 makes the analogy
+particularly obvious
+Definition 21 For an N0-valued random variable Y and a constant   0 dene the thinning
+operator  by
+Ycid88
+  Y 
+where 
+thatcid800
+ 
+k1 
+    are iid and independent of Y with 
+1  Poisson We use the convention
+We immediately present the multivariate version of the thinning operator and the multivariate
+version of the INARp
+September 8 2015
+Definition 22 For a dd matrix A  ij1ijd  Rdd0 and an Nd-valued random variable
+cid62
+X  X1 X2     Xd
+ dene the multivariate thinning operator cid126 by
+
+dcid80
+dcid80
+ 
+1j  Xj
+dj  Xj
+A cid126 X 
+where the thinnings ij    operate independently over 1  i j  d
+Definition 23
+sequence of vectors in Nd
+A d-variate INARp sequence is a stationary sequence XnnZ of Nd
+it is a solution to the system of stochastic dierence-equations
+Let d p  N Ak  Rdd0  k  1     p a0  Rd0 and nnZ an iid
+0 with mutually independent components 0i  Poisa0i i  1     d
+0-valued random vectors
+pcid88
+Ak cid126 Xnk  n n  Z
+where the  cid126 operate independently over k and n and also independently of n We refer to
+a0 as innovation-parameter vector and to Ak k  1 2     p as thinning-coecient matrices
+This model has rst been considered in Latour 1997 In the same paper we nd that if all
+zeros of
+z cid55 det
+cid32
+z1dd  pcid88
+cid33
+z  C
+cid1 In partic-
+lie inside the unit circle then a multivariate INARp process as in Denition 23 exists
+coecients k k  1     p Note that the criterion from above now simply readscid80p
+Under this condition we have that XnXn1 Xn2     Poiscid00 cid80p
+ular EXnXn1 Xn2      0 cid80p
+Consider a univariate INARp sequence Xn with innovation parameter 0 and thinning
+k1 k  1
+k1 kXnkwhich is the exact version of 6 The
+INARp sequence has a similar immigrantospring structure as the Hawkes process In the
+time series case the possibly multiple immigrants at each time step stem from iid Pois0
+variables Each of these immigrants produces Poisk new ospring events at k time steps later
+Each of these ospring events again serves as parent event for new ospring etc A more obvious
+choice for the distribution of the counting sequences in Denition 21 would be Bernoulli Note
+however that for small thinning coecients the Poisson and the Bernoulli approaches are very
+similar Also note that the Poisson distribution is more convenient for our purpose we want to
+interpret the INARp model as an approximation of the bin-count sequence of a Hawkes process
+and in the Hawkes model an event can have potentially more than one direct ospring event
+in a future time-interval In addition in the Poisson case we do not have to exclude thinning
+coecients larger than one
+k1 kXnk
+25 Approximation of the Hawkes process by the INARp model
+We examine the close relation between Hawkes point processes and INAR time series in Kirchner
+2015 For a particularly obvious parallel the reader may consider the analogy of the existence
+criteria 5 and 10 Our cited paper gives a precise convergence statement for the univariate
+September 8 2015
+N cid0a bcid1 
+cid88
+X 
+a  b   0 1
+Theorem 24 
+case After establishing existence and uniqueness of the INAR process as a generalization of
+Denition 23 with d  1 and p   we prove
+piecewise-continuous excitement function h  R0  R0 such that cid80
+Let N be a univariate Hawkes process with baseline intensity   0 and
+k1 h k   1 for
+n  be a univariate INAR sequence with innovation
+ h k  k  N and dene a family of
+all   0 1 Furthermore let X 
+parameter 
+point processes by
+  and thinning coecients 
+Then we have that for   0 the INAR-based family of point processes cid0N cid1 converges
+n nab
+weakly to the Hawkes process N 
+Proof This is Theorem 3 in Kirchner 2015
+cid3
+Proposition 25
+Note that weak convergence of point processes is equivalent to convergence of the correspond-
+ing nite-dimensional distributions see Daley and Vere-Jones 2003 Theorem 111VII The
+other result from Kirchner 2015 that is important for our estimation purpose is the fact that
+INAR processes can be approximated by INARp processes p  
+Let Xn be an INAR sequence with innovation parameter 0  0
+and thinning coecients k  0 k  N Furthermore let cid0X p
+sequence where the thinning coecients are truncated after the p-th lag That is cid0X p
+for p   the nite-dimensional distributions of cid0X p
+distributions ofcid0Xn
+cid1 be a corresponding INARp
+cid1 has
+cid1 converge to the nite-dimensional
+ 0 and thinning coecients p
+ 1kpk k  N  Then
+innovation parameter p
+cid1
+Proof This is Proposition 3 in Kirchner 2015
+cid3
+We have not worked out the multivariate versions of Theorem 24 and Proposition 25 above
+However the simulations presented further down in the paper support the assumption that
+both results also hold in the multivariate case Under this assumption we have the following
+approximation
+ a
+vector a
+Basic Approximation
+   and thinning-coecient matrices A
+Let N be a d-variate Hawkes with baseline-intensity vector  and excitement function
+ap
+small   0 and large p  0 we have that
+cid1 be a d-variate INAR sequence with innovation-parameter
+H as in 3 Let cid0 X
+cid1 be a corresponding INARp sequence with baseline intensity
+for p  N let cid0 Xp
+Ncid00 cid1 Ncid0 2cid1     Ncid0m  1 mcid1cid17
+cid16
+dcid16
+dcid16
+ Hk k  N Furthermore
+and p thinning-coecient matrices Ap
+ k  1     p Then for
+ m  N 
+     X
+     Xp
+ A
+ Xp
+Xp
+cid17
+ X
+cid17
+September 8 2015
+If suppH  0 s for some nite s  0 then the second approximation becomes an equality
+for all p  cid100scid101
+The approximation summarized in the box above is the key observation for our estimation
+procedure
+i Choose a small bin-size   0 and calculate the bin-count sequence of the events stemming
+from the Hawkes process
+ii Choose a large support s  p and t the approximating INARp model to the bin-count
+iii Interpret the scaled innovation-parameter estimate ap
+sequence via conditional least-squares
+ as the natural candidate for
+an estimate of  and for k  1 2     p interpret the scaled thinning-coecient matrix
+estimates Ap
+ as natural candidates for estimates of H k
+Before giving the formal denition of the estimator in the next section we illustrate the power
+of the presented method in Figure B1
+3 The estimator
+In this section we rst discuss estimation of the approximating INARp process Then we dene
+our Hawkes estimator formally and collect some of its properties Furthermore we present results
+of a multivariate simulation study that support our approach
+31 Estimation of the INARp model
+There are several possibilities to estimate the parameters of an INARp process As the mar-
+gins are conditionally Poisson distributed in principle maximum-likelihood estimation MLE
+can be applied In our context however numerical optimization of the likelihood is dicult
+as the number of model parameters will typically be very large A method-of-moments type
+estimator would be the YuleWalker method YW A third method is the conditional least-
+squares estimation CLS We formulate the estimation in terms of CLS rather than in terms
+of YW for three reasons i For small sample-sizes CLS is known to have a lower variance
+than YW ii The CLS-estimator allows to present the estimation of excitement function and
+baseline intensity in the same formula iii The asymptotic properties of the YW- and the CLS-
+estimator are the same Their derivation however is typically done in the CLS-setting In any
+case even for medium sample-sizes we note only very small dierences between MLE- YW-
+and CLS-estimates in simulation studies not illustrated Inference on CLS-estimation in the
+univariate INARp context has been discussed eg in Li and Yuan 1991 and Zhang et al
+2010 In both papers the reasoning is performed along the lines of Klimko and Nelson 1978
+which was originally developed for CLS-estimation of time series with the very general structure
+E XnXn1      gXn1 Xn2     where g may be nonlinear However as already no-
+ticed in Latour 1997 INARp sequences can be represented as standard ARp models with
+white noise innovation terms This yields ways for inference that are more direct
+Proposition 31 Let Xn be a d-dimensional INARp sequence as in Denition 23 with
+innovation-parameter vector a0  Rd0 0d and thinning-coecient matrices Ak  Rdd0  k 
+1 2     p such that 10 holds Then
+un  Xn  a0  pcid88
+Ak Xnk n  Z
+September 8 2015
+denes a dependent white-noise sequence ie un is stationary E un  0d n  Z and
+Ecid104
+cid105
+unucid62
+ncid48
+cid191cid33
+1dd  pcid80
+cid32cid18
+diag
+ n  ncid48
+n cid54 ncid48
+Proof This can be shown by straightforward if lengthy calculations see Appendix A1 cid3
+As a consequence of Proposition 31 a d-variate INARp process can be represented as a
+standard d-variate autoregressive time series with dependent white-noise errors
+Corollary 32
+sequence from Proposition 31 Then Xn solves the system of stochastic dierence-equations
+Let Xn be the multivariate INARp sequence and un the white-noise
+pcid88
+Xn  a0 
+Ak Xnk un n  Z 
+Such vector-valued time series with linear autoregressive structure have early on been exam-
+ined see eg Hannan 1970 However estimation in a multivariate context requires cumber-
+some notation In order to make our results comparable we follow one reference throughout
+namely the monograph Lutkepohl 2005 Adapting its notation is also the reason why we work
+with wide matricesie matrices having a number of columns in the order of the sample size
+instead of the more common long matrices
+Definition 33 Let xkkN be an Rd-valued sequence where we interpret xk as a column
+vector Fix p and n  N p  n and dene the multivariate conditional least-squares estimator
+CLS  Rdn  Rddp1
+pn
+x1     xn cid55 pn
+CLS x1     xn  Y Zcid62cid16
+
+Z Zcid62cid171
+  Rdp1np
+xp xp1    xn1
+   xn2
+xp1 xp
+   xnp
+Z x1     xn 
+is the design matrix and Y x1     xn  xp1 xp2     xn  Rdnp 
+Dealing with multivariate time series the following notations turn out to be useful
+Definition 34 The vec-operator takes a matrix as its argument and stacks its columns The
+binary -operator is the Kronecker operator  for an mn matrix A  aij and a pq matrix B
+A B is the mp nq matrix consisting of the block-matrices aijB i  1     m j  1     n
+The vec-notation arises because the estimator is matrix-valued and we have no notion of the
+covariance of a random matrix As we will see the -notation is strongly related to the vec-
+operator For a large collection of properties of these operators see Appendix A of Lutkepohl
+2005 The following theorem collects all relevant information for CLS-estimation of multivariate
+INARp sequences Together with the approximation results from Section 25 this theorem is
+the theoretical basis for our Hawkes estimation procedure
+September 8 2015
+Theorem 35 
+Let Xn be a d-dimensional INARp sequence as in Denition 23 with
+innovation-parameter column vector a0  Rd0 0d and thinning-coecient matrices Ak 
+Rdd0  k  1 2     p such that sprcid0cid80p
+B cid0A1 A2     Ap a0
+cid0Xkk1n
+ pn
+cid1  1 Let
+cid1  Rddp1
+cid1  Rddp1
+the CLS-estimator with respect to the sample Xkk1n Then B
+is a weakly consistent
+estimator for B Furthermore let Z be the design matrix from Denition 33 with respect to
+Xkk1n Assume that the limit
+n  p
+Z Zcid62 p   Rdp1dp1 n  
+exists and is invertible In addition assume that the model is irreducible in the sense that
+PX0i  0  1 i  1 2     d Then for the asymptotic distribution of vec
+one has for n  
+cid16 B
+ncid17  Rd2pd
+cid16
+veccid0 B
+ncid1  veccid0 Bcid1cid17
+n  p
+d Nd2pd
+cid20cid16
+cid17
+Z0 1dd
+u0  X0 a0  pcid88
+Ak Xk
+cid1 Wcid01  1dd
+cid1cid17
+ Rd2pdd2pd
+cid16
+0d2pdcid01  1dd
+cid17cid62cid21
+cid16cid0 Z0 1dd
+cid1u0
+cid16
+and Z0 
+Xcid62
+1 Xcid62
+2     Xcid62
+p 1
+cid17cid62
+Proof In view of Corollary 32 it suces to prove Theorem 35 for the corresponding vector-
+valued autoregressive time series So the distributional properties of the CLS-estimator can be
+derived similarly as in Lutkepohl 2005 pages 7075 where independent errors are assumed
+We provide a highly self-contained proof for the dependent white-noise case in Appendix A2 cid3
+Note that the condition PX0i  0  1 i  1 2     d in Theorem 35 above is purely
+technical if we had PX0i0  0  1 for some i0 this would imply that in one component of our
+sample we cannot observe any events We may exclude this case with a clear conscience
+32 The Hawkes estimator
+Combining Theorem 35 with the basic approximation from Section 25 yields the following
+estimator for multivariate Hawkes processes
+Definition 36 Let N cid0N 1 N 2     N dcid1 be a d-variate Hawkes process with baseline-
+intensity vector   Rd0 0d and excitement function H  hij  R0  Rdd0
+such that
+5 holds Let T  0 and consider a sample of the process on the time interval 0 T  For some
+September 8 2015
+  0 construct the Nd
+0-valued bin-count sequence from this sample
+cid18
+N jcid16cid0k  1 kcid3cid17cid19
+k  1 2     n  cid98T cid99 
+j1d
+Dene the multivariate Hawkes estimator with respect to some support s   s  T  by
+applying the CLS-operator from Denition 33 with maximal lag p  cid100scid101 on these bin-counts
+cid18cid16
+cid17
+cid19
+Hs 
+pn
+k1n
+We collect the main properties of the estimator in the following remark
+Remark 1  The following additional notation claries what the entries of the Hs matrix
+actually estimate
+cid16 H s
+ scid17
+     H s
+ Hs
+cid16 H s
+cid98tcid99
+cid17
+cid16
+scid17
+From Theorem 35 on estimation of INARp sequences together with the basic approximation
+in Section 25 we see that for 0  t  s
+i j  1     d
+respectively
+i  1     d
+are weakly consistent estimates for T     0 and s  p   for the excitement-
+function component value hijt respectively for the baseline-intensity vector component i
+Furthermore we nd from Theorem 35 that
+cid16 Hscid17 approx Nd2pd
+cid18
+vec H 
+2n  p
+cid01  1dd
+cid1 Wcid01  1dd
+cid1cid19
+where  and W are dened as in 11 and 12 with respect to the bin-count sequences Substi-
+tuting  and W with their empirical versions yields the covariance estimate
+cid18cid16
+Z Zcid62cid171  1dd
+cid19 ncid88
+wk wcid62
+cid18cid16
+Z Zcid62cid171  1dd
+cid19
+S2 
+where Z is the design matrix from Denition 33 with respect to the bin-count sequence and for
+k  p  1 p  2     n
+cid32cid18cid16
+cid17cid62
+cid16
+cid33
+ 1dd
+cid16
+cid19cid62
+cid17cid62
+cid17cid62
+cid32
+Xk s  pcid88
+    
+cid33
+ H s
+Following formulas are useful for implementation of condence intervals
+cid18cid16 H s
+cid17
+cid19
+cid16 H s
+cid17
+k11d2j11di1 k21d2j21di2
+September 8 2015
+for i1 i2 j1 j2  1     d and k1 k2  1     p
+cid16
+cid17
+s
+ s
+pd2i1 pd2pi2
+for i1 i2  1  d
+Applying Remark 1 above together with Denitions 33 and 36 our Hawkes estimation proce-
+dure may be implemented in a straightforward manner However we emphasize that the resulting
+matrix Hs in 14 does not completely specify a tted Hawkes model it only yields pointwise
+estimates on a grid whereas the true excitement-parameter is a function on R0 see Section 21
+To complete the estimation we have to apply some kind of smoothing method over the pointwise
+estimated values We work with cubic splines normal kernel smoothers and local polynomial re-
+gression ksmooth smoothspline and loess in R We nd that the results do not vary
+signicantly The choice of the estimation parameters bin-size  and support s has more impact
+Therefore we focus on the selection of these estimation parameters see Section 4 The smooth-
+ing idea will be relevant in Section 42 where we discuss variance issues In many applications
+one can even avoid choosing and applying a smoothing method practitioners might want to
+use our estimation procedure from Denition 36 for identifying or rejecting certain parametric
+models For such purposes the pointwise estimates suce The same is true if the estimation
+procedure is used as a mere tool for representing large event datasets see Section 53 Finally
+one is often only interested in the integral of the excitement see comments after 5 In this
+case it makes more sense to directly add up the estimates rather than to take the detour over
+some smoothing method
+Finally we refer to the alternative nonparametric Hawkes estimation approach from Bacry
+et al 2012 Here an implicit equation for the autocovariance density of a Hawkes process is
+solved for the excitement function by Fourier analysis This approach corresponds to directly
+applying YW-estimation to the bin-count sequencesif somewhat in disguise Our procedure
+highlights the underlying approximation principle This explicit connection with powerful time
+series theory seems more fertile than the manipulations in Fourier space it is more intuitive
+simpler to implement and yields much simpler ways for inference
+33 Simulation studies
+We check the distributional properties of the Hawkes estimator collected in Remark 1 in a
+simulation study The results are summarized in Figure B3 We simulate 2 000 times from a
+ 05 025cid62 and excitement
+bivariate Hawkes model with baseline intensity   1 2
+function
+cid62
+cid19
+cid18 h11t h12t
+cid19
+h21t h22t
+cid18
+051  t2
+11t3025
+1t02 sint
+see Figure B2 for this parametrization and Figure B1 for an estimation of a single realization In
+each simulation about 5 000 events in each component are generated and our Hawkes estimator
+14 is calculated We apply a bin size   02 and a support parameter s  6 These calculations
+yield 2 000 matrices of the form Hs  R2121 We examine the estimations of 1  05 ie
+the baseline-intensity for the rst component and the estimations of h211  0125 ie the
+crossexcitement on component 2 from component 1 after one time unit These values correspond
+to the entries Hs
+in the estimator matrices We nd that the 2 000 estimates
+are distributed symmetrically around the true values The means of the estimates correspond
+almost completely to the true values QQ-plots support the asymptotic normality result For
+both estimations we also calculate the variance estimates from 16 Comparing the empirical
+variance of the 2 000 estimates with the 2 000 estimated variances conrms the analytic result
+Furthermore the empirical covering rates for the 95-condence intervals are 945 for the
+baseline-intensity estimate respectively 948 for the excitement-value estimate Note that the
+1121 and Hs
+September 8 2015
+applied estimation parameters   02 and s  6 are considerably wrong the bin-size is quite
+large and the true support of H would be  We may interpret the successful estimation as a
+sign for the robustness of the method with respect to the estimation parameters
+Separately we examine the impact of the choice of the bin-size  the support s and the
+size of the sample window 0 T  on the variances of the estimates see Figure B4 For various
+ s and T  we calculate 16 the estimated covariance of the estimator matrix with respect
+to a single very large sample We nd that the excitation and baseline estimation variances
+with respect to sample windows 0 T  are proportional to T 1 Variances slightly increase if we
+increase the support parameter s The variance of the baseline intensity estimate with respect
+to  is roughly constant in  However the variance of the excitement estimate with respect
+to  is proportional to 1 Albeit this relation we will see in Section 42 that the excitement
+estimates are still meaningful for very small values of 
+4 Renements
+Our Hawkes estimator H
+from Denition 36 depends on a bin size   0 and on a support
+s  0 In the following section we present procedures for sensible choices of these parameters
+Furthermore we discuss numerical and diagnostic issues
+s
+41 The choice of support
+Estimating the support of the excitement function of a Hawkes process corresponds to estimating
+the largest lag of a nonzero thinning-coecient matrix of the approximating INAR sequence
+In view of the VARp representation of INARp sequences from Corollary 32 we can use any
+model-selection procedure stemming from traditional time series analysis see Chapter 43 of
+Lutkepohl 2005 for an overview of such procedures in the multivariate context For comparison
+of dierent order-selection methods for univariate INARp sequences see da Silva 2005  As
+a most common example we apply Akaikes information criterion AIC see Akaike 1973
+We work in the setup of Denition 32 The starting point is a sample of a d-variate Hawkes
+process on 0 T  together with a preliminary bin-size 0  0 In our experience a preliminary
+bin-size such that there is about one event in average per bin and component is a good choice
+With respect to this 0 we calculate the bin-count sequences as in 13 Now let n0  cid98T 0cid99
+and s0  0 be some very large support eg s0  T 10 Then for p  1 2    cid100s00cid101 we
+calculate Akaikes information criterion
+cid16
+cid17
+AICp  log
+det p
+n0  p
+cid62
+ Here with the notation from Remark 1
+where p  1n0  pcid80n0
+k up
+kp1 up
+ Xk 00s  pcid88
+0 H 0s
+Xkl
+k  p  1 p  2     n0
+denote the estimated prediction-error vectors with estimated coecient-matrices from the t of
+the approximating INARp-model with respect to p lags see Lutkepohl 2005 for the mul-
+tivariate AIC-formula 18 Finally we choose pAIC  argminpcid100s00cid101 AICp as estimated
+maximal lag for the approximating INAR model respectively we choose sAIC  pAIC0 as
+support parameter in the calculation of the Hawkes estimator 14
+In parametric Hawkes setups the support of the Hawkes excitement function is typically chosen
+innite Our estimation procedure however assumes nite excitement This is not a big issue
+September 8 2015
+from 5 we get that the excitement-function components vanish for large times In other words
+the inuence of the tail of the excitement on the model is negligible see 8 and Proposition 25
+The only question remaining is how we can choose a support p  N respectively s  0 large
+enough so that the truncated model with the truncated excitement is a good approximation for
+the true model For this choice also the AIC-approach from above can help Applying AIC-
+selection naively on data generated from a Hawkes model with innite support yields support
+values so that the truncated part of the true excitement functions vanishes see the simulation
+study below As a side remark note that also the standard parametric approach suers from
+cut-o errors as we only observe data in nite time-windows
+We perform a simulation study for the support-choice methods described above These two
+univariate cases are summarized in Figure B6 We consider dierent Hawkes models univariate
+and bivariate processes both with nite as well as with innite excitement-function support
+For the univariate case we rst simulate from a Hawkes model with excitement function ht 
+expt1t3 and calculate the AIC-minimizing support with respect to dierent preliminary
+0 All results catch the true support very well Next we consider the case of innite support
+t cid55 expt with respect to three dierent decay parameters   11 15 2 Again we
+simulate large samples for each of the three -values and then calculate the three corresponding
+AIC-minimizing support estimates The smaller  the larger the tail of the true excitement
+function becomes andas desiredthe larger the support estimates sAIC get For all choices
+of  the ignored excitement weightscid82 
+sAIC exptdt are very small less than 103
+cid33
+Secondly we consider a bivariate Hawkes model with the excitement function H from 17 We
+realize a single large sample from this model Then we simulate another sample from a truncated
+version of the model with
+cid32
+cid18
+cid19
+H trt 
+h11t h12t
+21 t h22t
+1t4051  t2
+11t3025
+1t02 sint
+The AIC-minimizing support estimate is 95 for the original model and 42 for the truncated
+model So the AIC-approach is able to discriminate between these cases
+42 Choice of bin size
+s
+In the following we discuss the choice of the bin size   0 for the Hawkes estimator H
+Denition 36 We suppose a reasonable support s  0 has already been chosen by a procedure as
+described in Section 41 One can interpret the choice of the bin size  as a biasvariance trade-
+o the smaller  the smaller the potential bias stemming from the model approximation ie
+the smaller the errors 7 and 9 At the same time due to the 1 factor in the calculation of
+the estimator matrix Hs from 14 its componentwise variance increases when  decreases
+In a simulation study we simulate 100 times from a Hawkes model with excitement function
+ht  exp11t For each sample we calculate the Hawkes estimator with respect to three
+dierent bin sizes   01 05 1 Figure B5 collects the estimation results in boxplots The
+biasvariance trade-o is obvious Note however that we had to choose the bin-size quite large to
+make the bias visible at all Concerning the large variance we should keep in mind that the nal
+goal may be an estimation for the excitement-function components hijand not only a nite
+number of their values hijk k  1 2     p When we apply some smoothing method on these
+values a smaller  typically leads to an averaging over more point estimates This balances
+the increase in pointwise variance So if the goal of the estimation procedure is a completely
+specied Hawkes model then the smallest  that is numerically convenient may be chosen see
+the discussion after Remark 1 The following toy-example claries things
+We consider a smoothing method for which we can approximately calculate the variance
+Namely we dene a box moving-average with window size   0 For some bin size   0
+September 8 2015
+we consider a univariate Hawkes selfexcitement estimate H
+smoothed function-estimate we set
+p
+ h
+     h
+  As a
+Then using that Var
+k  k  t   2    we obtain
+ h
+  0 k cid54 l and that
+h  t cid55
+cid8k  k  t   2cid9 cid88
+cid17  c see Figure B4 Covh
+cid16h
+cid16h
+cid16ht
+cid17 
+k kt 2
+cid88
+ 2
+k kt 2
+t  0
+h
+cid17  c
+In other words the variance of the smoothed estimate is approximately constant in  The same
+eect can be observed empirically with more sophisticated smoothing methods for a single large
+simulated sample from a Hawkes process we calculate the pointwise Hawkes estimator from
+Denition 36 with respect to three dierent bin-sizes  Applying a cubic smoothing-spline
+procedure on the three results one ndes that the smoothed functions are hardly aected by the
+choice of 
+If we choose a very small bin-size  computation time becomes an issue The calculations
+in 14 require the construction of the design matrix Z from Denition 33 with about T 
+rows and about d  s columns Here T is the size of the time window d is the dimension
+of the process and s is the support parameter of the estimation Then the matrix Z Zcid62 has to
+be inverted This square matrix is approximately of size cid100d  scid101  cid100d  scid101 In short the
+smaller  the larger the matrices involved Note however that for a very small bin-size 
+the corresponding design-matrix is very sparse Specialized software makes construction and
+manipulation of sparse matrices numerically ecient see Bates and Maechler 2015
+cid16
+We now understand that the trade-o related to the bin-size choice is not so much a
+biasvariance trade-o but more a biasnumerical-issues trade-o To check if we have cho-
+sen  small enough we propose to calculate the biased estimate of the baseline intensity
+vector   i1id for a decreasing sequence of bin sizes 0  1  2     The vari-
+ance of the estimates sn
+ n  0 1    is approximately constant over the dierent bin-sizes
+see Figure B4 This makes the estimates comparable For i  1 2     d we plot the values
+sn
+against nn01 Typically one observes a monotone convergence in n to
+some constant or d constants for d  1 Plotting condence intervals around the point esti-
+mates indicates when the bias is negligible in comparison to the random noise of the estimate
+We will apply this method in the concluding data-example
+cid17
+n01
+43 Diagnostics
+We see a certain danger in the application of our nonparametric Hawkes estimator from Def-
+inition 36 Reasonable graphical results as in Figure B1 might be used as an argument in
+favor of the Hawkes process as the true model But this conclusion would be a misuse of the
+method In fact the proposed estimator depends only on second-order properties of the data
+So we have to expect that there is a whole family of point processes that generate the same
+excitement estimates although only one of these processes is a genuine Hawkes process As an
+example consider a continuous-time nonnegative stationary Markov chain that has the same
+second-order properties as some given Hawkes process We use this Markov chain as a stochastic
+intensity for another point process see Daley and Vere-Jones 2003 Example 103e The re-
+sulting doubly-stochastic point process is a point process with dierent distributional properties
+than the corresponding Hawkes process But our estimator will still yield the same results in
+September 8 2015
+both cases As another example consider a time-reversed Hawkes process Clearly this is not
+a Hawkes process anymore However the time-reversed version has the same autocovariance
+density as the original process and therefore our estimator will again yield the same result
+i1d one has thatcid82 T i
+cid1
+1988 for pointscid0T i
+sity  cid0icid1
+This means the application of our estimation approach always ought to be followed by a
+model test A most common basis for such a test in our context is a multivariate version
+of the random time-change theorem for point processes see Meyer 1971 Brown and Nair
+kZ i  1     d from a d-variate point process with conditional inten-
+i t dt Exp1 independently over i  1     d and
+k  Z  So after having t the Hawkes process to point process data we calculate the correspond-
+ing conditional-intensity estimate and time-transform the interarrival times These transformed
+interarrival times ought to be compared with theoretical Exp1-quantiles in a QQ-plot Next
+to this graphical method one ought to apply a KolmogorovSmirnov test and an independence
+test to the transformed interarrival times
+5 Data application
+There are two contexts of growing importance where large event-datasets are not the excep-
+tion but the rule internet trac and high-frequency data in nancial econometrics The paper
+concludes with an exemplary application of the estimation procedure to the latter
+51 The data
+The data we use stem from the limit order book LOB of an electronic market LOBs match
+buyers and sellers of a specic asset We will consider a certain future contract Whoever wants
+to buy or sell one or several of these contracts has to send his or her orders to the LOB An
+order basically consists of two pieces of information it names a the maximal respectively
+minimal price at which the sender is willing to buy respectively to sell and b the desired
+quantity in terms of numbers of contracts If the order is matched to another order the trade
+is executed Such orders that immediately nd counterparts are called market orders All other
+incoming orders are stacked in the LOB these are called limit orders Limit orders either wait
+for getting executed by a new incoming matching market order orand this happens relatively
+oftenthey are withdrawn after some time The empirical process of time points when orders
+arrive we call order ow Such an order ow can be modeled by a point process In particular our
+estimation method from Denition 36 allows to analyze the order ow in a Hawkes setup For a
+detailed survey of order-book quantitative analysis see Gould et al 2013 Financial intraday
+histories are attractive for econometric research as there is so much data available However by
+the very diering data qualities results are sometimes hard to compare To clarify our starting
+point we explain the context and the preparation of the data quite detailed
+We consider a sample of the LOB of E-mini SP 500 futures with most current maturity
+The enormous liquidity makes the data attractive for quantitative analysis Samples of these
+particular data have also been analyzed in the Hawkes setting eg by Filiminov and Sornette
+2012 and Hardiman et al 2013 Our particular data sample was provided by TickData inc
+It stems from September 2013 We have a separate dataset for quotes and for trades A new
+entry in the quotes data corresponds to one of the following three events
+i Arrival of some not marketable limit order
+ii Arrival of some market order ie a trade takes place
+iii Cancelation of some limit orders
+In the trade data set we see the traded price and the number of contracts traded
+In both datasets we observe ties ie multiple events with identical millisecond time-stamps
+September 8 2015
+These ties require special consideration as our model the Hawkes model does not allow for
+simultaneous jumps As data is so relatively sparse the multiple events cannot be accidental
+This leaves two possibilities either the multiples stem from a single order that has been split for
+some technical reason or the multiples are almost instantaneous responses to each other that are
+reported at the same millisecond due to rounding We may safely rule out this second possibility
+as yet it is impossible to react ie observe an order send an order let the electronic book
+record or match the new order in less than a millisecond In addition we had the opportunity to
+compare our data with a snapshot of the fully reconstructed LOB This complete data provide
+match tags for each order This additional information shows that nearly all multiple events are
+in fact orders from one single market-participant This conrms our point of view We therefore
+consider each time stamp in the datasets only once After the thinning procedure we derive two
+one-dimensional event datasets from our data
+ the trade data T and
+ the pure limit-order data L that collects all the times when a new non-marketable limit
+order has arrived or a limit order has been canceled
+In busy trading hours ie between 830am and 315pm Chicago time we observe about 5
+events per second in the trade data T  and about 12 events per second in the limit-order data
+L At Chicago night time all of these average intensities are up to twenty times smaller All
+interarrival-times processes exhibit signicant autocorrelation at large lags This rules out simple
+standard homogenous Poisson point processes as models as well as other renewal processes On
+the other hand the autocorrelation may also stem from nonstationarities of the underlying true
+model see Mikosch and Starica 2000
+52 Bivariate estimation of the marketlimit order process
+With our nonparametric method from Denition 36 we t a bivariate Hawkes process
+N T  N L on a single 30min-sample of the data T L namely on data from Friday
+20130906 1000am1030am Chicago time In this specic sample we observe about 20 000
+trades and 40 000 limit orders Our estimation procedure from Section 32 depends on a choice
+of support and on a choice of bin size For a sensible choice of these parameters we apply the
+methods from Sections 41 and 42
+As a rst step we calculate the Hawkes estimator with respect to a relatively large preliminary
+bin-size of 0  05 sec and for various support candidates between 1 and 300 seconds As
+proposed in Section 41 we compare the corresponding AIC-values This coarse analysis shows
+that the AIC-optimal support is surely less than 20 seconds Repeating the analysis with respect
+to a much ner bin-size 0  001 sec on the interval 0 sec 20 sec we nd an AIC-minimizing
+support of about 28 sec Let us note that the obtained minimum is much more clear-cut than
+in the controlled simulation study from Section 41 illustrated in Figure B6 We set s  3 sec
+In other words our support analysis indicates that the process forgets its past after three
+seconds This preliminary result is already interesting it can be interpreted such thatin this
+samplethe algorithms that drive the market only take not more than the last three seconds of
+the LOB-history into account
+For a reasonable choice of the bin-size parameter  we apply the method from Section 42
+That is we examine the impact of the bin-size choice on the estimation We leave the support
+s  3 sec xed and for dierent bin-size candidates  calculate the baseline-intensity estimate
+
+ i  1 2 together with the corresponding condence intervals see 14 and 15 for the
+necessary calculations We observe a monotone relation between the bin-size candidates and the
+corresponding baseline-estimates However for   001 sec the dierences of the estimates are
+of a lower order than their estimated condence intervals So it is sensible to assume that for
+this particular sample the bias of our estimation method becomes negligible for bin-size choices
+of   001 sec From the bivariate event dataset we nally calculate the Hawkes estimator from
+September 8 2015
+Denition 36 with respect to support s  3 sec and bin size   001 sec Figure B8 summarizes
+the estimation results for this specic time thirty minute window The baseline intensity of the
+limit-order process L is about four times larger than the baseline intensity of trades process T 
+In both processes we observe a strong and quite similar selfexcitement The crossexcitement
+however is obviously directed we observe a very strong crossexcitement from T on L but hardly
+an eect from L on T  The estimated interactions can be summarized in the branching-matrix
+estimate
+cid18 062004 003001
+055006 054003
+cid19
+ ie
+cid32T 062cid32 T L 003cid32 T
+T 055cid32 L L 054cid32 L
+cid33 
+See Remark 1 for the calculation of the point estimates as well as the 95-condence bounds of
+the branching-matrix components Also see the explanations after 5 for the interpretation of the
+branching-matrix that is indicated in the right matrix The largest eigenvalue of matrix 19 ie
+the stability-criterion estimate is 072 The strong asymmetry in 19 may be interpreted such
+that the trades cause the limit orders and cancelations and not vice versa In further analysis
+we found that the estimated branching-matrix and in particular the asymmetric crossexcitement
+is quite stable over all thirty minute windows of the busy trading hours not illustrated In the
+crossexcitement from T on L we observe local maxima at half and whole seconds This eect
+may have two causes it reects a preference either for absolute or for absolute round times To
+put it dierently some of the order-sending algorithms that indeed react on trade events may
+have an implemented lag of half or full seconds
+In a second approach we t the Hawkes model to the same sample as above This time
+however we ignore the best support choice and set it naively to s  01 sec only In addition we
+apply an extremely small bin size of   0002 sec In the rst milliseconds after each event the
+results indicate an inhibitory eect the Hawkes model does not allow for negative excitement
+Still this result is not surprising It reects the fact that it takes at least 3 or 4 milliseconds
+for any market participant to observe and react to a change in the LOB In the smoothed
+function-estimate of the selfexcitement of the rst component the trades process we detect
+local maxima at 01 sec multiples As above this may be is a sign that 01 sec is the resolution
+of some of the algorithms that drive the market Also note that in this naive t the baseline-
+intensity estimates are much larger than in the rst t these large values are a compensation
+for the too small support choice
+Naturally the tted Hawkes model is only completely specied when we smooth the results
+from the estimation method on the grid by some kind of smoothing mechanism that yields a func-
+tion H  R0  R22 We do this with a cubic smoothing spline method Having thus completely
+specied the model we apply a KolmogoroSmirnov test on the transformed interarrival-times
+see Section 43 The test rejects the tted model for the 30 min-window This is not surprising
+given the very large sample-size we are very likely to include abnormal interarrival times that
+our model cannot catch the KolmogoroSmirnov test is particularly sensitive to such outliers
+Dividing the 30 min-windows into smaller samples of 100 events yields plausible p-values not
+illustrated For further interpretation of the diagnostics see the discussion in Section 53 below
+Interpretation of the estimation results
+The interpretation of the estimation results from Section 52 is not straightforward observing the
+income of an order makes people respectively algorithms send other orders In this sense we
+may expect some quite direct true excitement in LOB data In our modeling approach however
+any uctuation of exogenous processes that inuence the observed event-process will also be
+detected as selfexcitement Candidates for such covariate processes in our context are volume
+arrival of orders away from the best bid or best ask price spread or even data from other assets
+such as options on SP 500 E-mini futures A most natural way to model this situation would be
+September 8 2015
+a joint multivariate Hawkes model However doing statistics with so little knowledge about the
+state or even the dimensionality of the process will yield new problems So the best way to get
+rid of articial selfexcitement in the Hawkes model is presumably to make the baseline intensity
+more exible For an example of such a Hawkes model with stochastic baseline-intensity see
+Zhao 2012 To summarize our estimation method can indeed detect self- or crossexcitement
+in data However we ought to be careful with interpretation of these terms
+The Hawkes t is meaningful and fertile despite of the criticism above and despite of the
+vanishing p-values in our application plots of excitement estimates as in Figure B8 are visu-
+alizations of huge event-datasets in a compact and at the same time informative way In that
+sense any Hawkes tand our estimation method in particularcan be used as a graphical tool
+for exploratory event-stream analysis Furthermore even if the Hawkes model assumption may
+be completely wrong an excitement-function estimate hij is also theoretically meaningful It
+is an estimate for the best linear lter of E Nitdt Njs s  t which is a relevant
+quantity in all stationary models
+6 Conclusion
+This paper demonstrates that applying methods from time series theory to the bin-count se-
+quences of point process data yields a useful and intuitive nonparametric estimation method for
+the multivariate Hawkes process The price for the fertile simplicity of the method is a bias due
+to the discretization involved Simulation studies support that this bias can be controlled and
+that it is negligible for most practical means The technique presented depends on the choice
+of the bin size and the assumed support of the excitement functions Methods for a sensible
+choice of these parameters are given In any application the robustness with respect to these
+choices ought to be studied
+Due to space constraints the presentation leaves out obvious subsequent topics Condence
+bounds for the rate of endogeneity the branching parameter of a univariate Hawkes process
+estimation of the excitement function on a nonequidistant estimation-grid derivation of power-
+law decay-parameter estimates in the parametric case via a linear regression on the loglog values
+of the pointwise estimates and estimation of marked Hawkes processes using the concept of our
+paper as a starting point all these aims can be achieved in a straightforward manner
+Finally note that in view of the analogy between discrete-time INARp sequences and
+continuous-time Hawkes processes analysts using the Hawkes model may consider to directly
+apply the INARp model in the rst placeas most event data live on relatively discrete time
+Acknowledgements
+MK is indebted to Paul Embrechts for guidance and support during the preparation of the
+paper The author acknowledges nancial support from ETH RiskLab and the Swiss Finance
+Institute Furthermore MK thanks Robert Almgren for sharing his expertise on limit-order-
+book data Marius Hofert as well as Martin Maechler Bates and Maechler 2015 for support
+with R Valerie Chavez-Demoulin as well as Thibault Vatter for numerous comments on earlier
+versions of the paper and Rita Kirchner as well as Anne MacKay for help with the editing
+References
+At-Sahalia Y Cacho-Diaz J and Laeven R Modeling nancial contagion using mutually exciting
+jump processes Journal of Financial Economics 2015 p in print
+September 8 2015
+Akaike H Information theory and an extension of the maximum likelihood principle Second Interna-
+tional Symposium on Information Theory Budapest 1973 pp 276281
+Bacry E Dayri K and Muzy J Non-parametric kernel estimation for symmetric Hawkes processes
+Application to high frequency data The European Physical Journal B 2012 85 157
+Bacry E Delattre S Hofmann M and Muzy J Scaling limits for Hawkes processes and nancial data
+modeling The European Physical Journal 2011 httparxivorgabs
+Bates D and Maechler M Matrix Sparse and Dense Matrix Classes and Methods R package version
+11-5 2015 httpCRANR-projectorgpackageMatrix
+Bowsher C Modelling security market events in continuous time intensity based multivariate point
+process models Nueld College Economics Discussion Papers 2002 pp 155
+Bremaud P and Massoulie L Stability of nonlinear Hawkes processes The Annals of Probability 1996
+24 15631588
+Bremaud P and Massoulie L Hawkes branching processes without ancestors Journal of Applied Prob-
+ability 2001 38 122135
+Brown T and Nair M A simple proof of the multivariate random time change theorem for point
+processes Journal of Applied Probability 1988 25 210214
+Chavez-Demoulin V Davison A and McNeil A Estimating value-at-risk a point process approach
+Quantitative Finance 2005 5 227234
+Chavez-Demoulin V and McGill J High-frequency nancial data modeling using Hawkes processes
+Journal of Banking and Finance 2012 36 34153426
+Crane R and Sornette D Robust dynamic classes revealed by measuring the response function of a
+social system PNAS 2008 105 1564915653
+da Silva IM Contributions to the Analysis of Discrete-Valued Time Series PhD thesis Departamento
+de Matematica Aplicada Faculdade de Ciencias da Universidade do Porto 2005
+Daley D and Vere-Jones D An Introduction to the Theory of Point Processes Second Edition  Vol I
+and II  2003 Springer
+Durrett R Probability Theory and Examples Second  1995 Duxbury Press
+Embrechts P Liniger T and Lu L Multivariate Hawkes processes an application to nancial data
+Journal of Applied Probability 2011 48A 367378
+Errais E Gieseke K and Goldberg L Ane point processes and portfolio credit risk Society for
+Industrial and Applied Mathematics Journal on Financial Mathematics 2010 1 642665
+Filiminov V and Sornette D Scaling limits for Hawkes processes and nancial data modeling preprint
+Fokianos K and Kedem B Regression Models for Time Series Analysis 2012 Wiley
+Gould M Porter M Williams S McDonald M Fenn D and Howison S Limit order books  2013
+httparxivorgpdf10120349pdf
+Hamilton J Time Series Analysis 1994 Princeton University Press
+Hannan E Multiple Time Series 1970 Wiley
+Hardiman S Bercot N and Bouchaud JP Critical reexivity in nancial markets a Hawkes process
+analysis The European Physical Journal B 2013 86 442
+Hawkes A Point spectra of some mutually-exciting point processes Journal of the Royal Statistical
+Society Series B 1971a 33 438443
+Hawkes A Spectra of some self-exciting and mutually-exciting point processes Biometrika 1971b 58
+8390
+Hawkes A A cluster representation of a self-exciting point process Journal of Applied Probability 1974
+11 493503
+thesis University of California Berkeley 2011
+Kim H Spatio-Temporal Point Process Models for the Spread of Avian Inuenza Virus H5N1 PhD
+Kirchner M Hawkes and INAR processes Working Paper ETH Zurich 2015
+Klimko L and Nelson P On conditional least squares estimation for stochastic processes The Annals
+of Statistics 1978 6 629642
+Latour A The multivariate GINARp process Advances in Applied Probability 1997 29 228248
+Li JG and Yuan Y The integer-valued autoregressive INARp model Journal of Time Series
+Analysis 1991 12 129142
+Liniger T Multivariate Hawkes Processes PhD thesis ETH Zurich 2009
+Lutkepohl H New Introduction to Multiple Time Series Analysis 2005 Springer
+McNeil A Frey R and Embrechts P Quantitative Risk Management 2005 Duxbury press
+September 8 2015
+Meyer P Demonstration simpliee dun theoreme de Knight Lecture Notes in Mathematics 1971 191
+191195
+Mikosch T and Starica C Is it really long memory that we see in nancial returns Extremes and
+integrated risk management 2000 pp 149168
+Mohler GO Short MB Brantingham PJ Schoenberg FP and Tita GE Self-exciting point pro-
+cess modeling of crime Journal of the American Statistical Association 2011 106 100108
+Muzy J and Bacry E Hawkes model for price and trades high frequency dynamics Quantitative Finance
+2014 pp 110
+Ogata Y Statistical models for earthquake occurences and residual analysis for point processes Journal
+of the American Statistical Association 1988 83 927
+Reynaud-Bouret P and Schbath S Adaptive estimation for Hawkes processes application to genome
+analysis The Annals of Statistics 2010 38 27812822
+Steutel F and van Harn K Discrete analogues of self-decomposability and stability The Annals of
+Probability 1979 7 893899
+Zhang H Wang D and Zhu F Inference for INARp processes with signed generalized power series
+thinning operator Journal of Statistical Planning and Inference 2010 140 676683
+Zhao H A Dynamic Contagion Process for Modelling Contagion Risk in Finance and Insurance PhD
+thesis The London School of Economics and Political Science 2012
+Appendix A Proofs
+A1 Proof of Proposition 31
+First we establish that
+un  Xn  a0  pcid88
+Ak Xnk n  Z
+denes a white noise sequence Stationarity of un follows from the stationarity of Xn For
+the sequel of the proof x any n  Z From the property E A cid126 Xn  A E Xn A  Rdd0  of
+the thinning operation from Denition 22 we get
+cid35
+Ak Xnk
+cid34
+Xn  a0  pcid88
+cid34 pcid88
+Ak cid126 Xnk  n  a0  pcid88
+Ak E Xnk  a0  a0  pcid88
+pcid88
+cid35
+Ak Xnk
+Ak E Xnk
+E un  E
+September 8 2015
+For the autocovariances of the sequence un rst note that the error un is uncorrelated with
+any previous value Xncid48 ncid48  n of the original sequence Indeed
+Ecid104
+un Xcid62
+ncid48
+cid105
+cid33
+cid34cid32
+cid35
+Xn  a0  pcid88
+ Ecid104cid16
+Xn  Ecid2 Xn  Xn1 Xn2    cid3cid17
+ Ecid104
+cid105  Ecid104 Ecid2 Xn Xcid62
+Ak Xnk
+Xn Xcid62
+ncid48
+Xcid62
+ncid48
+Xcid62
+ncid48
+ncid48  Xn1 Xn2    cid3cid105
+cid105
+ 0dd
+So that we get for ncid48  n and then by symmetry for ncid48 cid54 n
+Ecid104
+unucid62
+ncid48
+cid105
+un
+ Ecid104
+cid32
+Xncid48  a0  pcid88
+cid105  Ecid104
+un acid62
+un Xcid62
+ncid48
+cid33cid62
+Ak Ecid104
+Ak Xncid48k
+cid105  pcid88
+cid105
+un Xcid62
+ncid48k
+We have established that un is a white noise sequence In a second step we derive its marginal
+cid3  0dd k  1     p we obtain
+Ak cid126 Xnk
+cid33cid32
+Ak cid126 Xnk
+cid33cid62
+pcid88
+pcid88
+n  pcid88
+cid33cid62
+cid32 pcid88
+cid32 pcid88
+cid33cid62
+cid33cid62cid35
+Ak cid126 Xnk cid62 
+Ak cid126 Xnk
+Ak cid126 Xnk
+AkXnkcid62
+AkXnk
+Ak cid126 Xnk
+  E un acid62
+ 0dd
+unucid62
+Ak Xnk
+un Xcid62
+covariance matrix Since E un  0d and Ecid2unXcid62
+cid105
+Ecid104
+un
+cid32
+Xn  a0  pcid88
+cid105
+ Ecid104
+cid32
+Xn  a0  pcid88
+cid32
+pcid88
+cid34
+cid33cid62
+cid33cid32
+Ak cid126 Xnk  a0  pcid88
+cid32 pcid88
+cid33cid62
+cid33cid62
+cid32 pcid88
+Ak cid126 Xnk
+pcid88
+ pcid88
+n cid62  n
+Ak cid126 Xnk
+ a0 cid62
+pcid88
+AkXnk
+AkXnk
+n  a0
+September 8 2015
+Using independency of n from the past of the process and plugging in E n  a0 yields
+Ecid104
+unucid62
+cid105
+ Covn  E
+ pcid88
+cid32 pcid88
+cid33cid62
+ pcid88
+Ak Xnk
+cid32 pcid88
+Ak cid126 Xnk
+Ak cid126 Xnk
+Ak cid126 Xnk
+cid33cid62
+As the components of n are Poisson distributed and mutually independent we have Cov n 
+diaga0 For the second term in A2 we condition the dierence in the expectation on the
+past of the process Then the thinnings become the only source of randomness Furthermore
+the counting series of the thinnings are independent of  Xn1 Xn2     So
+Ak cid126 Xnk
+Ak cid126 Xnk
+Ak Xnk
+Ak cid126 Xnk
+Ak cid126 xnk
+Ak cid126 xnk
+Ak xnk
+Ak cid126 xnk
+cid33cid62
+ pcid88
+cid33cid62
+ pcid88
+cid33cid62
+ pcid88
+cid32 pcid88
+cid32 pcid88
+cid32 pcid88
+cid33cid62cid12cid12cid12cid12cid12 Xn1 Xn2    
+cid33cid62
+cid33cid62
+xnkXnkk1p
+Ak cid126 xnk
+Ak cid126 xnk
+Ak xnk
+Ak Xnk
+xnkXnkk1p
+ pcid88
+ pcid88
+ pcid88
+cid32 pcid88
+cid32 pcid88
+cid32 pcid88
+cid32 pcid88
+cid33
+Ak cid126 xnk
+xnkXnkk1p
+For xed x  Nd
+0 and ij  A  Rdd0 we have
+dcid80
+dcid80
+A cid126 x 
+
+ 
+1j  xj
+dj  xj
+The components cid80d
+rameters cid80d
+j1 ij  xj i  1     d of this vector are Poisson distributed with pa-
+j1 ij xj see Denition 22 As the thinnings involved are all independent by
+denition the components are uncorrelated Therefore the covariance matrix of the vector is
+Cov A cid126 x  diag A x and
+cid32 pcid88
+Ak cid126 xnk
+cid33
+Ak xnk
+cid32 pcid88
+cid33
+pcid88
+diag Ak xnk  diag
+September 8 2015
+Plugging in the random variables Xnk and taking the expectation we continue from A2 and
+Ecid104
+cid105
+unucid62
+ diag a0  E diag
+cid18 pcid88
+cid19
+Ak E Xnk
+cid32
+pcid88
+a0 
+cid18
+pcid88
+cid18
+1dd  pcid88
+Ak Xnk
+cid33
+1dd  pcid88
+ 
+cid191
+cid191
+cid3
+A2 Proof of Theorem 35
+The rst part of the proof largely depends on matrix manipulations So it is important to remind
+the reader that all vectors are understood as column vectors We rewrite the INARp sequence
+Xk  Nd
+0 as a standard multivariate linear autoregressive time series with white-noise error
+sequence ukkZ  Xk a0 cid80p
+l1 Al XklkZ
+pcid88
+Xk  a0 
+Al Xkl uk
+k  Z
+see Corollary 32 Then the distributional properties of the CLS-estimator are derived similarly
+as in Lutkepohl 2005 pages 7075 where independent errors are assumed In the following let
+Z  Ndp1np
+be the design matrix from the CLS Denition 33 with respect to the sample
+X1 X2     Xn Furthermore let U  up1 up2     un  Rdnp  Note that Z as well
+as U depend on n We work under the assumption that
+n  p
+Z Zcid62 p   Rdp1dp1 n  
+exists and is invertible In addition we use that for n  
+veccid0U Zcid62cid1
+cid32
+n  p
+d Nd2pd
+0d2pd E
+cid20cid16
+cid17
+p 1cid1cid62  Npd11
+Z0 1dd
+where Z0  cid0Xcid62
+1 Xcid62
+2     Xcid62
+cid16cid0 Z0 1dd
+cid1u0
+cid17cid62cid21cid33
+has the same distribution as any of the
+columns of the design matrix Z We postpone the reasoning for A4 to the end of the proof As
+a rst step weak consistency of B
+n  Rddp1 is proven To that aim we will use that
+cid16 Ndnp
+cid17
+Y  Xp1 Xp1     Xn  B Z U
+September 8 2015
+see Denition 33
+n  B  Y Zcid62cid16
+Z Zcid62cid171  B
+ B Z U Zcid62cid16
+Z Zcid62cid171  B
+Z Zcid62cid171
+ U Zcid62cid16
+cid191
+cid18 Z Zcid62
+U Zcid62
+n  p
+n  p
+By A3 the second factor converges in probability to the constant matrix  By A4 the
+n  p where W is a matrix consisting
+rst factor has the same asymptotic distribution as W 
+p 0ddp1 and
+of jointly normally distributed entries not depending on n So W 
+p 0ddp1 For establishing the asymptotic distribution we treat the
+therefore B
+dierence of the estimated and true vectorized parameter-matrix in a similar way
+n  B
+n  p
+cid16 B
+ncid17  vec B  vec
+cid18cid16
+n  B
+cid16 B
+cid17
+Z Zcid62cid171cid19
+cid18
+U Zcid62cid16
+cid19
+cid16
+Z Zcid62cid171  1dd
+U Zcid62cid17
+cid33
+cid32cid18 Z Zcid62
+cid191  1dd
+cid17
+n  p
+cid16
+Bcid62  I
+vec A 
+n  p
+vec AB 
+In the third step of the calculation above we use that
+cid18 U Zcid62
+n  p
+cid19
+for matrices A B and identity matrix I such that the calculations are consistent dimen-
+sionwise see A12 in Lutkepohl 2005 It follows from A6 together with A3 that
+n  p
+has the same asymptotic distribution as
+ncid17  vec B
+cid16 B
+cid17
+cid16
+cid01  1dd
+cid1 vec
+cid19
+cid18 U Zcid62
+n  p
+the asymptotic distribution of
+A8and therefore of
+With A4 we then nd that
+n  p
+cid16
+cid16 B
+ncid17  vec B
+cid17
+cid18
+cid01  1dd
+cid1 cov
+cid1 Ecid104
+ cid01  1dd
+is centered normal with covariance matrix
+cid18 U Zcid62
+n  p
+cid19cid19cid01  1dd
+cid1
+dlimn vec
+Z0 1dd uk Z0 1dd uk
+cid62cid105cid01  1dd
+cid1 
+September 8 2015
+We still have to establish A4 To that aim we rewrite the left-hand side of A4 as
+cid16
+U Zcid62cid17
+n  p
+Zcid62
+j1 Uj    
+Zcid62
+jdp1 Uj
+npcid88
+
+npcid88
+npcid88
+npcid88
+ncid88
+cid16
+cid16
+n  p
+n  p
+n  p
+n  p
+cid17
+uk  Zcid62
+vec Z1j Uj     Zdp1j Uj
+cid62
+U1j     Udj
+Z1j Z2j     Zdp1j
+cid17
+where Zk cid0Xcid62
+the k  p-th column of the design matrix Z Now let wk  veccid0uk  Zcid62
+kp 1cid1cid62  Npd11
+k2     Xcid62
+k1 Xcid62
+ Note that for k  p  1     n Zk is
+cid1  Rpd2d k  Z We
+show that for the sequence wk  Rpd2d a central limit theorem for vector-valued martingale
+dierences can be applied Proposition 79 from Hamilton 1994 states that if wk  R d is
+such that
+a it denes a vector-valued martingale dierence sequence
+Hkkp1p2n such that wk is Hk-measurable and E wk Hk1  0 d k  Z
+cid3  S  R d d is a positive denite matrix independent of k
+b Ecid2wk wcid62
+c for all k1 k2 k3 k4  Z and for all i1     i4  1 2     d
+ie there is a ltration
+E wk1i1 wk2i2 wk3i3 wk4i4  
+where wki denotes the i-th component of wk and
+ncid80
+np wk wcid62
+p S
+then for n  
+ncid88
+n  p
+d N d0 d S
+Proof of a Dene the ltration Hk by setting
+Hk  cid0cid0ui Xi1 Xi2     Xip
+cid1  i  kcid1  k  Z 
+Then one can easily check that wk  veccid0uk  Zcid62
+martingale-dierence property for the sequence uk since Xkcid48 for kcid48  k and therefore Zk are
+Hk1-measurable But then because
+cid1 is Hk- measurable It suces to prove the
+cid12cid12cid12Hk1
+Am Xkm
+pcid88
+cid35
+Ecid104
+cid105
+cid12cid12cid12Hk1
+cid34
+pcid88
+Am cid126 Xkm
+September 8 2015
+we obtain the martingale dierence property
+Ecid2uk
+cid12cid12Hk1
+cid34
+Xk  a0  pcid88
+cid3  E
+ E Xk Hk1  a0  pcid88
+Am Xkm
+cid35
+cid12cid12cid12Hk1
+Am Xkm
+Proof of b Independency of k follows from stationarity of wk Choose k  0 We need to
+show that for b  Rdpd1 0dpd1
+bcid62 Ecid104
+wk wcid62
+0 bcid62cid105
+cid16
+cid17
+bcid62 w0 wcid62
+bcid62 w0
+With A7 we nd
+w0  vec
+cid16
+and therefore
+Ecid104
+w0 wcid62
+cid105
+cid105
+b  Ecid104
+cid17
+ Ecid104
+ Ecid104
+u0  Zcid62
+ Z0 1dd vec u0  Z0 1dd u0
+cid62cid105
+ Z0 1dd uk Z0 1dd u0
+0 Z0 1dd
+Z0 1dd u0ucid62
+cid105
+To establish A9 we dene the -algebra
+F   X1     Xp A1 cid126 X1     Ap cid126 Xp 
+Note that Z0 is F-measurable and 0 is independent of F Using these facts when considering
+the expectation of the conditional variance of bcid62 w0 we obtain
+cid16
+bcid62 w0
+cid17
+ Ecid104
+ Ecid104
+ Ecid104
+cid20
+cid16
+cid16
+cid16
+bcid62 w0 Fcid17cid105
+cid16Ecid104
+bcid62 w0 Fcid17cid105
+bcid62 Z0 1dd u0Fcid17cid105
+cid16
+bcid62 w0 Fcid105cid17
+cid17cid62cid21
+bcid62 Z0 1dd Cov u0F
+bcid62 Z0 1dd
+u0  X0  a0  pcid88
+Ai Xi  0 
+pcid88
+Ai cid126 Xi  a0  pcid88
+Ai Xi
+the summand 0 is the only term that contributes to the conditional covariance matrix in A11
+the other summands in A12 are constant with respect to F and 0 is independent of F So we
+September 8 2015
+have Cov u0F  Cov 0 F  Cov 0  diaga0 and continuing with A11 we nd
+cid17cid17cid62cid21
+0 1dd
+Zcid62
+cid16
+bcid62 w0
+cid17  E
+cid20
+bcid62cid16
+cid34 dcid88
+cid20cid16
+0 1dd
+Zcid62
+cid16
+bcid62cid16
+bcid62cid16
+cid17
+diag a0
+bcid62cid16
+cid16
+cid35
+cid17cid172
+0 1dd
+Zcid62
+cid21
+cid17cid172
+0 1dd
+Zcid62
+ a0i0
+where i0  1 2     d in A13 is chosen in such a way that a0i0  0 Remember that a0 cid54 0d
+by assumption The strict inequality in A13 follows because for j0  1 2     np  d such
+that bj0 cid54 0 we have that
+cid20cid16
+bcid62cid16
+cid17cid17
+0 1dd
+Zcid62
+cid54 0
+cid21
+cid54 0
+cid21
+cid17
+cid20
+bcid62 cid16
+ Pcid2bj0 Xk0l0 cid54 0cid3
+0 1dd
+Zcid62
+ P Xk0l0 cid54 0  0
+for some k0  Z and some l0  1 2     d dependent on j0 Note that Xkl denotes the l-th
+component of Xk By stationarity k0  Z is irrelevant And the case that X0l0  0 as for some
+l0  1 2     d we have excluded so the strict inequality follows
+Proof of c Note that claim c follows if E Xk1i1  Xk8i8   for k1     k8 
+Z i1     i8  1 2     d The boundedness of these expectations is established for the uni-
+variate case in Corollary 1 of Kirchner 2015 For the multivariate case one can argue similarly
+via the existence of the moment generating function in a neighborhood of zero
+Proof of d We show thatcid0wk wT
+IN AR1 sequencecid0 Xk
+function of the past of Xk wk is also ergodic Finally cid0wk wcid62
+cid1 is ergodic Then the claim of d follows with the Birkho-
+cid1 see Latour 1997 It is easily checked that the latter is an irreducible
+cid1 is ergodic see Durrett 1995 page 338 As margins
+cid1 is ergodic because it is a
+aperiodic Markov chain on Npd
+of ergodic processes are ergodic Xk also is ergodic As wk can be written as a measurable
+Khinchin Ergodic Theorem The sequence Xk can be represented as margin of a pd-dimensional
+0  So cid0 Xk
+cid3
+measurable transformation of the ergodic sequence wk
+September 8 2015
+Appendix B Figures
+Figure B1 Summary of the main result of the paper From the bivariate Hawkes model presented in Figure B2
+around 100 000 events in each component are simulated From this single large sample we calculate the estimator
+from Denition 36 The black circles refer to estimated values of the excitement functions The horizontal black
+dotted lines in the diagonal panels refer to the corresponding estimated baseline-intensity components The vertical
+grey lines as well as the dotted horizontal grey lines refer to marginal 95-condence intervals see Remark 1
+All solid and dashed lightish-grey lines refer to the true underlying parameters compare with Figure B2 Eyeball
+examination shows that the estimation method approximates the form of the true excitement functions well Also
+the non-monotonicities and the jumps are reproduced The coverage rates of the condence intervals seem just
+about right There is no obvious bias For a more quantitative analysis of the estimation method see Section 33
+and Figure B3
+lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll0123401010305Excitation from component 1 on component 1Timelllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll0123400010203Excitation from component 2 on component 1Timelllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll01234000204Excitation from component 1 on component 2Timelllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll012340100010203Excitation from component 2 on component 2TimeSeptember 8 2015
+a Model parameters of a bivariate Hawkes process The solid lines refer to the excitement function H  hij 
+It consists of the two selfexcitement functions h11t  0 and h22t  1t025 sint as well as the two
+crossexcitement functions h12t  11t3025 and h21t  051  t2 The dashed lines in the diagonal
+panels refer to the two components of the baseline intensity   05 025 The functions are chosen quite
+extreme for the sake of demonstration of the estimation method see Figure B1
+b A realization of the two components of the process starting at time 0 The vertical lines refer to the events
+the greyish solid lines refer to the realized conditional-intensity components and the dashed lines refer to the
+baseline-intensity components The crossexcitement from component 1 on component 2 and also the delayed
+rectangle impuls impact from component 2 on component 1 are particularly visible
+Figure B2
+model parameters The lower panel shows a realization
+Illustration of a bivariate Hawkes process as described in Section 21 The upper panel shows the
+012341005000510Excitement from component 1 on component 1th11t01234000010020Excitement from component 2 on component 1th12t012340102030405Excitement from component 1 on component 2th21t01234000010020Excitement from component 2 on component 2th22t0246810Component 1TimeIntensity00621250246810Component 2TimeIntensity0076151September 8 2015
+Figure B3
+Illustration of the simulation study described in Section 33 The study conrms the distributional
+properties of our estimation procedure collected in Remark 1 We simulate 2 000 times from the bivariate Hawkes
+process introduced in Figure B2 In each simulation we realize about 5 000 events in each component For all
+of these samples we calculate our estimator from Denition 36 as well as the covariance estimator from 16
+These calculations depend on two parameters the support s and the bin-size  We apply s  6 together with a
+relatively coarse bin-size   02 The upper-row panels illustrate the estimation of h211  05112  0125
+the lower-row panels illustrate the estimation of the baseline-intensity component 1  05 Left column panels
+the asymptotic normal densities around the true values grey vertical lines are added to the histograms The grey
+vertical lines refer to the true values The means of the estimates not illustrated would cover the true values
+Middle column panels the QQ-plots support the asymptotic normality result Right column panels the boxplots
+collect the 2 000 estimated variances see 16 The horizontal grey lines refer to the empirical variance of the 2 000
+estimates
+Histogram of  h211Density02000102030123456Histogram of  h1Density03040506070246llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll321012301010203QQplot of h211Normal quantilesEmpirical quantilesllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll321012304050607QQplot of h1Normal quantilesEmpirical quantilesllllllllllllll000350004500055Estimated variances of  h211lllllllllllllllllllllllllllll000200003000040Estimated variances of  h1September 8 2015
+Figure B4 The Hawkes estimator from Denition 36 depends on the bin size  on the size of the sample window
+T and on the support parameter s We examine empirically how the variances of the estimates depend on these
+three parameters We simulate a very large sample from a univariate Hawkes process with excitement function
+h  t cid55 1t31  t2 and baseline intensity   1 With respect to this single sample we calculate the estimated
+variance for the estimates of h1  025 crosses and   1 triangles using dierent  T and s see 16 The
+solid lines in the two left panels are  cid55 c11 respectively T cid55 c2T 1 for some constants c1 c2  0 The
+curves t the variance estimates of the excitement-function estimate well In contrast the variance of the baseline
+estimate triangles is relatively constant with respect to  In the right panel we see that the larger the support
+parameter s the larger the variances becomethis seems natural as we estimate more parameters with respect
+to the same sample size
+Figure B5
+Illustration of the biasvariance trade-o in the choice of the bin size  see Section 42 We simulate
+100 realizations of a Hawkes process For each of these 100 samples we calculate the estimator from Denition 36
+with respect to three dierent bin-sizes   01 05 1 The estimates are collected in boxplots The grey lines
+denote the true excitement function ht  exp11t A larger  leads to a larger bias This is particularly
+obvious in the rst boxplot of the right panel Note that the bin sizes had to be chosen quite coarse to make this
+bias visible A smaller  leads to larger pointwise variance of the excitement function value estimates
+020406081000010003Bin size DVariance200040006000800010000000200060010Sample window size TVariance12345000090001100013Support sVariancellllllllllllllllllllllllllllllllllllllllllllllllllllExcitation estimate with D  01Time01012345llllllllllExcitation estimate with D  05Time01012345lllllllExcitation estimate with D  1Time01234501September 8 2015
+a We consider a univariate Hawkes process with excitement function ht  1t3 expt The true support
+of the excitement is 3 grey vertical lines About 40 000 events are simulated from this model Following the
+ideas brought forward in Section 41 we apply automatic support-selection on this single large sample using the
+AIC-criterion with three dierent values for the preliminary bin-size 0  0 The value where the minimum
+AIC-value is attained black vertical lines hardly depends on 0 and though all three bin-sizes are rather coarse
+the true support is estimated correctly up to few -ticks
+b We examine the innite support case To that aim we consider simulated data from three univariate Hawkes process
+with excitement functions ht  expt where   11 circles for AIC-values and solid vertical line for AIC-minimizing
+support   15 triangles and dashed line and   2 crosses and dotted line The larger  the lighter the tail of the
+function and as desired the smaller our estimated support see Section 41 Note that the cut-o error 8 is in all three cases
+so small  103 and much less that it will typically be negligible in comparison to the estimation standard errors
+Figure B6 Simulation study on the choice of the support parameter of our estimator from Denition 36 see
+Section 41 Figure 6a illustrates the case where the true underlying support is nite and Figure 6b illustrates
+the case where it is innite
+0123456040036032D0  015SupportAIC123456042046050D0  03SupportAIC123456133135137139D0  06SupportAIC051015094090SupportAICllllllllllllllllllllllllllllllSeptember 8 2015
+a Support analysis with respect to a
+very coarse preliminary bin-size 0 
+1 sec see Section 41 The estimator
+from Denition 36 is calculated for
+dierent support candidates in sec-
+onds The corresponding AIC-values
+are calculated as in 18 We establish
+a quite short AIC-optimal support of
+the excitement function
+b After the rough analysis illus-
+trated in Figure 7a we repeat the
+procedure for smaller support can-
+didates and with respect to a much
+ner bin-size   001 sec We
+nd an AIC-optimal support value
+of about 27 seconds This value is
+stable over other choices of the bin-
+size The attained minumum is re-
+markably clear-cut compared to the
+attained minimum in the simuation
+study illustrated in Figure B6
+c Bin-size analysis following the
+method from Section 42 The base-
+line estimates decrease in both com-
+ponents as the applied bin-sizes de-
+crease For  smaller than 001 sec
+the decrease is of a lower magnitude
+than the 95-condence intervals
+We conclude that for   001 sec
+the bias of our estimation method be-
+comes negligible
+Figure B7 Preliminary analysis for the bivariate data example T L tradeslimit orders see Section 52 Our
+nonparametric Hawkes estimator from Denition 36 depends on a support parameter s and a bin-size parameter
+ Applying the selection methods from Section 41 and Section 42 we nd that s  3 sec and   001 sec are
+reasonable choices
+llllllllllllllllllll0501001502002503007072747678Support candidatesAIC valuesllllllllllllllllllll1234539403938Support candidatesAIC valuesllllllllllll002004006008010040812Bin size candidatesBaseline estimatesllllllllllll0020040060080104560Bin size candidatesBaseline estimatesSeptember 8 2015
+a Bivariate t with respect to bin size   001 sec and support s  3 sec For the derivation of these estimation
+parameters see Figure B7 Eyeball examination reveals local maxima in the lower panels at half seconds
+b We t the Hawkes model to the same sample as in a This time however we ignore the best support choice and set
+it naively to s  01 sec only In addition we apply an extremely small bin size of   0002 sec In the rst milliseconds
+after each event the results indicate an inhibitory eect the Hawkes model does not allow for negative excitement In
+the smoothed function-estimate of the selfexcitement of the rst component the trades process we detect local maxima
+at 01 sec multiples
+Figure B8 Exemplary Hawkes ts of the bivariate data example T L described in Section 52 with respect to
+two sets of estimation parameters s  In the tted bivariate process the rst component refers to the trade
+times T and the second component to the limit order arrivals respectively cancelations L The black solid lines
+are kernel-smoothed versions of the estimates see the end of Section 32 The dotted lines in the diagonal plots
+refer to the tted baseline-intensity components
+llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll0005101520253004812Excitation from component 1 on component 1Secondsllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll00051015202530040004Excitation from component 2 on component 1Secondsllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll0005101520253001020Excitation from component 1 on component 2Secondsllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll0005101520253004812Excitation from component 2 on component 2Secondsllllllllllllllllllllllllllllllllllllllllllllllllll00000200400600801001030Excitation from component 1 on component 1Secondsllllllllllllllllllllllllllllllllllllllllllllllllll000002004006008010622Excitation from component 2 on component 1Secondsllllllllllllllllllllllllllllllllllllllllllllllllll0000020040060080102020Excitation from component 1 on component 2Secondsllllllllllllllllllllllllllllllllllllllllllllllllll00000200400600801020020Excitation from component 2 on component 2Seconds

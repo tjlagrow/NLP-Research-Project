@@ -1,0 +1,1263 @@
+Learning Granger Causality for Hawkes Processes
+Hongteng Xu
+School of ECE Georgia Institute of Technology
+Mehrdad Farajtabar
+College of Computing Georgia Institute of Technology
+Hongyuan Zha
+College of Computing Georgia Institute of Technology
+Abstract
+Learning Granger causality for general point pro-
+In this pa-
+cesses is a very challenging task
+per we propose an effective method
+ing Granger causality for a special but signi-
+cant type of point processes  Hawkes process
+We reveal the relationship between Hawkes pro-
+cesss impact function and its Granger causality
+graph Specically our model represents impact
+functions using a series of basis functions and
+recovers the Granger causality graph via group
+sparsity of the impact functions coefcients We
+propose an effective learning algorithm combin-
+ing a maximum likelihood estimator MLE with
+a sparse-group-lasso SGL regularizer Addi-
+tionally the exibility of our model allows to in-
+corporate the clustering structure event types into
+learning framework We analyze our learning al-
+gorithm and propose an adaptive procedure to se-
+lect basis functions Experiments on both syn-
+thetic and real-world data show that our method
+can learn the Granger causality graph and the
+triggering patterns of the Hawkes processes si-
+multaneously
+1 Introduction
+In many practical situations we need to deal with a large
+amount of irregular and asynchronous sequential data ob-
+served in continuous time The applications include the
+user viewing records in an IPTV system when and which
+TV programs are viewed and the patient records in hospi-
+tals when and what diagnoses and treatments are given
+Preliminary work
+HXU42GATECHEDU
+MEHRDADGATECHEDU
+ZHACCGATECHEDU
+among many others All of these data can be viewed
+as event sequences containing multiple event types and
+modeled via multi-dimensional point processes A sig-
+nicant task for a multi-dimensional point process is to
+learn the so-called Granger causality From the view-
+point of graphical models it means to construct a directed
+graph called Granger causality graph or local indepen-
+dence graph Didelez 2008 over the dimensions ie the
+event types of the process The arrow connecting two
+nodes indicates that the event of the dimension correspond-
+ing to the destination node is dependent on the histori-
+cal events of the dimension corresponding to the source
+node Learning Granger causality for multi-dimensional
+point processes is meaningful for many practical applica-
+tions Take our previous two examples the Granger causal-
+ity among IPTV programs helps us to understand users
+viewing preferences and patterns which is important for
+personalized program recommendation and IPTV system
+simulation the Granger causality among diseases helps us
+to construct a disease network which is benecial to pre-
+dict potential diseases for patients according to their current
+diagnoses leading to more effective treatments
+Unfortunately
+learning Granger causality for general
+multi-dimensional point processes is very challenging Ex-
+isting works mainly focus on learning Granger causality for
+time series Arnold et al 2007 Eichler 2012 Basu et al
+2015 where the Granger causality is captured via the so-
+called vector auto-regressive VAR model Han  Liu
+2013 based on discrete time-lagged variables For point
+processes on the contrary the event sequence is in continu-
+ous time and no xed time-lagged observation is available
+Therefore it is hard to nd a universal and tractable rep-
+resentation of the complicated historical events to describe
+Granger causality for the process A potential solution is
+to construct features for various dimensions from histor-
+ical events and learn Granger causality via feature selec-
+tion Lian et al 2015 However this method is highly de-
+Learning Granger Causality for Hawkes Processes
+pendent on the specic feature construction method used
+resulting in dubious Granger causality
+To make concrete progress we focus on a special class of
+point processes called Hawkes processes and their Granger
+causality Hawkes processes are widely used and are ca-
+pable of describing the self-and mutually-triggering pat-
+terns among different event types Applications include
+neural signal processing Song et al 2013 bioinformat-
+ics Carstensen et al 2010 Reynaud-Bouret et al 2010
+viral diffusion modeling Yang  Zha 2013 social net-
+work analysis Zhao et al 2015 Zhou et al 2013ab
+nancial analysis Bacry et al 2013 information sys-
+tem simulation Luo et al 2015 etc Obviously learn-
+ing Granger causality will further extend applications of
+Hawkes processes in many other elds
+Technically based on the graphical model of point pro-
+cess Didelez 2008 the Granger causality of Hawkes pro-
+cess can be captured by its impact functions Inspired by
+this fact we propose a nonparametric model of Hawkes
+processes where the impact functions are represented by
+a series of basis functions and we discover the Granger
+causality via group sparsity of impact functions coef-
+cients Based on the explicit representation of Granger
+causality we propose a novel learning algorithm combin-
+ing the maximum likelihood estimator with the sparse-
+group-lasso SGL regularizer on impact functions The
+pairwise similarity between various impact functions is
+considered when the clustering structure of event types is
+available Introducing these structural constraints enhances
+the robustness of our method The learning algorithm ap-
+plies the EM-based strategy Lewis  Mohler 2011 Zhou
+et al 2013a and obtains close-form solutions to update
+models parameters iteratively Furthermore we discuss
+the selection of basis function based on sampling theory
+and provide a useful guidance for model selection
+Our method captures Granger causality from complicated
+event sequences in continuous time Compared with exist-
+ing learning methods for Hawkes processes Zhou et al
+2013b Eichler et al our model avoids discretized repre-
+sentation of impact functions and conditional intensity and
+considers the induced structures across impact functions
+These improvements not only reduce the complexity of the
+learning algorithm but also improve learning performance
+We investigate the robustness of our method to the changes
+of parameters and the noise of data and test our method
+on both synthetic and real-world data Experimental re-
+sults show that our learning method can indeed reveal the
+Granger causality of Hawkes processes and obtain superior
+learning performance compared with other competitors
+2 Related Work
+Granger causality Many efforts have been made to learn
+the Granger causality of point processes Meek 2014
+For general random processes a kernel independence test
+is developed in Chwialkowski  Gretton 2014 Fo-
+cusing on 1-dimensional point process with simple piece-
+wise constant conditional intensity a model for capturing
+temporal dependencies between event types is proposed
+in Gunawardana et al 2011
+In Basu et al 2015
+Song et al 2013 the inherent grouping structure is con-
+sidered when learning the Granger casuality on networks
+from discrete transition process More recently the work
+in Daneshmand et al 2014 proposed a continuous-time
+diffusion network inference method based on parametric
+cascade generative process In more general case a class
+of graphical models of marked point processes is proposed
+in Didelez 2008 to capture the local independence over
+various marks Specializing the work for Hawkes pro-
+cesses the work in Eichler et al rstly connects Granger
+causality with impact functions However although ap-
+plying lasso or its variants to capture the intra-structure
+of nodes Ahmed  Xing 2009 is a common strategy
+less work has been done on learning causality graph of
+Hawkes process with sparse-group-lasso as we do which
+leads them to be sensitive to noisy and insufcient data
+Hawkes processes Hawkes processes Hawkes 1971 are
+proposed to model complicated event sequences where his-
+torical events have inuences on future ones
+Its early
+application focuses on seismic analysis Daley  Vere-
+Jones 2007 Recently it is extended to multi-dimensional
+case and applied to more problems eg nancial anal-
+ysis Bacry et al 2012 2013 social network model-
+ing Farajtabar et al 2014 2015 Zhou et al 2013ab
+Hall  Willett 2014 Zhao et al 2015 and bioinfor-
+matics Reynaud-Bouret et al 2010 Carstensen et al
+2010 Most of existing works use predened impact func-
+tion with known parameters eg the exponential func-
+tions in Farajtabar et al 2014 Rasmussen 2013 Zhou
+et al 2013a Hall  Willett 2014 and the power-law func-
+tions in Zhao et al 2015 For enhancing the exibil-
+ity a nonparametric model of Hawkes process is rst pro-
+posed in Lewis  Mohler 2011 based on ordinary differ-
+ential equation ODE and extended to multi-dimensional
+case in Zhou et al 2013b Luo et al 2015 Similarly
+the work in Bacry et al 2012 proposes a nonparamet-
+ric estimation of Hawkes processes via solving the Wiener-
+Hopf equation Another nonparametric strategy is the con-
+trast function-based estimation in Reynaud-Bouret et al
+2010 Hansen et al 2015
+It minimizes the estimation
+error of conditional intensity function and leads to a Least-
+Squares LS problem Eichler et al More recently Du
+et al 2012 Lemonnier  Vayatis 2014 decompose im-
+pact functions into basis functions to avoid discretization
+Learning Granger Causality for Hawkes Processes
+The Gaussian process-based methods Adams et al 2009
+Lloyd et al 2015 Lian et al 2015 Samo  Roberts
+2015 have been reported to successfully estimate more
+general point processes
+3 Basic Concepts
+In this section we briey introduce the basics of point pro-
+cesses and Granger causality and dene our problem for-
+31 Point Processes
+A temporal point process is a random process whose real-
+ization consists of a list of discrete events in time ti with
+ti  0 T  Here 0 T  is the time interval of the process
+It can be equivalently represented as a counting process
+N  N tt  0 T  where N t records the number
+of events before time t A multi-dimensional point process
+with U types of event is represented by U counting pro-
+cesses NuU
+u1 on a probability space  F P Here
+  0 T   U is the sample space where U  1  U
+is the set of event types F  FttR is the ltration rep-
+resenting the set of events sequence the process can realize
+until time t and P is the probability measure The equiva-
+lent counting process is Nu  Nutt  0 T  where
+Nut is the number of type-u events occurring at or before
+time t u  1  U
+A very intuitive way to characterize temporal point pro-
+cesses is via the conditional intensity function Formally it
+is dened as the expected instantaneous rate of happening
+type-u events given the history
+ut  utHU
+EdNutFt
+Here HU
+t  ti uiti  t ui  U is the historical
+record collecting events of all types before time t The
+functional form of the intensity is often designed to cap-
+ture the phenomena of interests
+Hawkes Processes A multi-dimensional Hawkes process
+is a counting process who has a particular form of intensity
+cid88U
+the history while cid88U
+cid90 t
+cid82 t
+where u is the exogenous base intensity independent of
+0 uucid48sdNucid48t  s the en-
+dogenous intensity capturing the peer inuence Farajtabar
+et al 2014 Function uucid48t  0 is called impact func-
+tion or triggering kernel which measures decay in the in-
+uence of historical type-ucid48 events on the subsequent type-
+u events
+uucid48sdNucid48t  s
+ut  u 
+ucid481
+ucid481
+32 Granger Causality for Point processes
+is dened as FV
+We are interested in identifying if possible a subset of the
+event types V  U for the type-u event such that ut
+only depends on historical events of types in V denoted
+t  and not those of the rest types denoted as HUV
+From the viewpoint of graphical model it is about local in-
+dependence over the dimensions of the point process  the
+occurrence of events in V in the past inuences the proba-
+bility of occurrence of type-u events at present and future
+while the occurrence of events in U V in the past does not
+In order to proceed formally we introduce some notations
+For a subset V  U let NV  Nutu  V The ltra-
+t  Nuss  t u  V ie
+tion FV
+the smallest -algebra generated by the random processes
+In particular Fu
+t is the internal ltration of an individual
+counting process Nut while Fu
+is the ltration for the
+subset U  u
+Denition 31 Didelez 2008 The counting process Nu
+is locally independent of Nucid48 given NUuucid48 if the inten-
+sity function ut is measurable with respect to Fucid48
+all t  0 T  Otherwise Nu is locally dependent of Nucid48
+Intuitively the above denition says that Nucid48ss  t
+does not inuence ut given Nlss  t l cid54 ucid48
+In Eichler et al the notion of Granger non-causality is
+used and the above denition is equivalent to saying that
+type-ucid48 event does not Granger-cause type-u event wrt
+t  Otherwise we say type-ucid48 event Granger-causes type-
+u event wrt FU
+t  With this denition we can construct
+the so-called Granger causality graph or called local inde-
+pendence graph with the event types as the nodes and the
+directed edges indicating the causation
+Denition 32 The Granger causality graph of the multi-
+dimensional point process NuU
+u1 is dened as a graph
+G  UE over the dimensions ie event types of the
+point process where a direct edge ucid48  u  E if type-ucid48
+event Granger-causes type-u one
+Learning Granger causality for a general multi-dimensional
+point process is a difcult problem
+In the next section
+we introduce an efcient method for learning the Granger
+causality of the Hawkes process
+4 Proposed Model and Learning Algorithm
+In this section we rst generalize a known result for
+Hawkes process Then we propose a model of Hawkes
+process representing impact functions via a series of basis
+functions An efcient learning algorithm combining the
+MLE with the sparse-group-lasso is applied and analyzed
+in details Compared with existing learning algorithms our
+algorithm is based on convex optimization and has lower
+complexity which learns Granger causality robustly
+Learning Granger Causality for Hawkes Processes
+41 Granger causality of Hawkes Process
+Following Eichler et al we generalize their result
+for learning the Granger causality of multi-dimensional
+Hawkes process
+Theorem 41 Assume a multi-dimensional Hawkes pro-
+cess with conditional
+intensity function dened in 1
+and Granger causality graph GUE
+If the condition
+dNucid48t  s  0 for 0  s  t  T holds then
+ucid48  u  E if and only if uucid48t  0 for t  0 T 
+Proof The conditional intensity ut can be rewritten as
+cid90 t
+Ucid88
+cid90 t
+ut u 
+uvsdNvt  s
+vcid54ucid48
+uucid48sdNucid48t  s
+The rst two terms are Fucid48
+-measurable Therefore ut
+is Fucid48
+-measurable if and only if the last term is identical
+to zero which means the impact function uucid48t  0 for
+t  0 T  According to Denition 31 and 32 the proof
+is nished
+Theorem 41 provides us with an explicit representation of
+the Granger causality of multi-dimensional Hawkes pro-
+cess  learning whether type-ucid48 event Granger-causes
+type-u event or not is equivalent to detecting whether
+the impact function uucid48t is all-zero or not
+In other
+words the group sparsity of impact functions along the
+time dimension indicates the Granger causality graph over
+the dimensions of Hawkes process Therefore for multi-
+dimensional Hawkes process we can learn its Granger
+causality via learning its impact functions instead which
+requires tractable and exible representations of impact
+functions
+42 Learning Task
+When we parameterize uucid48t  auucid48t as Zhou et al
+2013a does where t models time-decay of events in-
+uence and auucid48  0 captures the inuence of ucid48-type
+events on u-type ones the binarized infectivity matrix A 
+signauucid48 is the adjacency matrix of the correspond-
+ing Granger causality graph Although such a paramet-
+ric model simplies the representation of impact function
+and reduces the complexity of the model this achievement
+comes with the cost of inexibility of the model  the
+model estimation will be poor if the data does not conform
+to the assumptions of the model To address this problem
+we propose a nonparametric model of Hawkes processes
+representing the impact function in 1 via a linear combi-
+nation of basis functions as
+cid88M
+uucid48t 
+uucid48mt
+Here mt is the m-th basis function and am
+uucid48 is the coef-
+cient corresponding to mt The selection of bases will
+be discussed later in the paper
+Suppose we have a set of event sequences S  scC
+sc  tc
+i is the time stamp of the i-th
+i1 where tc
+i  1  U is the type of the event
+event of sc and uc
+Thus the log-likelihood of model parameters   A 
+uucid48  RUUM    u  RU can be expressed as
+cid26 Nccid88
+Ccid88
+cid26 Nccid88
+Ccid88
+cid18
+ Ucid88
+log uc
+cid18
+cid90 Tc
+i   Ucid88
+Mcid88
+i1cid88
+Mcid88
+Nccid88
+j Kmt cid82 t
+Tcu 
+cid27
+cid19
+cid19cid27
+usds
+m c
+KmTc  tc
+i  tc
+ij  tc
+impact functions denoted as cid107Acid10712  cid80
+where  c
+0 msds For construct-
+ing Granger causality accurately and robustly we consider
+the following three types of regularizers
+Local Independence According to Theorem 41 the ucid48-
+type event has no inuence on the u-type one ie di-
+rected edge ucid48  u  E if and only if uucid48t  0 for
+all t  R which requires am
+uucid48  0 for all m There-
+fore we use group-lasso Yang et al 2010 Simon et al
+2013 Song et al 2013 to regularize the coefcients of
+uucid48 cid107auucid48cid1072
+where auucid48  a1
+It means that along the
+time dimension the coefcients tensor A should yield to
+the constraint of group sparsity
+Temporal Sparsity A necessary condition for the sta-
+0 ijsds   which
+means limt ijt  0 Therefore we add sparsity
+constraints to the coefcients of impact functions denoted
+tionarity of Hawkes process iscid82 
+as cid107Acid1071 cid80
+uucid48  aM
+uucid48m am
+uucid48cid62
+uucid48
+Pairwise Similarity Event types of Hawkes process may
+exhibit clustering structure For example if u and ucid48 are
+similar event types their inuences on other event types
+should be similar ie ut are close to ucid48t and the
+inuences of other event types on them should be similar
+as well ie ut are close to ucid48t When the clus-
+tering structure is partially available we add constraints
+of pairwise similarity on the coefcients of corresponding
+impact functions as follows
+cid88U
+cid88
+cid107au  aucid48cid1072
+F  cid107aucid48  aucid1072
+ucid48Cu
+KmTc  tc
+uucid48 
+cid107SS ak1
+uucid48  auucid48 Qak
+cid1072
+uucid48
+ SS ak1
+uucid48  auucid48 Qak
+uucid48
+cid40
+P  ucid48  Cu
+cid88C
+cid107ak
+uucid48cid1072
+C  cid88C
+ 2cid48
+ 2Cu  Cucid48cid48
+P  cid48
+cid88
+cid88
+cid88
+i ucid48 KmTc  tc
+cid88
+j ucid48 pm
+vucid48 
+cid88
+i   S
+uvcid48
+vcid48Cucid48
+Furthermore for solving sparse-group-lasso SGL we ap-
+ply the soft-thresholding method in Simon et al 2013 to
+shrink the updated parameters Specically we set ak1
+to all-zero if the following condition is holds
+uucid48
+uucid48
+cid1072  G
+cid107SS ak1
+uucid48  auucid48 Qak
+where Sz  signzz   achieves soft-
+thresholding for each element of input xfx0 is the sub-
+gradient of function f at x0 wrt variable x We have
+Q  Qk  P EA and  is a small constant For
+the ak1
+unsatisfying 7 we shrink it as
+uucid48
+1 
+In summary Algorithm 1 gives the scheme of our MLE-
+based algorithm with sparse-group-lasso and pairwise sim-
+ilarity constraints which is called MLE-SGLP for short
+The detailed derivation is given in the appendix
+Algorithm 1 Learning Hawkes Processes MLE-SGLP
+1 Input Event sequences S  scC
+c1 parameters S
+G optional clustering structure and P 
+uucid48 randomly
+2 Output Parameters of model  and A
+3 Initialize   u and A  am
+4 repeat
+10 until convergence
+until convergence
+for u ucid48  1  U
+Update  and A via 5 and 6 respectively
+if 7 holds auucid48  0 else update auucid48 via 8
+Learning Granger Causality for Hawkes Processes
+Cu contains the event types within the cluster that the event
+of u type resides au  RUM is the slice of A with row
+index u and au  RUM is the slice with column index u
+In summary the learning problem of the Hawkes process is
+ L  Scid107Acid1071  Gcid107Acid10712  P EA
+Here S G and P control the inuences of the regu-
+larizers The nonnegative constraint guarantees the model
+being physically-meaningful
+43 An EM-based Algorithm
+Following Lewis  Mohler 2011 Zhou et al 2013b we
+propose an EM-based learning algorithm for solving opti-
+mization problem 4 iteratively Specically given current
+parameters k we rst apply the Jensens inequality and
+construct a tight upper-bound of log-likelihood function ap-
+peared in 3 as follows
+Qk 
+cid18
+cid26 Nccid88
+Ccid88
+cid18
+ Ucid88
+pii log
+Nccid88
+Mcid88
+Tcu 
+i1cid88
+Mcid88
+cid19
+m c
+cid19cid27
+i  and pm
+ij  amk
+pii  k
+u t is the conditional intensity function computed with
+current parameters When there is pairwise similarity con-
+straint we rewrite EA given current parameters as
+ijk
+m c
+EkA 
+ucid48cid1072
+cid107au  ak
+F  cid107aucid48  aku cid1072
+Ucid88
+cid88
+ucid48Cu
+Replacing L and EA with Qk and Ek A
+respectively we decouple parameters and obtain the sur-
+rogate objective function F  Qk  Scid107Acid1071 
+Gcid107Acid10712  P EkA Then we update each in-
+dividual parameter via solving F
+  0 and obtain the fol-
+lowing closed form updates
+cid88C
+cid88C
+cid88
+cid112
+k1
+amk1
+uucid48
+44 Adaptive Selection of Basis Functions
+B2  4AC2A
+Although the nonparametric models in Lemonnier  Vay-
+atis 2014 Zhou et al 2013b represent impact functions
+ B 
+Learning Granger Causality for Hawkes Processes
+as we do via a set of basis functions they do not provide
+guidance for the selection process of basis functions A
+contribution of our work is proposing a method of select-
+ing basis functions founded on sampling theory Alan et al
+1989 Specically we focus on the impact functions sat-
+isfying following assumptions
+0 tdt  
+Assumption 41
+ii For arbitrary   0 there always exists a 0 such that
+ d    is the Fourier transform of t
+i t  0 and cid82 
+cid82 
+uucid48M
+uucid48 and the sampling rate is 
+The assumption i guarantees the existence of  while
+the assumption ii means that we can nd a function with a
+2  to approximate the target impact
+bandlimit denoted as 0
+function with bounded residual Based on these two as-
+sumptions the representation of impact function in 2 can
+be explained as a sampling process The am
+m1 can be
+viewed as the discretized samples of uucid48t in 0 T  and
+mt  t tm is sampling function ie sinc or Gaus-
+sian function1 corresponding to a low-pass lter with cut-
+off frequency  tm is the sampling location corresponding
+  The Nyquist-Shannon
+theorem requires us to have   0 at least such that the
+sampling rate is high enough ie 0
+  twice bandlimit to
+approximate the impact function Accordingly the number
+of samples is M  cid100 T 0
+ cid101 where cid100xcid101 returns the smallest
+integer larger than or equal to x
+Based on the above argument the core of selecting ba-
+sis functions is estimating 0 for impact functions
+hard because we cannot observe impact functions directly
+Fortunately based on 1 we know that the bandlimits of
+impact functions cannot be larger than that of conditional
+u1 ut When sufcient
+training sequences S  scC
+c1 are available we can esti-
+mate t via a Gaussian-based kernel density estimator
+intensity functions t  cid80U
+cid88Nc
+Here Gh is a Gaussian kernel with the bandlimit h Ap-
+plying Silvermans rule of thumb Silverman 1986 we set
+02 where  is the standard devia-
+optimal h  
+tion of time stamps tc
+i Therefore given the upper bound
+of residual  we can estimate 0 from the Fourier transfor-
+mation of t which actually does not require us to com-
+pute t via 9 directly In summary we propose Algo-
+rithm 2 to select basis functions and more detailed analysis
+is given in the appendix
+Ght  tc
+cid88C
+3cid80
+t 
+45 Properties of The Proposed Method
+Compared with existing state-of-art methods eg
+ODE-based algorithm in Zhou et al 2013b and the Least-
+1For Gaussian lter t tm  expt tm222 its
+bandlimit is dened as   1
+cid17
+residual 
+Algorithm 2 Selecting basis functions
+1 Input Event sequences S  sc
+c1 upper bound of
+2 Output Basis functions 0t tmM
+3 Compute
+4 Find the smallest 0 satisfyingcid82 
+to bound 
+d  
+cid16cid80C
+5 The proposed basis functions 0 t tmM
+m1 are se-
+lected where 0 is the cut-off frequency of basis func-
+tion and tm  m1T
+M  M  cid100 T 0
+ cid101
+e 2h2
+Squares LS algorithm in Eichler et al our algorithm has
+following advantages
+Computational complexity Given a training sequence
+with N events the ODE-based algorithm in Zhou et al
+2013b represents impact functions by M basis functions
+where each basis function is discretized to L points
+learns basis functions and coefcients via alternating op-
+timization  coefcients are updated via the MLE given
+basis functions and then the basis functions are updated
+via solving M Euler-Lagrange equations The complexity
+of the ODE-based algorithm is OM N 3U 2  M LN U 
+N 2 The LS algorithm in Eichler et al directly dis-
+cretizes the timeline into L small intervals ensuring that
+there is at most one event in each interval In such a situa-
+tion impact functions are also discretized to L points The
+computational complexity of the algorithm is ON U 3L3
+In contrast our algorithm is based on known basis func-
+tions and does not estimate impact function via discretized
+points The computational complexity of our algorithm
+is OM N 3U 2 For getting accurate estimation the two
+competitors requires L cid29 N Therefore the computa-
+tional complexity of the LS algorithm is the highest among
+the the three and our complexity is at least comparable to
+that of the ODE-based algorithm
+Convexity Both LS algorithm and ours are convex and
+can achieve global optimum solution The ODE-based al-
+gorithm however learns basis functions and coefcients
+alternatively It is not convex and is prune to a local op-
+Inference of Granger causality Neither the ODE-based
+algorithm nor the LS algorithm considers to infer the
+Granger causality graph of process when learning model
+Without suitable regularizers on impact functions the im-
+pact functions learned by these two algorithms are non-
+zero generally which cannot indicate the Granger causality
+graph exactly What is worse the LS algorithm even may
+obtain physically-meaningless impact functions with nega-
+tive values To the best of our knowledge our algorithm
+is the rst attempt to solving this problem via combin-
+ing MLE of the Hawkes process with sparse-group-lasso
+Learning Granger Causality for Hawkes Processes
+which learns the Granger causality graph robustly espe-
+cially in the case having few training sequences
+5 Experiments
+For demonstrating the feasibility and the efciency of our
+algorithm MLE-SGLP we test our it on both synthetic
+and real-world data and compare it with the state-of-art
+methods including the ODE-based method in Zhou et al
+2013b the Least-Squares LS method in Eichler et al
+We also investigate the inuences of regularizers via com-
+paring our algorithm with its variants including the pure
+MLE without any regularizer MLE the MLE with group-
+lasso MLE-GL and the MLE with sparse regularizer
+MLE-S For evaluating various algorithms comprehen-
+sively given estimate     A we apply the following
+measurements
+1 Loglike The log-likelihood of testing data
+2 e 
+cid107 cid1072
+cid107cid1072
+cid80
+ the relative error of 
+cid82 T
+0  uucid48 tuucid48 tdt
+cid82 T
+0 uucid48 tdt
+ the relative error
+3 e  1
+uucid48
+of t  uucid48t
+4 Sparsity of impact function Impact functions are visu-
+alized and the Granger causality graph is indicated via all-
+zero impact functions
+51 Synthetic Data
+We generate two synthetic data sets using sine-like impact
+functions and piecewise constant impact function respec-
+tively Each of them contains 500 event sequences with
+time length T  50 generated via a Hawkes process with
+U  5 The exogenous base intensity of each event type is
+uniformly sampled from 0 1
+U  The sine-like impact func-
+tions are generated as
+cid40
+uvt 
+buv1  cosuvt  suv
+t  0 2suv
+otherwise
+4uv
+where buv uv suv are set as 005 06 1 when
+u v  1 2 3 005 04 0 when u v  4 5
+002 02 0 when u or v  4 v or u  1 2 3
+The piecewise constant impact functions are the truncated
+results of above sine-like ones
+We test various learning algorithms on each of the two
+data sets with 10 trials respectively
+In each trial C 
+50  250 sequences are chosen randomly as training
+set while the rest 250 sequences are chosen as testing set In
+all trials Gaussian basis functions are used whose number
+and bandlimit are decided by Algorithm 2 With the help
+of cross validation we test our algorithm with various pa-
+rameters in a wide range where P  S G  102 104
+According to the measure Loglike we set S  10 G 
+100 P  1000 The curves of Loglike wrt the three pa-
+rameters are shown in Fig 1 We can nd that the learning
+result is relatively stable when changing the parameters in
+a wide range
+a Sine-like case
+b Piecewise constant case
+Figure 1 The curves of Loglike wrt the change of P  G and
+S are shown In each subgure left G  100 S  10
+P  102 104 middle G  100 P  1000 S 
+102 104 right P  1000 S  10 G  102 104
+The number of training sequence is 250
+The testing results are shown in Fig 2 We can nd that
+our learning algorithm performs better than other competi-
+tors on both data sets ie higher Loglike lower e and
+e wrt various C Especially when having few train-
+ing sequences the ODE-based and the LS algorithm need
+to learn too many parameters from insufcient samples so
+they are inferior to our MLE-SGLP algorithm and its vari-
+ants because of the over-tting problem Additionally by
+increasing the number of training sequences the perfor-
+mance of the ODE-based algorithm does not improve a lot
+ the nature of non-convexity may lead the ODE-based
+algorithm to fall into local optimal All MLE-based algo-
+rithms are superior to the ODE-based algorithm and the LS
+algorithm and the regularizers proposed in this paper in-
+deed help to improve learning results of MLE Specically
+if the clustering structure is available our MLE-SGLP al-
+gorithm will obtain the best results Otherwise our MLE-
+SGL algorithm will be the best
+For demonstrating the importance of the sparse-group-
+lasso regularizer to learning Granger causality graph Fig 3
+visualizes the estimates of impact functions obtained by
+various methods The Granger causality graph of the target
+Hawkes process is learned by nding those all-zero impact
+functions the green subgures In both cases our MLE-
+SGLP algorithm can obtain right all-zero impact functions
+while the pure MLE algorithm sometimes fails because of
+the lack of sparse-related regularizer It means that intro-
+ducing sparse-group-lasso into the framework of MLE is
+P100Loglike104-16965-1696-16955-1695S100Loglike104-178-176-174-172-17G100Loglike104-178-176-174-172-17P100Loglike104-17-16995-1699-16985S100Loglike104-18-175-17G100Loglike104-18-175-17P100Loglike104-16965-1696-16955-1695S100Loglike104-178-176-174-172-17G100Loglike104-178-176-174-172-17P100Loglike104-17-16995-1699-16985S100Loglike104-18-175-17G100Loglike104-18-175-17Learning Granger Causality for Hawkes Processes
+a Sine-like case
+b Piecewise constant case
+Figure 2 In each subgure the comparisons on e e and Log-
+like for various methods are shown
+a Sine-like case
+b Piecewise constant case
+Figure 3 Contributions of regularizers comparisons of impact
+functions obtained via MLE-SGLP and pure MLE using 500
+training sequences The green subgures contain the all-zero im-
+pact functions The black lines are real impact functions the blue
+lines are the estimates from pure MLE and the red ones are pro-
+posed estimates from MLE-SGLP
+necessary for learning Granger causality Note that even
+if the basis functions we select do not match well with the
+real case ie the Gaussian basis functions are not suitable
+for piecewise constant impact functions our MLE-SGLP
+algorithm can still learn the Granger causality graph of the
+Hawkes process with high accuracy As Fig 2b shows
+although the estimates of non-zero impact functions based
+on Gaussian basis functions do not t the ground truth well
+the all-zero impact functions are learned exactly via our
+MLE-SGLP algorithm
+52 Real-world Data
+We test our algorithm on the IPTV viewing record data
+set Luo et al 2015 The data set records the viewing be-
+havior of 7100 users ie what and when they watch in the
+IPTV system from January to November 2012 U 13
+categories of TV programs are predened Similar to Luo
+et al 2015 we model users viewing behavior via a
+Hawkes process in which the TV programs categories
+exist self-and mutually-triggering patterns For example
+viewing an episode of a drama would lead to viewing the
+following episodes self-triggering and related news of ac-
+tors mutually-triggering Therefore the causality among
+various categories is dependent not only on the predeter-
+mined displaying schedule but also on users viewing pref-
+erences
+We capture the Granger causality graph of programs cate-
+gories via learning impact functions In this case the pair-
+wise sparsity is not applied because the clustering structure
+is not available The training data is the viewing behavior
+in the rst 10 months and testing data is the viewing be-
+havior in the last month Considering the fact that many
+TV programs are daily or weekly periodic and the time
+length of most TV programs is about 20-40 minutes we
+set the time length of impact function to be 8 days ie
+the inuence of a program will not exist over a week and
+the number of samples M  576 ie one sample per 20
+minutes The cut-off frequency of sampling function is
+w0  MT  where T is the number of minutes in 8 days
+Table 1 gives Loglike for various methods Even using
+a PC with 16GB memory the LS algorithm runs out-of-
+memory in this case because it requires to discretize long
+event sequences with dense samples Compared with the
+ODE-based algorithm and pure MLE algorithm the MLE
+with regularizers has better Loglike and our MLE-SGL al-
+gorithm obtains the best result
+Table 1 Loglike 106 for various methods
+Loglike  -1919
+MLE MLE-S MLE-SGL
+gory on the u-th one ascid82 
+We dene the infectivity of the ucid48-th TV program cate-
+0 uucid48sds which is shown in
+Fig 4a It can be viewed as an adjacency matrix of the
+Granger causality graph Additionally by ranking the in-
+100200e70101502025100200e0406081100200Loglike104-19-185-18-175MLE-SGLPMLE-SGLMLE-SMLEODELS100200e70101502100200e040608100200Loglike104-19-185-18-175MLE-SGLPMLE-SGLMLE-SMLEODELS110246000501RealMLEMLE-SGLP120246000501130246000501140246000501150246000501210246000501220246000501230246000501240246000501250246000501310246000501320246000501330246000501340246000501350246000501410246000501420246000501430246000501440246000501450246000501510246000501520246000501530246000501540246000501550246000501110246000501RealMLEMLE-SGLP120246000501130246000501140246000501150246000501210246000501220246000501230246000501240246000501250246000501310246000501320246000501330246000501340246000501350246000501410246000501420246000501430246000501440246000501450246000501510246000501520246000501530246000501540246000501550246000501Learning Granger Causality for Hawkes Processes
+a Infectivity matrix
+Figure 4 a The infectivity matrix for various TV programs The element in the u-th row and the ucid48-th column iscid82 
+Estimates of nonzero impact functions for the IPTV data By ranking the infectivitycid82 
+b Top 24 impact functions
+0 uucid48 sds b
+0 uucid48 sds from high to low the top 24 impact
+functions are shown For visualization 025
+uucid48 t is shown in each subgure
+fectivity from high to low the top 24 impact functions are
+selected and shown in Fig 4b We think our algorithm
+works well because the following reasonable phenomena
+are observed in our learning results
+1 All TV program categories have obvious self-triggering
+patterns because most of TV programs display periodically
+Viewers are likely to watch them daily at the same time
+Our learning results reect these phenomena the main di-
+agonal elements of the infectivity matrix in Fig 4a are
+much larger than other ones and the estimates of impact
+functions in Fig 4b have clear daily-periodic pattern
+2 Some popular categories having a large number of
+viewers and long displaying time eg drama movie
+news and talk show are likely to be triggered by oth-
+ers while the other unpopular ones having relative fewer
+but xed viewers and short displaying time eg music
+kids program science are mainly triggered by them-
+selves
+It is easy to nd that the infectivity matrix we
+learned reects these patterns  the non-diagonal elements
+involving those unpopular categories are very small or zero
+In Fig 4b the non-zero impact functions mainly involve
+popular categories Additionally because few viewing
+events about these categories are observed in the training
+data the estimates of the impact functions involving un-
+popular categories are relatively noisy
+In summary our algorithm performs better on the IPTV
+data set than other competitors The learning results are
+reasonable and interpretable which prove the rationality
+and the feasibility of our algorithm to some degree
+6 Conclusion
+In this paper we learn the Granger causality of Hawkes
+processes according to the relationship between the
+Granger causality and impact functions Combining the
+MLE with the sparse-group-lasso we propose an effective
+algorithm to learn the Granger causality graph of the tar-
+get process and captures its temporal dynamics simultane-
+ously We demonstrate the robustness and the rationality
+of our work on both synthetic and real-world data In the
+future we plan to extend our work and analyze the Granger
+causality of general point processes
+Appendix
+Derivation of Surrogate Function
+Using the Jensens inequality we have following inequality
+for all c and i
+cid18
+ pii log
+cid88M
+cid19
+Mcid88
+cid88i1
+i1cid88
+cid18 uc
+ c
+cid32 am
+ c
+cid33
+cid19
+The equation holds if and only if u  k
+uucid48  amk
+Qkk  Lk
+ Therefore we have Qk  L and
+uucid48
+Derivation of Algorithm 1
+We have surrogate objective function F  Qk 
+Scid107Acid1071  Gcid107Acid10712  P EkA where Q 
+Qk P EkA is the data delity term Sim-
+ilar to Simon et al 2013 we choose a group auucid48 
+uucid48cid62 to minimize and x other parameters
+Given current estimate ak
+uucid48  aM
+uucid48 we majorize Q as
+uucid48auucid48 Qak
+uucid48
+Q  Qak
+uucid48
+ auucid48  ak
+uucid48cid1072
+cid107auucid48  ak
+2468101224681012102030405060OthersDramaMovieNewsShowMusicSportsMinistryRecordKidsScienceFinanceLawO    D  Mo   N  Sh  Mu  Sp  Mi   R    K   Sc   F    L024680051others-others024680051movie-others024680051ministry-others024680051record-others024680051science-others024680051drama-drama024680051kids-drama024680051science-drama024680051movie-movie024680051news-news024680051ministry-news024680051law-news024680051show-show024680051music-show024680051ministry-show024680051music-music024680051sports-sports024680051ministry-ministry024680051ministry-record024680051record-record024680051kids-kids024680051science-science024680051econ-econ024680051law-lawLearning Granger Causality for Hawkes Processes
+Introducing 10 to the surrogate objective function we
+rewrite the optimization problem as
+ auucid48  ak
+cid107auucid48  ak
+uucid48cid1072
+uucid48auucid48 Qak
+uucid48
+2  Scid107auucid48cid1071
+auucid480
+uucid48
+ Gcid107auucid48cid1072
+and auucid48 Qak
+Because both Qak
+are known we add
+uucid48
+cid1072
+2cid107auucid48 Qak
+2 to the objective function of 11 and re-
+uucid48
+duce Qak
+from it and obtain an equivalent optimization
+problem
+uucid48
+uucid48
+auucid480
+uucid48  auucid48 Qak
+cid107auucid48  ak
+ Scid107auucid48cid1071  Gcid107auucid48cid1072
+uucid48
+cid1072
+The objective function in 12 is convex so the optimal
+solution is characterized by the subgradient equations
+uucid48  auucid48 Qak
+uucid48
+ auucid48  S  G
+if auucid48
+cid107auucid48cid107 2
+  1  M cid62 where m  1 if am
+uucid48  0 and in
+cid54 0 and in the
+0 1 otherwise   auucid48
+set xcid107xcid1072  1 otherwise Combining the subgradient
+equations with the basic algebra in Simon et al 2013 we
+get that auucid48  0 if 7 holds otherwise auucid48 satises
+uucid48  auucid48 Qak
+auucid48  SS ak
+cid18
+cid19
+ 14
+cid107auucid48cid1072
+uucid48
+Taking the norm on both sides cid107auucid48cid1072 can be replaced by
+cid107SS ak
+uucid48  auucid48 Qak
+Replacing the cid107auucid48cid1072 in 14 with 15 we obtain the gen-
+eralized gradient step in 8
+cid1072  tG
+uucid48
+61 Details of Basis Function Selection
+In our model the intensity function of Hawkes process over
+all dimensions is
+Ucid88
+Ucid88
+Ucid88
+Ucid88
+t 
+cid18
+ucid481
+cid88U
+cid88
+Ucid88
+cid88
+Ucid88
+cid19
+uucid48sdNucid48t  s
+cid90 t
+uuit  ti
+Mcid88
+mt  ti
+Applying Fourier transform we have
+ 
+Ucid88
+Ucid88
+cid88
+2
+Mcid88
+ejti m
+In other words the spectral of t is the weighted sum of
+those of basis functions Therefore the cut-off frequency
+of basis function is bounded by that of intensity function
+As we show in our paper given training sequences S 
+i1 we can estimate t
+empirically via a Gaussian-based kernel density estimator
+c1  where sc  tc
+cid88Nc
+cid88C
+Ght  tc
+t 
+i   exp ttc
+i is the time stamp of the i-th event at the c-th se-
+ is a Gaussian kernel
+Here tc
+quence Ght  tc
+with the bandwidth h
+Because we only care about the selection of basis func-
+tions we just need to estimate the spectral of t rather
+than compute 9 directly Specically applying Silver-
+3cid80
+mans rule of thumb Silverman 1986 we rst set optimal
+02 where  is the standard deviation of time
+stamps tc
+i Applying Fourier transform we compute an
+upper bound for the spectral of t as
+ 
+tejtdt
+cid12cid12cid12cid12
+cid12cid12cid12cid12cid90 
+cid12cid12cid12cid12cid12 Ccid88
+cid90 
+Nccid88
+cid12cid12cid12cid12cid90 
+Nccid88
+ Ccid88
+cid12cid12cid12ejtc
+Ccid88
+Nccid88
+cid12cid12cid12ejtc
+ Ccid88
+Nccid88
+cid32 Ccid88
+cid12cid12cid12cid12cid12
+cid12cid12cid12cid12
+cid12cid12cid12
+ ttc
+2h2 ejtdt
+e ttc
+2hc ejtdt
+cid12cid12cid12
+i e 2 h2
+cid12cid12cid12cid12cid12cid12e 2h2
+cid33
+e 2h2
+Furthermore we can compute the upper bound of the abso-
+lute sum of the spectral higher than 0 as
+Learning Granger Causality for Hawkes Processes
+e 2h2
+e 2h2
+cid90 
+cid32 Ccid88
+cid32 Ccid88
+cid32 Ccid88
+cid32 Ccid88
+cid32 Ccid88
+d
+cid33cid90 
+cid33cid90 
+cid33cid18 1
+cid33cid18 1
+cid33cid18
+cid90 0
+cid90 0
+cid19
+cid19
+e 2h2
+e 2h2
+cid19
+Basu Sumanta Shojaie Ali and Michailidis George Net-
+work granger causality with inherent grouping struc-
+ture Journal of Machine Learning Research 16417
+453 2015
+Carstensen Lisbeth Sandelin Albin Winther Ole and
+Hansen Niels R Multivariate hawkes process models
+of the occurrence of regulatory elements BMC bioinfor-
+matics 111456 2010
+Chwialkowski Kacper and Gretton Arthur A kernel inde-
+pendence test for random processes In ICML 2014
+Daley Daryl J and Vere-Jones David An introduction to
+the theory of point processes volume II general theory
+and structure volume 2 Springer Science  Business
+Media 2007
+Daneshmand Hadi Gomez-Rodriguez Manuel Song Le
+and Schoelkopf Bernhard Estimating diffusion network
+structures Recovery conditions sample complexity 
+soft-thresholding algorithm In ICML 2014
+Didelez Vanessa Graphical models for marked point pro-
+cesses based on local independence Journal of the Royal
+Statistical Society Series B Statistical Methodology
+701245264 2008
+Du Nan Song Le Yuan Ming and Smola Alex J Learn-
+ing networks of heterogeneous inuence In NIPS 2012
+Eichler Michael Graphical modelling of multivariate time
+series Probability Theory and Related Fields 1531-2
+233268 2012
+Eichler Michael Dahlhaus Rainer and Dueck Johannes
+Graphical modeling for multivariate hawkes processes
+with nonparametric link functions Preprint
+Farajtabar M Wang Y Gomez-Rodriguez M Li S
+Zha H and Song L Coevolve A joint point pro-
+cess model for information diffusion and network co-
+evolution In NIPS 2015
+Farajtabar Mehrdad Du Nan Gomez-Rodriguez Manuel
+Valera Isabel Zha Hongyuan and Song Le Shaping
+In Advances in
+social activity by incentivizing users
+neural information processing systems pp 24742482
+Gunawardana Asela Meek Christopher and Xu Puyang
+A model for temporal dependencies in event streams In
+NIPS 2011
+Hall Eric C and Willett Rebecca M
+namic point processes on networks
+arXiv14090031 2014
+Tracking dy-
+arXiv preprint
+erf0h
+where erfx  1
+1  1
+cid82 x
+x et2
+d   or erf0h  
+ The proposed basis functions 0 t tmM
+guaranteeing cid82 
+cid80C
+are selected where 0 is the cut-off frequency of basis
+function and tm  m1T
+Therefore give a bound of residual  we can nd an 0
+M  M  cid100 T 0
+ cid101
+References
+Adams Ryan Prescott Murray
+Iain and MacKay
+David JC Tractable nonparametric bayesian inference
+in poisson processes with gaussian process intensities
+In ICML 2009
+Ahmed Amr and Xing Eric P Recovering time-varying
+networks of dependencies in social and biological stud-
+ies Proceedings of the National Academy of Sciences
+106291187811883 2009
+Alan V Oppenheim Ronald W Schafer and John RB
+Discrete-time signal processing New Jersey Printice
+Hall Inc 1989
+Arnold Andrew Liu Yan and Abe Naoki Temporal
+causal modeling with graphical granger methods
+KDD 2007
+Bacry Emmanuel Dayri Khalil and Muzy Jean-Francois
+Non-parametric kernel estimation for symmetric hawkes
+processes application to high frequency nancial data
+The European Physical Journal B 855112 2012
+Bacry Emmanuel Delattre Sylvain Hoffmann Marc and
+Muzy Jean-Francois Some limit theorems for hawkes
+processes and application to nancial statistics Stochas-
+tic Processes and their Applications 123724752499
+Learning Granger Causality for Hawkes Processes
+Song Dong Wang Haonan Tu Catherine Y Marmarelis
+Vasilis Z Hampson Robert E Deadwyler Sam A and
+Berger Theodore W
+Identication of sparse neural
+functional connectivity using penalized likelihood esti-
+mation and basis functions Journal of computational
+neuroscience 353335357 2013
+Yang Haiqin Xu Zenglin King
+Irwin and Lyu
+Michael R Online learning for group lasso In ICML
+Yang Shuang-Hong and Zha Hongyuan Mixture of mu-
+In ICML
+tually exciting processes for viral diffusion
+Zhao Qingyuan Erdogdu Murat A He Hera Y Rajara-
+man Anand and Leskovec Jure Seismic A self-
+exciting point process model for predicting tweet pop-
+ularity In KDD 2015
+Zhou Ke Zha Hongyuan and Song Le Learning so-
+cial infectivity in sparse low-rank networks using multi-
+dimensional hawkes processes In AISTATS 2013a
+Zhou Ke Zha Hongyuan and Song Le Learning trigger-
+ing kernels for multi-dimensional hawkes processes In
+ICML 2013b
+Han Fang and Liu Han Transition matrix estimation in
+high dimensional time series In ICML 2013
+Hansen Niels Richard Reynaud-Bouret
+Patricia
+Rivoirard Vincent et al
+Lasso and probabilistic
+inequalities for multivariate point processes Bernoulli
+21183143 2015
+Hawkes Alan G Spectra of some self-exciting and mutu-
+ally exciting point processes Biometrika 5818390
+Lemonnier Remi and Vayatis Nicolas Nonparametric
+markovian learning of triggering kernels for mutually
+exciting and mutually inhibiting multivariate hawkes
+In Machine Learning and Knowledge Dis-
+processes
+covery in Databases pp 161176 2014
+Lewis Erik and Mohler George A nonparametric em
+algorithm for multiscale hawkes processes Journal of
+Nonparametric Statistics 2011
+Lian Wenzhao Henao Ricardo Rao Vinayak Lucas
+Joseph and Carin Lawrence A multitask point process
+predictive model In ICML 2015
+Lloyd Chris Gunter Tom Osborne Michael A and
+Roberts Stephen J Variational inference for gaussian
+process modulated poisson processes In ICML 2015
+Luo Dixin Xu Hongteng Zhen Yi Ning Xia Zha
+Hongyuan Yang Xiaokang and Zhang Wenjun Multi-
+task multi-dimensional hawkes processes for modeling
+event sequences In IJCAI 2015
+Meek Christopher Toward learning graphical and causal
+In UAI Workshop Causal Inference
+process models
+Learning and Prediction 2014
+Rasmussen Jakob Gulddahl
+Bayesian inference for
+hawkes processes Methodology and Computing in Ap-
+plied Probability 153623642 2013
+Reynaud-Bouret Patricia Schbath Sophie et al Adaptive
+estimation for hawkes processes application to genome
+analysis The Annals of Statistics 38527812822
+Samo Yves-Laurent Kom and Roberts Stephen Scalable
+nonparametric bayesian inference on point processes
+with gaussian processes In ICML 2015
+Silverman Bernard W Density estimation for statistics and
+data analysis volume 26 CRC press 1986
+Simon Noah Friedman Jerome Hastie Trevor and Tib-
+Journal of
+shirani Robert A sparse-group lasso
+Computational and Graphical Statistics 222231245
