@@ -1,592 +1,2259 @@
-First-passage time to clear the way for
-receptor-ligand binding in a crowded
-environment
-Jay Newby
-Jun Allard
-March 8 2016
+Hawkes and INAR Processes
+Department of Mathematics ETH Zurich Raemistrasse 101 8092 Zurich Switzerland
+Matthias Kirchner
 Abstract
-Certain biological reactions such as receptor-ligand binding at cell-
-cell interfaces and macromolecules binding to biopolymers require many
-smaller molecules crowding a reaction site to be cleared Examples include
-the T cell interface a key player in immunological information processing
-Diusion sets a limit for such cavitation to occur spontaneously thereby
-dening a timescale below which active mechanisms must take over We
-consider N independent diusing particles in a closed domain contain-
-ing a sub-region with N0 particles on average We investigate the time
-until the sub-region is empty allowing a subsequent reaction to proceed
-The rst passage time is computed using an ecient exact simulation
-algorithm and an asymptotic approximation in the limit that cavitation
-In this limit we nd that the mean rst passage time is sub-
-is rare
-exponential T  eN0 N 2
-0  For the case of T cell receptors we nd that
-stochastic cavitation is exceedingly slow 109 seconds at physiological den-
-sities however can be accelerated to occur within 5 second with only a
-four-fold dilution
-Diusion drives many biological processes both positively by delivering
-cargo to a target and negatively by removal of cargo from a region of in-
-terest ROI While the temporal dynamics of diusional delivery have been
-extensively studied 5 4 24 12 diusion-driven removal has been less charac-
-terized experimentally or theoretically 3 Removal is of particular interest in
-the crowded environment of cells where large biomolecules and cellular struc-
-tures require the displacement of smaller molecules a phenomenon we term
-stochastic cavitation
-A specic example arises in the study of cell-cell interfaces including the
-T-cellantigen-presenting-cell interface 22 2 29 8 see Fig 1 A fundamen-
-tal question for all cell-cell interfaces is how receptors and ligands come into
-Department of Mathematics University of North Carolina Chapel Hill 329 Phillips Hall
-Department of Mathematics University of California Irvine 340 Rowland Hall Irvine
-Chapel Hill NC 27599
-CA 92697
-contact despite being separated by large molecules the extracellular uid and
-other structures in the glycocalyx On either cell surface large molecules such
-as CD45 and LFA-1 undergo 2D diusion in the cell membrane with a diusion
-coecient of D  01m2s 27 6 These large molecules impair interactions
-between smaller pairs of molecules such as the T cell receptor and its liganda
-key step in immunological information processing and decision-making It has
-been estimated that a region of radius  100nm devoid of large molecules is
-necessary for spontaneous T cell receptor interaction 2 which is occupied by
-on average  30 particles at equilibrium A natural question is whether this
-empty region can form spontaneously in a biologically relevant time Under-
-standing contact formation will address cell-cell interactions in the crowded
-heterogeneous environment inside organisms and what machinery is necessary
-for general cell-cell interactions 15 31
-Examples of diusional cavitation in biology also arise in other dimension-
-alities
-In 1D microtubules inexible polymers of the protein tubulin are
-decorated by hundreds of microtubule-associated proteins 1 28 These pro-
-teins exhibit signicant crowding 11 and lateral diusion along the microtubule
-lattice 13 17 Large microtubule-binding molecules may therefore have to wait
-for a region to be clear before binding What is the mean time for such clearance
-and is it the rate-limiting step in microtubule binding A similar situation oc-
-curs for DNA and the myriad of DNA-binding molecules some of which undergo
-lateral diusion across base pairs 16 25 A signicant waiting-time for large
-DNA-binding molecules has potential implications for the study of the chemical
-modication of DNA and RNA all of which require an enzyme to attach to the
-polymer
-For some of the above scenarios it has been hypothesized that clearance of
-the target region requires an active process 2 18 To address the feasibility
-of passive diusion-driven cavitation a theoretical assessment of the timescales
-involved is needed In other words can diusion-driven cavitation reliably oc-
-cur on biologically relevant timescales To address this question we consider
-N independent particles undergoing simple diusion in either the 1D domain
-Figure 1 Cell-cell
-interface formation between a T-cell and an antigen-
-presenting cell CD45 molecules black block the receptor-ligand purple bond
-from forming while they inhabit the ROI orange
-L L or the 2D domain L L2 In each case we study the rst-passage
-time until a smaller region a disk of radius L0 is empty
-The cavitation event can be rare ie the rst passage time can be very
-large compared to the diusion timescale L2D under certain circumstances
-To understand this consider the 1D domain with N particles At equilibrium
-each particle has a uniformly distributed postion within the domain
-limit L   and N   with the average particle density   N2L
-xed the equilibrium probability of nding a region of radius L0 containing no
-particles is small P  eN0 where N0  2L Therefore when N0 cid29 1 we
-expect cavitation to be a rare event Although we might expect the 1D mean
-rst-passage time MFPT to scale as1 T  P 1  eN0 we instead we nd an
-asymptotic scaling of T  eN0N 2
-In this Letter we develop a simulation algorithm to eciently generate ex-
-act realizations of the rst passage time based on Greens function reaction
-dynamics 26 For situations where cavitation is a rare event and computa-
-tion becomes unfeasible ie when N is very large or the ROI occupies most of
-the explorable area we develop an asymptotic approximation of the mean rst
-passage time
-Consider N independent random walkers Ynt with n  1  N that are
-conned to the interval L  y  L The ROI is the inner domain centered at
-the origin with radius L0  L The event we wish to characterize is the rst time
-at which the ROI is empty ie minnYnt  L0 We rst nondimensionalize
-the problem using the space scale L and the time scale L2D where D is the
-diusion coecient We dene the nondimensional distances Rn  Yn L
-  1  L0L and l0  L0L Then a given particle is inside the ROI if
-0  Rn  l0
-By formulating a simulation algorithm we can generate exact samples of the
-rst passage time We take advantage of explicit formulas for the probability dis-
-tributions that govern single particle Brownian motion in a closed domain Note
-that even though we focus on the 1D and 2D cavitation problem in this letter
-exact distributions are also known for 3D Brownian motion 7 The algorithm
-proceeds as follows Given a set of random starting positions Rnt01nN
-select a particle that is inside the ROI and closest to the origin That is select
-Rm  minRn  l0 The rst step is to compute the rst time  at which
-the selected particle leaves the ROI ie Rmt0     l0 Once  has been
-computed set tcid48  t0   The cavitation event cannot have occurred before
-time tcid48 because we are certain that Rmt  l0 for all t0  t  tcid48 Therefore
-the position of the other particles between time t0 and time tcid48 is irrelevant we
-need only generate the random position for each of the remaining particles at
-time tcid48 Once all positions have been updated select a new Rm  minRntcid48
-We know that the cavitation event has occurred if Rm  l0 If Rm  l0 then
-1This problem is equivalent to the diusion of a particle in N D dimensions the product
-of number of particles and dimensionality of space Since N D cid29 2 this Brownian motion
-is not recurrent so we might naively expect the system to be well-mixed in N D-dimensional
-phase space and the rate of rst passage would be the attempt rate times the probability of
-being in the target state
-set t0  tcid48 and repeat the above procedure
-At each step the jump times  can be sampled from the exact distribution
-f r0 obtained from the fundamental solution to the diusion equation with
-a reecting boundary at r  0 and an absorbing boundary at r  l0 The
-random positions can be sampled from the distribution prr0   satisfying
-the diusion equation with reecting boundaries at r  0 and r  1 An
-ecient way of sampling from p is to use a rejection method similar to the
-one described in 26 For the jump time sampled from f we found that the
-rejection method could not easily be adapted to our situation
-Instead we
-sample the jump time using a root nding algorithm Additional details are
-provided in Supplementary Material The simulation algorithm is maximally
-fast in the sense that only the average slowest particle determines the next
-event time allowing us to eciently access densities around L0  13 We nd
-this is suciently high to validate our asymptotic approximations
-To obtain a complete picture of cavitation in the rare event limits we develop
-an asymptotic approximation for the MFPT T  The approximation is derived
-for 1D cavitation and based on simulations we observe that in the limit L  
-with a xed particle density the approximation is also surprisingly accurate for
-2D cavitation We rst state the main results Eqs 46-37 and then summarize
-their derivation
-For xed N the rst term in the asymptotic approximation for 0   cid28 1
-of the MFPT averaged over a uniformly distributed initial position for each of
-the N particles is given by
-T  2N AN
-CN N2  O1 N  3
-2 N  2
-The constant CN is the Newtonian capacitance of a hypercube in RN as ex-
-plained below it determines the far eld behavior of certain solutions to Laplaces
-equation 32 An explicit formula for the Newtonian capacitance of a cube for
-N  2 is unknown However a good approximation for N  3 is C3  13214
-19 The  cid28 1 approximation solid line is compared to simulations symbols
-in Fig 2 For N  3 we nd good agreement between simulation and the inde-
-pendently derived estimate for C3 from 19 From physical arguments detailed
-at the end of this letter we have determined an expansion of the Newtonian
-capacitance for large N given by
-cid114
-cid18
-cid19
-3 log N
- ON2
-The unknown constant in the above expansion is independent of all parame-
-ters Using the exact simulation algorithm we obtain the numerical estimate
-2  167 Our MFPT calculation thus provides an approximation for the
-capacitance CN which otherwise remains challenging to compute 19
-Figure 2 The MFPT in nondimensional units as a function of L0L  1  
-The small  approximation solid lines is compared to simulations symbols
-using C3  13214 C4  144 and C5  155
-For xed 0    1 an asymptotic expansion for N cid29 1 is given by
-where 1D  22 depends only on 2 via Eq 19 The N cid29 1 MFPT approxi-
-mation is compared to simulations in Fig 3
-N 2N2  N cid29 1
-T  1D
-Figure 3 The large N MFPT approximation solid lines compared to simula-
-tions symbols
-Finally we consider the case the radius of the ROI L0 is xed and L  
-with a xed number of particles per unit length   N2L Let N0 be the
-average number of particles in the ROI The L   MFPT approximation in
-dimensional units is
-T  1DL2
- N0 cid29 1
-050607080910L0L10-1100101102MFPT TN5N4N351015202530354045N10-210-1100101102103MFPT TL0L04L0L03L0L02The MFPT is shown in Fig 4 as functions of N0 for dierent values of L
-The approximation 37 matches closely with the LL0  333 simulations for
-Figure 4 The MFPT vs N0 the average number of particles in the ROI The
-symbols indicate 103 averaged simulations the 1D simulations are shown as cir-
-cles and the 2D simulations are shown as diamonds Also shown is the L  
-approximation dashed curve for both 1D and 2D Note that time is nondimen-
-sional using the L2
-0D timescale
-N0  10 Hence the eect of a small domain size compared to the ROI is
-to increase the MFPT making the cavitation event more rare This provides
-a quantitative measure of when the domain size L no longer inuences the
-cavitation event which is relevant when for example considering cavitation on
-a relatively long strand of DNA compared to a shorter plasmid Microtubule
-laments also vary in length
-Simulations of 2D cavitation are also shown in Fig 4 as diamond symbols
-Although the asymptotic approximation 37 is derived for 1D we nd that it is
-a remarkably good t to the simulation data after changing a single parameter
-the prefactor 2D  07 We therefore infer that cavitation is roughly three
-times faster in 2D than in 1D Heuristically this speed-up occurs because the
-mean time for a random walker to escape a spherical region decreases with
-dimensionality
-The asymptotic approximations 46-37 for 1D cavitation are derived as
-follows Because all of the N walkers are independent the problem can be
-reformulated as the rst passage time of a single random walker in a N di-
-mensional domain Dene the domain   0 1N and let   1   1N
-be the small target domain The random process Rt     represents
-the original process with Rt  R1t  RN t Dene the MFPT as
-678910111213N0101102103104MFPT LL02TLL0417LL0833LL025LL0333LL0T  cid104inft  0  min1nN Rnt  l0cid105 it satises
-Ncid88
- 1
-T r  0
-T r  0
-r  
-r  
-r  
-An approximate solution to 6 can be obtained using the method of matched
-asymptotics 33 10 30 9 20 We split the solution into two parts an inner and
-outer solution The inner solution satises the absorbing boundary condition
-on  and ignores the reecting boundary The outer solution satises the
-reecting boundary on  and is singular as r  1  1 The two solutions
-are then matched to obtain a uniformly accurate approximation using the Van
-Dyke matching principle 23
- and let z  cid107zcid107 The inner solution
-Dene the inner coordinates z  rrb
-zw  0 wz  ZN   0
-where ZN is the unit hypercube The exact solution to the inner problem for
-arbitrary N is unknown However from electrostatics 21 for large z the inner
-solution has the two term expansion
-satises
-cid104
+In this paper we discuss integer-valued autoregressive time series INAR Hawkes point processes and their interre-
+lationship Besides presenting structural analogies we derive a convergence theorem More specically we generalize
+the well-known INARp p  N time series model to a corresponding model of innite order the INAR model
+We establish existence uniqueness niteness of moments and give formulas for the autocovariance function as well
+as for the joint moment-generating function Furthermore we derive an AR an MA and a branching-process
+representation for the model We compare Hawkes process properties with their INAR counterparts Given a
+Hawkes process N in the main theorem of the paper we construct an INAR-based family of point processes and
+prove its convergence to N This connection between INAR and Hawkes models will be relevant in applications
+Keywords Hawkes process integer-valued time series weak convergence of point processes branching process
+2000 MSC 60G55 60F99 37M10
+Introduction
+In this paper we show that Hawkes point processes are continuous-time versions of integer-valued autoregressive
+time series andvice versathat integer-valued autoregressive time series are discrete-time versions of Hawkes
+point processes see Theorem 3 for the main result of the paper To start with we outline the history of the concepts
+involved
+Standard time series theory for sequences of real-valued data points has been developed in seminal works like
+Whittle 1951 and Box and Jenkins 1970 This theory led to the natural question of time series models for count
+data In the count-data context the starting point is also a dening system of dierence equations of the form Xn 
+cid80 kXnk  n cid80 knk n  Z The main idea of the construction is to manipulate these equations in such
+a way that their solutions are integer-valued This can be achieved by giving the error terms n a distribution
+supported on N0 and by substituting all multiplications with thinning-operations For the latter the thinning notation
+from Steutel and van Harn 1979 turns out to be relevant In the above spirit autoregressive integer-valued INAR
+time series were dened and examined by McKenzie 1985 and Al-Osh and Alzaid 1987 The modern denition of
+the INAR model comes from Li and Yuan 1991 Latour 1997 generalizes the model to the multivariate case For
+an exhaustive collection of properties of the INAR model see da Silva 2005 For a general survey of integer-valued
+time series whose denitions involve a thinning operation see Weiss 2008 For a textbook reference see Fokianos
+and Kedem 2012
+The Hawkes process was introduced in Hawkes 1971ab as a model for contagious processes such as measles
+infections or hijackings As a point process in continuous time the Hawkes process allows for the modeling of
+intensities which depend on the past of the process itself Its alternative name selfexciting point process stems
+from the fact that given the occurrence of an event intensity jumps upwards and then decays gradually Theoretical
+cornerstones for the model are Hawkes 1974 which establishes the representation as a cluster process Ogata 1988
+which covers calibration issues and propagates a recursive method for likelihood calculations Bremaud and Massoulie
+1996 which extends the original model by generalizing the ane dependence on the past to Lipschitz dependence
+Email address matthiaskirchnermathethzch Matthias Kirchner
+Preprint submitted to Stochastic Processes and their Applications
+September 8 2015
+Bremaud and Massoulie 2001 which proves the existence of a specic borderline case of the model Liniger 2009
+which puts the subtleties of the denition and the construction on a solid and very detailed mathematical foundation
+especially for the marked multivariate case and Errais et al 2010 which treats an important special parametrization
+of the model from a Markov process theory point of view For a textbook reference that covers many aspects of the
+Hawkes process see Daley and Vere-Jones 2003
+To the best of our knowledge the close connection between INAR and Hawkes processes has not been studied
+before The correspondence between the model classes becomes even more direct if one applies innite autoregression
+instead of nite autoregression for the time series model This was our main motivation for generalizing the existing
+INARp framework with p   to the case p   For the new INAR model we give an explicit construction
+and show uniqueness Then we derive three alternative descriptions of the process namely an autoregressive a
+moving-average and a branching-process representation Furthermore we calculate basic quantities such as the joint
+moment-generating function and the autocovariance function These are mainly presented for comparison with their
+Hawkes process counterparts We observe that the equivalent branching-construction of INAR and Hawkes models
+form the core of the connection This equivalence yields corresponding equations for generating functions similar
+moment structures and analogous stability criteria Theorem 3 establishes a convergence result In this theorem for
+a given Hawkes process N we construct a specic family of INAR sequences
+ From each member
+of this family we derive a point process N by setting
+cid110cid16
+cid17
+cid111
+Ncid0a bcid1 
+cid88
+n nab
+The theorem states that N converges weakly to the Hawkes process N when  goes to zero This result is relevant for
+applications of INAR and Hawkes processes In particular the convergence theorem yields an estimation method for
+the Hawkes process by estimating the more tractable approximating INAR model instead We work out this estimation
+method in Kirchner 2015b Moreover from a purely theoretical point of view the presented line of thought is useful
+the time series perspective on point processes as well as the point process perspective on integer-valued time series
+can be fertile for constructing and understanding event-data models see Section 4
+The paper is organized as follows Section 1 introduces the INAR model Section 2 presents the Hawkes
+process in the random counting-measure framework Section 3 establishes the convergence theorem Furthermore it
+collects structural analogies between the two model classes In the nal section we conclude with a discussion on the
+broader interpretation of the INARHawkes relation
+1 The INAR model
+Throughout the paper we consider a basic complete probability space F  P carrying all random variables in-
+volved
+11 Denition and existence
+Denition 1 For an N0-valued random variable Y and a constant   0 the thinning operator  is dened by
+where 
+iid Pois n  N independently of Y We refer to
+In this denition and throughout the paper we use the convention thatcid800
+n1 an  0 for any sequence annN  R
+Denition 2 For k  0 k  N0 let n
+ Pois k independently over n  Z k  N
+l  N and also independent of n An integer-valued autoregressive time series of innite order INAR is a
+iid Pois0 n  Z and nk
+as counting sequence
+  Y 
+Ycid88
+cid16
+cid17
+sequence of random variables XnnZ which is a solution to the system of stochastic dierence equations
+cid88
+k  Xnk
+cid88
+Xnkcid88
+nk
+n  Xn 
+ Xn 
+n  Z
+cid88
+ncid88
+icid88
+i
+cid80
+We call 0 immigration parameter n immigration sequence k  0 k  N reproduction coecients and K 
+k1 k reproduction mean
+In most situations it is enough to use the thinning notation from 1 in Denition 2 without explicitely writing out the
+counting sequences as in 2keeping in mind that each  operates independently over k  N and n  Z Clearly
+Denitions 1 and 2 depend on the choice of the distribution of the counting sequences A more obvious option would
+have been sequences of Bernoulli variables This has in fact been the choice in the cited INARp literature The
+Poisson choice for the counting sequences however again yields a Poisson distribution for XnXn1 Xn2     This
+in turn leads to formulas that are simpler and that can be compared with their Hawkes counterparts more directly
+We will address this issue in Sections 34 and 4 For the following existence and uniqueness result any N0-valued
+distribution with nite rst moments would do for the counting sequences Throughout our paper stationary is
+understood as strictly stationary
+Theorem 1 Let k  0 k  N0 with reproduction mean K cid80
+stationary solution XnnZ where Xn  N0 n  Z and E Xn  01  K n  N 
+Before giving the proof we highlight the branching nature of the solution to 2 As we will see one can interpret
+this solution as a model for the size of a population where each individual is alive exactly during one time-step
+Furthermore each individual is either an immigrant or stems from a prior individual This is similar to a Galton
+Watson framework with immigration see Section 5 in Seneta 1969 In contrast to the GaltonWatson setup however
+each INAR individual does not only have ospring at the next time-step but potentially at any future time
+The proof rst formalizes this structure and then establishes that the construction indeed yields a process with the
+desired properties We emphasize the branching intuition of family processes consisting of generation processes by
+the somewhat unusual but suggestive notation for stochastic processes Fn and Gn
+k1 k  1 Then 2 has an almost surely unique
+iid Pois 0  i  Z be the immigration terms from Denition 2 For the j-th potential immigrant at time
+i  Z we dene generation processescid0Ggi j
+Proof Let i
+cid1 g  N0 by the following recursive procedure
+ncid88
+n  Z i  Z j  N
+ 1n0
+G0i j
+Ggi j
+k  Gg1i j
+For all distributional properties of the construction it will be enough to apply dening equation 4 for the generations
+We will consider an explicit representation of the involved thinning sequences later Note that Ggi j
+ 0 whenever
+n  0 A family originating from the j-th individual immigrant at time i is the superposition of all the corresponding
+generation-processes
+Fi j
+Ggi j
+n  Z i  Z j  N 
+cid17
+cid16 Xn
+The candidate series
+in the time index
+for a solution of 2 is the superposition of all these familiesmodulo an appropriate shift
+Xn 
+Fi j
+ni 
+n  Z 
+Note that only family and generation processes indexed by i j with j  1     i come into play Also note that all
+innite series involved in the construction above are well-dened because their partial sums are nondecreasing As a
+rst step we remind ourselves that K cid80
+cid88
+by induction for g  0 7 is correct because we have Ecid80
+cid80
+that Ecid80
+and 7 follows By 7cid80
+ K  Ecid80
+k1 k and establish
+n0 G0i j
+Ggi j
+n0 Gg1i j
+n0 Ggi j
+this expectation is almost surely bounded We conclude that Fi j
+g  N0 i  Z j  N
+n0 1n0  1  K0 For g  0 one can show
+has expectation 11  K In particular
+n0 Fi j
+ N0 n  Z almost surely For Xn n  Z we nd
+cid88
+ncid88
+cid17
+i
+cid88
+ncid88
+i
+cid88
+ncid88
+cid16
+i
+icid88
+cid17
+ncid88
+i
+Fi j
+WI 0
+E Fi1
+MC 0
+E Ggi j
+MC 0
+Ggi1
+7 0
+1  K 
+Consequently Xn is almost surely bounded and therefore almost surely N0-valued Note that by construction the
+generations
+are independently and identically distributed time series over
+i  Z and j  N Stationarity of
+cid16
+cid1 indeed solves 2 we have to work with an explicit representation for
+then follows from the iid property of the immigration sequence i
+and therefore the families
+cid16 Xn
+Fi j
+Gi j
+cid17
+To show that our candidate sequencecid0 Xn
+gi jm  Poisk
+nk
+the thinnings involved in the 4 To that aim let
+independently over
+i n  Z and k j g m  N 
+In our branching terminology nk
+gi jm denotes the number of ospring individuals at time n whose parent lived at time
+n  k This parent belongs to the g  1-th generation of family i j Furthermore this parent is the m-th such
+individual We repeat the dening recursion for the generation processes from abovethis time we represent the
+involved counting sequences explicitly
+G0i j
+ 1n0
+n  Z i  Z j  N
+ncid88
+ncid88
+k  Gg1i j
+nkcid88
+Gg1i j
+ink
+gi jm 
+Ggi j
+n  Z i  Z
+j  N g  N 
+It is obvious that 11 justies the distributional assumptions on 10 ie 4 used in the rst part of this proof For
+any n  Z we nd
+ncid88
+icid88
+i
+n1cid88
+icid88
+i
+ncid88
+n1cid88
+icid88
+cid88
+i
+Fi j
+Fi j
+Fn j
+Ggi j
+Note that the third summation really starts in g  1 because G0i j
+sum in 12 we obtain
+n1cid88
+icid88
+cid88
+i
+Gg1i j
+ 1ni0  0 whenever i  n  1 For the triple
+n1cid88
+icid88
+cid88
+nikcid88
+nicid88
+ nkcid88
+nkicid88
+cid88
+icid88
+cid88
+inik
+ 
+Gg1i j
+nk
+gi jm
+i
+gi jm
+i
+Ggi j
+For 13 we use the fact that it is irrelevant whether we let k run over 1 2     n  i or over N because Gg1i j
+nik
+whenever k  n  i by the same argument we may let i run up to n  k only For xed n  Z and k  N the term in
+the bracket is a sum of iid Poisk random variables nik
+For the size of Ink we obtain
+n jgm over the stochastic index set
+g i j m  Z4  1  g i  n  k 1  j  i 1  m  Gg1i j
+nki
+nkcid88
+nkcid88
+cid88
+icid88
+icid88
+Fi j
+nik
+6 Xnk
+  as
+Gg1i j
+nik
+i
+i
+cid27
+cid26
+Ink 
+cid12cid12cid12Inkcid12cid12cid12 
+cid16
+Let nk
+m  be the counting sequences from Denition 2 Note that for n  Z and k  N
+cid17
+cid16
+gi jm  g i j m  Inkcid17
+nk
+ l  1 2     Xnk
+are equally distributedno matter which order we choose for the second set Also note that for n k cid44 ncid48 kcid48 we
+have that Ink  Incid48kcid48   Consequently the independence properties over n and k necessary for the thinnings are
+preserved We did indeed make correspondence 15 explicit The reordering of the counting sequences however is
+cumbersome It involves a function that is recursively dened on multiple levels its presentation would double the
+length of the whole proofyielding hardly additional insight at that So we chose to leave it with 15 Continuing
+with 12 we obtain that for n  Z
+nk
+cid88
+Inkcid88
+cid88
+Xnkcid88
+nk
+gi jm
+ n 
+nk
+nk
+For uniqueness consider two stationary solutions X Y of 2naturally with respect to the same counting se-
+We conclude that
+quences
+cid16
+Ecid12cid12cid12Xn  Yn
+nk
+gi jmInk
+cid88
+i
+Ggi j
+cid88
+cid88
+indeed solves 2
+ n  Z k  N Then
+icid88
+n1cid88
+cid16 Xn
+cid17
+cid17
+cid12cid12cid12cid12cid12cid12cid12 cid88
+cid12cid12cid12 1 E
+cid12cid12cid12k  Xnk  k  Ynk
+cid12cid12cid12
+cid12cid12cid12cid12cid12cid12cid12  E
+cid12cid12cid12cid12cid12cid12cid12Xnkcid88
+cid12cid12cid12 
+k cid12cid12cid12Xnk  Ynk
+Ecid12cid12cid12Xn  Yn
+k  Xnk  k  Ynk
+Ecid104
+cid88
+nk
+cid12cid12cid12cid105 WI
+Plugging 17 in 16 we obtain
+Ecid12cid12cid12k  Xnk  k  Ynk
+cid12cid12cid12
+k  N 
+cid12cid12cid12
+cid88
+cid88
+cid12cid12cid12k  Xnk  k  Ynk
+cid12cid12cid12 MC
+cid12cid12cid12cid12cid12cid12cid12 d k cid12cid12cid12Xnk  Ynk
+ Ynkcid88
+cid88
+cid12cid12cid12 stat K Ecid12cid12cid12Xn  Yn
+k Ecid12cid12cid12Xnk  Ynk
+nk
+cid12cid12cid12
+n  Z 
+As Xnk and Ynk are thinned with respect to the same counting sequence we have that
+As K  1 by assumption and EXn  Yn   we get that EXn  Yn  0 and therefore Xn  Yn n  Z almost surely
+12 Alternative representations
+Surprisingly we can explicitly represent the INAR model as a standard AR model with uncorrelated errors
+Proposition 1 Let k  0 k  N0 with K cid80
+Denition 2 Then
+k1 k  1 and let Xn be the corresponding INAR process see
+cid88
+un  Xn 
+kXnk  0
+n  Z
+denes a stationary sequence un with E un  0 n  N and
+n cid44 ncid48
+n  ncid48
+0
+1K 
+E ununcid48 
+cid88
+Furthermore we have that
+Xn  X 
+k Xnk  X  un
+n  Z
+where X  E X0  01  K In other words un is a dependent white-noise sequence and the time series
+Xn  XnZ can be described in terms of a solution to an ordinary AR system of dierence equations
+Proof The sequence values un n  Z are well-dened because the partial sums ofcid80
+ MC X  0  KX  0
+k1 kXnk are nondecreasing
+and their expectations have a nite limit Stationarity of un follows from stationarity of Xn For the expectation
+we nd
+E un  E
+nkXnk
+For the autocovariances of the errors rst of all note that the errors un are uncorrelated with any previous value
+Xncid48  ncid48  n of the INAR sequence So that for ncid48  n and then by symmetry for ncid48 cid44 n
+E ununcid48  E
+Since E un  0 and E unXnk  0 for k  N we obtain
+k E unXncid48k   E un 0  0
+cid88
+kXncid48k
+cid88
+Xn  0 
+cid88
+Xncid48  0 
+ MC E unXncid48  E un0 
 cid105
-w  BN 
-zCN 2N  1
- N  3
-where BN is a constant determined by matching to the outer solution The
-constant CN called the Newtonian capacitance is a boundary dependent term
-discussed below
-Up to an unknown constant T  the outer solution is
-Tout  GN r rb  T 
-where the Greens function GN satises
-Ncid88
- 1  r  rcid48
-GN r rcid48  0
-r  
-r  
+un
+Xn  0 
+
+un
+n 
+
+cid88
+k  Xnk
+Xn  0 
+n 
+cid88
+cid88
+n 
+cid88
+cid88
+k  Xnk  0 
+cid34
+cid88
+cid88
+k  Xnk
+cid88
+kXnk
+kXnk
+kXnk
+un
+Ecid104
+ E unXn
+n  n
+ 0n  0
+cid105
+Ecid104
+k  Xnk  n
+cid88
+k  Xnk  n
+
+ cid88
+
+n 
+cid88
+ cid88
+ cid88
+k  Xnk
+k  Xnk
+
+2
+ cid88
+kXnk
+ cid88
+k  Xnk 
+cid88
+2 
+kXnk 
+cid88
+cid35
+k  Xnk
+ 
+
+Using independence of n from the past of the process and using E n  Varn  0 we get that
+ 0  E
+k  Xnk
+kXnk
+k  Xnk
+For the expectation part in the latter equation we condition the dierence in the expectation on  Xnk k  N the
+past of the process Then the thinnings become the only source of randomness Note that the counting sequences of the
+involved thinnings only feed into Xn and that they are independent of the past values Xn1 Xn2     see Denition 2
+From this independence we obtain
+
+ cid88
+2 
+cid88
+ cid88
+k  Xnk
+kXnk
+k  Xnk
+cid12cid12cid12cid12cid12cid12cid0Xnk k  Ncid1
+
+ cid88
+2 
+k  xnk
+cid88
+kxnk
+ cid88
+
+
+k  xnk
+xnkXnk kN
+cid80
+for the conditional expectations So in a rst step we take the unconditional expectation with respect to the thin-
+nings only and treat the Xnk variables as deterministic Observe that for deterministic xnkkN  N0 such that
+k1 kxnk   we have that
+cid88
+k  xnk
+k  xnk
+k  xnk
+ 
+
+ cid88
+2
+ cid88
+One can show by standard arguments that the variance of these series is the limit of the variances of the partial sums
+Vark  xnk 
+kxnk
+ 
+kxnk
+k  xnk
+k  xnk
+2 
+
+ cid88
+  E
+
+ 
+cid88
+distribution Pois see Denition 1 Ascid80
+ cid88
+ cid88
+ cid88
+Var
+values of Xnk and conclude
+k  xnk
+k  xnk
+ 0  E
+Ecid104
+
+cid105
+xnXn
+ cid88
+2  E
+cid88
+For the last equality we use that for x  N0 and   0   x is the sum of x independent random variables with
+k1 kXnk is almost surely nite we may average 21 over the possible
+  0  E
+cid88
+kXnk
+MC 0  KX 
+1  K 
+This establishes 19 Equation 20 is a simple algebraic transformation of 18
+The third description of the INAR model is the representation as a standard MA time series It will be most
+helpful for establishing the second-order properties of the process
+Proposition 2 Let k  0 k  N0 withcid80
+where un is the white-noise sequence from Proposition 1 X  E X0  01K 0  1 and k cid80k
+N0 Furthermore k  0 k  N0 andcid80
+k1 k  1 Then the corresponding INAR process from Denition 2 is
+a solution to the family of equations
+k0 k  11  K  
+Xn  X 
+cid88
+n  Z
+kunk
+Before giving the proof we note that the moving-average coecients kkN0 dened above correspond to
+the expected values of a single family-process after k  0 1 2    time steps see 5 Also note that Proposition 2
+above is not a mere corollary of standard results like Theorem 311 of Brockwell and Davis 1991 stating that
+ARMAp q processes p q   are MA processes The argumentation in our case ie p   has to be more
+subtle we have to prove that the in general innitely many zeros of the involved power series can be bounded away
+from the unit circle
+i1 iki k 
+cid17
+cid16E Fi j
+power series  z  1 cid80
+Proof Let B be the backward shift operator dened by Bkxn  xnk k  Z for any sequence xnnZ Consider the
+k1 zk With these notations we may rewrite 20 as B Xn  X  un n  Z where
+un is the white-noise sequence from Proposition 1 Note that 0  z  2 for z  1 Indeed for z  1
+z 
+z 
+cid88
+cid88
+cid12cid12cid12cid12cid12cid12cid121 
+cid12cid12cid12cid12cid12cid12cid121 
+cid88
+cid12cid12cid12cid12cid12cid12cid12  1 
+cid12cid12cid12cid12cid12cid12cid12  1 
+1 
+cid88
+cid12cid12cid12cid12cid12cid12cid12 cid88
+cid12cid12cid12cid12cid12cid12cid12 cid88
+cid88
+cid88
+cid12cid12cid12cid12cid12cid12cid12  1 
+cid12cid12cid12cid12cid12cid12cid12  1 
+k  kcid88
+cid88
+ 
+kcid88
+kzk  1  K  0
+kzk  1  K  2
+ zk
+ jk j
+z cid80
+As z cid44 0 for z  1 we may dene the function z  1z z  1 The original function  is analytic
+on z  1 so  is also analytic on the open unit-disc and consequently we have a power series representation
+k0 kzk z  1 As 1  zz by denition if follows that for z  1
+Comparing coecients in 23 one obtains the recursion
+0  1
+and k 
+ jk j
+k  N 
+We note that k  0 because k  0 Formally we can write
+n  Z 
+Xn  X  Bun
+k1 keik     The lemma states that ifcid80
+For the well-denedness of the right-hand side of this equation it suces to show thatcid80
+1 cid80
+k0 k   see Propo-
+sition 312 in Brockwell and Davis 1991 To that aim we apply Lemma IIc of Wiener 1932 Let  
+k1 k  1 then the Fourier series of the function 1  is
+absolutely convergent By the same calculation as in 23 we nd that the Fourier-coecients of 1  are exactly
+the k k  N0 from our  function From this we get
+0
+1  K  
+k Lemma
+cid88
+We conclude that 24 is a meaningful family of equations In other words Xn  X can be represented as a moving-
+average process with respect to the white-noise sequence un
+From the explicit construction in the proof of Theorem 1 we nd the following branching representation of the
+INAR process The branching formulation will be useful for the derivation of the moment-generating function
+It furthermore summarizes the most elegant and at the same time ecient way for simulating from the INAR
+Proposition 3 Let Xn be an INAR sequence with respect to an immigration sequence i and reproduction
+coecients k  0 k  N so thatcid80
+k1 k  1 see Denition 2 Then
+cid17
+cid16
+Fi j
+are independent over i  Z and j  N copies of a branching process Fn dened by
+Fi j
+ni 
+n  Z
+n  Z 
+cid88
+icid88
+cid88
+ncid88
+1n0 
+1n0 
+FnnZ
+cid17
+cid16 Fn
+nZ 
+cid17
+cid16 Fn
+ncid88
+icid88
+Fi j
+ncid88
+
+
+Fi j
+Gg1i j
+cid17
+cid16
+ncid88
+icid88
+ncid88
+icid88
+cid16 Fn
+cid17
+cid17
+cid16 Gg
+ncid88
+The generations Gn in 26 are constructed recursively by
+ 1n0
+and Gg
+k  Gg1
+nkcid88
+Gg1
+nkg
+n  Z
+ Poisk independently over m n k g Furthermore we have the following distributional equality for
+with nkg
+the generic family-process Fn
+Proof Equation 25 together with 26 and 27 is exactly the construction of a solution to the dening dierence-
+equations 2 in the proof of Theorem 1 see 5 and 11 To establish 28 consider the process on the right-hand
+We show that the process
+equality in distribution follows For n  Z we dene
+is constructed by the same stochastic recursion as Fn see 26 and 27 Then the
+ 1n0
+cid17
+cid16
+Fn cid80
+cid17
+Ggi j
+Ggi j
+28 In particular
+cid16
+ g  N0 are the generation processes that constitute the family processes
+cid17
+cid16
+cid16 Gg
+follow the same recursion 27 as the original generations
+ i  Z j  N in
+dened in 27 Then by construction
+of the same form as 26 for Fn Next we show
+ for g  0 we have that
+is the same as the starting value of the recursion
+n  n  Z This establishes a representation for
+cid17
+that the summands
+n  1n0 n  Z So the starting value of the recursion for
+27 for
+ For g  1 recursion 27 is also analogue
+are independent copies of the generations
+g0 Gg
+Fi j
+cid16
+cid17
+g  N
+cid16
+cid17
+ncid88
+icid88
+ncid88
+icid88
+G0i j
+1ni0  G1
+k  1nk0 
+ncid88
+k  G0
+And for any g  2 we nd that
+ncid88
+icid88
+ncid88
+icid88
+nicid88
+Gg1i j
+k  Gg2i j
+nik
+ncid88
+nkcid88
+icid88
+k  Gg2i j
+nik
+ 0 g  2 n  i  k  0 At this point we avoid the explicit
+where in the third equality we use that Gg2i j
+nik
+representation of the counting sequences We just remind ourselves that all thinnings involved are independent and
+icid88
+k  nkcid88
+establish
+cid17
+cid16 Gn
+cid1 d
+same stochastic recursion We conclude thatcid0Fn
+and consequently the processes Fn and
+In other words the processes Gn and
+Gg2i j
+nik
+cid17
+ This establishes 28
+are constructed by the
+n  Z g  2
+k  Gg1
+nk 
+cid16 Fn
+cid16 Fn
+ncid88
+ncid88
+cid17
+13 Moment structure
+From the representation of the INAR sequence as a superposition of shifted iid family processes in Proposition 3
+above we derive equations for the joint moment-generating function of the model First we x some notation
+Denition 3 For any sequence tnnN0  R let suppcid0tncid1  minn  N0 
+sequence tn We use the convention that min   Furthermore for A  R let c00A  cid8tnnN0  A 
+suppcid0tncid1  cid9 the space of sequences in A with a nite number of nonzero values For any time series YnnN0 we
+tk  0 k  n be the support of the
+dene the joint moment-generating function
+cid0tnnN0
+cid1  E exp
+ cid88
+ 
+tn  c00 R 
+ 
+tnFi j
+ dcid88
+where we set tm  0 for m  0 Here Fn denotes the generic family-process from Proposition 3 Its joint moment-
+generating function MFn is the unique solution to
+The somewhat unusual denitions above have been chosen for most direct comparison between the INAR joint
+moment-generating function and the Laplace functional of a Hawkes process see Proposition 7 and Proposition 9
+Theorem 2 Let Xn be an INAR sequence with respect to immigration parameter 0  0 and reproduction
+k1 k  1 see Denition 2 Then there exists a constant   0 such that
+cid16
+cid16
+tinnN0
+tn  c00
+0
+cid27
+cid18
+cid88
+Proof For 32 we rst apply representation 25
+cid0 cid1
+cid19 
+cid17  1
+coecients k  0 k  N such that K cid80
+cid26
+cid0tncid1  exp
+where d  suppcid0tncid1  1 is the maximal number of nonzero values of tn Furthermore we have that
+cid0tncid1  exp
+ cid88
+cid17 
+cid0sncid1  es0 exp
+cid0snknNcid1  1
+ dcid88
+ cid88
+ dcid88
+  E exp
+  E exp
+cid88
+cid17
+cid16
+exp
+ dcid88
+
+icid89
+MXnt1     td  Ecid89
+cid88
+
+E
+exp
+i
+cid89
+cid89
+cid1icid105
+Ecid104
+cid0tinnN0
+cid89
+cid110
+cid17cid111
+cid16
+cid0tinnN0
+cid1  1
+cid88
+cid17 
+cid16
+cid1  1
+cid0tinnN0
+sn  c00 
+icid89
+icid88
+  Ecid89
+MXn tn  E exp
+tnFi j
+tnFni
+Fi j
+
+In the following we set tm  0 whenever m  0 Conditioning on the immigration sequence i and exploiting its
+independence from the family processes
+Fi j
+snFk j
+cid88
+cid88
+kcid88
+kcid88
+cid88
+ncid88
+cid0snnN0
+ 0 j  N whenever k  n After
+We remind ourselves of the dening equation 26 for the family process Fn and nd that
+1n0 
+ cid88
+Fk j
+
+
+cid0snknN0
+n0 snFn is
+n0 Fn denotes the total number of individuals in the generic family Fn
+where in the last but one step we applied the formula for the probability-generating function of a Poisson random
+variable Up to now 34 is only a formal representation of MXn in terms of MFn It is not clear yet whether and
+when MXn is nite For 33 we apply the equation 27 of Fn from Proposition 3
+We note that in the last term the index k may run to  instead of n because Fk j
+straightforward calculations we obtain
+cid16
+ cid88
+cid0sncid1  E exp
+ cid88
+cid17 
+cid1  1
+cid1  es0 E exp
+Next we derive niteness of MFn Let sn be a sequence with nite support and s  maxsn so thatcid80
+bounded from above by sS  where S cid80
+cid88
+ cid88
+ 28 E exp
+  es0 exp
+cid88
+cid88
+We denote the total number of individuals in the g-th generation by Yg cid80
+cid88
+n  g  N0 The sequence
+n0 Gg
+is the embedded generation process Applying 27 we nd that Y0  1 and for g  2
+Yg1cid88
+cid88
+cid17
+cid88
+cid88
+branching process From 36 we see that S dcid80
+if and only if there exists a   0 such that E expcid81
+cid9   The latter is indeed the case because the moment-
+limn E expS n  limncid0E expScid11n  1 So for any given   0 we can assume the existence of a
+where as before K cid80
+is a standard GaltonWatson
+g0 Yg In other words S is distributed like the cumulative limit
+of a standard GaltonWatson process The moment-generating functions of such limits have been considered in the
+literature as K  1 by Theorem 21 in Nakayama et al 2004 there exists a   0 such that E expS  
+generating function of a Poisson variable is nite on R Furthermore by Jensens inequality we see that 1 
+  0 such that E exp S   1   In particular
+cid0sncid1  E exp S   1  1  K2K
+cid0sncid1 To that aim with the constant   0 from 37 for i  Z we introduce the
+k1 k  1 We now have established niteness of MFn in a neighborhood of zero It remains
+to establish niteness of MXn Our goal is to bound the series representation 34 of MXn To that aim we need
+to rene the bound 37 for MFn
+sequences
+   0 such that MFn
+cid17
+iid PoisK k g  N In other words the embedded generation process
+for snnN0  c00   
+Gg1
+cid16
+k  Gg1
+k  Gg1
+k  Yg1 
+where g
+cid16
+cid88
+cid88
+cid88
+cid88
+k 
+cid17
+cid16
+nZ dened by
+
+n  i i  1     i  d
+where d  supptn  1 as before with tn the considered argument sequence Note that for i  0 we have that
+n  0 n  N0 Consequently by denition of MFn for i  0 we have that MFn
+ 1 Furthermore
+observe that
+cid0 cid1 we have by component-wise monotonicity of MXn
+ i k  Z  For tn  c00
+ik
+cid16
+cid17
+cid16
+cid17
+cid18cid16
+cid17
+cid19
+cid0tncid1  MXn
+cid16
+ninN0
+where we set mi  MFn
+cid0i
+n nN0
+cid16
+cid0d
+cid88
+cid17 34 exp
+cid17 exp
+cid1  1
+cid1  1 i  Z Note that by 37 we have that
+ninN0
+cid18
+cid88
+ dcid88
+0
+i
+ 
+0  mi  1  K2K
+i  Z 
+cid16
+di
+nN0
+cid19
+cid17  1
+and in particular mi  0 for i  0 In the following we only consider mi with i  d In this case we get from 38
+that ei
+0  e0  1 and we obtain the recursion
+cid16
+cid0i
+cid17  1 38 exp
+cid1  1
+ icid88
+  1
+mi  MFn
+n nN0
+nknN0
+kmik
+40
+k1  K2K  K1  K2K  1
+i  Z 
+Therefore we may apply the exponential inequality expx  1  x1 x  1 in 41
+We conclude that for all tn  c00  with supptn  d we have that
+MXnt1     td
+39 exp
+Uniqueness of MFn follows by induction over the nite support of the argument sequence In that sense the
+implicit equation 35 species MFn recursively
+cid0i
+cid1  1 35 ei
+icid88
+kmik
+ cid88
+cid88
+For the sum in the exponential we nd that
+cid80i
+1 cid80i
+1 cid80i
+1 cid80i
+cid88
+40
+k1 kmik
+cid88
+k1 kmik
+ 1 
+cid88
+k1 kmik
+Summing both sides of 42 over i  d we obtain
+cid88
+Keeping in mind that 1  2K1  K  0 we solve 43 forcid80
+dcid88
+cid331 2K
+cid88
+cid88
+kmik 
+40
+cid32
+1  2K
+For the summation of miiN0 over i  N0 we nally obtain
+cid88
+44 dcid88
+mi  d  1
+cid80i
+ 2cid80
+k1 kmik
+k1 k1  K2K
+cid88
+cid88
+k1 kmik
+id1 mi and nd that
+1  K
+ 1  d
+40 2K
+1  K
+cid33
+cid321  K
+cid27 45 exp
+cid26
+40 d  1
+cid26
+cid88
+ d  1
+cid27
+ dcid88
+cid88
+ 
+As a matter of fact every moment-generating function that is nite in a neighborhood of zero has a Taylor series about
+zero The coecients of this series are the joint moments Consequently from Theorem 2 we obtain
+Corollary 1 Let Xn be an INAR sequence as in Theorem 1 For m  N and k1     km  N0 we have that
+cid20
+cid21
+2    Xkm
+The second moments of the INAR sequence are particularly tractable
+cid80
+Proposition 4 Let Xn be an INAR process with reproduction coecients k  0 k  N such that K 
+k1 k  1 and immigration parameter 0  0 Furthermore let R j  Cov
+ j  Z be the autocovari-
+ance function of the stationary sequence Then
+Xn Xn j
+cid16
+cid17
+where 0  1 and k cid80k
+i1 iki In addition we have that
+R j 
+kk j  0
+j  Z
+Proof With the notation from the moving-average representation of the INAR sequence in Proposition 2 we nd
+that for j n  Z
+1  K3  
+cid17
+ cid88
+cid88
+ 
+kunk
+kun jk
+cid16
+R j  Cov
+Xn  X Xn j  X
+cid16
+cid17
+cid88
+1  K
+cid88
+R j 
+ 1 j001  K j  Z Furthermore from Proposition 2 we
+From Proposition 1 we know that Cov
+have that the coecients k are absolutely summable So 47 follows from Proposition 312 in Brockwell and Davis
+cid88
+1991 For the sum of the autocovariance sequence we observe
+cid88
+cid88
+cid88
+un un j
+iik 
+1  K
+ik  0
+1  K
+i0 i  11  K from Proposition 2
+ik 
+1  K3 
+cid88
+cid88
+cid88
+The last equality re-uses the resultcid80
+1  K
+14 INARp embedding
+As one would expect the INAR model can be interpreted as the limit of the usual INARp p   model
+if we truncate the excitement sequence of an INAR time series after a large lag p the resulting process is an
+approximation of the original time series
+Proposition 5 Let Xn be an INAR sequence with respect to immigration parameter 0  0 and reproduction
+be another INAR
+ specied
+coecients k  0 k  N K cid80
+k1 k  1 see Denition 2 Furthermore for p  N let
+sequence with respect to the same immigration parameter 0 as above and reproduction coecients
+cid16
+cid17
+cid17
+cid16
+k 1  k  p
+Then the nite-dimensional distributions of
+innity
+cid16
+cid17
+converge to the nite-dimensional distributions of Xn as p goes to
+sequence for a sequence s0
+Proof It suces to show that the corresponding moment-generating functions converge We apply the notation from
+Theorem 2 respectively from Denition 3 Let tnnN0 be any sequence in c00  where   0 is the constant
+cid17t1     td  MXnt1     td As a rst step we show that
+from 39 We will establish that for any limp Mcid16
+cid17cid0snnN0
+cid1 
+the moment-generating functions of the corresponding family-processes converge ie that limp Mcid16
+cid0snnN0
+cid0 cid1 We argue with induction over the size of the support of the
+cid17 33 es0
+ lim
+   be a sequence such that supp
+cid88
+cid16
+cid1 for all sequences snnN0  c00
+cid16
+cid17 33 esd
+cid17cid17  d We obtain
+cid17 
+cid0sd
+cid1  1
+n nN0    with supps0
+Now for d  N let
+n   0 we nd that
+p MFp
+p MFp
+0  MFn
+cid16cid16
+cid16
+nknN0
+n nN0
+n nN0
+n nN0
+p
+cid16
+cid17
+cid16
+cid17
+Clearly limp p
+of the sequences sd
+limp MFp
+cid16
+cid16
+ k Furthermore we see that for k  N sd
+ 0 whenever n  d  k This means the support
+cid17
+nkn is strictly smaller than d Consequently by induction hypothesis we have that for k  N
+cid16
+nknN0
+ We may conclude
+ MFn
+cid17
+cid16
+cid16
+cid17
+p MFp
+n nN0
+n nN
+d  N 
+This establishes weak convergence of generic family processes In a second step we apply formula 32 for MXp
+n  tn  exp
+tn  c00 
+cid17
+nZ  i  Z
+n  0 else see 38 We nd for i  Z that
+cid16
+We show that we may apply the dominated convergence theorem on the right-hand side of 49 let
+be sequences dened by i
+cid16cid0tni
+cid1
+n   n  i  d     i  1 i and i
+cid0di
+cid16
+The second inequality follows by similar induction over the support size as before We already know from 45 that
+iZ is summable over i In view of this dominating summable sequence we take the limit on both
+sides of 49 and conclude that for tn  c00
+cid17
+cid1  1
+p  N 
+ esd
+nknN0
+cid17
+ cid88
+cid88
+cid16
+cid17  1  MFp
+nknN0
+cid17 33 MFn
+cid0sd
+cid1  1
+cid17 
+cid0tinnN0
+cid1  1
+cid17  1  MFn
+cid16cid0di
+cid1
+cid17  1
+cid1  1cid1
+cid0tnknN0
+cid1  1cid1
+cid88
+cid0MFp
+cid0tnknN0
+cid0MFn
+cid16cid0di
+cid1
+cid0 cid1
+ lim
+cid88
+DC exp
+ MX tn 
+p
+p MXp
+n  tn  exp
+2 The Hawkes process
+After the long rst section on the new INAR model the following shorter section formally presents the well-known
+Hawkes point process We treat point processes as random counting-measures and only consider point processes on R
+First we x some general notation and terminology Then we recall the denition the existence theorem and selected
+properties of the univariate Hawkes process For the general theory we mainly follow Resnick 1987 Chapter 3
+For the Hawkes part our main references are the seminal papers Hawkes 1971ab and Hawkes 1974
+cid82
+f tmndt  cid82
+21 Preliminaries
+Let B  BR be the Borel-sets in R and Bb  B  BR  B bounded A measure m on R is a point measure
+if mB  N0 B  Bb  We denote the space of point measures on R by Mp  MpR Let C
+KR be the
+space of nonnegative continuous functions on R with compact support Point measures mn converge vaguely to a
+v m Vague convergence yields
+point measure m if limn
+the vague topology on Mp The Borel -algebra generated by this topology Mp  BMp coincides with the -
+algebra generated by the sets m  Mp  mA  k A  Bb k  N0 see Lemma 14 in Kallenberg 1983 Any
+cid17
+measurable mapping   MpMp  RB such that limn mn  m whenever mn
+v m is continuous
+with respect to the vague topology Our basic underlying probability space is F  P A measurable mapping
+where for t  R
+  cid55 N is called point process The history of a point process N is the ltration
+N  F  cid16
+f tmdt f  C
+KR we write mn
+cid16H N
+K  C
+cid17
+cid18cid110
+cid111
+    Ncid0a bcid1  B
+cid111cid27
+  Ncid0tncid1  kn Ncid0tn1 tncid1  0 n  012   
+We assume that H N
+cid110
+that P Nt  1Nt  0  0 Also note that for t  R the -algebra H N
+t  F  t  R Note that our denition of a point process allows multiple points ie we may have
+   a  b  t B  N0
+with t  t0  t1    
+includes all sets of the form
+cid19
+k0 k1     N 
+22 Denition and existence
+Denition 4 For any point measure m  Mp dene the Hawkes intensity
 cid90
-GN r rcid48dr  0
-By integrating 11 over  using 36 we nd that T is the MFPT averaged
-over a uniformly distributed set of initial positions ie T  T  Again from
-electrostatics 21 in the limit rn  1 with rcid48
-n  1 and cid107r  rcid48cid107  z the
-Greens function scales like
-GN  2N AN z2N  O1 N  3
-where AN is given by 45
-Matching the inner and outer solutions we nd that the z dependent terms
-match provided that BN   2N AN 2N for N  3 The remaining unknown
-term T yields the approximation 46
-In order to access the rare event limit where both N cid29 1 and  cid28 1 we
-must nd how the Newtonian capacitance CN scales with N This problem has
-no known exact solution for N  2 19
-If the cuboid boundary  were replaced by a spheroid with the same
-hypervolume then the Newtonian capacitance is known for general N
+where   0 is a constant and h  R  R
+immigration intensity and to h as reproduction intensity
+ht  smds
+tm   
+0 is a nonnegative measurable function with ht  0 t  0 We refer to  as
+t  R
+The immigration intensity is often called baseline intensity and the reproduction intensity is often called excitement
+function However our objective is to highlight the similarity between Hawkes and INAR processes Consequently
+we make use of a joint branching-process terminology see Denition 2
+Denition 5 Let  be a Hawkes intensity as in Denition 4 A Hawkes process is a point process N that is a solution
+to the family of equations
+cid20
+cid16cid0a bcid3cid17cid21
+1A
+bcid90
+ 
+sNds
+a  b A  H N
+cid82 
+A priori it is not clear whether this family of equations has a solution whether any possible solution would be unique
+in a distributional sense and whether the distribution of a solution would be stationary These questions are answered
+by the following proposition see Hawkes 1974
+Proposition 6 Let  be a Hawkes intensity with immigration intensity   0 and reproduction intensity h such that
+0 htdt  1 Then there is precisely one stationary process that satises 52
+The existence and uniqueness result above is established by the observation that the solution to 52 must be a cluster
+process ormore specicallya branching process with immigration the points are interpreted as individuals that
+are either immigrants or ospring The immigrants or cluster centers stem from a homogeneous Poisson process
+with intensity  These immigrants form generation zero of the following branching procedure an immigrant at time
+s  R triggers an inhomogeneous Poisson process with intensity h   s where h is the reproduction intensity of the
+process as in Denition 4 These ospring individuals form generation one Each of these rst-generation individuals
+again triggers an inhomogeneous Poisson process in a similar way etc so that the families or clusters are generated
+by cascades of inhomogeneous Poisson processes
+23 The Laplace functional
+The cluster and branching process point of view is also fertile beyond the results of Proposition 6 For example it
+leads to equations for the Laplace functional of a Hawkes process The Laplace functional N of a point process N is
+a functional dened on the space of nonnegative measurable functions with compact support by
+cid40
+cid90 
+cid41
+N f   E exp
+f tN dt
+The next proposition is Theorem 2 in Hawkes 1974with a slight modication as the original statement refers to
+the probability generating functional whereas we prefer the nowadays more common Laplace functional notion
+Proposition 7 Let N be a Hawkes process with immigration intensity   0 and reproduction intensity h as in
+Proposition 6 Then the Laplace functional N of N is
+where F is a functional that is the unique solution to
+N f   exp
+cid40
+cid90 
+cid40cid90 
+cid16
+cid16
+cid17
+cid2 f t  cid3  1
+cid17
+cid2 f t  cid3  1
+cid41
+cid41
+ht dt
+F f   e f 0 exp
+In both equalities f denotes an arbitrary measurable nonnegative function with compact support
+3 Links between INAR and Hawkes processes
+In the following section we rst explain how discrete-time INAR processes can approximate a continuous-time
+Hawkes process After the convergence theorem we establish a number of properties of the approximating sequence
+Finally we collect some structural analogies of the two models
+31 Preliminaries
+Let Yn n  N and Y be random variables with values in some topological space The sequence Yn converges weakly
+to Y if limn E Yn  E Y for all nonnegative continuous bounded functions  We dene weak convergence
+of point processes with respect to the vague topology Mp on Mp see Section 21 In this case weak convergence
+of point processes is equivalent to convergence of their nite-dimensional distributions see Daley and Vere-Jones
+2003 Theorem 111VII General weak convergence theory as developed in the monograph Billingsley 1968
+considers sequences in metric spaces Therefore it is important to note that the vague topology is metrizable see
+Resnick 1987 Proposition 317 In other words we may treat
+as a metric space where necessary A most
+helpful theorem in the weak-convergence context is the continuous mapping theorem see Theorem 51 in Billingsley
+1968 We apply it in the following form
+cid16
+cid17
+Pcid104
+ R  R
+Proposition 8 Let Nn and N be point processes such that Nn
+be a bounded measurable function with compact support and with a set of discontinuities D f  B such that
+f tNdt for n  
+w N n   Furthermore let f
+f tNndt wcid82
+ 0 Then
+cid82
+cid16
+cid17
+cid105
+32 The convergence theorem
+Next to the conditions on the reproduction intensity h from Denition 5 and Proposition 6 we introduce an additional
+ R  R is piecewise continuous if its set
+assumption we want h piecewise continuous We say a function f
+of discontinuities D f  R is nite and for all t0  D f the limits limtt
+0 f t exist and are nite
+Combining all assumptions on h yields the following important technical
+0 f t and limtt
+Lemma 1 Let h  R  R0 be piecewise continuous function with ht  0 t  0 and
+constants   0 and K  1 such that for any   0 
+cid88
+K  
+hk  K  1
+cid82
+h dt  1 Then there exist
+In the sequel of the section let   0 and K  K  1   0  be as in the lemma above We state the main
+mathematical result of our paper
+Theorem 3 Let N be a Hawkes process with immigration intensity  and reproduction intensity h as in Lemma 1
+For   0  let
+be an INAR sequence with immigration parameter  and reproduction coecients
+hk k  N From these sequences we dene a family of point processes by
+ A  B   0 
+NA 
+cid88
+cid16
+cid17
+kkA
+Then we have that
+N w N for   0
+Our proof uses the standard weak-convergence approachas followed in the Hawkes context eg by Bremaud and
+Massoulie 1996 First tightness of the approximating family is established By Prohorovs theorem tightness yields
+weak subsequential limits for all subsequences Then we show that all those potential weak subsequential limits
+have the same distribution as the Hawkes process This will establish the result An alternative approach would be
+convergence of Laplace functionals that are given by
+Proposition 9 For some   0  let N be as in Theorem 3 Let f be a nonnegative measurable function with
+compact support Then the Laplace functional of N evaluated at f is
+n  we may assume without loss of generality that f t  0 t  0 We apply formulas 32
+and the corresponding generic
+cid16
+By stationarity of X
+and 33 for the joint moment-generating function of the INAR process
+cid32
+family process
+cid17cid16cid0  f 0 f  f 2   cid1cid17 32 exp
+cid0sncid1 sn  c00
+cid00cid1 This establishes the lemma
+cid17
+N f   Mcid16
+cid0sncid1  MF
+0
+We set 
+cid88
+MF
+f n
+cid16
+cid17
+cid18cid16  fcid0n  icid1cid17
+cid33 
+cid19  1
+The similarities between the formulas in Proposition 9 above and the corresponding equations for the Hawkes process
+in Proposition 7 are striking Still rather than establishing the convergence result from Theorem 3 via the Laplace
+functionals we choose a more direct reasoning on the process level that contains useful information on the approxi-
+mating point process family as a by-product Some of the properties that are necessary for this convergence proof are
+collected in the following lemmas
+
+N f   exp
 cid18
-cid114
-cid191N 
-CN  2
-We therefore propose a general expansion of CN for the present case of cuboid
-boundary having the same form as the large-N expansion of 16
-1 log N
- ON2
-Note that 16 and 17 have the same leading-order term
-To elucidate how the unknown constants 12 aect the large N MFPT
-cid114
-cid18
-cid19
-cid192N
-cid18
-1  N0
-We determine the value of 1 by exploiting a physical constraint as follows As
-L   with the density of particles   N2L held constant the MFPT
-must converge to a nite value Substituting L  N2 and N0  2L0 into
-20 yields
-Since limNcid01  N0
-T  N 21D
-cid12N
- eN0 we must have that   2 and therefore
-1  32 in order for 44 to converge to a nite nonzero value in the limit
-L N    We also nd that   2 is supported by numerical simulations see
-Supplementary Material The limiting result is the approximation Eq 37
-While the approximation matches well with simulations in 2D a more sys-
-tematic asymptotic analysis for the 2D case should be feasible For small  and
-cid18
-approximation we use Stirlings formula leading to
-N   N cid29 1
- 1D
-C N2
-  1  12
-In dimensional units the MFPT approximation is
-e21 
-cid192N
-T  L21D
-1  L0
-nite L the leading order in 46 holds in 2D A notable feature of our 1D case
-is that there are no terms in the expansion between the leading order term and
-the O1 term making our 1D approximation converge particularly fast This
-feature is lacking in 2D where there are other terms singular in  therefore we
-expect this approximation to converge more slowly In 2D for large L at con-
-stant density a dierent scaling between N and L prevents the approximation
-in 44 from converging necessitating an alternative strategy that will be the
-subject of future research
-Returning to the specic question of cell-cell contact at T cell interfaces
-large diusing molecules such as CD45 disfavor proximity between receptors
-and ligands on apposing cells These molecules have diusion coecients of
-D  01m2s 27 and density such that on average there are N0  30 molecules
-in the 100-nanometer ROI 2 The approximation 37 using the prefactor
-2D  07 from the numerical t to simulations yields an estimate of T 
-109 seconds In contrast the MFPT for a single particle to escape a circular
-domain is T  L2
-04D  0025 seconds Since T cell receptor triggering
-occurs within seconds 14 the above calculation predicts that receptor-ligand
-binding must involve a mechanism faster than passive diusion We therefore
-suggest the alternative hypothesis that an active force drives receptor-ligand
-proximity 2 To obtain an empty ROI spontaneously in less than ve seconds
-we would require N0  7 corresponding to a four-fold dilution which could be
-experimentally accessible The biological system is complicated by interactions
-of large molecules within and between molecular species lipid heterogeneity
-and transient immobilization all of which could be exploited to dynamically
-tune the rate of ligand binding and will be studied by expanding the present
-framework
-1 Acknowledgments
-JN was supported by a NSF-funded postdoctoral fellowship NSF DMS-1100281
-DMS-1462992 JA was supported by a NSF CAREER award DMS-1454739
-A Simulation algorithm
-The exact simulation algorithm makes use of two solutions to the 1D diusion
-equation Let parx x0 t be solutions to
-0  x x0  xar
-x2 
-px x0 0  x  x0
-with two dierent right boundary conditions Let pa be the solution with an
-absorbing BC at xa  l0  1 This solution is used to derive f the jump time
-distribution Let pr be the solution with a reecting BC at xr  1 This solution
-is used to generate the random position of each particle given a jump time In
-both cases the solution is represented as an innite series Two dierent series
-representations are derived for each solution one that converges quickly for
-short times and one for long times
-n  12
-bn  n
-cosanx cosanx0ea2
-cid19
-cid19
-For large times we have
-pax x0 t 
+cid88
+ cid88
+cid16cid0 f i  ncid1
+cid16
+cid19 
+cid17  1
+F operating on sequences snnN0  c00 0 is a solution to
+cid0sknnN0
+cid1  1
+cid88
+
+cid1  es0 exp
+cid40
+cid90
+cid0snnN0
+N f   E exp
+f tN dt
+ E exp
+hk
+
+
+cid41
+cid17 
+ 
+Here the function 
+Proof Plugging in denitions we obtain
+Lemma 2 For any   0  let N be a point process as in Theorem 3 Then for A  B we have that
+For the expectation we nd that
+and for a  b
+A  k  k  Z    Ncid0Acid1  0 almost surely
+E Ncid0kcid1  
+E Ncid0a bcid1  b  a  2
+1  K  
+1  K
+k  Z
+1  K
+cid16
+Ncid17
+Proof Claims 55 and 56 directly follow from the denition of N in 54 together with Proposition 1 and
+Lemma 1 For 57 we nd that the number of grid points in the interval a b is less or equal cid100b  acid101  1
+To get rid of the ceiling function we observe that cid100b  acid101  1  b  a  2 Combining this with the facts that
+K  K and    together with 55 and 56 yields inequality 57
+For the second moments we nd
+ the approximating family of point processes from Theorem 3 we have that
+  A  Bb
+cid17
+cid16
+0
+Lemma 3 For
+cid16
+Proof Let A  Bb be a bounded Borel set Note that
+cid88
+0
+cid16
+cid17
+cid17
+NA
+n nA
+m mA
+n nA
+NA
 cid88
 cid88
-For short times we have
-pax x0 t 
-prx x0 t 
-cid18
 cid88
-prx  x0 t  1  2
-cosbnx cosbnx0eb2
+n  X
+ 
+where R is the autocovariance function of the INAR sequence from Proposition 4 From this proposition we
+ cid88
+know that Rk  0 k  Z andcid80
+cid16
+cid17
+Rn  m  cid88
 cid88
-cid18
-1n
-e 2l0nxx0 2
- e 2l0n1xx0 2
-e 2l0nxx02
- e 2l0n1xx02
-e 2nxx02
- e 2n1xx02
-e 2nxx02
- e 2n1xx02
-For short times the rst passage time density is
-f t  x0   
-4t32
-pal0 x0 t
-cid88
-1n
-cid26
-l02n  1  x0e l0 2n1x02
-l02n  1  x0e l0 2n1x02
-cid27
-with the cumulative distribution
-F t  x0  1 
-1n
-cid26
-cid88
-l02n  1  x0
-  erf
-cid27
-l02n  1  x0
-For long times the rst passage time density and cumulative distribution are
-f t  x0   2
-F t  x0  1 
-1nan cosanx0ea2
-1n cosanx0
-cid88
-cid88
-The jump time is sampled using a standard root nding algorithm Given a
-uniform random variable U the jump time is the unique solution to
-F t  x0  U  0
-The distribution pr can be sampled using a rejection method as follows A
-majoring function Cx must be chosen such that Cx  px  x0 t for all
-x  0 1 A tentative value X is sampled from the distribution
-P x 
-cid82 1
-0 Cxdx
+ cid88
+A family of random variables YiiI is uniformly integrable if limM supiI Ecid21YiMYicid3  0 We obtain uniform
+where K  1 does not depend on the choice of   0  see Lemma 1
+k0 Rk  1  K3 Applying these results yields
+cid02  sup A  inf Acid1
+1  K3 
+sup A  inf A
+Rn  m
+1  K3
+1  K3
+NA
+m mA
+m mA
+m mA
+n nA
 cid32
 cid33
-1  e2t
-1  e2t
-A second random variable is drawn according to Y  CXU where U is a unit
-uniform random variable If Y  prX  x0 t then the sample X is rejected
-The procedure is repeated until a sample is accepted
-For the long time expansion 27 we select X to be a uniform random variable
-in 0 1 and set
-For the short time expansion 29 we select X to be a normal random variable
-with mean x0 and variance
-2t Note that care must be taken to ensure that
-0  X  1 In this case
-Y  eXx024t U
-2D simulations
-For 2D cavitation the outer boundary is a square of side length 2L This
-geometry allows us to reuse the jump propagator from the 1D algorithm to
-update positions The x and y coordinate of each particle are updated from
-separate samples of the 1D propagator pr as described in the previous section
-The jump times are generated from the 2D distribution of rst passage times
-to the boundary of a circle
-The 2D rst passage time problem is
-pr t  r0 
-cid18
-cid19
-r  r0
-pr 0  r0 
-pl0 t  r0  0
-The solution can be written as an expansion in Bessel functions The solution
-pr t  r0 
-J0rnJ0r0n
-J1l0n2
-e2
-cid88
-where n are the roots of J0n  0 and n  nl0 The jump time density
-function is
-f t  r0   
-pl t  r0 
-nJ0r0n
-J1l0n
-e2
-cid88
-and the cumulative distribution is
-F t  r0  1  2
-cid88
-J0r0n
-nJ1l0n
-e2
-We use a root nding method to sample the jump time
-B Parameter estimation
-We use maximum likelihood to estimate parameter values in the large N expan-
-sion of the Newtonian capacitance of a hypercube We exploit the one to one
-correspondance between 1 and  and between 2 and  The parameters 
-and  are estimated using realizations of the rst passage time The likelihood
-function is computed by assuming that the rst passage time is an exponentially
-distributed random variable with mean
-T 
-This assumption is valid asymptotically as N   when the rst passage time
-is a rare event The likelihood function for  and  from n iid samples k
-k  1  n is given by
-N N2 
-P k     exp
-cid19cid21
- log T
+integrability of the random variables in question as a corollary from Lemma 3 above
+Lemma 4 Let
+have that the family of random variables
+0
+NA
+is uniformly integrable
+be the approximating family of point processes from Theorem 3 and A  Bb Then we
+cid16
+Ncid17
+A family of probability measures
+set K  Mp such that PiKc   i  I
+Lemma 5 The family of the probability measures
+processes
+Ncid17
+is uniformly tight
+cid16
+0
+is uniformly tight if for all   0 there exists a compact
+cid16
+cid17cid17
+cid16Mp
+0
+corresponding to the random point
+cid17
+cid16
+cid16
+cid16Picid17
+0
+cid16Mp
+cid17cid17
+cid16Pcid17
+Proof The claim follows with Proposition 111VI from Daley and Vere-Jones 2003 if for all compact intervals
+a b  R and for all   0 there exists an M   such that
+Ncid0a bcid1  M
+cid21
+The uniform boundedness of these probabilities is a consequence of Lemma 2 and Markov inequality for any   0
+and a  b let M  b  a  21  K where   0 and K  1 as in Lemma 1 Then we have that
 cid20
-cid18 Tn
-ncid88
-T
-Two data sets were generated for N  20 25 30  115 120 with   105N
-and   106N A value of Tn was generated for each parameter set using
-104 samples of the rst passage time from the exact simulation algorithm We
-numerically computed the maximum of the product of the likelihood functions
-from all parameter values The likelihood functions were computed on a 500 
-500 grid for 15    25 and 15    3 The resulting maximizers were
-Figure 5 The MFPT approximation compared to Monte Carlo simulation esti-
-mates Each symbol shows the sample mean of 104 simulations
-  200 and   219 As shown in Fig 5 T and Tn are in good agreement with
-these parameter values The corresponding parameter values in the capacitance
-expansion are 1  32 and 2  167 The capacitance approximation is
-shown in Fig 6 compared to numerical estimates From the expansion we
-expect the error given by the absolute dierence divided by
-N to scale like
-1N 2 as N   We nd good agreement between the error and 15N 2
-Figure 6 The Newtonian capacitance of a hypercube
+0
+cid20
+cid21  E Ncid0a bcid1
+Ncid0a bcid1  M
+Ncid17
+cid16
+ b  a  2
+M1  K
+    0 
+cid16Pcid17
+cid16
+cid16
+0
+0
+cid16Pcid17
+Nncid17
+Proof Theorem 3 As a consequence of Lemma 5 the family of probability measures
+that corresponds
+is relatively compact for weak convergence by Prohorovs theorem see
+to the family of point processes
+Daley and Vere-Jones 2003 Theorem A24I So every sequence in
+ contains a
+weakly convergent subsequence In particular for any zero sequence in 0  we can nd a subsequence n such
+converges weakly to some point process N If the distribution of N does not depend on the initial choice
+of the subsequence it follows that the original sequence converges weakly to N see Theorem 23 in Billingsley
+1968 Reconsider the implicit dening-equation 52 from Denition 5 By Proposition 6 we know that this
+equation determines the distribution of the solving process So for the proof of Theorem 3 it suces to show that any
+subsequential limit candidate N solves 52 Furthermore one can show that it suces to prove 52 for A  BN
+a  see 50 A semiring is a class of sets A such that
+where BN
+i1Ai for some n  N Ai  A and
+for any pair A B  A one has i A  B  A and ii A  B  A  B  n
+Ai  A j   i j  1     n We consider for any a  R and any point process N
+is a semiring of sets that generates the -algebra H N
+Ncid17
+ respectively
+0
+0
+cid26cid8    N s1 t1   D1     N sk tk   Dk
+cid9    si  ti  a Di  N0 k  N
+ 
+a  b A  H N
+sN ds
+bcid90
+cid20
+a is indeed a semiring Summarizing the above for the proof of Theorem 3 it
+One can check that the set system BN
+suces to establish
+cid27
+First let us establish a discrete version of 59 for the approximating sequence set Nn  Nn for all n in the chosen
+subsequence For a  b and An  BNn
+a  we nd that
+cid20
+1A Ncid0a bcid1cid21
+1An
+cid0a bcid1cid21
+1An
+1An
+1A
+cid88
+cid88
+cid88
+k knab
+k knab
+Xn
+
+n
+n 
+cid88
+cid88
+The last step follows by the observation that the immigrations n
+kn  a are independent of Xn
+random measure Nn we obtain for a  b
+k1  Xn
+k knab
+cid20
+cid0a bcid1cid21
+1An
+cid88
+k knab
+cid32
+cid90 kn
+as well as the thinnings that contribute to Xn
+k2     Rewriting the inner sum of the last term as an integral with respect to the
+hkn  sNnds
+a  n  N 
+
+
+n  N 
+nhlnXn
+cid0nhlncid1  Xn
+ 
+
+cid33  An  BNn
+Note that here and throughout the proof the upper integration bounds in the Hawkes intensities do not require special
+attention due to the assumption h0  0 for reproduction intensities h in Denition 4 respectively Lemma 1 Now
+we show that 60 converges to 59 corresponding to the Hawkes process For both sides of equation 60 this is
+achieved in three steps
+ First we establish that the random variable in the expectation can be written as Nn where   MpMp 
+RB denotes some measurable mapping with set of discontinuities D  Mp
+ Next we show that P N  D  0
+ Finally we prove that the random variables in question are uniformly integrable
+By Proposition 8 the rst two points together imply that Nn w N The additional uniform-integrability prop-
+erty yields that the corresponding expectations also converge see Theorem 54 in Billingsley 1968
+cid16
+i1si ticid17
+Left-hand side of 60
+Consider the map
+cid17  RB  m cid55 1ms1t1D1msktkDkmcid0a bcid1
+cid16a b cid83k
+a in 58 for the notation We claim that  is vaguely continuous on Mp  m  m D  0
+see the denition of BN
+ Indeed the map m cid55 ma b is vaguely continuous on Mp  m  ma b  0
+where D 
+and for i  1     k the maps m cid55 msi ti are vaguely continuous on Mp  m  m si ti  0 The map
+Mp cid83k
+0 cid51 l1     lk cid55 1l1D1  lkDk is trivially continuous so that m cid55 1ms1t1D1msktkDk is continuous on
+suces to show that Pcid2Ncid0t  0cid3  0 for any t  R 
+i1si ti From Proposition 8 we have that Nn w N if P N D  0  0 Because D is nite it
+Pcid2Nt  0cid3  E 1Nt0  E Nt Lemma 4
+t  R   0 
+E Nnt
+So P Nt  0  0 and consequently P ND  0 must also be zero This establishes Nn w N respec-
+tively 1An Nna b w 1A Na b From Lemma 4 we know that Nna b is uniformly integrable socid01An Nna bcid1 is
+also uniformly integrable Combining weak convergence and uniform integrability yields convergence of expectations
+1  K
+n
+cid20
+cid0a bcid1cid21
+cid20
+1A Ncid0a bcid1cid21
+n
+We have established the convergence of the left-hand side of 60 to the left-hand side of 59
+Right-hand side of 60
+Note that the right-hand side of 60 converges to the right-hand side of 59 if
+hkn  sNnds
+ht  sNds
+cid88
+kab
+kncid90
+1An
+cid90 t
+1A
+tcid90
+bcid90
+ n
+cid90 t
+ dt
+As a rst step for establishing 62 note that for all choices of M with M  a and for t  a b
+This is due to a continuous-mapping argument similar to the one we have used for the left-hand side of 60 We
+establish that the variances of the random variables
+ht  sNds
+ht  sNnds w 1A
+cid82 t
+M ht  sNnds n  N0 are uniformly bounded
+n  
+cid90 t
+ht  sNnds  Var
+cid100Mncid101cid88
+hlnXnl
+cid100Mncid101cid88
+cid100Mncid101cid88
+cid16
+cid17
+hlnhmn Cov
+Xnl
+ Xnm
+At this point we write Rn for the autocovariance function of the INAR process
+cid16
+Xn
+cid17
+ Applying Proposition 4
+Rnl  m
+hln sup h
+cid90 t
+cid100Mncid101cid88
+cid100Mncid101cid88
+cid100Mncid101cid88
+cid0sup hcid12 M  1
+53 cid0sup hcid12 2M  1
+ht  sNnds
+cid100Mncid101cid88
+cid88
+cid01  Kncid13
+cid01  Kncid13
+cid01  Kcid13  cM  
+hln sup h
+hln sup h
+Rni
+2n
+2n
+i
+48
+cid82 t
+M ht 
+where cM is a constant independent of n respectively n We may conclude that the random variables 1An
+sNnds n  N are uniformly integrable Weak convergence together with uniform integrability yields convergence
+cid35
+of expectations We have established that for M with M  a
+ht  sNnds
+cid35
+ht  sNds
+cid90 t
+cid90 t
+cid34
+cid34
+n
+For the proof of 62 we consider a truncated part of h and its remaining tail separately For the truncated part we
+use 65 for the tail part we use the integrability condition
+1A
+tcid90
+1A
+cid82
+h dt  1 for any M  a we have
+ 
+bcid90
+ 
+
+ht  sNds
+tcid90
+cid12cid12cid12cid12cid12cid12cid12cid12cid12
+ dt
+ dt
+ht  sNds
+bcid90
+cid12cid12cid12cid12cid12cid12cid12cid12cid12
+cid12cid12cid12cid12cid12cid12cid12cid12cid12
+kab
+cid88
+cid12cid12cid12cid12cid12cid12cid12cid12cid12
+cid88
+cid88
+bcid90
+kab
+kab
+1An
+kncid90
+hkn  sNnds
+1An
+kncid90
+hkn  sNnds
+1An
+Mcid90
+hkn  sNnds
+1A
+Mcid90
+ht  sNds
+ dt
+Let   0 We show that we can nd M and N  N such that each of the three summands in 66 is bounded by 3
+for n  N First consider the integrand of the last summand in 66 By arguing similarly to the mab part in 61
+we nd that E Ndtdt  1  K So we can choose M1
+  0 so large that for t  a b
+1A
+cid90 M1
+  E
+cid90 M1
+ht  sNds
+The summands of the second term in 66 can be bounded by 3cid100b  acid101 in a similar and even more direct way
+uniformly over n and possibly with respect to another M2
+  M2
+cid9 So taking the integral
+ht  sNds 
+cid90 
+  0 We set M  maxcid8M1
+1  K
+hsds 
+3b  a 
+bcid90
+cid34
+cid90 M
+cid35
+hMt  sNds
+cid90 M
+cid35
+hMkn  sNds
+cid34
+Et  E
+cid34
+k knab
+cid35
+ht  sNnds
+respectively
+cid88
+cid34
+Ent  E
+For the rst term in 66 denote
+cid90 t
+gence of the Riemann-like sumscid80
+cid12cid12cid12cid12cid12cid12cid12cid12
+cid90 b
+nEnkn 
+cid88
+k kab
+Etdt
+themselves part of the sequence We write
+cid35
+cid90 t
+cid12cid12cid12cid12cid12cid12
+cid90 b
+cid12cid12cid12cid12cid12cid12cid12cid12 
+cid88
+ht  sNds
+cid90 b
+cid12cid12cid12cid12cid12cid12 
+over the interval a b of the last summand respectively the Riemann sum of the second summand in 66 yields
+nEnkn 
+Entdt
+Entdt 
+Etdt
+cid82 b
+From 63 we already know that for any choice of M limn Ent  Et  0 t  a b However the conver-
+a Esds is nontrivial as the functions En are
+k knab Enknn to the integral
+cid88
+k kab
+cid12cid12cid12cid12cid12cid12cid12cid12 
+cid12cid12cid12cid12cid12cid12cid12cid12
+cid90 b
+cid35
+cid12cid12cid12cid12cid12cid12
+cid90 b
+cid90 b
+cid12cid12cid12cid12cid12cid12 
+cid34
+cid90 t
+The second absolute dierence in 69 converges to zero because of dominated convergence of En Indeed for
+t  a b
+ht  sNnds
+ht  sNnds  sup h
+E Xn
+ sup h
+cid100M  bcid101
+1  K
+k knMb
+Note that sup h   follows from the piecewise-continuity assumption In view of the upper bound 70 we apply
+  N so large that for the second absolute dierence in 69 we
+the dominated convergence theorem and choose N1
+cid90 b
+Entdt 
+Etdt
+n  N1
+For the rst absolute dierence in 69 we assume that without loss of generality the piecewise continuous function
+h is uniformly continuous on 0 Otherwise we note that any piecewise continuous function on R that is vanishing
+at innity is uniformly continuous on each of its continuous pieces and do the following calculation once for every
+uniformly continuous piece of h Uniform continuity gives us a constant h  0 so small that for any t0  0
+1  K
+12b  a  M  b   
+cid41
+n  N2
+t  t0  h  t  0  ht  ht0 
+Now choose N2
+so large that
+cid40
+n  min
+1  K
+12b  a   sup h
+Here again  and K are the constants from Lemma 1 Let a  s  t  b with t  s  n h then
+1Anhs  knXn
+Ent  Ens 
+1Anht  knXn
+Ecid104
+Ecid104
+cid12cid12cid12cid12cid12cid12cid12cid12
+cid88
+ cid88
+cid32 M  s  n
+knMs
+knMt
+12b  a  
+12b  a  
+72
+73
+cid105  cid88
+cid88
+knMs
+knst
+ E Xn
+cid33 n
+1  K
+ht  kn  hs  kn 
+ht  kn
+ sup h
+1  K
+12b  a  M  b  
+ sup h
+1  K
+12b  a  
+6b  a   
+cid105cid12cid12cid12cid12cid12cid12cid12cid12
+Summarizing the above calculation we have established the existence of an N2
+  we
+have Ent  Ens  6b  a   whenever t  s  n and s t  a b For the rst absolute dierence in 69
+we therefore get
+  N such that for all n  N2
+cid12cid12cid12cid12cid12cid12cid12cid12
+cid88
+k knab
+cid90 b
+nEnkn 
+Entdt
+Enkn  Ent dt
+6b  a  
+6b  a  
+cid12cid12cid12cid12cid12cid12cid12cid12  cid88
+ cid88
+k knab
+cid90 k1n
+cid90 k1n
+k knab
+b  a  n
+n  N2
+74
+cid90 b
+cid35
+cid12cid12cid12cid12cid12cid12cid12cid12 
+cid90 b
+Etdt
+n  N
+cid90 t
+cid34
+cid110
+  N2
+Set N  max
+cid111
+ Combining 71 and 75 we get that
+cid12cid12cid12cid12cid12cid12cid12cid12
+cid34
+cid88
+nEnt 
+cid90 n
+kkab
+cid88
+Combining 67 68 and 76 shows that 66 is smaller than the given  for n  N and M  M ie
+n
+kknab
+hkn  sNnds
+ht  sNds
+cid35
+We have established that the right-hand side of 60 also converges to the right-hand side of 59 With the result from
+cid16
+Proposition 6 on the uniqueness property of 59 we nd that every subsequential limit N has the same distribution
+as the Hawkes process N We may then conclude that for   0 the approximating sequence of point processes
+converges weakly to the Hawkes process N
+Ncid17
+33 Structural analogies
+Besides the formal convergence result from Theorem 3 we point out a number of more general partly obvious
+structural parallels between the Hawkes and the INAR model The branching structure of the INAR model
+described after Theorem 1 is the same as the branching structure of the Hawkes process described after Proposition 6
+This similar underlying structure yields analogous equations for the moment-generating function of the INAR and
+the Laplace functional of the Hawkes process see Theorem 2 and Proposition 7 Consequently we can expect similar
+distributional properties In the following statements we compare the models more directly by considering a specic
+Hawkes process N together with its approximating family of INAR sequences
+   0  obtained from
+Theorem 3
+Xcid17
+cid16
+cid16
+cid17
+1 The dening equations 2 and 59 have similar interpretations taking expectations conditional on H X
+n1 
+ k  n  1
+on both sides of 2 yields
+n H X
+Ecid104
+Ecid104
+cid105
+n1cid88
+tcid90
+k
+cid105
+hcid0n  kcid1X
+n  Z
+which is similar to the local version of 59
+NdtH N
+t  R 
+ht  sNds
+cid82 
+2 The stability criteria from Theorems 1 and 6 correspond for the time series casecid80
+hk  1 is a su-
+0 htdt  1 Bremaud and Massoulie 2001
+cient existence condition which in the Hawkes case becomes
+establishes the existence of a nontrivial Hawkes process where the total weight of the reproduction intensity
+equals 1 and the immigration intensity is zero The analogous statement for INAR sequences can be derived
+in a similar way
+3 From the correspondence of the generating functions we know that the moments of the INAR and the
+Hawkes process must be similar The rst and second moments of both model classes can be calculated and
+compared explicitly The rst moments are
+1  K 
+For the rst equality see Theorem 1 for the second equality see Hawkes 1971a
+1  K 
+respectively 
+E X
+E Ndt
+4 For the autocovariances of both models ie for
+respectively for
+we nd at the origin
+respectively
+Ecid104
+Rn 
+0 X
+rt 
+E dN0dNt
+n  Z
+t  R
+cid105
+E X
+2
+cid332
+cid32E Ndt
+cid88
+cid90
+R0 
+1  K
+hkRk
+1  K
+hsrsds
+cid88
+cid90
+hkRn  k
+n cid44 0
+hsrt  sds
+t cid44 0
+Implicit equations of YuleWalker type are valid in both cases
+Rn 
+respectively
+Equations 77 and 79 are standard facts given the representation of the INAR sequence as a standard
+AR process in Proposition 1 78 and 80 are derived in Hawkes 1971b
+34 The choice of the counting sequence distribution
+As a last remark we again refer to the choice of the counting sequence distribution in Denition 1 An obvious
+alternative to the Poisson distribution would have been the Bernoulli distribution see the discussion after Denition 2
+With the Bernoulli choice each individual would have not more than one ospring at each future point in time
+instead of potentially unboundedly many We want to indicate that in the limit in the sense of Theorem 3 where all
+reproduction coecients go to zero this option would yield the same result for   0 1 and k  0 1 such that
+cid80 k  1 let 
+iid Poisk k  N and 
+
+Pcid104
+Pcid104
+cid105
+iid Bernoullik k  N  Then one can easily show that
+cid105  lim
+cid105
+cid105  1
+k  N 
+Pcid104
+Pcid104
+
+0
+0
+cid80
+k1 
+So when  is very small the ospring distribution candidates Poisson and Bernoulli become very similar Roughly
+speaking the limiting procedure in Theorem 3 is nothing else than a complicated superposition of limits of the form
+ For these kinds of sums we have that
+cid34 cid80
+cid34 cid80
+0
+
+
+cid35
+cid35  1
+n  N0 
+If k  0 innitely often thenby the Poisson limit theoremthe two considered probabilities are even equal for
+all   0 1 In view of the above one can expect that Theorem 3 with the Bernoulli distribution as a starting point
+would yield the same limit as the Poisson distribution namely the Hawkes process
+4 Conclusion
+cid16
+Ncid17
+ Ncid16cid0 2cid3cid17
+cid17
+The mathematical formulation of the correspondence between INAR and Hawkes processes in Theorem 3 has the fol-
+be the approximating family of INAR-
+lowing heuristic interpretation relevant for practical applications let
+based point processes for a Hawkes process N as in Theorem 3 Then for   0 small the nite-dimensional
+distributions of N are approximately equal to the nite-dimensional distributions of N In particular we nd for
+cid16cid0 2cid3cid17
+     N
+n  N cid18
+cid16
+cid16cid00 cid3cid17
+cid17
+cid16cid0n  1 ncid3cid17cid19 dcid18
+cid16
+Ncid16cid00 cid3cid17
+1  X
+2      X
+     Ncid16cid0n  1 ncid3cid17cid19
+cid16
+cid17
+is the INAR sequence that the point process N is based on see Theorem 3 So
+approximative model for the bin-count sequences of the considered Hawkes process N This point of view can be
+very fertile For example it leads to a nonparametric estimation procedure for the Hawkes process Instead of tting a
+Hawkes process directly one ts the corresponding INAR model from Theorem 3 on the bin-counts for some small
+  0 Kirchner 2015a gives a detailed discussion of this estimation procedure including asymptotic properties bias
+issues and techniques for an optimal bin-size choice  Also note that the Hawkes bin-count sequence view in 81
+on the INAR model is another argument for the choice of the Poisson instead of the Bernoulli distribution for
+the counting sequences clearly a Hawkes event can have potentially more than one direct ospring event in a future
+time-interval
+For any N0-valued time series model one can construct a point process model the way it is done in Theorem 3
+So studying integer-valued time series can be inspiring for developing and understanding point process models For
+example one might want to consider the corresponding point process of an integer-valued autoregressive moving-
+average INARMA time series For INARMA time series a moving-average part is added to the autoregressive part
+in the dening dierence equations 2 see Fokianos and Kedem 2012 In fact the resulting point process is nothing
+else but the dynamic contagion process as proposed in Zhao 2012 Also for integer-valued time series theory it
+is inspiring to translate point process models into the discrete-time setup For example one might want to translate
+the generalizing results on selfexciting point processes in Bremaud and Massoulie 1996 to the INAR context Here
+the selfexcitement of the point process is modeled not as an ane but as a general Lipschitz function of the past of
+the process The analogous generalization in time series theory is nonlinear Poisson autoregression as studied in
+Fokianos and Tjstheim 2012 for the case p  1 In the latter paper the authors also nd a Lipschitz condition for
+the transfer function Yet another idea might be to consider marked INAR sequences in analogy to marked Hawkes
+processes see Liniger 2009
+One can expect that the results of our paper also hold in a multivariate setupwith the obvious modications
+However the notation would become even more tedious so that we have decided to concentrate on the univariate
+case In view of the many INARHawkes-correspondences presented in this paper we conclude INAR sequences
+are discrete-time versions of Hawkes processes and vice versa Hawkes processes are continuous-time versions of
+INAR sequences
+Acknowledgements
+MK takes pleasure in thanking Thomas Mikosch for his most valuable comments on an earlier version of the pa-
+per and Paul Embrechts for guiding him to the topic of Hawkes processes and its applications to quantitative risk
+management The author acknowledges nancial support from RiskLab at the ETH Zurich and the Swiss Finance
+Institute Furthermore MK thanks Isabel Marquez da Silva for sharing her expertise on integer-valued models and
+Rita Kirchner as well as Anne MacKay for help with the editing
 References
-1 B Alberts A Johnson J Lewis M Ra and K Roberts Molecular Biology
-of the Cell  Garland 2014
-2 Jun F Allard Omer Dushek Daniel Coombs and P Anton Van Der Merwe
-Mechanical Modulation of Receptor-Ligand Interactions at Cell-Cell Inter-
-faces Biophys J 102612651273 March 2012
-0000020040060080101N101102103T105N106N0000020040060080101N10-510-410-310-210-1100relative error20406080100120N202530354045505560CNasymptoticnumerical20406080100120N10-410-310-210-1error15N23 E Ben-Naim and P L Krapivsky First-passage exponents of multiple ran-
-dom walks J Phys A 434949500817 November 2010
-4 H C Berg Random walks in biology 1993
-5 Paul Bresslo and Jay Newby Stochastic models of intracellular transport
-Rev Mod Phys pages 169 August 2012
-6 C W Cairo R Das A Albohy Q J Baca D Pradhan J S Morrow
-D Coombs and D E Golan Dynamic Regulation of CD45 Lateral Mo-
-bility by the Spectrin-Ankyrin Cytoskeleton of T Cells J Biol Chem
-285151139211401 April 2010
-7 H S Carslaw and J C Jaeger Conduction of heat in solids Clarendon
-Press Oxford 2nd ed edition 1959
-8 Amit K Chattopadhyay and Nigel J Burroughs Close contact uctuations
-The seeding of signalling domains in the immunological synapse Euro Phys
-Lett 77448003 2007
-9 A F Cheviakov and M J Ward Optimizing the principal eigenvalue of
-the laplacian in a sphere with interior traps Mathematical and Computer
-Modelling 537-813941409 2011
-10 S Condamin O Bnichou and M Moreau Random walks and brown-
-ian motion A method of computation for rst-passage times and related
-quantities in conned geometries Phys Rev E 75021111 Feb 2007
-11 Leslie Conway Derek Wood Erkan Tuzel and Jennifer L Ross Motor
-transport of self-assembled cargos in crowded environments Proc Natl
-Acad Sci 109512081420819 December 2012
-12 Daniel Coombs Ronny Straube and Michael Ward Diusion on a Sphere
-with Localized Traps Mean First Passage Time Eigenvalue Asymptotics
-and Fekete Points SIAM J Applied Math 701302332 January 2009
-13 R Dixit J L Ross Y E Goldman and E L F Holzbaur Dieren-
-tial Regulation of Dynein and Kinesin Motor Proteins by Tau Science
-319586610861089 February 2008
-14 Omer Dushek Raibatak Das and Daniel Coombs A role for rebind-
-ing in rapid and reliable t cell responses to antigen PLoS Comput Biol
-511e1000578e1000578 2009
-15 Helen S Goodridge Christopher N Reyes Courtney A Becker Tamiko R
-Katsumoto Jun Ma Andrea J Wolf Nandita Bose Anissa SH Chan An-
-drew S Magee Michael E Danielson et al Activation of the innate im-
-mune receptor dectin-1 upon formation of aphagocytic synapse Nature
-4727344471475 2011
-16 P Hammar P Leroy A Mahmutovic E G Marklund O G Berg and J Elf
-The lac Repressor Displays Facilitated Diusion in Living Cells Science
-336608815951598 June 2012
-17 Jonne Helenius Gary Brouhard Yannis Kalaidzidis Stefan Diez and
-Jonathon Howard The depolymerizing kinesin MCAK uses lattice dif-
-fusion to rapidly target microtubule ends Nature 4417089115119 May
-18 Frdric J Hoerndli Dane A Maxeld Penelope J Brockie Jerry E Mellem
-Erica Jensen Rui Wang David M Madsen and Andres V Maricq Kinesin-
-1 Regulates Synaptic Strength by Mediating the Delivery Removal and
-Redistribution of AMPA Receptors Neuron 80614211437 December
-19 Chi-Ok Hwang Michael Mascagni and Taeyoung Won Monte carlo meth-
-ods for computing the capacitance of the unit cube Mathematics and
-Computers in Simulation 8061089  1095 2010
-20 Samuel A Isaacson and Jay Newby Uniform asymptotic approximation of
-diusion to a small target Phys Rev E 88012820 Jul 2013
-21 John David Jackson Classical Electrodynamics John Wiley and Sons
-22 Yoshihisa Kaizuka Adam D Douglass Rajat Varma Michael L Dustin and
-Ronald D Vale Mechanisms for segregating T cell receptor and adhesion
-molecules during immunological synapse formation in Jurkat T cells Proc
-Natl Acad Sci 104512029620301 December 2007
-23 James P Keener Principles of Applied Mathematics Perseus Books Cam-
-bridge Mass 2000
-24 Konstantin V Klenin Holger Merlitz Jrg Langowski and Chen-Xu
-Wu Facilitated Diusion of DNA-Binding Proteins Phys Rev Lett
-9610181044 January 2006
-25 Kristine McKinney Melissa Mattia Vanesa Gottifredi and Carol Prives
-p53 Linear Diusion along DNA Requires Its C Terminus Molecular Cell
-163413424 November 2004
-26 Tomas Oppelstrup Vasily V Bulatov Aleksandar Donev Malvin H Kalos
-George H Gilmer and Babak Sadigh First-passage kinetic monte carlo
-method Phys Rev E 806066701 Dec 2009
-27 Vishaal Rajani Gustavo Carrero David E Golan Gerda de Vries and
-Christopher W Cairo Analysis of Molecular Diusion by First-Passage
-Time Variance Identies the Size of Connement Zones Biophys J
-100614631472 March 2011
-28 Roman Rouzier Radhika Rajan Peter Wagner Kenneth R Hess David L
-Gold James Stec Mark Ayers Jerey S Ross Peter Zhang Thomas A
-Buchholz Henry Kuerer Marjorie Green Banu Arun Gabriel N Horto-
-bagyi W Fraser Symmans and Lajos Pusztai Microtubule-associated
-protein tau a marker of paclitaxel sensitivity in breast cancer Proc Natl
-Acad Sci 1022383158320 June 2005
-29 B Rozycki R Lipowsky and T R Weikl Segregation of receptor-ligand
-complexes in cell adhesion zones phase diagrams and the role of thermal
-membrane roughness New J Phys 12095003 2010
-30 Z Schuss A Singer and D Holcman The narrow escape problem for
-diusion in cellular microdomains Proc Natl Acad Sci 1044116098
-16103 OCT 9 2007
-31 Bhupinder Shergill Laurence Meloty-Kapella Abdiwahab A Musse Gerry
-Weinmaster and Elliot Botvinick Optical tweezers studies on notch
-single-molecule interaction strength is independent of ligand endocytosis
-Developmental cell 22613131320 2012
-32 Frank Spitzer Electrostatic capacity heat ow and brownian motion
-Probability theory and related elds 32110121 1964
-33 MJ Ward and JB Keller Strong localized perturbations of eigenvalue prob-
-lems SIAM J Applied Math 533770798 JUN 1993
+References
+Al-Osh M Alzaid A 1987 First order integer valued autoregressive process Journal of Time Series Analysis 8 261275
+Billingsley P 1968 Convergence of Probability Measures John Wiley and Sons
+Box G Jenkins G 1970 Time Series Analysis - Forecasting and Control Holden Day San Francisco
+Bremaud P Massoulie L 1996 Stability of nonlinear Hawkes processes The Annals of Probability 24 3 15631588
+Bremaud P Massoulie L 2001 Hawkes branching processes without ancestors Journal of Applied Probability 38 122135
+Brockwell P Davis R 1991 Time Series Theory and Applications 2nd Edition Springer
+da Silva I M 2005 Contributions to the Analysis of Discrete-Valued Time Series PhD thesis Departamento de Matematica Aplicada Faculdade
+Daley D Vere-Jones D 2003 An Introduction to the Theory of Point Processes second edition Edition Vol I and II Springer
+Errais E Gieseke K Goldberg L 2010 Ane point processes and portfolio credit risk Society for Industrial and Applied Mathematics Journal
+de Ciencias da Universidade do Porto
+on Financial Mathematics 1 642665
+Fokianos K Kedem B 2012 Regression Models for Time Series Analysis Wiley
+Fokianos K Tjstheim D 2012 Nonlinear Poisson autoregression Annals of the Institute of Statistical Mathematics 64 12051225
+Hawkes A 1971a Point spectra of some mutually-exciting point processes Journal of the Royal Statistical Society Series B 33 438443
+Hawkes A 1971b Spectra of some self-exciting and mutually-exciting point processes Biometrika 58 8390
+Hawkes A 1974 A cluster representation of a self-exciting point process Journal of Applied Probability 11 493503
+Kallenberg O 1983 Random Measures 3rd Edition Akademie-Verlag
+Kirchner M 2015a An estimation procedure for the Hawkes process Working Paper ETH Zurich
+Kirchner M 2015b Hawkes and INAR processes Working Paper ETH Zurich
+Latour A 1997 The multivariate GINARp process Advances in Applied Probability 29 228248
+Li J-G Yuan Y 1991 The integer-valued autoregressive INARp model Journal of Time Series Analysis 12 2 129142
+Liniger T 2009 Multivariate Hawkes Processes PhD thesis ETH Zurich
+McKenzie E 1985 Some simple models for discrete variate time series Water Resources Bulletin 21 4 654650
+Nakayama M Shahabuddin P Sigman K 2004 On nite exponential moments for branching processes and busy periods for queues Journal
+of Applied Probability 41 273280
+ation 83 401 927
+Ogata Y 1988 Statistical models for earthquake occurences and residual analysis for point processes Journal of the American Statistical Associ-
+Resnick S 1987 Extreme Values Regular Variation and Point Processes Springer
+Seneta E 1969 Functional equations and the GaltonWatson process Advances in Applied Probability 1 142
+Steutel F van Harn K 1979 Discrete analogues of self-decomposability and stability The Annals of Probability 7 5 893899
+Weiss C 2008 Thinning operations for modeling time series of countsa survey Journal of the American Statistical Association 92 319341
+Whittle P 1951 Hypothesis Testing in Time Series Analysis PhD thesis University of Uppsala
+Wiener N 1932 Tauberian theorems Annals of Mathematics 33 1 1100
+Zhao H 2012 A Dynamic Contagion Process for Modelling Contagion Risk in Finance and Insurance PhD thesis The London School of
+Economics and Political Science

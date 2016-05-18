@@ -1,2002 +1,1644 @@
-Pathways-driven Sparse Regression Identies Pathways and
-Genes Associated with High-density Lipoprotein Cholesterol in
-Two Asian Cohorts
-Matt Silver12 Peng Chen3 Ruoying Li4 Ching-Yu Cheng356 Tien-Yin Wong56
-E-Shyong Tai34 Yik-Ying Teo378910 and Giovanni Montana1
-1Statistics Section Department of Mathematics Imperial College London UK
-2MRC International Nutrition Group London School of Hygiene and Tropical Medicine UK
-3Saw Swee Hock School of Public Health National University of Singapore
-4Yong Loo Lin School of Medicine National University of Singapore
-5Department of Ophthalmology National University of Singapore
-6Singapore Eye Research Institute Singapore National Eye Center
-7NUS Graduate School for Integrative Science and Engineering National University of Singapore
-8Life Sciences Institute National University of Singapore
-9Genome Institute of Singapore Agency for Science Technology and Research
-10Department of Statistics and Applied Probability National University of Singapore
-email mattsilverlshtmacuk
-Abstract
-Standard approaches to analysing data in genome-wide association studies GWAS
-ignore any potential functional relationships between genetic markers In contrast gene
-pathways analysis uses prior information on functional structure within the genome to
-identify pathways associated with a trait of interest In a second step important single
-nucleotide polymorphisms SNPs or genes may be identied within associated pathways
-The pathways approach is motivated by the fact that many genes do not act alone but in-
-stead have eects that are likely to be mediated through their interaction in gene pathways
-Where this is the case pathways approaches may reveal aspects of a traits genetic archi-
-tecture that would otherwise be missed when considering SNPs in isolation Most path-
-ways methods begin by testing SNPs one at a time and so fail to capitalise on the potential
-advantages inherent in a multi-SNP joint modelling approach Here we describe a dual-
-level sparse regression model for the simultaneous identication of pathways genes and
-SNPs associated with a quantitative trait Our method takes account of various factors
-specic to the joint modelling of pathways with genome-wide data including widespread
-correlation between genetic predictors and the fact that variants may overlap multiple
-pathways We use a resampling strategy that exploits nite sample variability to provide
-robust rankings for pathways SNPs and genes We test our method through simulation
-and use it to perform pathways-driven SNP selection in a search for pathways genes and
-SNPs associated with variation in serum high-density lipoprotein cholesterol HDLC lev-
-els in two separate GWAS cohorts of Asian adults By comparing results from both cohorts
-we identify a number of candidate pathways including those associated with cardiomyopa-
-thy and T cell receptor and PPAR signalling Highlighted genes include those associated
-with the L-type calcium channel adenylate cyclase integrin laminin MAPK signalling
-and immune function Software implementing the methods described here together with
-sample data is available at http www2imperialacuk gmontana psrrrhtm
-Introduction
-Much attention continues to be focused on the problem of identifying SNPs and genes inu-
-encing a quantitative or dichotomous trait in genome wide scans 53 Despite this in many
-instances gene variants identied in GWAS have so far uncovered only a relatively small part
-of the known heritability of most common diseases 84 Possible explanations include the
-presence of multiple SNPs with small eects or of rare variants which may be hard to detect
-using conventional approaches 84 52 28
-One potentially powerful approach to uncovering the genetic etiology of disease is moti-
-vated by the observation that in many cases disease states are likely to be driven by multiple
-genetic variants of small to moderate eect mediated through their interaction in molecular
-networks or pathways rather than by the eects of a few highly penetrant mutations 63
-Where this assumption holds the hope is that by considering the joint eects of variants
-acting in concert pathways GWAS methods will reveal aspects of a diseases genetic architec-
-ture that would otherwise be missed when considering variants individually 86 25 In this
-section we describe a sparse regression method utilising prior information on gene pathways
-to identify putative causal pathways along with the constituent SNPs and genes that may
-be driving pathways association
-Sparse modelling approaches are becoming increasingly popular for the analysis of genome
-wide datasets 65 17 3 88 Sparse regression models enable the joint modelling of large
-numbers of SNP predictors and perform model selection by highlighting small numbers of
-variants inuencing the trait of interest These models work by penalising or constraining the
-size of estimated regression coecients An interesting feature of these methods is that dif-
-ferent sparsity patterns that is dierent sets of genetic predictors having specied properties
-can be obtained by varying the nature of this constraint For example the lasso 78 selects a
-subset of variants whose main eects best predict the response Where predictors are highly
-correlated the lasso tends to select one of a group of correlated predictors at random In
-contrast the elastic net 92 selects groups of correlated variables Model selection may also
-be driven by external information unrelated to any statistical properties of the data being
-analysed For example the fused lasso 80 79 uses ordering information such as the position
-of genomic features along a chromosome to select adjacent features together
-Prior information on functional relationships between genetic predictors can also been used
-to drive the selection of groups of variables In the present context information mapping genes
-and SNPs to functional gene pathways has recently been used in sparse regression models for
-pathway selection Chen et al 15 describe a method that uses a combination of lasso
-and ridge regression to assess the signicance of association between a candidate pathway
-and a dichotomous case-control phenotype and apply this method in a study of colon
-cancer etiology In contrast Silver et al 67 use group lasso penalised regression to select
-pathways associated with a multivariate quantitative brain-imaging phenotype characteristic
-of structural change in the brains of patients with Alzheimers disease
-In identifying pathways associated with a trait of interest a natural follow-up question is to
-ask which SNPs andor genes are driving pathway selection We might further ask a related
-question can the use of prior information on putative gene interactions within pathways
-increase power to identify causal SNPs compared to alternative methods that disregard such
-information One way to answer these questions is by conducting a two-stage analysis in
-which we rst identify important pathways and then in a second step search for SNPs within
-selected pathways 20 21 There are however a number of problems with this approach
-Firstly highlighted SNPs are then not necessarily those that were driving pathway selection
-in the rst step of the analysis Secondly the implicit and reasonable assumption is that
-only a small number of SNPs in a pathway are driving pathway selection so that ideally we
-would prefer a model that has this assumption built in The above considerations point to
-the use of a dual-level sparse regression model that imposes sparsity at both the pathway
-and SNP level Such a model would perform simultaneous pathway and SNP selection with
-the additional benet of being simpler to implement
-A suitable sparse regression model enforcing the required dual-level sparsity is the sparse
-group lasso SGL 69 SGL is a comparatively recent development in sparse modelling and
-in simulations has been shown to accurately recover dual-level sparsity in comparison to both
-the group lasso and lasso 26 69 SGL has been used for the identication of rare variants
-in a case-control study by grouping SNPs into genes 91 for the identication of genomic
-regions whose copy number variations have an impact on RNA expression levels 59 and
-to model geographical factors driving climate change 14 SGL can be seen as tting into a
-wider class of structured-sparsity inducing models that use prior information on relationships
-between predictors to enforce dierent sparsity patterns 90 38 41
-In the next section Methods we outline our method for sparse pathways-driven SNP
-selection and demonstrate through simulation that the incorporation of prior information
-mapping SNPs to gene pathways can boost the power to detect SNPs associated with a
-quantitative trait
-In the following section Results we describe an application study in
-which we investigate pathways SNPs and genes associated with serum high-density lipopro-
-tein cholesterol HDLC levels in two separate cohorts of Asian adults HDLC refers to
-the cholesterol carried by small lipoprotein molecules so called high density lipoproteins
-HDLs HDLs help remove the cholesterol aggregating in arteries and are therefore pro-
-tective against cardiovascular diseases 81 Serum HDLC levels are genetically heritable
-h2  0485 57 GWAS studies have now uncovered more than 100 HDLC associated loci
-see wwwgenomegovgwastudies Hindor et al 32 However considering serum lipids as
-a whole variants so far identied account for only 25-30 of the genetic variance highlighting
-the limited power of current methodologies to detect hidden genetic factors 76
-Methods
-This section is organised as follows We begin by introducing the sparse group lasso SGL
-model for pathways-driven SNP selection along with an ecient estimation algorithm for the
-case of non-overlapping pathways We then describe a simulation study illustrating superior
-group pathway and variant SNP selection performance in the case that the true supporting
-model is group-sparse We continue by extending the previous model to the case of overlapping
-pathways In principle we can then solve this model using the estimation algorithm described
-for the non-overlapping case However we argue that this approach does not give us the
-outcome we require For this reason we describe a modied estimation algorithm that assumes
-pathway independence and demonstrate in a simulation study that this new algorithm is
-able to identify the correct SNPs and pathways with improved sensitivity and specicity We
-complete this section with a description of a method to reduce bias in SNP and pathway
-selection together with a subsampling procedure to rank SNPs and pathways in order of
-importance
-The sparse group lasso model
-ij  1 for j  1     P 
-by   1     P  and additionally denote the matrix containing all SNPs mapped to
-We arrange the observed values for a univariate quantitative trait or phenotype measured for
-N unrelated individuals in an N  1 response vector y We assume minor allele counts for
-P SNPs are recorded for all individuals and denote by xij the minor allele count for SNP j
-on individual i These are arranged in an N  P  genotype design matrix X Phenotype and
-genotype vectors are mean centred and SNP genotypes are standardised to unit variance so
-thatcid80
-We assume that all P SNPs may be mapped to L groups or pathways Gl  1     P l 
-1     L and begin by considering the case where pathways are disjoint or non-overlapping
-so that Gl  Glcid48   for any l cid54 lcid48 We denote the vector of SNP regression coecients
-pathway Gl by Xl  xl1 xl2     xPl where xj  x1j x2j     xN jcid48 is the column vector
-of observed SNP minor allele counts for SNP j and Pl is the number of SNPs in Gl We
-denote the corresponding vector of SNP coecients by l  l1 l2     Pl
-In general where P is large we expect only a small proportion of SNPs to be causal
-in the sense that they exhibit phenotypic eects A key assumption in pathways analysis is
-that these causal SNPs will tend to be enriched within a small set C  1     L of causal
-pathways with C cid28 L where C denotes the size cardinality of C We denote the set of
-causal SNPs mapping to pathway Gl by Sl and make the further assumption that most SNPs
-in a causal pathway are non-causal so that Sl  Pl where Sl denotes the size cardinality
-of Sl A suitable sparse regression model imposing the required dual-level sparsity pattern
-is the sparse group lasso SGL We illustrate the resulting causal SNP sparsity pattern in
-Figure 1 and compare it to that generated by the group lasso GL a group-sparse model
-that we used previously in a sparse regression method to identify gene pathways 66 67
-Figure 1 Sparsity patterns enforced by the group lasso and sparse group lasso The set S  1     P
-of causal SNPs inuencing the phenotype are represented by boxes that are shaded grey Causal SNPs
-are assumed to occur within a set C  1     L of causal pathways G1    GL Here C  2 3
-The group lasso enforces sparsity at the group or pathway level only whereas the sparse group lasso
-additionally enforces sparsity at the SNP level
-With the SGL 69 sparse estimates for the SNP coecient vector  are given by
-cid110 1
-2y  X2
-SGL  arg min
-Lcid88
-2  1  
-wll2  1
-cid111
-where    0 and    1 are parameters controlling sparsity and wl is a pathway
-weighting parameter that may vary across pathways 1 corresponds to an ordinary least
-G1G2GL  G3group lasso   sparse group lasso j123Psquares OLS optimisation but with two additional constraints on the coecient vector 
-that tend to shrink the size of  relative to OLS estimates One constraint imposes a group
-lasso-type penalty on the size cid962 norm of l l  1     L Depending on the values of  
-and wl this penalty has the eect of setting multiple pathway SNP coecient vectors l  0
-thereby enforcing sparsity at the pathway level Pathways with non-zero coecient vectors
-form the set C of selected pathways so that
-C   l  l cid54 0
-A second constraint imposes a lasso-type penalty on the size cid961 norm of  Depending on
-the values of  and  for a selected pathway l  C this penalty has the eect of setting
-multiple SNP coecient vectors j  0 j  Gl thereby enforcing sparsity at the SNP level
-within selected pathways SNPs with non-zero coecient vectors then form the set Sl of
-selected SNPs in pathway l so that
-Sl   j  j cid54 0 j  Gl
-The set of all selected SNPs is given by
-cid91
-l C
-The sparsity parameter  controls the degree of sparsity in  such that the number of
-pathways and SNPs selected by the model increases as  is reduced from a maximal value
-max above which   0 The parameter  controls how the sparsity constraint is distributed
-between the two penalties When   0 1 reduces to the group lasso so that sparsity is
-imposed only at the pathway level and all SNPs within a selected pathway have non-zero
-coecients When 0    1 solutions exhibit dual-level sparsity such that as  approaches
-0 from above greater sparsity at the group level is encouraged over sparsity at the SNP level
-When   1 1 reverts to the lasso so that pathway information is ignored
-Model estimation
-For the estimation of SGL we proceed by noting that the optimisation 1 is convex and
-in the case of non-overlapping groups that the penalty is block-separable so that we can
-obtain a solution using block or group-wise coordinate gradient descent BCGD 82 A
-detailed derivation of the estimation algorithm is given in the accompanying supplementary
-information Section A
-From 17 and 18 the criterion for selecting a pathway l is given by
-lrl 2  1  wl
-and the criterion for selecting SNP j in selected pathway l by
-SXcid48
-cid80
-mcid54l Xl l and rlj  rl 
-cid80
-cid48
-jrlj1  
-kcid54j Xk k are respectively the pathway and
-where rl  rl 
-SNP partial residuals obtained by regressing out the current estimated eects of all other
-pathways and SNPs respectively The complete algorithm for SGL estimation using BCGD
-is presented in Box 1
-Box 1 SGL-BCGD estimation algorithm
-1 initialise   0
-2 repeat pathway loop
-for pathway l  1 2     L
-lrl 2  1  wl
-if SXcid48
-l  0
-repeat SNP loop
-for j  l1     lPl
-if j  0 
-Newton update 
-Newton update 
-if f 
-l   f l
-
-
-j  
-j  j using 24 and 22
-j  j using 21 and 22
-until convergence of l SNP loop
-until convergence of  pathway loop
-3 SGL  
-SGL simulation study 1
-We test the hypothesis that where causal SNPs are enriched in a given pathway pathway-
-driven SNP selection using SGL will outperform simple lasso selection that disregards pathway
-information in a simple simulation study We simulate P  2500 genetic markers for N  400
-individuals Marker frequencies for each SNP are sampled independently from a multinomial
-distribution following a Hardy Weinberg equilibrium frequency distribution SNP minor allele
-frequencies are sampled from a uniform distribution U01 05 SNPs are distributed equally
-between 50 non-overlapping pathways each containing 50 SNPs
-We then test each competing method over 500 Monte Carlo MC simulations At each
-simulation a baseline univariate phenotype is sampled from N 10 1 To generate genetic
-eects we randomly select 5 SNPs from a single randomly selected pathway Gl to form the
-set S  Gl of causal SNPs Genetic eects are then generated as described in Section C
-To enable a fair comparison between the two methods SGL and lasso we ensure that
-both methods select the same number of SNPs at each simulation We do this by rst
-obtaining the SGL solution S SGL with   085max and   08 which ensures sparsity
-at both the pathway and SNP level We use a uniform pathway weighting vector w  1 We
-then compute the lasso solution using coordinate descent over a range of values for the lasso
-regularisation penalty  and choose the set
-cid48
-such that
-S lasso
-cid48
- S lasso
-   S SGL
-where  S SGL is the number of SNPs previously selected by SGL and  S lassocid48 is the number
-of SNPs selected by the lasso with   cid48 We measure performance as the mean power to
-detect all 5 causal SNPs over 500 MC simulations and test a range of genetic eect sizes
-Figure 2 SGL vs Lasso Comparison of power to detect 5 causal SNPs Each data point represents
-mean power over 500 MC simulations Left Causal SNPs drawn from single causal pathway Right
-Causal SNPs drawn at random
- see C In a follow up study we compare the performance of the two methods in a
-scenario in which pathways information is uninformative For this we repeat the previous
-simulations but with 5 causal SNPs drawn at random from all 2500 SNPs irrespective of
-pathway membership Results are presented in Figure 2
-Referring to Figure 2 we see that where causal SNPs are concentrated in a single causal
-pathway Figure 2 - left SGL demonstrates greater power and equivalently specicity since
-the total number of selected SNPs is constant compared with the lasso above a particular
-eect size threshold here   004 Where pathway information is not important that is
-causal SNPs are not enriched in any particular pathway Figure 2 - right SGL performs
-poorly
-To gain a deeper understanding of what is happening here we also consider the power
-distributions across all 500 MC simulations corresponding to each point in the plots of Figure
-2 These are illustrated in Figure 3 The top row of plots illustrates the case where causal
-SNPs are drawn from a single causal pathway Here we see that there is a marked dierence
-between the two distributions SGL vs lasso The lasso shows a smooth distribution in
-power with mean power increasing with eect size In contrast with SGL the distribution is
-almost bimodal with power typically either 0 or 1 depending on whether or not the correct
-causal pathway is selected This serves as an illustration of the advantage of pathway-driven
-SNP selection for the detection of causal SNPs in the case that pathways are important As
-previously found by Zhou et al 91 in the context of rare variants and gene selection the
-joint modelling of SNPs within groups gives rise to a relaxation of the penalty on individual
-SNPs within selected groups relative to the lasso This can enable the detection of SNPs
-with small eect size or low MAF that are missed by the lasso which disregards pathways
-information and treats all SNPs equally Finally where causal SNPs are not enriched in a
-causal pathway bottom row of Figure 3 as expected SGL performs poorly In this case SGL
-will only select a SNP where the combined eects of constituent SNPs in a pathway are large
-enough to drive pathway selection
-002004006008effect size 000204060810SNP selection powerSNPs drawn from single pathwaySGLLasso002004006008effect size 000204060810SNP selection powerSNPs drawn at randomSGLLassoFigure 3 SGL vs Lasso Distribution over 500 MC simulations of power to detect 5 causal SNPs
-Each plot represents the power distribution at a single data point in Figure 2 The power distribution
-is discrete since each method can identify 0 1 2 3 4 or 5 causal SNPs with corresponding power
-0 02 04 06 08 or 10 Top row Causal SNPs drawn from single causal pathway Bottom row
-Causal SNPs drawn at random
-The problem of overlapping pathways
-The assumption that pathways are disjoint does not hold in practice since genes and SNPs
-may map to multiple pathways see Figure 7 This means that typically Gl Glcid48 cid54  for some
-l cid54 lcid48 In the context of pathways-driven SNP selection using SGL this has two important
-implications Firstly the optimisation 1 is no longer separable into groups pathways so
-that convergence using coordinate descent is no longer guaranteed 82 Secondly we wish to
-be able to select pathways independently and the SGL model as previously described does
-not allow this  For example consider the case of an overlapping gene that is a gene that
-maps to more than one pathway If a SNP mapping to this gene is selected in one pathway
-then it must be selected in each and every pathway containing the mapped gene so that all
-pathways mapping to the gene are selected We instead want to admit the possibility that
-the joint SNP eects in one pathway may be sucient to allow pathway selection while the
-joint eects in another pathway containing some of the same SNPs do not pass the threshold
-for pathway selection
-A solution to both these problems is obtained by duplicating SNP predictors in X so that
-SNPs belonging to more than one pathway can enter the model separately 39 66 The process
-works as follows An expanded design matrix is formed from the column-wise concatenation of
-of size NP  where P  cid80
-the L N  Pl sub-matrices Xl to form the expanded design matrix X  X1 X2     XL
-1 parameter vector  is formed
-l Pl The corresponding P 
-cid48
-     
-by joining the L Pl  1 pathway parameter vectors 
-cid48
-l  so that   
-Pathway mappings with SNP indices in the expanded variable space are reected in updated
-cid48
-cid48
- 
-000204060810power000204060810frequency002SGLLasso000204060810power004000204060810power006000204060810power008pathway000204060810power000204060810frequency002SGLLasso000204060810power004000204060810power006000204060810power008randomFigure 4 Two pathways with partially overlapping causal SNPs Causal SNPs marked in grey in
-the set Sk overlap both pathways so that Sk  Gk  Gl Additional causal SNPs Sl  Sk marked
-in purple occur in pathway l only
-groups G
-given by
-1     G
-L The SGL estimator 1 adapted to account for overlapping groups is then
-SGL
- arg min
-2  1  
-wl
-l 2  
-cid110 1
-2y  X
-Lcid88
-cid111
-With this overlap expansion the model is then able to perform pathway and SNP selection in
-the way that we require and the corresponding optimisation problem is amenable to solution
-using the BCGD estimation algorithm described in Box 1 However for the purpose of
-pathways-driven SNP selection the application of this algorithm presents a problem This
-arises from the replication of overlapping SNP predictors in each group X
-l  that they occur
-Consider for example the simple situation where there are two pathways G
-l  containing
-l respectively Here the  indicates that SNP indices
-l contain the same
-k and S
-l  G
-k  G
-k and S
-k and 
-cid54 0  j  S
-jS
-k We assume that the correct SNPs
-j  0 otherwise For the estimation of
-
-j  of these overlapping causal SNPs is removed from the
-
-j  Since no
-l  0 so that the criterion for pathway selection
-sets of causal SNPs S
-refer to the expanded variable space We begin by assuming that S
-SNPs so that in the unexpanded variable space Sk  Sl
-We then proceed with BCGD by rst estimating 
-l  the estimated eectcid80
-are selected so that  
-regression through its incorporation in the block residual r
-other causal SNPs exist in pathway G
-l r
-SXcid48
-Now consider the case where additional non-overlapping causal SNPs possibly with
-smaller eects occur in G
-l  so that in the unexpanded variable space Sk  Sl
-In other
-words causal SNPs are partially overlapping see Fig 41 During BCGD pathway G
-is then
-less likely to be selected by the model than would be the case if there were no overlapping
-SNPs since once again the eects of overlapping causal SNPs Sk  Sl  Sk are removed
-For pathways-driven SNP selection we will argue that we instead require that SNPs are
-selected in each and every pathway whose joint SNP eects pass a revised pathway selec-
-tion threshold irrespective of overlaps between pathways This is equivalent to the previous
-pathway selection criterion 2 but with the additional assumption that pathways are inde-
-l  2  1  wl 2 is not met That is G
-l  Xcid48
-l r
-is not selected
-l  y 
-cid80
-jS
-1This is the situation for example where multiple causal genes overlap both pathways but one or more
-additional causal genes occur in Gl
-GlGkpendent in the sense that they do not compete in the model estimation process We describe
-a revised estimation algorithm under the assumption of pathway independence below
-We justify the strong assumption of pathway independence with the following argument
-In reality we expect that multiple pathways may simultaneously inuence the phenotype and
-we also expect that many such pathways will overlap for example through their containing one
-or more hub genes that overlap multiple pathways 46 48 By considering each pathway
-independently we aim to maximise the sensitivity of our method to detect these variants
-and pathways In contrast without the independence assumption a competitive estimation
-algorithm will tend to pick out one from each set of similar overlapping pathways and
-miss potentially causal pathways and variants as a consequence We illustrate this idea in
-the simulation study in the following section One potential concern is that by not allowing
-pathways to compete against each other specicity may be reduced since too many pathways
-and SNPs may be selected We discuss the issue of specicity further in the context of results
-from the simulation study
-A detailed derivation of the SGL model estimation algorithm under the independence
-assumption is given in supplementary information Section B The main results are that the
-pathway 2 and SNP 3 selection criteria become
-SXcid48
-ly 2  1  wl
-cid48
-jy1  
-respectively The key dierence is that partial derivatives rl and rlj are replaced by y that
-is each pathway is regressed against the phenotype vector y This means that there is no
-block coordinate descent stage in the estimation so that the revised algorithm utilises only
-coordinate gradient descent within each selected pathway For this reason we use the acronym
-SGL-CGD for the revised algorithm and SGL-BCGD for the previous algorithm using block
-coordinate gradient descent The new algorithm is described in Box 2
-Finally we note that for SNP selection we are interested only in the set S of selected
-  j  
-SNPs in the unexpanded variable space and not the set S
-Since under the independence assumption the estimation of each 
-l does not depend on the
-other estimates 
-k k cid54 l we do not need to record separate coecient estimates for each
-pathway in which a SNP is selected Instead we need only record the set Sl l  C of SNPs
-selected in each selected pathway This has a useful practical implication since we can avoid
-the need for an expansion of X or  and simply form the complete set of selected SNPs as
- 1     P 
-j cid54 0 j
-cid91
-l C
-SGL simulation study 2
-We now explore some of the issues raised in the preceding section specically the potential
-impact on pathway and SNP selection power and specicity of treating the pathways as
-independent in the SGL estimation algorithm We do this in a simulation study in which we
-simulate overlapping pathways The simulation scheme is specically designed to highlight
-dierences in pathway and SNP selection with the independence assumption using the SGL-
-CGD estimation algorithm in Box 2 and without it using the standard SGL estimation
-algorithm in Box 1
-Box 2 SGL-CGD estimation algorithm for overlapping pathways
-1 initialise 
-2 for pathway l  1 2     L
-l y 2  1  wl
-if SXcid48
-
-l  0
-repeat CGD SNP loop
-for j  l1     lPl
-j  0 
-Newton update 
-if 
-Newton update 
-if f 
-l   f 
-
-j  
-
-
-j  
-j  
-j  
-j using 31 and 22
-j using 30 and 22
-until convergence
-3 SGL  
-SNPs with variable MAF are simulated using the same procedure described in the previous
-simulation study but this time SNPs are mapped to 50 overlapping pathways each containing
-30 SNPs Each pathway overlaps any adjacent by pathway index pathway by 10 SNPs This
-overlap scheme is illustrated in Figure 5 a
-As before we consider a range of overall genetic eect sizes  A total of 2000 MC
-simulations are conducted for each eect size At MC simulation z we randomly select two
-adjacent pathways GlGl1 where l  1     49 From these two pathways we randomly
-select 10 SNPs according to the scheme illustrated in Figure 5 b This ensures that causal
-SNPs overlap a minimum of 1 and a maximum of 2 pathways with Sz  Gl  Gl1 
-Gl1  Gl2 The true set of causal pathways C is then given by l l  1 or l l  1
-although simulations where C  1 will be extremely rare Genetic eects on the phenotype
-are generated as described previously Section C
-SNP coecients are estimated for each algorithm SGL-BCGD and SGL-CGD using the
-same regularisation with   085max and   085 for both
-The average number of pathways and SNPs selected by SGL-BCGD and SGL-CGD across
-all 2000 MC simulations is reported in Table 1 As expected for both models the number of
-selected variables pathways or SNPs increases with decreasing eect size as the number of
-pathways close to the selection threshold set by max increases
-For each model at MC simulation z we record the pathway and SNP selection power
- Cz  CzCz and  Sz  SzSz respectively Since the number of selected variables can vary
-slightly between the two models we also record false positive rates FPR for pathway and
-Figure 5 SGL Simulation Study with overlapping pathways a Illustration of pathway overlap
-scheme The are 30 SNPs in each pathway Pathways Gl l  1     50 overlap each adjacent pathway
-by 10 SNPs b Causal SNPs from adjacent pathways l l  1 are randomly selected from the region
-marked in purple ensuring that SNPs in S overlap a maximum of two pathways
-Table 1 Simulation Study 2 Mean number of pathways and SNPs selected by each model at each
-eect size  across 2000 MC simulations
-pathways
-SGL-CGD 58
-SGL-BCGD 58
-SGL-CGD 266
-SGL-BCGD 288
-G1G2G3G50overlaping SNPs   GlGl1SNP selection as  Cz  Cz Cz and  Sz  Sz Sz respectively
-The large possible variation in causal SNP distributions causal SNP MAFs etc make a
-comparison of mean power and FPR between the two methods somewhat unsatisfactory For
-example depending on eect size a large number of simulations can have either very high
-or very low pathway and SNP selection power masking subtle dierences in performance
-between the two methods Since we are specically interested in establishing the relative
-performance of the two methods we instead illustrate the number of simulations at which
-one method outperforms the other across all 2000 MC simulations and show this in Figure
-6 In this gure the number of simulations in which SGL-CGD outperforms SGL ie where
-SGL-CGD power  SGL-BCGD power or SGL-CGD FPR  SGL-BCGD FPR are shown
-in green Conversely the number of simulations where SGL-BCGD outperforms SGL-CGD
-are shown in red
-Figure 6 SGL-CGD vs SGL-BCGD performance measured across 2000 MC simulations Top row
-Pathway selection performance Left green bars indicate the number of MC simulations where SGL-
-CGD has greater pathway selection power than SGL Red bars indicate where SGL-BCGD has greater
-power than SGL-CGD Right green bars indicate the number of MC simulations where SGL-CGD
-has a lower FPR than SGL Red bars indicate the opposite Bottom row As above but for SNP
-selection performance
-00200400600801012effect size 0100200300400500600700800frequencyPathway selection powerSGL-CGD  SGL-BCGDSGL-CGD  SGL-BCGD00200400600801012effect size 0100200300400500600700800Pathway selection FPRSGL-CGD  SGL-BCGDSGL-CGD  SGL-BCGD00200400600801012effect size 0100200300400500600700800frequencySNP selection powerSGL-CGD  SGL-BCGDSGL-CGD  SGL-BCGD00200400600801012effect size 0100200300400500600700800SNP selection FPRSGL-CGD  SGL-BCGDSGL-CGD  SGL-BCGDWe rst consider pathway selection performance top row of Figure 6 For both methods
-the same number of pathways are selected on average across all eect sizes Table 1 At
-low eect sizes there is no dierence in performance between the two methods for the large
-majority of MC simulations and where there is a dierence the two methods are evenly
-balanced As with SGL Simulation Study 1 this is the region with   004 where pathway
-selection fairs no better than chance With   004 SGL-CGD consistently outperforms
-SGL both in terms of pathway selection sensitivity and control of false positives measured
-by FPR
-To understand why we turn to SNP selection performance bottom row of Figure 6 At
-small eect sizes   004 in the small minority of simulations where the correct pathways
-are identied SGL-BCGD tends to demonstrate greater power than SGL-CGD Figure 6
-bottom left However this is at the expense of lower specicity Figure 6 bottom right
-These dierence are due to the slightly larger number of SNPs selected by SGL-BCGD see
-Table 1 which in turn is due to the screening out of previously selected SNPs from the
-adjacent causal pathway during BCGD as described previously This results in the selection
-of a larger number of SNPs when any two overlapping pathways are selected by the model
-In the case where two causal pathways are selected SNP selection power is then likely to be
-higher although at the expense of a greater number of false positives
-When pathway eects are just on the margin of detectability   006 SGL-CGD is more
-often able to select both causal pathways although this doesnt translate into increased SNP
-selection power This is most likely because at this eect size neither model can detect SNPs
-with low MAF so that SGL-CGD is detecting the same overlapping SNPs in both causal
-pathways Note that once again SGL-BCGD typically has a higher FPR than SGL-CGD
-since more SNPs are selected from non-causal pathways
-As the eect size increases the number of simulations in which SGL-CGD outperforms
-SGL-BCGD for SNP selection power grows paralleling the former methods enhanced path-
-way selection power This is again a demonstration of the screening eect with SGL-BCGD
-described previously This means that SGL-CGD is more often able to select both causal
-pathways and to select additional causal SNPs that are missed by SGL These additional
-SNPs are likely to be those with lower MAF for example that are harder to detect with
-SGL once the eect of overlapping SNPs are screened out during estimation using BCGD
-Interestingly as before SGL-CGD continues to exhibit lower false positive rates than SGL
-This suggests that with the simulated data considered here the independence assumption
-oers better control of false positives by enabling the selection of causal SNPs in each and
-every pathway to which they are mapped In contrast where causal SNPs are successively
-screened out during the estimation using BCGD too many SNPs with spurious eects are
-selected
-The relative advantage of SGL-CGD over SGL-BCGD on all performance measures starts
-to decrease around   01 as SGL-BCGD becomes better able to detect all causal pathways
-and SNPs irrespective of the screening eect
-Pathway and SNP selection bias
-One issue that must be addressed is the problem of selection bias by which we mean the
-tendency of SGL to favour the selection of particular pathways or SNPs under the null where
-no SNPs inuence the phenotype Possible biasing factors include variations in pathway size
-that is the number of SNPs mapping to a pathway or varying patterns of SNP-SNP correla-
-tions and gene sizes Common strategies for bias reduction include the use of dimensionality
-reduction techniques and permutation methods 87 35 89 16
-In earlier work we described an adaptive weight-tuning strategy designed to reduce se-
-lection bias in a group lasso-based pathway selection method 66 This works by tuning the
-pathway weight vector w  w1 w2     wL so as to ensure that pathways are selected
-with equal probability under the null This strategy can be readily extended to the case of
-dual-level sparsity with the SGL
-Our procedure rests on the observation that for pathway selection to be unbiased each
-pathway must have an equal chance of being selected For a given  and with  tuned to
-ensure that a single pathway is selected pathway selection probabilities are then described
-by a uniform distribution l  1L for l  1     L We proceed by calculating an empirical
-pathway selection frequency distribution w by determining which pathway will rst be
-selected by the model as  is reduced from its maximal value max over multiple permutations
-of the response y This process is described in detail in Supplementary Information D
-Our iterative weight tuning procedure then works by applying successive adjustments to
-the pathway weight vector w so as to reduce the dierence dl  
-l w  l between
-the unbiased and empirical biased distributions for each pathway At iteration   we com-
-pute the empirical pathway selection probability distribution w  determine dl for each
-pathway and then apply the following weight adjustment
- 1
-cid21  signdl  1L2d2
-Iterations continue until convergence wherecid80L
-The parameter  controls the maximum amount by which each wl can be reduced in a single
-iteration in the case that pathway l is selected with zero frequency The square in the weight
-adjustment factor ensures that large values of dl result in relatively large adjustments to wl
-Note that when multiple pathways are selected by the model the expected pathway se-
-lection frequency distribution under the null will not be uniform This is because pathways
-overlap so that selection frequencies will reect the complex distribution of overlapping genes
-as indeed will unbiased empirical selection frequencies We have shown previously in exten-
-sive simulations that this adaptive weight-tuning procedure gives rise to substantial gains in
-sensitivity and specicity with regard to pathway selection 66
-l1 dl  
-0    1
-l  1     L
+PROCESS-LEVEL LARGE DEVIATIONS FOR NONLINEAR
+HAWKES POINT PROCESSES
+LINGJIONG ZHU
+Abstract In this paper we prove a process-level also known as level-3 large
+deviation principle for a very general class of simple point processes ie non-
+linear Hawkes process with a rate function given by the process-level entropy
+which has an explicit formula
+1 Introduction and Main Results
+In this paper we study the process-level large deviations for a very general class
+of point processes ie nonlinear Hawkes processes The rate function is given by
+the process-level entropy which has an explicit formula via the Girsanov theorem
+for two absolutely continuous point processes Our methods and ideas should work
+for some other point processes as well and we would expect the same expression for
+the rate function
+Let N be a simple point process on R and let F 
+ t be an increasing family of -algebras Any nonnegative F 
+measurable process t with
+ N C C  BR C 
+-progressively
+Ecid2N a bF 
+cid3  EZ b
+sdscid12cid12F 
+for all intervals a b is called an F 
+-intensity of N  We use the notation
+Nt  N 0 t to denote the number of points in the interval 0 t A point process
+Q is simple if Qt  N t t  2  0
+intensity
+A general Hawkes process is a simple point process N admitting an F 
+t  cid18Z t
+ht  sN dscid19 
+0 htdt   In 12 R t
+where   R  R is locally integrable left continuous h  R  R and we
+always assume that khkL1  R 
+ ht  sN ds stands
+forRt ht sN ds P t ht   where  are the occurences of the points
+before time t Since we assume that  is left continuous the intensity t is
+predictable
+Date 9 August 2011 Revised 13 October 2012
+2000 Mathematics Subject Classication 60G55 60F10
+Key words and phrases Large deviations rare events point processes Hawkes processes self-
+exciting processes
+This research was supported partially by a grant from the National Science Foundation DMS-
+0904701 DARPA grant and MacCracken Fellowship at NYU
+LINGJIONG ZHU
+rate function respectively
+In the literatures h and  are usually referred to as exciting function and
+A Hawkes process is linear if  is linear and it is nonlinear otherwise The
+linear Hawkes process was introduced in Hawkes 8 and the nonlinear Hawkes
+process was introduced in Bremaud and Massoulie 3
+The Hawkes process captures both the self-exciting property and the clustering
+eect You can think of the arrival times  as bad events which can be the
+arrivals of claims in insurance literature or the time of defaults of big rms in
+the real world Hawkes process has many applications in nance It is used for
+the calculation of conditional risk measures ruin probabilities and credit default
+modeling For a list of references to the applications in nance see Liniger 9
+Hawkes processes may also have applications in cosmology ecology epidemiol-
+ogy seismological applications neuroscience applications and DNA modeling For
+a list of references to these applications see Bordenave and Torrisi 2
+For a short history of Hawkes processes we refer to Liniger 9
+When  is nonlinear Bremaud and Massoulie 3 proves that under certain
+conditions there exists a unique stationary version of the nonlinear Hawkes process
+and Bremaud and Massoulie 3 also proves the convergence to equilibrium of a
+nonstationary version both in distribution and in variation
+Throughout this paper we assume that
+ The exciting function ht is positive continuous and decreasing for t  0
+and ht  0 for any t  0 We also assume that R 
+ The rate function   0  R is increasing and limz
+z  0 We
+also assume that  is Lipschitz with constant   0 ie x  y 
+x  y for any x y  0
+0 htdt  
+Because of the exibility of  and h this will give us a very wide class of
+simple point processes Later if you go through the proofs of the process-level large
+deviation principle in our paper you can see that if for any simple point process
+you want to obtain a process-level large deviation principle it has to satisfy some
+regularities like the assumptions in our paper We refer to Section 5 for detailed
+discussions
+Let  be the set of countable locally nite subsets of R and for any    and
+A  R and write A    A For any t  R we write t  t Let
+N A    A denote the number of points in the set A for any A  R We also
+use the notation Nt to denote N 0 t the number of points up to time t starting
+from time 0 We dene the shift operator t by ts  t  s We equip the
+sample space  with the topology in which the convergence n   as n   is
+dened by
+X n
+f    X 
+f  
+for any continuous f with compact support
+This topology is equivalent to the vague topology for random measures For a
+discussion on vague topology random measures and point processes see for example
+Grandell 7 One can equip the space of locally nite random measures with the
+vague topology The subspace of integer valued random measures is then the space
+of point processes A simple point processes is a point process without multiple
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+jumps The space of point processes is closed But the space of simple point
+processes is not closed
+Denote F s
+t  s t for any s  t ie the -algebra generated by all the
+possible congurations of points in the interval s t Denote M the space of
+probability measures on  We also dene MS as the space of simple point
+processes that are invariant with respect to t with bounded rst moment ie for
+any Q  MS EQN 0 1   Dene ME as the set of ergodic simple
+point processes in MS We dene the topology of MS as the following For
+a sequence Qn in MS and Q  MS we say Qn  Q as n   if and only
+Z f dQn Z f dQ
+as n   for any continuous and bounded f and
+Z N 0 1Qnd Z N 0 1Qd
+as n   In other words the topology is the strengthened weak topology with
+the convergence of the rst moment of N 0 1 For any Q1 Q2 in MS one can
+dene the metric d by
+where dp is the usual Prokhorov metric Because this is an unusual topology
+the compactness is dierent from that in the usual weak topology and also later
+when we prove the exponential tightness we need to take some extra care See
+Lemma 25 and iii of Lemma 24
+EQ1 N 0 1  EQ2 N 0 1cid12cid12 
+dQ1 Q2  dpQ1 Q2 cid12cid12
+We denote by C the set of real-valued continous functions on  We simi-
+ the set of all bounded F 
+larly dene C  R We also denote by BF 
+progressively measurable and F 
+Before we proceed recall that a sequence PnnN of probability measures on a
+topological space X satises the large deviation principle LDP with rate function
+I  X  R if I is non-negative lower semicontinuous and for any measurable set
+predictable functions
+ inf
+Ix  lim inf
+n
+log PnA  lim sup
+n
+log PnA   inf
+Here Ao is the interior of A and A is its closure See Dembo and Zeitouni 5 or
+Varadhan 12 for general background regarding large deviations and their applica-
+tions Also Varadhan 13 has an excellent survey article on this subject
+Let us have a brief review on what is known about large deviations for Hawkes
+processes
+When  is linear say z    z then one can use immigration-birth repre-
+sentation also known as Galton-Watson theory to study it Under the immigration-
+birth representation if the immigrants are distributed as Poisson process with in-
+tensity  and each immigrant generates a cluster whose number of points is denoted
+by S then Nt is the total number of points generated in the clusters up to time t
+If the process is ergodic we have
+t
+ ES
+LINGJIONG ZHU
+In particular for linear Hawkes process with rate function z   z and exciting
+function h such that khkL1  1 we have
+as where  
+t
+1  khkL1
+Recently Bacry et al
+1 proved a functional central limit theorem for linear
+multivariate Hawkes processes under certain assumptions That includes the linear
+Hawkes process as a special case and they proved that
+Nt  t
+t  B
+as t  
+where B is a standard Brownian motion The convergence is weak convergence on
+D0 1 the space of cadlag functions on 0 1 equipped with Skorokhod topology
+Bordenave and Torrisi 2 proves that if 0 R 
+thtdt  
+then cid0 Nt
+t  cid1 satises the large deviation principle with the good rate function
+0 htdt  1 andR 
+if x  0
+otherwise
+xkhkL1cid17  x  xkhkL1  
+Ix x logcid16
+When  is linear Zhu 14 gives an alternative proof for the large deviation
+principle for Ntt  
+Once the LDP forcid0 Nt
+t  cid1 is established it is easy to study the ruin probability
+Stabile and Torrisi 11 considered risk processes with non-stationary Hawkes claims
+arrivals and studied the asymptotic behavior of innite and nite horizon ruin
+probabilities under light-tailed conditions on the claims
+When  is nonlinear Bremaud and Massoulie 3 studied the stability results
+and once you have ergodicity the ergodic theorem automatically implies the law
+of large numbers Recently Zhu 15 proved a functional central limit theorem for
+nonlinear Hawkes process
+For the LDP for nonlinear Hawkes processes 14 obtained the large deviation
+results for Ntt   for some special cases He proved the case when h is
+exponential rst then generalizes the proof to the case when h is a sum of
+exponentials and nally uses that to prove the LDP for a special class of general
+Hawkes processes The Hawkes process is interesting partly because it is not
+Markovian unless h is exponential or sum of exponentials The methods in Zhu
+14 relies on proving the LDP for Markovian case rst and then approximate the
+general case ie general h using the Markovian case But it is very dicult to
+do so Indeed Zhu 14 can only prove LDP for general h when limz
+z  0
+for any   0 Therefore it is natural in our paper to consider proving the level-3
+large deviation principle rst and then use the contraction principle to obtain the
+LDP for Ntt   We also want to point out that in the case when  is linear
+even if h is general the LDP for Ntt   can still be established because the
+linear case can be explicitly computed which is not the case when  is nonlinear
+In the pioneering work by Donsker and Varadhan 6 they obtained a level-3
+large deviation result for certain stationary Markov processes
+We would like to prove the large deviation principle for general Hawkes processes
+by proving a process-level also known as level-3 large deviation principle rst We
+can then use the contraction principle to obtain the level-1 large deviation principle
+for Ntt  
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+Let us dene the empirical measure for the process as
+RtA 
+Astds
+for any A where ts  s for 0  s  t and tst  ts for any s Donsker
+and Varadhan 6 proved that in the case when  is a space of cadlag functions
+ on   t   endowed with Skorohod topology and taking values in a
+Polish space X under certain conditions P 0xRt   satises a large deviation
+principle where P 0x is a Markov process on 0
+ with initial value x  X The
+rate function HQ is some entropy function
+Let h  be the relative entropy of  with respect to  restricted to the
+be the regular conditional probability
+-algebra  For any Q  MS let Q
+distribution of Q Similarly we dene P 
+Let us dene the entropy function HQ as
+HQ  EQhQ
+ P 
+Notice that P 
+is the Hawkes process conditional on the past history  It has
+rate P 0s hs  at time 0  s  1 which is well dened for almost ev-
+ery  under Q if EQN 0 1   since EQP  h   khkL1 EQN 0 1 
+ implies P  hs    P  h    for all 0  s  1
+When HQ   hQ
+   for ae  under Q which implies that
+1  By the theory of absolute continuity of point processes see
+for example Chapter 19 of Lipster and Shiryaev 10 or Chapter 13 of Daley and
+Vere-Jones 4 the compensator of Q
+it has some
+density  say such that by the Girsanov formula
+is absolutely continuous ie
+ P 
+ P 
+HQ ZZ cid20Z 1
+ZZ 1
+0 cid16  cid17 ds Z 1
+ s   s  log   s
+logdNscid21 dQ
+ s ds Qd
+Qd
+where   cid16P 0s hs   cid17 Both  and  are F 
+0  s  1 For the equality in 114 we used the fact that Nt R t
+a martingale under Q and for any f  s which is bounded F 
+measurable and predictable we have
+-predictable for
+ sds is
+progressively
+ZZ 1
+f  sdNsQd ZZ 1
+We will use the above fact repeatedly in our paper
+The following theorem is the main result of this paper
+f  s sdsQd
+Theorem 1 For any open set G  MS
+lim inf
+t
+log P Rt  G   inf
+and for any closed set C  MS
+lim sup
+t
+log P Rt  C   inf
+LINGJIONG ZHU
+We will prove the lower bound in Section 2 the upper bound in Section 3 and
+the superexponential estimates that are needed in the proof of the upper bound in
+Section 4
+Once we establish the level-3 large deviation result we can obtain the large
+deviation principle for Ntt   directly by using the contraction principle
+Theorem 2 Ntt   satises a large deviation principle with the rate function
+I given by
+QMS EQN 01x
+Proof Since Q 7 EQN 0 1 is continuous R N 0 1dRt satises a large de-
+viation principle with the rate function I by the contraction principle For a
+discussion on contraction principle see for example Varadhan 12
+N 0 1dRt 
+Notice that
+t Z t1
+N 0 1stds
+N s s  1ds 
+N s s  1tds
+N s s  1tds 
+N t  1 t  N 0 1
+For the lower bound for any open ball Bx centered at x with radius   0
+ P cid18 N t  1 t
+N 0 1dRt  B2xcid19
+4cid19  P cid18 N1
+For the upper bound for any closed set C and C SxC Bx
+4cid19 
+log P cid18 N1
+N 0 1dRt  Ccid19
+t  Ccid19  Pcid18Z
+log P cid18 N t  1 t
+ Pcid18 N t  1 t
+4cid19  Pcid18 N1
+Pcid18 Nt
+lim sup
+t
+Finally by Lemma 20 we have the following superexponential estimates
+4cid19 
+4cid19  
+Hence for the lower bound we have
+lim inf
+t
+log P cid18 Nt
+t
+4cid19  lim sup
+t  Bxcid19  Ix
+t Z t1
+N s s  1ds 
+N t  1 t  N1
+t R t1
+0 N s s  1ds  Nt1N1
+Z
+t  Bxcid19  Pcid18Z
+Pcid18 Nt
+t cid20Z t
+Nsds Z 1
+t  N t1tN1
+N 0 1dRt 
+Nsdscid21 
+ Hence
+N t  1 t  N1
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+and for the upper bound we have
+lim sup
+t
+log P cid18 Nt
+t  Ccid19   inf
+xC 
+which holds for any   0 Letting   0 we get the desired result
 cid3
-Pathway SNP and gene ranking
-With most variable selection methods a choice for the regularisation parameter  must be
-made since this determines the number of variables selected by the model Common strategies
-include the use of cross validation to choose a  value that minimises the prediction error
-between training and test datasets 31 One drawback of this approach is that it focuses on
-optimising the size of the set C of selected pathways more generally selected variables that
-minimises the cross validated prediction error Since the variables in C will vary across each
-fold of the cross validation this procedure is not in general a good means of establishing the
-importance of a unique set of variables and can give rise to the selection of too many variables
-85 54 For the lasso alternative approaches based on data subsampling or bootstrapping
-have been shown to improve model consistency in the sense that the correct model is selected
-with a high probability 4 54 13 These methods work by recording selected variables across
-multiple subsamples of the data and forming the nal set of selected variables either as
-the intersection of variables selected at each model t or by assessing variable selection
-frequencies Examples of the use of such approaches can be found in a number of recent gene
-mapping studies involving model selection using either the lasso or elastic net 17 21 56
-85 Motivated by these ideas we adopt a resampling strategy in which we calculate pathway
-gene and SNP selection frequencies by repeatedly tting the model over B subsamples of
-the data at xed values for  and  Each random subsample of size N2 is drawn without
-replacement Our motivation here is to exploit knowledge of nite sample variability obtained
-by subsampling to achieve better estimates of a variables importance With this approach
-which in some respects resembles the pointwise stability selection strategy of Meinshausen
-and Buhlmann 54 selection frequencies provide a direct measure of condence in the selected
-pathways in a nite sample This resampling strategy also allows us to rank pathways genes
-and SNPs in order of their strength of association with the phenotype so that we expect the
-true set of causal variables to achieve a high ranking whereas non-causal variables will be
-ranked low
-For pathway ranking we denote the set of selected pathways at subsample b by
-where b
-probability for pathway l measured across all B subsamples is then
-is the estimated SNP coecient vector for pathway l at subsample b The selection
-Cb  l  b
-Bcid88
-cid54 0 b  1     B
-l  1     L
-where the indicator function I
-order of their selection probabilities path
-l  1 if l  Cb and 0 otherwise Pathways are ranked in
-For SNP and gene ranking we denote the set of SNPs selected at subsample b in the
-unexpanded variable space by S b and further denote the set of selected genes to which
-the SNPs in S b are mapped by b   where   1     G is the set of gene indices
-corresponding to all G mapped genes Using the same strategy as for pathway ranking we
-obtain an expression for the selection probability of SNP j across B subsamples as
-l1      path
-Bcid88
-Bcid88
-where the indicator function J
-the selection probability for gene g is
-j  1 if j  S b and 0 otherwise A similar expression for
-where the indicator function K
-ranked in order of their respective selection frequencies
-g  1 if g  b and 0 otherwise SNPs and genes are then
-Results
-Subjects genotypes and phenotypes
-The analysis is carried out using data from two separate cohorts of Asian adults These
-datasets have previously been used to search for novel variants associated with type 2 dia-
-betes mellitus T2D in Asian populations The rst discovery cohort is from the Singa-
-pore Prospective Study Program hereafter referred to as SP2 and the second replication
-dataset is from the Singapore Malay Eye Study or SiMES Detailed information on both
-datasets can be found in Sim et al 68 but we briey outline some salient features here
-Both datasets comprise whole genome data for T2D cases and controls genotyped on
-the Illumina HumanHap 610 Quad array For the present study we use controls only since
-variation in lipid levels between cases and controls can be greater than the variation within
-controls alone The use of both cases and controls in our analysis might then lead to a
-confounded analysis where any associations could be linked to T2D status or some other
-spurious factor
-The SP2 dataset consists entirely of ethnic Chinese and shows no evidence of population
-stratication The SiMES dataset comprises ethnic Malays and shows some evidence of
-cryptic relatedness between samples For this reason the rst two principal components
-of a PCA for population structure are used as covariates in our analysis of this dataset
-Again full details of the stratication analysis can be found in Sim et al 68 and associated
-supplementary information
-A summary of information pertaining to genotypes for each dataset both before and after
-imputation and pathway mapping is given in Table 2 along with a list of phenotypes and
-covariates
-Table 2 Genotype and phenotype information corresponding to the SP2 and SiMES datasets used in
-the study
-Sample size
-Genotypes
-Before imputation
-SNPs available for analysis1
-SNPs with missing genotypes2
-Post imputation
-SNPs available for analysis3
-Phenotypescovariates
-quantitative trait phenotype4
-covariates
-N  1 040
-N  1 099
-542 297
-152 372
-492 639
-557 824
-282 549
-515 503
-gender age age2
-gender age age2
-BMI PC1 PC26
-1after rst round of quality control 68 and removal of monomorphic SNPs
-2maximum 5 missing rate per SNP
-3after imputation and removal of SNPs with MAF 001
-4mgdL
-5body mass index kgm2
-6principal components relating to cryptic relatedness
-Genotype imputation
-After the initial round of quality control genotypes for both datasets have a maximum SNP
-missingness of 5 Since our method cannot handle missing values we perform missing
-holes SNP imputation so that all missing SNP calls are estimated against a reference panel
-of known haplotypes
-SNP imputation proceeds in two stages First imputation requires accurate estima-
-tion of haplotypes from diploid genotypes phasing This is performed using SHAPEIT v1
-httpwwwshapeitfr This uses a hidden Markov model to infer haplotypes from sample
-genotypes using a map of known recombination rates across the genome 18 The recombi-
-nation map must correspond to genotype coordinates in the dataset to be imputed so we
-use recombination data from HapMap phase II corresponding to genome build NCBI b36
-httphapmapncbinlmnihgovdownloadsrecombination2008-03 rel22 B36
-Following the primary phasing stage SNP imputation is performed using IMPUTE v222
-httpmathgenstatsoxacukimputeimpute v2html
-IMPUTE uses a reference panel
-of known haplotypes to infer unobserved genotypes given a set of observed sample haplo-
-types 37 The latest version IMPUTE 2 uses an updated ecient algorithm so that a
-custom reference panel can be used for each study haplotype and for each region of the
-genome enabling the full range of reference information provided by HapMap3 77 to be
-used Following IMPUTE 2 guidelines we use HapMap3 reference data corresponding to
-NCBI b36 httpmathgenstatsoxacukimputedata download hapmap3 r2html which
-includes haplotype data for 1011 individuals from Africa Asia Europe and the Americas
-SNPs are imputed in 5MB chunks using an eective population size Ne of 15000 and a
-buer of 250kb to avoid edge eects again as recommended for IMPUTE 2
-The phasing and imputation process is complex and computationally intensive For this
-reason we implement a pipeline in Python with phasing and imputation for each chromosome
-conducted in parallel across multiple nodes in a computing cluster This enables full genome
-imputation that would otherwise take days to be completed in a matter of hours
-Pathway mapping
-Pathways GWAS methods rely on prior information mapping SNPs to functional networks
-or pathways Since pathways are typically dened as groups of interacting genes SNP to
-pathway mapping is a two-part process requiring the mapping of genes to pathways and
-of SNPs to genes A consistent strategy for this mapping process has however yet to be
-established a situation compounded by a lack of agreement on what constitutes a pathway
-in the rst place 10
-The number and size of databases devoted to classifying genes into pathways is grow-
-ing rapidly as is the range and diversity of gene interactions considered see for example
-httpwwwpathguideorg Databases such as those provided by KEGG httpwww
-genomejpkeggpathwayhtml Reactome httpwwwreactomeorg and Biocarta http
-wwwbiocartacom classify pathways across a number of functional domains for exam-
-ple apoptosis cell adhesion or lipid metabolism or crystallise current knowledge on specic
-disease-related molecular reaction networks Strategies for pathways database assembly range
-from a fully-automated text-mining approach to that of careful curation by experts
-evitably therefore there is considerable variation between databases in terms of both gene
-coverage and consistency 71 so that the choice of databases will itself inuence results in
-pathways GWAS
-The mapping of SNPs to genes adds a further layer of complexity since although many
-SNPs may occur within gene boundaries on a typical GWAS array the vast majority of
-SNPs will reside in inter-genic regions In an attempt to include variants potentially residing
-in functionally signicant regions lying outside gene boundaries SNPs may be mapped to
-nearby genes using various distance thresholds Various values for SNP to gene mapping
-distances measured in thousands of nucleotide base pairs kb have been suggested in the
-literature ranging from mapping SNPs to genes only if they fall within a specic gene to the
-attempt to encompass upstream promoters and enhancers by extending the range to 10 20
-or even 500kb and beyond 87 20 10 This process is illustrated schematically in Figure 7
-Notable features of the SNP to pathway mapping process include the fact that genes and
-therefore SNPs may map to more than one pathway and also that many SNPs and genes do
-not currently map to any known pathway 25
-Figure 7 Schematic illustration of the SNP to pathway mapping process i Genes green circles
-are mapped to pathways using information on gene-gene interactions top row obtained from a gene
-pathways database Many genes do not map to any known pathway unlled circles Also some
-genes may map to more than one pathway ii Genes that map to a pathway are in turn mapped
-to genotyped SNPs within a specied distance Many SNPs cannot be mapped to a pathway since
-they do not map to a mapped gene unlled squares Note SNPs may map to more than one gene
-Some SNPs orange squares may map to more than one pathway either because they map to multiple
-genes belonging to dierent pathways or because they map to a single gene that belongs to multiple
-pathways
-Following imputation SNPs for both datasets in the present study are mapped to KEGG
-canonical pathways from the MSigDB database httpwwwbroadinstituteorggseamsigdb
-indexjsp We exclude the largest KEGG pathway by number of mapped SNPs Pathways
-in Cancer since it is highly redundant in that it contains multiple other pathways as subsets
-Details of the pathway mapping process are given in Figures 8 and 9
-Note that there is a dierence in the number of SNPs available for the pathway mapping
-between the two datasets and this results in a small discrepancy in the total number of
-mapped genes SP2 4734 mapped genes SiMES 4751 However both datasets map to all
-185 KEGG pathways and a large majority of mapped genes and SNPs overlap both datasets
-Detailed information on the pathway mapping process for the two datasets is presented in
-Table 3
-  pathways genes genotyped SNPs  We perform pathways-driven SNP selection on both datasets using the procedures described
-in Methods We present results for each dataset separately below
-Figure 8 SP2 dataset SNP to pathway mapping
-Figure 9 SiMES dataset SNP to pathway mapping
--0123232456789320426588AA915B42-332CDEA-0B6571-2-FGH7I465CCB42142AA32485AA91B58B4229A-1A-AA324-01232324567893204265AA91542-332BCA-05D1-2-EFGD7H465I42142AA32485DDAA91I584229A-1A-AA324Table 3 Comparison of SNP and gene to pathway mappings for the SP2 and SiMES datasets
-Total SNPs mapping to pathways
-Total SNPs mapping to pathways in both datasets intersection
-Total mapped genes
-Total genes mapping to pathways in both datasets intersection
-Total mapped pathways
-Minimum number of genes mapping to single pathway
-Maximum number of genes mapping to single pathway
-Minimum number of SNPs mapping to single pathway
-Maximum number of SNPs mapping to single pathway
-Minimum number of pathways mapping to a single SNP
-Maximum number of pathways mapping to a single SNP
-SP2 Analysis
-For the SP2 dataset we consider two separate scenarios for the regularisation parameters 
-and  For the two scenarios we set the sparsity parameter   095max but consider
-two values for  namely   095 085 We test each scenario over 1000 N2 subsamples
-We also compare the resulting pathway and SNP selection frequency distributions with null
-distributions again over 1000 N2 subsamples but with phenotype labels permuted so that
-no SNPs can inuence the phenotype
-The parameter  controls how the regularisation penalty is distributed between the cid962
-pathway and cid961 SNP norms of the coecient vector Each scenario therefore entails
-dierent numbers of selected pathways and SNPs and this information is presented in Table
-Table 4 Separate combinations of regularisation parameters  and  used for analysis of the SP2
-dataset For each   combination the mean SD number of selected pathways and SNPs across
-all 1000 subsamples is reported
-empirical
-selected pathways
-selected SNPs
-selected pathways
-selected SNPs
-  095max
-  085
-  095
-79  61
-1551  1294
-48  41
-160  185
-91  72
-1656  1401
-50  455
-155  194
-Comparisons of empirical and null pathway selection frequency distributions for each
-scenario are presented in Figure 10 The same comparisons for SNP selection frequencies are
-presented in Figure 11 In these plots null distributions coloured blue are ordered along
-the x-axis according to their corresponding ranked empirical selection frequencies marked in
-red This is to help visualise any potential biases that may be inuencing variable selection
-see below
-To interpret these results we begin by noting from Table 4 that many more SNPs are
-selected with   085 resulting in higher SNP selection frequencies compared to those
-obtained with   095 see Figure 11 This is as expected since a lower value for  implies
-a reduced cid961 penalty on the SNP coecient vector resulting in more SNPs being selected
-Perhaps surprisingly given that the cid962 group penalty 1   is increased the number of
-selected pathways is also greater This must reect the reduced cid961 penalty which allows a
-greater number of SNPs to contribute to a putative selected pathways coecient vector This
-in turn increases the number of pathways that pass the threshold for selection
-This raises the question of what might be considered to be an optimal choice for the
-regularisation-distributional parameter  since dierent assumptions about the number of
-SNPs potentially inuencing the phenotype may aect the resulting pathway and SNP rank-
-ings To answer this we turn our attention to the pathway and SNP selection frequency
-distributions for each  value in Figures 10 and 11 At the lower value of   085 top plots
-in Figures 10 and 11 empirical pathway and SNP selection frequency distributions appear
-to be biased in the sense that there is a suggestion that pathways and SNPs with the highest
-empirical selection frequencies also tend to be selected with a higher frequency under the null
-where there is no association between genotype and phenotype This relationship appears to
-be diminished with   095 when fewer SNPs are selected by the model We investigate
-this further by plotting empirical vs null selection frequencies as a sequence of scatter plots
-in Figure 12 and we report Pearson correlation coecients and p-values for these in Table 5
-Table 5 SP2 dataset Pearson correlation coecients rand p-values for the data plotted in Figure
-12 n denotes the number of predictors considered For SNPs coecients describe correlations for all
-predictors selected with nonzero empirical selection frequencies only since a large number of SNPs are
-not selected by the model at any subsample
-  085
-  095
-pathways
-62 965
-p-value
-13  1024
-30 027
-p-value
-29  104
-12  1084
-These provide further evidence of increased correlation between empirical and null selec-
-tion frequency distributions at the lower  value for both pathways and SNPs again sug-
-gesting increased bias in the empirical results in the sense that certain pathways and SNPs
-tend to be selected with a higher frequency irrespective of whether or not a true signal may
-be present Further qualitative evidence of reduced bias with   095 is suggested by the
-clearer separation of empirical and null distributions at the higher  value in Figures 10 and
-11 For example the maximum empirical pathway selection frequency is reduced by a factor
-of 029 035 to 025 as  is increased from 085 to 095 whereas the maximum pathway
-selection frequency under the null is reduced by a factor of 081 029 to 0054 Similarly for
-SNPs the maximum empirical SNP selection frequency is reduced by a factor of 037 052 to
-033 whereas the maximum SNP selection frequency under the null is reduced by a factor
-of 09 011 to 0011
-The increased bias with   085 is most likely due to the selection of too many SNPs
-Figure 10 Empirical and null pathway selection frequency distributions for all 185 KEGG pathways
-with the SP2 dataset For each scenario pathways are ranked along the x-axis in order of their
-empirical pathway selection frequency path
- a   085 b   095
-l1       path
-050100150pathway ranked by empirical selection frequency000102030405selection frequencyempiricalnull050100150pathway ranked by empirical selection frequency000102030405selection frequencyempiricalnulla
-Figure 11 Empirical and null SNP selection frequency distributions with the SP2 dataset For each
-scenario SNPs are ranked along the x-axis in order of their empirical pathway selection frequency
-j1  SN P
-j2     a   085 b   095 Note fewer SNPs are selected with nonzero empirical
-selection frequency with   095 so that the x-axis range in b is reduced
-Figure 12 SP2 dataset Scatter plots comparing empirical and null selection frequencies presented in
-Figures 10 and 11 a and b Pathway selection frequencies with   085 095 respectively c and
-d SNP selection frequencies for the same  values For clarity SNP selection frequencies are plotted
-for the top 1000 SNPs by empirical selection frequency only Corresponding correlation coecients
-for all ranked SNPs are presented in Table 5 Note that pathway and SNP selection frequencies are
-much higher at the lower  value left hand plots since many more variables are selected see Table
-000005010015020025030empirical pathway selection frequency005010015020025null pathway selection frequency085000005010015020025empirical pathway selection frequency000001002003004005006null pathway selection frequency095020025030035040045050empirical SNP selection frequency002004006008010null SNP selection frequency085005010015020025030empirical SNP selection frequency00000002000400060008001000120014null SNP selection frequency095in the sense that many selected SNPs do not exhibit real phenotypic eects These extra
-SNPs eectively add noise to the model in the form of multiple weak spurious signals This
-in turn will add bias to the resulting selection frequency distributions tending to favour for
-example SNPs that overlap multiple pathways and the pathways that contain them As 
-is increased we would expect this biasing eect to be reduced until a point where too few
-SNPs are selected when there is then a risk that some of the true signal may be lost
-Note that the reduced but still signicant correlations between empirical and null selection
-frequency distributions at   095 in Table 5 are not unexpected These may reect the
-complex overlap structure between pathways meaning that pathways and associated SNPs
-with a relatively high degree of overlap with other pathways due for example to the presence
-of so called hub genes are more likely to harbour true signals as well as spurious ones 48
-11 42
-Taking all the above into consideration we choose to report results with   095 where
-there is less evidence of bias due to the selection of too many SNPs The top 30 pathways
-ranked by selection frequency are presented in Table 6 and the top 30 ranked SNPs together
-with corresponding genes to which they are mapped are presented in Table 7 Versions of
-these tables extending to lower ranks are provided as supplementary information
-Table 7 SP2 dataset Top 30 SNPs and genes respectively ranked by SNP and gene selection fre-
-quency Genes falling in the top 30 ranks of the consensus gene set gene
-244  obtained by comparing
-gene ranking results from both SP2 and SiMES datasets see Table 13 are marked with a 
-Mapped genes
-gene  mapped SNPs
-SNP RANKING
-GENE RANKING
-rs2257167
-rs2254315
-rs1041868
-rs7364085
-rs2850021
-rs2253413
-rs2243590
-rs2834204
-rs3181224
-rs512868
-rs641366
-rs2032215
-rs8177375
-rs10893493
-rs4890341
-rs2303361
-rs7873495
-rs1323653
-rs11762117
-rs3807955
-rs10462842
-rs10215885
-rs3807936
-rs530205
-rs3823974
-rs2074425
-rs6725799
-rs2301727
-rs10486391
-rs3779505
-LAMA2 
-ADCY2 
-PRKCA
-CD80 
-PRKCB
-GRIN3A PPP3R2 CACNA1C 
-KRAS 
-ITGA1 
-VAV2 
-EGFR
-CACNA2D3 
-RYR2 
-SiMES Analysis
-For the replication SiMES dataset we repeat the above analysis design but consider only
-the low bias scenario where   095max and   095 Once again we test each scenario
-over 1000 N2 subsamples and compare the resulting pathway and SNP selection frequency
-distributions with null distributions generated over 1000 N2 subsamples with phenotype
-labels permuted Pathway and SNP selection frequency distributions are presented in Figure
-14 An investigation of pathway and SNP selection bias is presented in the form of scatter plots
-illustrating potential correlation between empirical and null selection frequencies in Figure 13
-with corresponding Pearson correlation coecients and p-values presented in Table 8 The
-top 30 ranked pathways and SNPs and genes are presented in Tables 9 and 10 respectively
-Figure 13 SiMES dataset Scatter plots comparing empirical and null pathway left and SNP right
-selection frequencies presented in Figure 14 For clarity SNP selection frequencies are plotted for the
-top 1000 SNPs by empirical selection frequency only
-Table 8 SiMES dataset Pearson correlation coecients rand p-values for the data plotted in Figure
-13 n denotes the number of predictors considered For SNPs coecients describe correlations for all
-predictors selected with nonzero empirical selection frequencies only since a large number of SNPs are
-not selected by the model at any subsample
-pathways
-20 006
-0094
-p-value
-263  1016
-000005010015020025030empirical pathway selection frequency000001002003004005006007null pathway selection frequency005010015020025030empirical SNP selection frequency00000002000400060008001000120014null SNP selection frequencyFigure 14 Empirical and null pathway top and SNP bottom selection frequency distributions
-for the SiMES dataset   095 For both empirical red and null blue distributions variables
-pathways and SNPs are ranked along the x-axis in order of their empirical selection frequencies
-050100150pathway ranked by empirical selection frequency000102030405selection frequencyempiricalnullD
-Table 10 SiMES dataset Top 30 SNPs and genes respectively ranked by SNP and gene selection
-frequency Genes falling in the top 30 ranks of the consensus gene set gene
-244  obtained by comparing
-gene ranking results from both SP2 and SiMES datasets see Table 13 are marked with a 
-SN P Mapped genes Gene
-gene  mapped SNPs
-SNP RANKING
-GENE RANKING
-rs2636698
-rs2726503
-rs2713829
-rs2636726
-rs2713834
-rs2726471
-rs2636713
-rs2726516
-rs2636739
-rs2713861
-rs2636751
-rs2298733
-rs6568474
-rs9386622
-rs6924886
-rs759440
-rs11759792
-rs10457161
-rs12821011
-rs11053685
-rs4764324
-rs4764327
-rs9373924
-rs10845074
-rs9320215
-rs10845073
-rs4946826
-rs6938393
-rs13202332
-rs9480754
-GABARAPL1
-GABARAPL1
-GABARAPL1
-GABARAPL1
-GABARAPL1
-GABARAPL1
-GABARAPL1
-ATP6V0A4
-CACNA1C 
-PRKCB
-BCL2 
-PAK7 
-LAMA2 
-ADCY2 
-SLC8A1 
-EGFR
-CACNA1D
-ITGA11 
-IGF1R
-CACNA2D3 
-RYR2 
-ITGA1 
-ALDH7A1
-MGST3 
-Comparison of ranked pathway lists
-We now consider the problem of comparing rankings pathways genes and SNPs obtained for
-each dataset To do this we require some measure of distance between each pair of lists Ideally
-this measure should place more emphasis on dierences between highly-ranked variables since
-we expect the association signal and hence agreement between the ranked lists to be strongest
-there By the same reasoning we expect there to be little or no agreement between variables
-at lower rankings where selection frequencies are low Indeed a consideration of empirical
-and null selection frequency distributions Figures 10 and 14 top suggests that only the very
-top ranked variables are likely to reect any true signal so that we would additionally like
-our distance metric to be able to accommodate consideration of the top-k variables only with
-k  p where p is the total number of variables ranked in either dataset One complication
-with top-k lists is that they are partial in the sense that unlike complete k  p lists a
-variable may occur in one list but not the other
-In order to consider this problem we introduce the following notation We denote the
-complete set of ranked predictors by L  1     p and begin by assuming that all variables
-are ranked in both datasets We denote the rank of each variable in list 1 by  i i  1     p
-so that  5  1 if variable 5 is ranked rst and so on The corresponding ranks for list 2 are
-denoted by i i  1     p A suitable metric describing the distance between two top-k
-rankings is the Canberra distance 44
-Cak   
- min i k  1  mini k  1
-min i k  1  mini k  1
-This has the properties that we require in that the denominator ensures more emphasis is
-placed on dierences in the ranks of highly ranked variables in either dataset Furthermore
-this distance measure allows comparisons between partial top-k lists since a variable occur-
-ring in one top-k list but not the other is assigned a ranking of k  1 in the list from which
-it is missing Note also that a variable i that is not in either of the top-k ranks that is
- i i  k makes no contribution to Cak  
-In order to gauge the extent to which the distance measure 6 diers from that expected
-between two random lists we require a value for the expected Canberra distance between two
-random lists which we denote ECak p Jurman et al 44 derive an expression for this
-quantity and we use this to compute the normalised Canberra distance
-k   
-Cak  
-ECak p
-Note that this has a lower bound of 0 corresponding to exact agreement between the lists
-For two random lists the upper bound will generally be close to 1 although it can exceed
-1 particularly for small k since the expected value for random lists is not necessarily the
-highest value
-We illustrate the variation of the normalised Canberra distance 7 between SP2 and
-SiMES pathway rankings in the left hand plot in Figure 15 blue curve We consider all
-possible top-k lists k  1     185 since all 185 pathways are ranked in both datasets In the
-same plot we also show
-pcid88
-k   
-Zcid88
-k  1     185
-Cak  
-ECak p
-obtained by comparing empirical SP2 rankings   against Z  10 000 permutations of the
-SiMES pathway rankings    1     10 000 green curve This latter curve conrms
-that the expected value ECak p is indeed a good measure of Ca in the random case
-where there is no agreement between rankings
-Figure 15 Comparison of top-k SP2 and SiMES pathway rankings Left hand plot Variation of
-normalised Canberra distance Ca with k 7 blue curve Corresponding mean values over Z 
-10 000 permutations of SiMES rankings 8 green curve Right hand plot FDR q-values blue
-curve Dotted green line shows the threshold for FDR control at the 5 level
-Using the same permuted rankings  we next test the null hypothesis that the observed
-normalised Canberra distance Cak   is not signicantly dierent from that between 
-and a random list  by computing a p-value as
-Zcid88
-ICakCak
-for k  1     185 We then obtain FDR q-values using the Benjamini-Hochberg procedure
-5 and illustrate these for each k in the right hand plot of Figure 15 FDR is controlled at
-a nominal 5 level for 19  k  71 indicating that the distance between the top-k pathway
-rankings for both datasets is signicantly dierent from the random ranking case for a wide
-range of possible values of k The distance Ca between SP2 and SiMES pathway rankings
-however attains its minimum value when k  25 with q25  0037 so that on this measure
-the two pathway rankings are in closest agreement when we consider the top 25 pathways in
-each ranked list only Some intuitive understanding of why this might be so can be gained by
-considering the empirical vs null pathway selection frequency distributions for each dataset
-in Figures 10 b and 14 top Here we see that the separation between empirical and null
-selection frequencies is most clear for values of k below around 30 for SP2 and around 15 for
-If we assume that the two pathway rankings are indeed in closest agreement when k  25
-then one means of obtaining a consensus set of important pathways is to consider their
-050100150200k085090095100Caempiricalrandom permuted050100150200k000204060810qintersection
-25  i  
-1i  25  j  
-1j  25
-from which we can obtain a set of average rankings as
-25 cid8  z  z
-cid9
- z  path
-Both the intersection set path
-under consideration are shown in Table 11 We additionally mark the consensus set 25
-with asterisks in Tables 6 and 9
- and ordered average rankings path
-for the two datasets
-Table 11 Consensus set of pathways path
-pathways are ordered by their average rankings in path
- for SP2 and SiMES datasets with k  25 Consensus
-Pathway
-Dilated Cardiomyopathy
-Hypertrophic Cardiomyopathy
-T Cell Receptor Signaling Pathway
-Terpenoid Backbone Biosynthesis
-Arrhythmogenic Right Ventricular Cardiomyopathy
-Ribosome
-Ppar Signaling Pathway
-Average rank path
-Comparison of ranked gene and SNP lists
-A number of factors complicate the comparison of ranked gene and SNP lists across both
-datasets Firstly sets of mapped SNPs and genes dier slightly between the two datasets
-see Table 2 Secondly even if we consider only those variables mapped in both datasets
-dierent though overlapping sets of variables are ranked in each Thirdly ranked variables are
-not independent 44 For example genes may be grouped into pathways so that a reordering
-of genes within a pathway might be considered less signicant than a reordering of genes
-mapping to dierent pathways Similarly a reordering of SNPs mapping to a single gene
-might be considered less signicant than a reordering of SNPs mapping to dierent genes
-In order to compute a distance measure between pairs or ranked lists we therefore make
-two simplifying assumptions First we consider only variables ranked in one or both datasets
-This seems reasonable since we can necessarily only compile a distance measure from variables
-that are ranked in one or both datasets Second we assume that variables are independent
-This makes our distance measure conservative in the sense that it will treat all reordering of
-SNPs or genes equally irrespective of any potential functional relationship between them
-With these assumptions in mind we begin by denoting the set of all p variables genes
-or SNPs that are ranked in either dataset by L  1     p
- We further denote the
-corresponding sets of ranked variables for SP2 and SiMES datasets by L and L respectively
-We then have the following set relations L L  L L cid54 L and L cid54 L
-We now extend the previous Canberra distance measure to encompass the above set
-relations We begin as before by dening two ranked lists corresponding to the rankings
-of all the variables in L for each dataset although this time we must account for the fact
-that not all variables in L are ranked in both We denote SP2 rankings by  i i  1     p
-where  i is the rank of variable i if i  L  and  i  p otherwise SiMES rankings are
-dened in the same way and denoted by i i  1     p
-Applying this revised ranking scheme we can then dene a top-k normalised Canberra
-distance 6 as
-k   
-Cak  
-ECak p
-for any k  minLL The restriction on k follows from the fact that we cannot distin-
-guish between top-k rankings for all k  minLL
-Gene rankings
-Information summarising the relationship between the two ranked lists of genes is given in
-Table 12
-Table 12 Summary of genes analysed and ranked in SP2 and SiMES datasets
-number of genes mapped to pathways
-number of genes mapping to both datasets
-number of ranked genes LL
-number of genes ranked in either dataset p
-number of genes ranked in both datasets L  L
-We consider normalised Canberra distances Cak   for k  1     500 only and plot
-these in Figure 16 left blue curve along with Ca
-k   8 for Z  10 000 permutations
-of the SiMES pathway rankings    1     10 000 green curve Once again this latter
-curve conrms that the expected value ECak p is indeed a good measure of Ca in the
-random case where there is no agreement between rankings We also plot FDR q-values using
-the same procedure as described previously for pathways FDR is controlled at a nominal 5
-level for all k  13 in the region tested 1  k  500 The distance Ca between SP2 and
-SiMES pathway rankings attains its minimum value when k  244 so that on this measure
-the two gene rankings are in closest agreement when we consider the top 244 pathways in
-each ranked list only
-Following the same strategy as implemented for pathways we then form the consensus
-244  The consensus set contains 84 genes and we list the
-set gene
-top 30 genes ordered by their average rank in the two datasets in Table 13
-244  and average rankings gene
-Table 13 Top 30 consensus genes ordered by their average rank gene
-CACNA1C
-CACNA2D3
-CACNA2D1
-CACNA1S
-ALDH1B1
-Average rank gene
-Figure 16 Comparison of top-k SP2 and SiMES gene rankings for k  1     500 Left hand plot
-Variation of normalised Canberra distance Ca with k 9 blue curve and corresponding mean
-values over 10000 permutations of SiMES rankings 8 green curve Right hand plot FDR q-values
-blue curve Dotted green line shows the threshold for FDR control at the 5 level
-SNP rankings
-Information summarising the relationship between the two ranked lists of SNPs is given
-in Table 14 In contrast to both pathway and gene rankings it is apparent that relatively
-few ranked SNPs overlap both datasets  8151 out of 41452 SNPs that are ranked in either
-dataset This results in values for Cak that are close to 1 corresponding to the random
-list case over a wide range of possible values for k data not shown
-For this reason we compute a simple summary measure
-SN P cid8  j  j
-cid9
- j  L  L
-and report only the top ranking SNPs using this measure in Table 15
-Table 14 Summary of SNPs analysed and ranked in SP2 and SiMES datasets
-number of SNPs mapped to pathways
-number of SNPs mapping to both datasets
-number of ranked SNPs LL
-number of SNPs ranked in either dataset p
-number of SNPs ranked in both datasets L  L
-Table 15 Top 30 SNPs ranked in both SP2 and SiMES datasets ranked in order of mean ranking
-mapped genes
-LTB4R RIPK3
-rs897799
-rs2126953
-rs7714110
-rs6924886
-rs2447867
-rs9386622
-rs6568474
-rs10446497
-rs6583177
-rs4765961
-rs759440
-rs10457161
-rs10462842
-rs9373932
-rs12206487
-rs743567
-rs12472674
-rs11759792
-rs9373924
-rs319070
-rs751877
-rs2047698
-rs4804505
-rs12672417
-rs7766689
-rs157694
-rs554192
-rs2746543
-rs742257
-rs1798619
-1330 COX6B2
-2130 ADCY2
-2745 PDSS2
-2830 PDSS2
-2835 PDSS2
-3495 PAK2
-3855 PAK2
-4290 CACNA1C
-4570 PDSS2
-4650 PDSS2
-4795 ADCY2
-5290 PDSS2
-5430 MYH7
-5430 CTNNA2
-5575 PDSS2
-5660 PDSS2
-6230 PDSS2
-6300 ADCY4
-7140 PDGFD
-7275 PDE4A
-8600 MAP3K7
-8780 NEDD4L
-9445 PAK2
-Discussion
-We have outlined a method for the detection of pathways SNPs and genes associated with a
-quantitative trait Our method uses a sparse regression model the sparse group lasso that
-enforces sparsity at the pathway and SNP level As well as identifying important pathways
-this approach is designed to maximise the power to detect causal SNPs possibly of low eect
-size that might otherwise be missed if pathways information is ignored In a simulation study
-we demonstrated that where causal SNPs are enriched within a single causal pathway SGL
-does indeed have greater SNP selection power compared to an alternative sparse regression
-model the lasso that disregards pathways information These results mirror previous ndings
-that support the intuition that a sparse selection penalty that promotes dual-level sparsity is
-better able to recover the true model in these circumstances 26 69
-We then argued from a theoretical standpoint that where individual SNPs can map to
-multiple pathways a modication SGL-CGD of the standard SGL-BCGD estimation algo-
-rithm that treats pathways as independent may oer greater sensitivity for the detection of
-causal SNPs and pathways A potential concern is that this gain in power may be accompa-
-nied by an inated number of false positives However in a simulation study with overlapping
-pathways we found relative gains in both sensitivity and specicity under the independence
-assumption This gain in specicity was unexpected and appears to arise directly from treat-
-ing pathways as independent in the model estimation As with the group lasso the ability
-of SGL to recover the true model is likely to be aected by the complexity of the pathway
-overlap structure 60 although we expect that the gains in power and sensitivity achieved
-with the independence assumption will also be apparent with real data
-Our method combines the SGL model and SGL-CGD estimation algorithm with a weight-
-tuning algorithm to reduce selection bias and a resampling technique designed to provide a
-robust measure of SNP gene and pathway importance in a nite sample As such the latter
-is expected to confer advantages in terms of the down ranking of unimportant predictors
-previously observed for the lasso 54 13 Once again it would be interesting to explore this
-further using simulations derived from real pathway and genotype data
-We do not explore the issue of determining a selection frequency threshold for the control of
-false positives here In principal such a threshold could be determined by comparing empirical
-selection frequency distributions with those obtained under the null through permutations
-although this is not a trivial exercise 83 An alternative method for error control has been
-investigated in the context of lasso selection 54 but the direct application of this approach
-to the present case is not feasible since overlapping pathways make clear distinctions between
-causal and noise variables problematic We instead develop a heuristic measure of ranking
-performance in our application study identifying SNPs and pathways associated with serum
-high-density lipoprotein cholesterol levels HDLC Firstly by comparing empirical and null
-pathway and SNP rankings for each dataset we gain some condence that pathway and SNP
-signals captured in the top rankings can be distinguished from those arising from noise or
-spurious associations Secondly we take advantage of the fact that we are able to compare
-results from two independent GWAS datasets On the assumption that similar patterns of
-genetic variation are likely to impact HDLC levels in both cohorts we set a ranking threshold
-based on computing distances between ranked lists from each dataset
-Interestingly when a comparison between empirical and null rankings is made with a
-reduced value for the regularisation parameter  there is evidence of selection bias in the
-sense that pathways and SNPs tend to be highly ranked both empirically and under the
-null see Figures 10 and 11 Since a smaller  corresponds to a greater number of SNPs
-being selected at each subsample this would seem to suggest that too many SNPs are being
-selected In this case pathway and SNP rankings may in part reect spurious associations
-with a bias towards SNPs overlapping multiple pathways
-There are other potentially interesting areas to explore with regard to the subsampling
-method used here For example standard approaches consider only the set of variables
-selected at each subsample and ignore potentially relevant information captured in the co-
-ecient estimates themselves The use of this additional information would result in a set
-of ranked lists one for each subsample and the joint consideration of these lists has the
-potential to provide a more robust measure of variable importance by taking account of the
-relative importance of each variable for each subsample 64 47 43
-Turning to the study results we conduct two separate analyses on independent discov-
-ery and replication datasets Since subjects from both datasets are genotyped on the same
-platform the large majority of SNPs mapping to pathways in one dataset do so also in the
-other dataset Thus 993 of SNPs mapping to pathways in the SP2 dataset are similarly
-mapped in the SiMES dataset For the SiMES dataset the corresponding gure is 948
-As expected the concordance of gene coverage is even greater Thus 998 of mapped genes
-in the SP2 dataset are also mapped in the SiMES dataset and 995 of mapped genes in
-the SiMES dataset are also mapped in SP2 This large overlap in gene and pathway cov-
-erage between datasets is likely to occur even when datasets are genotyped on dierent SNP
-arrays Indeed this is one advantage of methods such as the one described here that enable
-comparisons between pathway and gene rankings
-We obtain consensus pathway and gene rankings by considering only the top k ranks
-in each dataset with k obtained as the value that minimises the distance between the two
-rankings We additionally derive a signicance measure for each top-k distance by comparing
-empirical distances against a null distribution obtained by permuting ranks in one list We
-note that this can only be an approximation of the true null since in reality rankings for
-both datasets may be inuenced by the extent to which genes and SNPs overlap multiple
-pathways However some support for the reasonableness of this approximation can be gained
-from our earlier analysis showing that the correlation between empirical and null pathway
-and SNP rankings is low so that rankings under the null are indeed approximately random
-Considering the consensus pathway rankings in Table 11 three out of the seven consensus
-pathways ranked 1 2 and 5 are related to cardiomyopathy These three pathways are the
-only cardiomyopathy-related pathways amongst the 185 KEGG pathways used in our analysis
-so it is noteworthy that all three fall within the consensus pathway rankings The link between
-HDLC levels and cardiomyopathy is already well established 1 29 81 24 27 Furthermore
-numerous references in the literature also describe the links between lipid metabolism and T
-cell receptor consensus pathway ranking 3 and PPAR signaling rank 7 40 9 73 6
-Turning to a consideration of the top 30 consensus genes and SNPs presented in Tables
-13 and 15 and see also pathway ranking tables 6 9 and 11 and extended results in supple-
-mentary information We found that many are enriched in one of several gene families
-1 L-type calcium channel genes including CACNA1C CACNA1S CACNA2D1 CACNA2D3
-and CACNB2
-2 Adenylate cyclase genes including ADCY2 ADCY4 and ADCY8
-3 Integrin and laminin genes including ITGA1 ITGA9 ITGA11 LAMA2 and LAMA3
-4 MAPK signaling pathway genes including MAPK10 and MAP3K7
-5 Immunological pathway genes including PAK2 PAK7 PRKCA PRKCB VAV2 and
-These genes are highly enriched in several high ranking pathways from both datasets
-Notably the focal adhesion pathway alone has 12 gene hits as does the dilated cardiomyopa-
-thy pathway Cardiomyopathy pathways as a whole have 30 genes hits several of the genes
-overlap more than one cardiomyopathy pathway 10 of these genes feature in the MAPK
-signaling pathway while GnRH 8 genes T and B cell receptor 8 calcium 7 ErbB 5
-and Wnt signling 4 pathways also contain several genes in the list To elucidate the bio-
-logical relevance of these gene families and the connections between them we investigated
-their known functional links with cardiovascular phenotypes not restricted to HDLC by ref-
-erencing the KEGG and Genetic Association httpgeneticassociationdbnihgov databases
-Voltage dependent L-type calcium channel gene family
-The genes in this family encode the subunits of the human voltage dependent L-type calcium
-channel CaV1 The -1 subunit encoded by CACNA1C A1S A2D1 and A2D3 in our
-study determines channel function in various tissues CaV1 function has signicant impact
-on the activity of heart cells and smooth muscles For example patients with malfunctioning
-CaV1 develop arrhythmias and shortened QT interval 72 2 75 Furthermore CACNA1C
-polymorphisms have been associated with variation in blood pressure in Caucasian and East
-Asian populations by pharmacogenetic analysis In 120 Caucasians 3 SNPs in this gene were
-signicantly associated with the response to a widely applied antihypertensive CaV1 blocker
-8 Kamide et al 45 also found that polymorphisms in CACNA1C were associated with
-sensitivity to an antihypertensive in 161 Japanese patients The CaV1  subunit encoding
-CACNB2 has also been associated with blood pressure 49
-This gene family was mapped to several pathways in our study with the KEGG dilated
-cardiomyopathy pathway achieving highest rank both within individual datasets and in the
-consensus pathway rankings Dilated cardiomyopathy is the most common form of cardiomy-
-opathy and features enlarged and weakened heart muscles Although high levels of serum
-HDLC lowers the risk of heart disease 12 81 there is still no direct evidence that CaV1 is
-involved in HDLC metabolism
-Adenylate cyclase gene family
-Three adenylate cyclases genes ADCY2 ADCY4 and ADCY8 were highly ranked in our
-study Currently there are no reported associations of these genes with cardiovascular disease
-or lipid levels Adenylate cylcase genes catalyse the formation of cyclic adenosine monophos-
-phate cAMP from adenosine triphosphate ATP while cAMP servers as the second mes-
-senger in cell signal transduction Note that ADCY2 is insensitive to calcium concentration
-suggesting that any association of this gene family with HDLC levels may not be due to any
-interactions with the CaV1 gene family
-Among high ranking pathways ADCY2 and ADCY8 feature in the dilated cardiomyopa-
-thy pathway Although ADCY4 was not in the top 30 consensus genes rs751877 in this gene
-was among the top 30 consensus SNPs
-Integrin and laminin gene families
-We found 3 genes encoding integrin subunits in our study Integrins hook to the extracellular
-matrix ECM from the cell surface and are also important signal transduction receptors
-which communicate aspects of the cells physical and chemical environment 58 Interestingly
-laminins are the major component of the ECM and are relevant to the shape and migration of
-almost every type of tissue Both of these two families of genes are therefore highly relevant to
-the survival and shape of heart muscles A recent GWAS conducted in a Japanese population
-conrmed a previous association between ITGA9 and blood pressure in European populations
-Integrin family genes and LAMA2 were selected primarily within high-ranking cardiomy-
-opathy focal adhesion and ECM receptor signaling pathways with once again the dilated
-cardiomyopathy pathway achieving the highest ranks However evidence for LAMA3 asso-
-ciation is weaker since it was not in the top 30 consensus genes although a SNP from the
-LAMB3 laminin -3 gene was ranked 29 in the consensus SNP list
-MAPK signaling pathway
-TAK1 MAP3K7  and JNK3 MAPK10  are kinases which regulate cell cycling They acti-
-vate or depress downstream transcription factors which mediate cell proliferation dierenti-
-ation and inammation
-JNK activity has been associated with obesity in a mouse model where the absence of
-JNK1 MAPK8  a protein in the same family as MAPK10 protects against the obesity-
-induced insulin resistance 33 The negative correlation between HDLC level and obesity has
-been well accepted 36
-Immunological pathways
-PAK PAK2 and PAK7  genes feature in the high ranking T cell signaling pathway in both
-SP2 and SiMES datasets PRKC including PRKCA and PRKCB  along with VAV VAV2
-and VAV3  genes also feature in various high ranking immunological pathways including T
-cell signaling Pathogenic Escherichia Coli Infection and Natural Killer Cell Mediated Cyto-
-toxicity Genes from all 3 of these families are frequently top ranked in these pathways
-PAK and VAV are activated by antigens and regulate the T cell cytoskeleton indicating
-a possible impact on T cell shape and mobility
-In a candidate gene association analysis
-PRKCA was reported to be associated with HDLC at a nominally signicant level but was
-not signicant after adjusting for multiple testing 51
-In summary genes enriched in the above gene clusters and pathways may be relevant to
-heart muscle cell signal transduction shape and migration and may thus have functional
-relevance to the onset of cardiovascular diseases Many highly ranked genes in our study
-are also involved in neurological pathways For example polymorphisms in CACNA1C have
-been associated with bipolar disorder schizophrenia and major depression 22 55 30 This
-points to an interesting hypothesis that serum HDLC levels might be regulated not only
-by metabolism but also by neurological pathways although the elucidation of any putative
-biological mechanism underlying such an association obviously exceeds the scope of this study
-Besides the gene families and associated pathways discussed above a notable feature of the
-top 30 consensus SNP ranking results presented in Table 15 is the inclusion of 9 SNPs mapping
-to the PDSS2 gene PDSS2 achieves its high ranking in the consensus SNP list through its
-inclusion in the highly ranked terpenoid backbone biosynthesis pathway in SiMES and this
-gene is in fact the second highest consensus ranking gene with this dataset In contrast this
-gene is ranked low 216 in the SP2 dataset which explains why it fails to make the top 30
-consensus gene rankings PDSS2 encodes subunit 2 of prenyl diphosphate synthase which
-determines the length of the isoprenoid chain of coenzyme Q10 CoQ10 61 A deciency in
-biosynthesis of CoQ10 has previously been associated with delayed motor development and
-abnormal renal function with excess serum lipids 70
-Despite the well established links between lipid metabolism and PPAR signaling noted
-above no genes in this high-ranked pathway fall in the top 30 gene rankings for either dataset
-see Tables 6 and 15 This could be because the association signal in this pathway is more
-widely distributed compared to other high ranking pathways perhaps indicating hetero-
-geneity in genetic causal factors within our sample so that dierent genes and SNPs are
-highlighted in dierent subsamples This would result in reduced gene selection frequencies
-Also genes that overlap multiple putative causal pathways are more likely to be selected in
-a given subsample meaning that associated genes mapping to pathways with relatively few
-overlaps may have lower selection frequencies This may be the case with genes in the PPAR
-signaling pathway whose 63 genes map to an average 27  18 pathways As a comparison
-the 84 genes in the top-ranked dilated cardiomyopathy pathway map to an average 72  38
-pathways
-Our study failed to highlight HDLC-associated SNPs identied in previous GWAS see
-for example wwwgenomegovgwastudies for an up to date list A primary reason for this
-is that the large majority of SNPs identied in previous studies do not map to pathways in
-our study either because they fall in intergenic regions or because they do not feature on
-the Illumina arrays used here In addition our method is designed to highlight distributed
-small SNP eects that accumulate across gene pathways and so will likely fail to identify
-those SNPs with signicant marginal eects targeted by GWAS Furthermore where there
-are common mechanisms aecting phenotypes in both cohorts we would expect to observe
-the most concordance between the two studies at the pathway level followed by genes and
-lastly SNPs Indeed this increased heterogeneity at the SNP and to a lesser extent at the
-gene level is one motivation for adopting a pathways approach in the rst place 35 34
-10 This reduced concordance at the SNP level may be due to increased heterogeneity of
-genetic risk factors between the two datasets Another important source of variation in SNP
-selection frequencies is LD between SNPs The within-pathway lasso penalty will tend to
-select one of a group of highly correlated SNPs at random reducing SNP selection frequencies
-within LD blocks harbouring causal SNPs An alternative approach would be to consider a
-dierent penalty within selected pathways for example the elastic net 92 which selects
-groups of correlated variables jointly although this comes at the cost of introducing a further
-regularisation parameter to be tuned
-Finally as with all pathways analyses a number of limitations with this general approach
-should be noted Despite great eorts pathway assembly is still in its infancy and the
-relative sparsity of gene-pathway annotations reects the fact that our understanding of how
-the majority of genes functionally interact is at an early stage As a consequence annotations
-from dierent pathways databases often vary 71 so that the choice of pathways database will
-impact results 19 10 Results are also subject to bias resulting from SNP to gene mapping
-strategies so that for example SNP to gene mapping distances will aect the number of
-unmapped SNPs falling within gene deserts 20 SNPs may map to relatively large numbers
-of genes in gene rich areas of the genome and the mapping of a SNP to its closest gene
-may obscure a true functional relationships with a more distant gene 87 Indeed recent
-research from the ENCODE project indicates that functional elements may in fact be densely
-distributed throughout the genome 7 62 and this information has the potential to radically
-alter future pathways analysis These issues together with the fact that PGAS methods
-are by construction designed to highlight distributed moderate to small SNP eects serve
-to further illustrate the point that pathways analysis should be seen as complementary to
-studies searching for single markers 86
-References
-1 Benjamin J Ansell et al High-density lipoprotein function recent advances Journal
-of the American College of Cardiology 4610 2005 pp 17928
-2 Charles Antzelevitch et al Loss-of-function mutations in the cardiac calcium channel
-underlie a new clinical entity characterized by ST-segment elevation short QT intervals
-and sudden cardiac death Circulation 1154 2007 pp 4429
-3 Kristin L Ayers and Heather J Cordell SNP selection in genome-wide and candi-
-date gene studies via penalized logistic regression Genetic epidemiology 348 2010
-pp 87991
-4 Francis R Bach Bolasso  Model Consistent Lasso Estimation through the Bootstrap
-Proceedings of the 25th International Conference on Machine Learning 2004 2008
-5 Yoav Benjamini and Y Hochberg Controlling the False Discovery Rate A Practical
-and Powerful Approach to Multiple Testing Journal of the Royal Statistical Society
-Series B 571 1995 pp 289300
-6 Steven J Bensinger and Peter Tontonoz Integration of metabolism and inammation
-by lipid-activated nuclear receptors Nature 4547203 2008 pp 4707
-7 Bradley E Bernstein et al An integrated encyclopedia of DNA elements in the human
-genome Nature 4897414 2012 pp 5774
-8 Troy Bremer et al CACNA1C polymorphisms are associated with the ecacy of cal-
-cium channel blockers in the treatment of hypertension Pharmacogenomics 73 2006
-pp 2719
-9 Philip C Calder and Parveen Yaqoob Lipid RaftsComposition Characterization
-and Controversies J Nutr 1373 2007 pp 545547
-10 Rita M Cantor Kenneth Lange and Janet S Sinsheimer Prioritizing GWAS Results A
-Review of Statistical Methods and Recommendations for Their Application American
-Journal of Human Genetics 86 2010 pp 622
-11 Scott L Carter et al Gene co-expression network topology provides a framework for
-molecular characterization of cellular state Bioinformatics Oxford England 2014
-2004 pp 224250
-12 W P Castelli Cholesterol and lipids in the risk of coronary artery diseasethe Fram-
-ingham Heart Study The Canadian journal of cardiology 4 Suppl A 1988 5A10A
-13 A Chatterjee and SN Lahiri Bootstrapping Lasso Estimators Journal of the Amer-
-ican Statistical Association 106494 2011 pp 608625
-14 Soumyadeep Chatterjee et al Sparse Group Lasso for Regression on Land Climate Vari-
-ables 2011 IEEE 11th International Conference on Data Mining Workshops 2011
-pp 18
-15 Lin S Chen et al Insights into Colon Cancer Etiology via a Regularized Approach to
-Gene Set Analysis of GWAS Data American Journal of Human Genetics 866 2010
-pp 860871
-16 Xi Chen and Han Liu An Ecient Optimization Algorithm for Structured Sparse
-CCA with Applications to eQTL Mapping Statistics in Biosciences 41 2011 pp 3
-17 Seoae Cho et al Joint identication of multiple genetic variants via elastic-net variable
-selection in a genome-wide association analysis Annals of human genetics 745 2010
-pp 41628
-18 Olivier Delaneau Jonathan Marchini and Jean-Francois Zagury A linear complexity
-phasing method for thousands of genomes Nature methods 92 2012 pp 17981
-19 Clara C Elbers et al Using genome-wide pathway analysis to unravel the etiology of
-complex diseases Genetic epidemiology 335 2009 pp 41931
-20 Hariklia Eleftherohorinou et al Pathway analysis of GWAS provides new insights into
-genetic susceptibility to 3 inammatory diseases PloS one 411 2009 e8068
-21 Hariklia Eleftherohorinou et al Pathway-driven gene stability selection of two rheuma-
-toid arthritis GWAS identies and validates new susceptibility genes in receptor medi-
-ated signalling pathways Human molecular genetics 2011 pp 113
-22 Manuel A R Ferreira et al Collaborative genome-wide association analysis supports
-a role for ANK3 and CACNA1C in bipolar disorder Nature genetics 409 2008
-pp 10568
-23 Rina Foygel and Mathias Drton Exact block-wise optimization in group lasso and
-sparse group lasso for linear regression 2010
-24 HFG Freitas et al Association of HDL cholesterol and triglycerides with mortality
-in patients with heart failure Brazilian Journal of Medical and Biological Research
-425 2009 pp 420425
-25 Brooke L Fridley and Joanna M Biernacka Gene set analysis of SNP data benets
-challenges and future directions European journal of human genetics  EJHG 198
-2011 pp 837843
-26 Jerome Friedman Trevor Hastie and Robert Tibshirani A note on the group lasso
-and a sparse group lasso 2010 pp 18 arXivarxivorgabs10010736 http
-27 Sainath Gaddam et al Serum lipoprotein levels in takotsubo cardiomyopathy vs my-
-ocardial infarction International archives of medicine 41 2011 p 14
-28 David B Goldstein Common genetic variation and human traits The New England
-journal of medicine 36017 2009 pp 16968
-29 D J Gordon et al High-density lipoprotein cholesterol and cardiovascular disease
-Four prospective American studies Circulation 791 1989 pp 815
-30 E K Green et al The bipolar disorder risk allele at CACNA1C also confers risk of
-recurrent major depression and of schizophrenia Molecular psychiatry 1510 2010
-pp 101622
-31 Trevor Hastie Robert Tibshirani and Jerome Friedman The Elements of Statistical
-Learning Data Mining Inference and Prediction 2nd Springer New York 2008
-32 Lucia A Hindor et al Potential etiologic and functional implications of genome-wide
-association loci for human diseases and traits Proceedings of the National Academy of
-Sciences of the United States of America 10623 2009 pp 93627
-33 Jiro Hirosumi et al A central role for JNK in obesity and insulin resistance Nature
-4206913 2002 pp 3336
-34 Joel N Hirschhorn Genomewide association studiesilluminating biologic pathways
-The New England journal of medicine 36017 2009 pp 1699701
-35 Peter Holmans et al Gene ontology analysis of GWA study data sets provides insights
-into the biology of bipolar disorder American journal of human genetics 851 2009
-pp 1324
-36 Barbara V Howard Giacomo Ruotolo and David C Robbins Obesity and dyslipi-
-demia Endocrinology and metabolism clinics of North America 324 2003 pp 855
-37 Bryan Howie Jonathan Marchini and Matthew Stephens Genotype Imputation with
-Thousands of Genomes G3 Bethesda 1November 2011 pp 457469
-38 Junzhou Huang Tong Zhang and Dimitris Metaxas Learning with Structured Spar-
-sity Journal of Machine Learning Research 1212 2011 pp 33713412
-39 Laurent Jacob Guillaume Obozinski and Jean-philippe Vert Group Lasso with Over-
-lap and Graph Lasso Proceedings of the 26th International Conference on Machine
-Learning 2009
-40 P W Janes et al The role of lipid rafts in T cell antigen receptor TCR signalling
-Seminars in immunology 121 2000 pp 2334
-41 Rodolphe Jenatton and Francis Bach Structured Variable Selection with Sparsity-
-Inducing Norms Journal of Machine Learning Research 12 2011 pp 27772824
-42 H Jeong et al Lethality and centrality in protein networks Nature 4116833 2001
-pp 412
-43 Giuseppe Jurman et al Algebraic comparison of partial lists in bioinformatics PloS
-one 75 2012 e36540
-44 Giuseppe Jurman et al Algebraic stability indicators for ranked lists in molecular
-proling Bioinformatics Oxford England 242 2008 pp 25864
-45 Kei Kamide et al Genetic polymorphisms of L-type calcium channel alpha1C and
-alpha1D subunit genes are associated with sensitivity to the antihypertensive eects of
-L-type dihydropyridine calcium-channel blockers Circulation journal  ocial journal
-of the Japanese Circulation Society 734 2009 pp 73240
-46 Yoo-Ah Kim Stefan Wuchty and Teresa M Przytycka Identifying causal genes and
-dysregulated pathways in complex diseases PLoS computational biology 73 2011
-e1001095
-47 Raivo Kolde et al Robust rank aggregation for gene list integration and meta-analysis
-Bioinformatics Oxford England 284 2012 pp 57380
-48 Ben Lehner et al Systematic mapping of genetic interactions in Caenorhabditis elegans
-identies common modiers of diverse signaling pathways Nature genetics 388 2006
-pp 896903
-49 Daniel Levy et al Genome-wide association study of blood pressure and hypertension
-Nature genetics 416 2009 pp 67787
-50 Jun Liu and Jieping Ye Fast Overlapping Group Lasso 2010 pp 114 arXiv1009
-51 Yingchang Lu et al Multiple genetic variants along candidate pathways inuence
-plasma high-density lipoprotein cholesterol concentrations Journal of lipid research
-4912 2008 pp 25829
-52 Teri a Manolio et al Finding the missing heritability of complex diseases Nature
-4617265 2009 pp 747753
-53 Mark I McCarthy et al Genome-wide association studies for complex traits consensus
-uncertainty and challenges Nature Reviews Genetics 95 2008 pp 35669
-54 Nicolai Meinshausen and Peter Buhlmann Stability selection Journal of the Royal
-Statistical Society Series B Statistical Methodology 724 2010 pp 417473
-55 V Moskvina et al Gene-wide analyses of genome-wide association data sets evidence
-for multiple common risk alleles for schizophrenia and bipolar disorder and for overlap
-in genetic risk Molecular psychiatry 143 2009 pp 25260
-56 Allan J Motyer et al LASSO model selection with post-processing for a genome-wide
-association study data set BMC proceedings Vol 5 Suppl 9 Suppl 9 BioMed Central
-Ltd 2011 S24
-57 K K Namboodiri et al The Collaborative Lipid Research Clinics Family Study biologi-
-cal and cultural determinants of familial resemblance for plasma lipids and lipoproteins
-Genetic epidemiology 23 1985 pp 22754
-58 M V Nermut et al Electron microscopy and structural model of human bronectin
-receptor The EMBO journal 713 1988 pp 40939
-59 Jie Peng et al Regularized multivariate regression for identifying master predictors
-with application to integrative genomics study of breast cancer The Annals of Applied
-Statistics 41 2010 pp 5377
-60 Daniel Percival Theoretical properties of the overlapping groups lasso Electronic
-Journal of Statistics 6 2012 pp 269288
-61 Ryoichi Saiki et al Characterization of solanesyl and decaprenyl diphosphate synthases
-in mice and humans The FEBS journal 27221 2005 pp 560622
-62 Amartya Sanyal et al The long-range interaction landscape of gene promoters Nature
-4897414 2012 pp 109113
-63 Eric E Schadt Molecular networks as sensors and drivers of common human diseases
-Nature 4617261 2009 pp 21823
-64 D Sculley Rank Aggregation for Similar Items Proceedings of the 2007 SIAM Inter-
-national Conference on Data Mining i 2007 pp 587592
-65 Gang Shi et al Mining Gold Dust Under the Genome Wide Signicance Level A Two-
-Stage Approach to Analysis of GWAS Genetic epidemiology 352 2011 pp 117118
-66 Matt Silver and Giovanni Montana Fast Identication of Biological Pathways Associ-
-ated with a Quantitative Trait Using Group Lasso with Overlaps Statistical Applica-
-tions in Genetics and Molecular Biology 111 2012
-67 Matt Silver et al Identication of gene pathways implicated in Alzheimers disease
-using longitudinal imaging phenotypes with sparse regression NeuroImage 633 2012
-pp 16811694
-68 Xueling Sim et al Transferability of type 2 diabetes implicated loci in multi-ethnic
-cohorts from Southeast Asia PLoS genetics 74 2011 e1001363
-69 Noah Simon et al A sparse-group lasso Journal of Computational and Graphical
-Statistics In press 2012 pp 113
-70 C Sobreira et al Mitochondrial encephalomyopathy with coenzyme Q10 deciency
-Neurology 485 1997 pp 123843
-71 Donny Soh et al Consistency comprehensiveness and compatibility of pathway databases
-BMC Bioinformatics 111 2010 p 449
-Igor Splawski et al CaV12 calcium channel dysfunction causes a multisystem dis-
-order including arrhythmia and autism Cell 1191 2004 pp 1931
-73 B Staels et al Mechanism of Action of Fibrates on Lipid and Lipoprotein Metabolism
-Circulation 9819 1998 pp 20882093
-74 Fumihiko Takeuchi et al Blood pressure and hypertension are associated with 7 loci
-in the Japanese population Circulation 12121 2010 pp 23029
-75 Christian Templin et al Identication of a novel loss-of-function calcium channel
-gene mutation in short QT syndrome SQTS6 European heart journal 329 2011
-pp 107788
-76 Tanya M Teslovich et al Biological clinical and population relevance of 95 loci for
-blood lipids Nature 4667307 2010 pp 70713
-77 The 1000 Genomes Project Consortium A map of human genome variation from
-population-scale sequencing Nature 467 2011 pp 10611073
-78 Rob Tibshirani Regression shrinkage and selection via the Lasso Journal of the Royal
-Statistical Society Series B Statistical Methodology 581 1996 pp 267288
-79 Robert Tibshirani and Pei Wang Spatial smoothing and hot spot detection for CGH
-data using the fused lasso Biostatistics Oxford England 91 2008 pp 1829
-80 Robert Tibshirani et al Sparsity and smoothness via the fused lasso Journal of the
-Royal Statistical Society Series B Statistical Methodology 671 2005 pp 91108
-81 Peter P Toth Cardiology patient page The good cholesterol high-density lipopro-
-tein Circulation 1115 2005 e8991
-82 Paul Tseng and Sangwoon Yun A coordinate gradient descent method for nonsmooth
-separable minimization Mathematical Programming 1171 2009 pp 387423
-83 William Valdar et al Reprioritizing genetic associations in hit regions using LASSO-
-based resample model averaging Genetic epidemiology 365 2012 pp 45162
-84 Peter M Visscher et al Five years of GWAS discovery American journal of human
-genetics 901 2012 pp 724
-85 Maria Vounou et al Sparse reduced-rank regression detects genetic associations with
-voxel-wise longitudinal phenotypes in Alzheimers disease NeuroImage 60 2011
-pp 700716
-86 Kai Wang Mingyao Li and Hakon Hakonarson Analysing biological pathways in
-genome-wide association studies Nature Reviews Genetics 1112 2010 pp 843854
-87 Kai Wang et al Diverse Genome-wide Association Studies Associate the IL12  IL23
-Pathway with Crohn Disease American journal of human genetics 843 2009 pp 399
-88 Tong Tong Wu et al Genome-wide association analysis by lasso penalized logistic
-regression Bioinformatics Oxford England 256 2009 pp 71421
-89 Jingyuan Zhao et al Pathway-based analysis using reduced gene subsets in genome-
-wide association studies BMC bioinformatics 121 2011 p 17
-90 Peng Zhao Guilherme Rocha and Bin Yu The composite absolute penalties family
-for grouped and hierarchical variable selection The Annals of Statistics 376A 2009
-pp 34683497
-91 Hua Zhou et al Association Screening of Common and Rare Genetic Variants by
-Penalized Regression Bioinformatics Oxford England 2619 2010 pp 23752382
-92 Hui Zou and Trevor Hastie Regularization and variable selection via the elastic net
-Journal of the Royal Statistical Society Series B Statistical Methodology 672 2005
-pp 301320
-Supplementary Information
-A SGL estimation algorithm
-For the estimation of SGL we proceed by noting that the optimisation 1 is convex and
-in the case of non-overlapping groups that the penalty is block-separable so that we can
-obtain a solution using block or group-wise coordinate descent 82 For a single group l the
-corresponding minimising function is given by
-f l 
-2y  X2
-2  1  wll2  l1
-cid88
-kcid54j
- xcid48
-jrl 
-An optimal solution for SNP coecient j is then derived from the subgradient equations
-xk k  xjj  1  wlsj  tj  0 j  l1     lPl
-cid80
-where k k cid54 j are the current estimates for other SNP coecients in group l and the group
-mcid54l Xm m Here sj and tj are the respective subgradients of
-partial residual rl  y 
-l2 and j with
-cid40 j
-cid40
-l2
- 1 1
-signj
- 1 1
-if l2 cid54 0
-if l2  0
-if j cid54 0
-if j  0
-If l  0 that is group l is not selected by the model then from 12
-Substituting a  Xcid48
- xcid48
-lrl gives
-jrl  1  wlsj  tj  0
-j  l1     lPl
-aj  1  wlsj  tj
-j  l1     lPl
-so that
-From 13 when l  0 s2  cid80
-cid88
-cid88
-1  22w2
-aj  tj2
-cid88
-1  22w2
-2  1 so that
-j  l1     lPl
-aj  tj2
-aj  tj2  1  22w2
-Also from 13 one further condition when l  0 is that tj  1 1 The values tj that
-minimise the left hand size of 15 are therefore given by
-if  aj
-if  aj
-  1
-  1
-cid40 aj
-cid40
-Substituting for aj we can then write the values for aj  tj that minimise the left hand
-side of 15 as
-aj  tj 
-signxcid48
-jrl 
-jrlxcid48
- Sxcid48
-jrl  
-if xcid48
-if xcid48
-jrl  
-jrl  
-for j  l1     lPl where
-Sxcid48
-jrl   signxcid48
-jrlxcid48
-jrl  
-is the lasso soft thresholding operator Finally we can now rewrite the condition for l  0
-15 as
-SXcid48
-lrl 2  1  wl
-Where the vector SXcid48
-reduces to the group lasso group selection criterion
-lrl   Sxcid48
-rl      Sxcid48
-rl  Note that with   0 this
-In the case that l cid54 0 that is group l is selected by the model from 12 and 13 we
-see that j  0 when
-cid88
-kcid54j
- xcid48
-jrl 
-xk k  
-For completeness we rewrite the criterion for selecting pathway l from 17 as
-and the criterion for selecting SNP j in selected pathway l from 18 as
-SXcid48
-lrl 2  1  wl
-cid80
-xcid48
-jrlj  
-where rlj  rl
-estimated eects of all other predictors in the model except for predictor j
-kcid54j xk k is the SNP partial residual obtained by regressing out the current
-A number of methods for the estimation of l in the case that l2 cid54 0 have been
-proposed 26 23 50 69 A complicating factor is the discontinuities in the rst and second
-derivatives of sj at l2  0 that is where l2 rst moves away from zero and of tj when
-j  0 As with GL Friedman Hastie and Tibshirani 26 describe a numerical method
-using coordinate descent by combining a golden search over j with parabolic interpolation
-However we nd this too computationally intensive for the large datasets we wish to analyse
-Simon et al 69 propose an accelerated block gradient descent method in which l is itera-
-tively updated in a single step along the line of steepest descent of the block objective function
-until convergence We instead use a block coordinate-wise gradient descent BCGD method
-that uses a Newton update similar to that proposed by Zhou et al 91 and we describe this
-To update j from its current estimate j we note from 12 and 13 that if j cid54 0 the
-subgradient equation for predictor j is given by
-j  xcid48
-jrl  Xl l  1  wl
- l2
-   sign j
-We then descend along the gradient at j towards the minimum using Newtons method
-The Newton update 
-j  is then given by
-cid48
-j  j 
-cid48
-j  1 
-1  wl
- l2
-where 
-cid17
-cid16
- l2
-is the derivative of 21 at j The update 22 is repeated until convergence
-We must also deal with the case where j  0 Here we adopt a slightly dierent strategy
-since the partial derivative tj of j is not continuous We avoid this discontinuity by testing
-the directional derivatives 
-j  respectively representing the partial derivatives at
-j  0 in the direction of increasing and decreasing j Recalling that we are dealing with
-the case l2 cid54 0 at j  0 the group penalty term in 21 disappears That is once a
-j and 
-group is selected by model it becomes easier for each SNP coecient to move away from zero
-The two directional derivatives are then given by
-j  xcid48
-j  xcid48
-jrl  Xl l  
-jrl  Xl l  
-Since the minimising function 11 is convex there are three possible outcomes and we
-substitute for j in 22 accordingly
-and 
-and 
-and 
+2 Lower Bound
+Lemma 3 For any    0      log  0
+Proof Write      log  h  1  logi Thus it is sucient
+to show that F x  x  1  log x  0 for any x  0 Note that F 0  F   0
+and F x  1  1
+x  0 when 0  x  1 and F x  0 when x  1 and nally
+F 1  0 Hence F x  0 for any x  0
+Lemma 4 Assume HQ   Then
+EQN 0 1  C1  C2HQ
+where C1 C2  0 are some constants independent of Q
+Proof If HQ   then hQ
+  for ae  under Q which implies
+that Q
+and thus At  At where At and At are the compensators of Nt
+under Q
+respectively For the theory of absolute continuity of point
+processes and Girsanov formula see for example Lipster and Shiryaev 10 or Daley
+ sds for some
+ P 
+and P 
+ P 
+cid3
+ By the Girsanov formula
+and Vere-Jones 4 Since At  R t
+HQ  EQcid20Z 1
+0  sds we have At  R t
+    logcid16cid17 dscid21 
+Notice that EQN 0 1 R R 1
+dsdQ  Z Z 1
+dsdQ
+0 X s
+hs   dsdQ  C
+ Z h0N 0 1dQ  Z X 0
+ h0  khkL1EQN 0 1  C
+ h0  khkL1Z Z 1
+dsdQ  C
+h dQ  C
+Therefore we have
+On the other hand by Lemma 3
+dsdQ  KC
+  1KdsdQ  Kh0  khkL1Z Z 1
+HQ Z Z 1
+0 h     logi  1KdsdQ
+ log K  1Z Z 1
+  1KdsdQ
+LINGJIONG ZHU
+dsdQ  Kh0  khkL1Z Z 1
+dsdQ  KC 
+log K  1
+Choose K  e and  
+Kh0khkL1   We get
+EQN 0 1 
+1  Kh0  khkL1
+log K  1Kh0  khkL1
+cid3
+Lemma 5 We have the following alternative expression for HQ
+f sBF 
+28 HQ 
+CR0s1
+EQcid20Z 1
+Proof EQN 0 1   implies that EQ
+N 0 1   for almost every  under
+Q also P  h    since EQP  h   khkL1 EQN 0 1  
+1  ef ds Z 1
+f dNscid21 
+EP 
+N 0 1  EP  
+ X 0s
+ C  h0EP 
+N 0 1   X 
+hs   
+ ds
+h   
+h0  we have EP 
+Pick up   1
+N 0 1  
+ter 13 of Daley and Vere-Jones 4 if EQ
+the compensators of Nt under Q
+By the theory of absolute continuity of point processes see for example Chap-
+N 0 1   then
+0   sds are
+respectively If thats the case we can
+N 0 1 EP 
+dQ
+and P 
+  sds for some  and there is Girsanov formula
+if and only if At  At where At and At  R t
+dP cid12cid12cid12cid12F 0
+HQ  EQcid20Z 1
+    logcid16cid17 dscid21 
+  ds Z 1
+logcid16cid17 dNs
+ P 
+write At R t
+which implies that
+For any f  f  1  ef    log     and equality is achieved when
+f  log Thus clearly we have
+f sBF 
+CR0s1
+EQcid20Z 1
+1  ef ds Z 1
+f dNscid21  HQ
+On the other hand we can always nd a sequence fn convergent to log and
+by Fatous lemma we get the other direction
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+Now assume that we do not have Q
+for ae  under Q That
+implies that HQ   We want to show that
+EQcid20Z 1
+CR0s1
+f sBF 
+ P 
+1  ef ds Z 1
+f dNscid21  
+Let us assume that
+f sBF 
+CR0s1
+EQcid20Z 1
+1  ef ds Z 1
+f dNscid21  
+Let P 
+We want to prove that HQ  
+At  At   At and Q
+ P 
+For any f 
+be the point process on 0 1 with compensator At   At Clearly
+EQcid20Z 1
+1  ef dAs   As  f d Ascid21
+ EQcid20Z 1
+1  ef f 0dAs   As  f f 0d Ascid21
+ EQcid20Z 1
+1  ef f 0dAs   As  f f 0d Ascid21
+ EQcid20Z 1
+dAs   Ascid21  EQcid20Z 1
+ EQcid20Z 1
+dAs   Ascid21  EQcid20Z 1
+ C  h0  khkL1EQN 0 1
+EQcid20Z 1
+CR0s1
+1  ef f 0dAs  f f 0d Ascid21
+1  ef f 0dAs  f f 0d Ascid21
+1  ef ds Z 1
+f sBF 
+f dNscid21  
+Therefore
+  lim inf
+ lim inf
+f sBF 
+f sBF 
+CR0s1
+CR0s1
+EQcid20Z 1
+1  ef dAs   As  f d Ascid21
+0  1  ef  f 
+dAs   As dAs   As
+ lim inf
+EQhQ
+ P 
+ EQhQ
+ P 
+  HQ
+by lower semicontinuity of the relative entropy h Fatous lemma and the fact
+that P 
+weakly as   0 Hence HQ  
+  P 
+cid3
+Lemma 6 HQ is lower semicontinuous and convex in Q
+LINGJIONG ZHU
+Proof By Lemma 5 we can rewrite HQ as
+f sBF 
+CR0s1
+EQcid20Z 1
+EQcid20Z 1
+1  ef   f dscid21
+1  ef ds Z 1
+f sBF 
+CR0s1
+f dNscid21 
+If Qn  Q then EQn N 0 1  EQN 0 1 and Qn  Q weakly Since f  s 
+C  R  BF 
+0 f  sdNs is continuous on  and since f is uniformly
+bounded R 1
+0 f  sdNs  kfkLN 0 1 Hence
+f  sdNscid21  EQcid20Z 1
+EQncid20Z 1
+as n   Next notice that
+f  sdNscid21 
+Let M  cid0P s hM s   cid1 where hM s  hssM  Then M  s 
+0 M 1  ef sds  C Also R 1
+C  R and thus R 1
+0 M 1  ef sds 
+K1  ekf kL N M 1 where K  0 is some constant Therefore
+EQncid20Z 1
+M 1  ef sdscid21  EQcid20Z 1
+EQcid20Z 1
+M 1  ef sdscid21  EQcid20Z 1
+cid12cid12cid12cid12
+ EQ1  ekf kL EQN 0 1Z 
+n cid12cid12cid12cid12
+EQncid20Z 1
+EQncid20Z 1
+ s1  ef sdscid21  EQcid20Z 1
+M 1  ef sdscid21
+1  ef sdscid21cid12cid12cid12cid12
+1  ef sdscid21cid12cid12cid12cid12
+ s1  ef sdscid21 
+M 1  ef sdscid21  EQncid20Z 1
+as M   Similarly we have
+hsds  0
+lim sup
+M
+The supremum is taken over a linear functional of Q which is continuous in Q
+therefore the supremum over these linear functionals will be lower semicontinuous
+Similarly since in the variational formula expression of HQ in Lemma 5 the
+supremum is taken over a linear functional of Q HQ is convex in Q
+cid3
+lim sup
+Lemma 7 HQ is linear in Q
+0 measurable and a F 
+Proof It is in general true that the process-level entropy function HQ is linear
+in Q Following the arguments in Donsker and Varadhan 6 there exists a subset
+0 measurable map Q  0  ME
+0   which is F 
+such that Q0  1 for all Q  MS and Q  Q  Q  1 for all Q  ME
+Therefore there exists a universal version say Q
+independent of Q such that
+R Q
+it also holds for
+Q  MS Hence
+Qd  Q Since that is true for all Q  ME
+ P 
+ P 
+HQ  EQhhQ
+1i  EQhh Q
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+ie HQ is linear in Q
+cid3
+In our paper we are proving the large deviation principle for Hawkes processes
+started with empty history ie with probability measure P  But when time
+elapses by t the Hawkes process generates points and that create a new history up
+to time t We need to understand how the history that was created would aect
+the future What we want to prove is some uniform estimates that if given the past
+history which is well controlled then the new history will also be well controlled
+This is essentially what the following Lemma 9 says Consider the conguration of
+points starting from time 0 up to time t We shift it by t and denote that by wt
+such that wt   where  is  restricted to R These notations will be used
+in Lemma 9
+Remark 8 At the very beginning of the paper we dened t It should not be
+confused with wt in this section
+Lemma 9 For any Q  ME such that HQ   and any open neighborhood
+N of Q there exists some K 
+   1 as    and
+ and QK 
+ such that   K 
+log P w0Rt  N wt  K 
+w0K
+   HQ
+lim inf
+t
+Proof Let us abuse the notations a bit by dening
+  
+ X  0s
+hs   
+For any t  0 since   c  0 and  is Lipschitz with constant  we have
+dP 
+dP w0cid12cid12cid12cid12F 0
+Dene
+w0  ds Z t
+0 w0  ds Z t
+hs   ds Z t
+ X w0
+w0cid19 dNs
+logcid18 
+logcid181  w0  
+c X w0
+hs   dNs
+cid19 dNs
+    N t 0  1  tt  0 
+By the maximal ergodic theorem letting t denote the largest integer less or equal
+to t we have
+QK 
+ c  Qcid18sup
+ Qcid18sup
+ Qcid18 sup
+n1nN
+EQN 0 1
+ cid19
+N t 0
+N t  1 0
+ cid19
+ cid19
+t  1
+N n 0
+LINGJIONG ZHU
+as    Thus QK 
+shows that
+Fix any s  0 and   K 
+   1 as   
+  Since h is decreasing h  0 integration by parts
+X 
+hs  dN  0
+hs    Z 
+ Z 
+ Z 
+ hs  Z 
+ hs  Hs
+N  0hs  d
+1  hs  d
+hs  d
+t hsds
+where Ht R 
+Therefore uniformly for  w0  K 
+ X w0
+hs   ds  2khkL1  2ut
+0 Hsds and
+where ut R t
+c X w0
+hs   dNs 
+hs  HsdNs
+Dene
+t cid26 
+Then uniformly in t  0
+hs  HsdNs  2khkL1  utcid27 
+2EQN 0 1
+tc 
+c  
+t  1 as   
+as    Thus inf t0 QK 
+Hence uniformly for  w0  K 
+ and   K 
+dP 
+dP w0cid12cid12cid12cid12F 0
+ 2khkL1  2ut  2khkL1  ut
+ C1  C2ut
+where C1  2khkL1  2khkL1 and C2  2  2
+Observe that
+Let Dt  Rt  N wt  K 
+t
+lim sup
+ lim sup
+t
+Hsds  0
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+Uniformly for w0  K 
+dP 
+P w0 Dt
+ etHQC1C2ut
+ QDt  1
+dQcid12cid12cid12cid12F 0
+ etHQC1C2ut
+ QDt  1
+ C1  C2ut
+ HQ   log
+dQcid12cid12cid12cid12F 0
+dP 
+dP 
+dP w0cid12cid12cid12cid12F 0
+ HQ    K 
+t  K 
+  
+Since Q  ME by ergodic theorem
+t
+QRt  N   1
+and since  t  log dQ
+satises
+dP cid12cid12F 0
+ t  s   t  t s EQ t  tHQ
+for almost every  under Q
+t
+ HQ
+dP 
+dQcid12cid12cid12cid12F 0
+   QK 
+Since Q is stationary Qwt  K 
+inf t0 QK 
+big enough we conclude that
+t  1 as    Remember that lim supt
+   1 as    Also QK 
+t 
+t  0 By choosing 
+lim inf
+t
+w0K
+log P w0 Rt  N wt  K 
+   HQ  
+Since it holds for any   0 we get the desired result
+cid3
+Theorem 10 Lower Bound For any open set G
+lim inf
+t
+log P Rt  G   inf
+Proof It is sucent to prove that for any Q  MS HQ   for any
+t log P Rt  N   HQ Since for every
+neighborhood N of Q lim inf t
+invariant measure P  MS there exists a probability measure P on the space ME
+of ergodic measures such that P  RME
+QP dQ for any Q  MS such that
+HQ   without loss of generality we can assume that Q P
+j1 jQj where
+j  0 1  j   and P
+j1 j  1 By linearity of H HQ P
+j1 jHQj
+Divide the interval 0 t into subintervals of length jt let tj 1  j   be the
+right hand endpoints of these subintervals and let t0  0 For each Qj take K 
+in Lemma 9 We have min1j QjK 
+M   1 as M   Choose neighborhoods
+LINGJIONG ZHU
+Nj of Qj 1  j   such that S
+P Rt  N   P Rt1  N1 wt1  K 
+j1 jNj  N  We have
+w0K
+tj1 tj2
+P w0 Rtj tj1  Nj wtj tj1  K 
+Now applying Lemma 9 and the linearity of H
+log P Rt  N   
+lim inf
+t
+jHQj  HQ
+cid3
+3 Upper Bound
+Remark 11 By following the same argument as in Donsker and Varadhan 6 if
+ 7 P 
+is weakly continuous then
+lim sup
+t
+log P Rt  A   inf
+for any compact A If the Hawkes process has nite range of memory ie h has
+compact support and is continuous then for any a  b if 
+n   we have
 
-j 
-In the third case f l is increasing either side of j  0 so that j must remain at zero
-We can then proceed with the standard Newton update 22
-Finally since the Newton update may occasionally overstep the minimum where j  0
-a simple remedy proposed by Zhou et al 91 is to check that f l is decreasing at each
-iteration If this is not the case then the step size in 22 is halved The complete algorithm
-for SGL estimation using BCGD is presented in Box 1
-l  SXcid48
-ly min
-1  wl
-One remaining practical issue is the obtaining of a value for max the smallest value of
- at which no groups are selected by the model Noting that rl  y when no groups are
-selected from 17 we obtain the smallest value min
- for the minimum value of  at which
-group l is not selected as
-We can solve this in its quadratic form by rst setting an upper bound for  at the point 
-where the soft thresholding function SXcid48
-lyl   0 that is when no SNPs are selected by
-the model We then obtain the solution by solving
-SXcid48
-ly min
-2  1  2min
-0  min
-for min
- where
-l  max
-xcid48
-j  l1     lPl
-We do this using the 1d root-nding function brentq in Pythons scipy library Finally we
-obtain a value for max as
-max  max
-l  1     L
-B SGL with overlaps
-We assume that X and  have been expanded to account for overlaps but we drop the 
-notation for clarity We proceed as before by solving the block-separable optimisation 4
-for each group or pathway in turn However for overlapping pathways the assumption
-of pathway independence requires that each Xl l  1     L is regressed against the full
-phenotype vector y rather than the partial residual rl With this in mind the revised
-subgradient equations for group l 12 are given by
-xk k  xjj  1  wlsj  tj  0 j  l1     lPl
-cid88
-kcid54j
- xcid48
-jy 
-The estimation for group l then proceeds as described in the previous section but with
-the partial residual rl replaced by y so that the group sparsity condition 17 for  l2  0
-becomes
-SXcid48
-ly 2  1  wl
-As before where group l is selected by the model the update for j with current estimate
-j is derived from the partial derivative 21 which under the independence assumption is
-given by
-j  xcid48
-jy  Xl l  1  wl
-   sign j
- l2
-for j  l1     lPl The Newton update 22 remains the same When j  0 the revised
-directional derivatives 23 are given by
-j  xcid48
-j  xcid48
-jy  Xl l  
-jy  Xl l  
-As before the conditions for SNP sparsity within a selected group are determined by 24
-The value of max the smallest  value at which no group is selected by the model is
-determined in the same way as before since this procedure described in 25 26 and 27
-does not depend on rl
-Importantly since each group is regressed independently against the phenotype vector y
-there is no block coordinate descent stage in the estimation that is the revised algorithm
-utilises only coordinate gradient descent within each selected pathway For this reason we
-use the acronym SGL-CGD for the revised algorithm The new algorithm is described in Box
-2 Note that since the block coordinate descent stage is avoided the new algorithm has the
-added benet of being much faster than would otherwise be the case
-C Simulation study 1
-A baseline phenotype y is sampled from N 10 1 To generate SNP eects we rst select a
-single pathway Gl at random From this pathway we randomly select 5 SNPs to from the
-set S  Gl of causal SNPs At each MC simulation we generate a genetic eect and adjust y
-so that
- y  w
-cid88
-and k determines the contribution from causal SNP k withcid80
-Here  controls the overall additive genetic eect on phenotype y due to all casual SNPs in S
-kS k  1 In our simulations
-we maintain a constant overall genetic eect size
-  EwEy
-across all aected phenotypes so that  represents the proportionate increase in the mean
-value of y due to all genetic eects We also set k  15 for k  S so that the contribution
-from each causal SNP allele is equal This enables us to determine  for a given  as
-2cid80
-5Ey
-kS mk
-Note that for constant  the proportionate eect on the mean value of y due to SNP k is
-MAF dependent and is given by 2mkEy
-D Weight tuning for bias reduction
-For xed  and with  tuned to select a single pathway we need to establish which pathway
-enters the model rst as  is reduced from its maximal value max From 27 at phenotype
-permutation r the pathway Cr selected with permuted phenotype yr is given by
-Cr  arg max
- l  1     L
-is obtained by solving
-l  SXcid48
-lyr min
-1  wl
-using the procedure described at the end of Section A For R permutations of the phenotype
-vector y the empirical pathway selection frequency distribution is then given by
-Rcid88
- Cr  l
-l  1     L
+cid12cid12cid12cid12cid12
+n   sds Z b
+a cid12cid12cid12cid12cid12cid12
+ Z b
+X 
+hs     X 
+n  P 
+  sdscid12cid12cid12cid12cid12
+hs   cid12cid12cid12cid12cid12cid12
+ds  
+as n   which implies that P 
+If the Hawkes process does not have nite range of memory then we should use
+the specic features of the Hawkes process to obtain the upper bound
+Before we proceed let us prove an easy but very useful lemma that we will use
+progressively measurable and predictable Then
+repeatedly in the proofs of the estimates in this paper
+Lemma 12 Let f  s be F 
+0 f sdNsi  EheR t
+Proof Since expnR t
+0 2f  sdNs R t
+Cauchy-Schwarz inequality
+0 e2f s1sdsi12
+0 e2f s  1 sdso is a martingale by
+0 f sdNsi  Ehe
+ EheR t
+0 e2f s1sdsi12
+0 2f sdNs 1
+0 e2f s 1sds 1
+0 e2f s 1sdsi
+cid3
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+Let us dene CT as
+CT cid26F  Z T
+f  sdNs Z T
+ef s  1 sds
+f  s  BF 0
+s   C  Rcid27
+progressively measurable and predictable and f  s  BF 0
+s progressively measurable predictable and also bounded
+Here  s is F 
+CR means that f is F 0
+and continuous
+Lemma 13 For any T  0 and F  CT  we have for any t  0
+0 F sdsi  1
+Proof For any t  0 writing s PkskT t F skT 
+0 sdsi
+EP hesi ds  1
+EP he
+0 F sdsi  EP he
+EP he
+by Jensens inequality and the fact that EP cid2escid3  1 by iteratively conditioning
+since EP 
+cid2eF cid3  1 for any 
+Remark 14 Under P  the F 
+progressively measurable rate function  is well
+dened since it only creates a history between time 0 and time t Similary in
+the proof in Lemma 13 EP 
+the expectation is 1 given any history created between time 0 and t which is well
+dened
+cid3
+0 F sds
+0 F stds and 1
+cid2eF cid3  1 for any  should be interpreted as
+log EP cid20expcid26qcid12cid12cid12cid12
+F stds 
+cid27cid21  0
+Lemma 15 For any q  0 T  0 and F  CT 
+lim sup
+Next we need to compare 1
+t
+F sdscid12cid12cid12cid12
+f u sdNuds 
+cid12cid12cid12cid12
+F stds 
+cid12cid12cid12cid12cid12
+cid12cid12cid12cid12
+ef us  1s ududs
+It is easy to see that R T
+0 f u sdNuds is F s
+f u sdNuds Z T
+f u stdNuds
+F sdscid12cid12cid12cid12
+f u stdNudscid12cid12cid12cid12cid12
+ef ust  1st ududscid12cid12cid12cid12
+sT -measurable and that
+LINGJIONG ZHU
+for any 0  s  t  T  Hence
+cid12cid12cid12cid12cid12
+f u sdNuds 
+f u stdNudscid12cid12cid12cid12cid12
+tT Z T
+f u sdNuds 
+N s s  T ds  kfkL
+tT Z T
+ kfkL
+ kfkL
+N t  T t  T   N t  T t  T t
+ kfkL
+N t  T t  T   N t  T T   N 0 T  
+f u stdNuds
+N s s  T tds
+By Holders inequality and Lemma 20 we have
+lim sup
+t
+log EP he 1
+log EP he
+ lim sup
+t
+0 f usdNuds 1
+0 f ustdNudsi
+kf kL
+N tTtT N tTT N 0T i  0
+Furthermore
+cid12cid12cid12cid12cid12
+ef us  1s ududs 
+ef ust  1st ududscid12cid12cid12cid12cid12
+s ududs
+cid12cid12cid12
+ef us  ef ustcid12cid12cid12
+ef ust  1st u  s u duds
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+For the rst term
+2ekf kL
+2ekf kL
+s ududs
+s ududs
+s ududs
+cid12cid12cid12
+ef us  ef ustcid12cid12cid12
+tT Z T
+cid12cid12cid12
+ef us  ef ustcid12cid12cid12
+tT Z T
+tT Z T
+ 2ekf kL T C 
+ X 0us
+tT Z T
+tT Z T
+ 2ekf kL T C 
+ 2ekf kL T C  2ekf kL Z t
+ 2ekf kL T C  2ekf kL T N 0 t  N t t  T h0
+hu  s   
+0 X 0us
+ duds
+N 0 s  T h0ds
+2ekf kL
+2ekf kL
+N 0 u  sh0duds
+hu  s   duds
+Therefore
+lim sup
+t
+log EP he
+0 ef us ef us t sududsi  c
+where c  0 as   0 Since it is bounded above for any c it is bounded
+above by 0
+For the second term
+ef ust  1st u  s u duds
+ekf kL  1
+ekf kL  1
+ekf kL  1
+ekf kL  1
+hu  s   cid12cid12cid12cid12cid12cid12
+hu  s     X 0us
+cid12cid12cid12cid12cid12cid12
+X t0ust
+tT Z T
+ X t0us
+tT Z T
+ X 0us
+ X t
+hu  s   duds
+hu  s   duds
+hu  s   duds
+LINGJIONG ZHU
+Assume that h is decreasing and limz
+ity twice we can estimate the second term above
+z  0 By applying Jensens inequal-
+ekf kL 1
+tT R T
+0 R us
+husvdNvdudscid21
+EP cid20e
+T 2 Z t
+T 2 Z t
+0 R us
+husvdNvdui ds
+EP heekf kL 1 R T
+tT Z T
+EP heekf kL 1T R us
+tT Z T
+EP heR us
+tT Z T
+CThvdvi12
+EP heCThN 0ush0i12
+husvdNvi duds
+eCThC
+ eCThC EP heCThN 0tT h0i12
+where C T h  exp2ekf kL  1T h0  1 Thus
+lim sup
+0 R us
+kf kL 1
+tT R T
+log EP cid20e
+t
+Similarly we can estimate the rst term
+For the third term by Jensens inequality we have
+husvdNv dudscid21  0
+0  P t  hus dudscid21
+EP heexpkf kL 1 R t
+0 P t  hus dsi du
+kf kL 1
+EP cid20e
+ EP heexpkf kL 1 R t
+ EP heexpkf kL 1 R t
+0 P t  hs dsi
+k0 hskttudNudsi
+Since we assume that h is decreasing R k1t
+hs  kt  t  u  hs  t  u 
+Let C f   expkfkL  1 and Ht R 
+hsds  thk  1t Thus
+t Z 
+stu
+hvdv
+t hsds Then
+0  Cf 
+EP heexpkf kL 1 R t
+ EP heCf  R t
+ EP heR t
+EP heR t
+0  Cf 
+Notice that
+k0 hskttudNudsi
+t HstudNudsCf  R t
+0 HstudsdNuR t
+0 HstudsdNui  EP he Cf 
+0 hstudsdNui
+0 Cf hstudsdNui 
+0 HsdsNti 
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+0 Hsds  0 as t   which implies that
+0  Cf 
+lim sup
+t
+log EP heR t
+0 HsudsdNui  0
+where Cf 
+Moreover
+0 eR t
+2 C R t
+2 C R t
+0 e2 R t
+0 e2 R t
+0 Cf hstudsdNui
+0 Cf hstuds 1udui12
+0 Cf hstuds 1duEP heR t
+EP heR t
+ EP heR t
+Notice that it holds for any   0 and 1
+which implies that
+0 2Cf hstuds 1 P u hu dui12
+L1 1 P u hu dui12
+0 e2Cf Htu 1duEP heR t
+L1 1khkL1 Nti12
+0 e2Cf Hu 1duEP hee2Cf khk
+0 e2Cf Hu  1du  0 as t  
+0 Cf hstudsdNui  0
+log EP heR t
+Putting all these thing together and applying Holders inequality several times
+0 e2Cf khk
+lim sup
+2 C R t
+t
+we get for any q  0 T  0 and F  CT 
+lim sup
+t
+log EP cid20expcid26qcid12cid12cid12cid12
+F CT Z
+T 
+Lemma 16 We have
+F stds 
+cid27cid21  0
+F sdscid12cid12cid12cid12
+cid3
+F Qd  HQ
+Proof Assume HQ   For any   0 there exists some f such that
+EQcid20Z 1
+fdNs Z 1
+We can nd a sequence fT  Bcid16F T 1
+ef  1dscid21  HQ  
+cid17 C R  f as T   By Fatous
+lim inf
+T 
+F Qd
+T 
+ lim inf
+efT  1dscid21  HQ  
+If HQ   then for any M  0 there exists some fM such that
+fT dNs Z 1
+fM dNs Z 1
+efM  1dscid21  M
+Repeat the same argument as in the case that HQ  
+F CTZ
+EQcid20Z 1
+EQcid20Z 1
+cid3
+LINGJIONG ZHU
+Lemma 17 For any compact set A
+lim sup
+t
+log P Rt  A   inf
+Proof Notice that
+EP heN 0ti  EP hee21 R t
+0 sdsi12
+By choosing   0 small enough we have EP 
+C  0 Therefore
+ EP hee21h0N 0tCe21i12
+eN 0t  eCt for some constant
+lim sup
+lim sup
+
+t
+log P  N 0 t  t  
+which implies by comparingR N 0 1dRt and N 0 tt and the superexponential
+estimates in Lemma 20
+lim sup
+lim sup
+
+t
+log P cid18Z
+N 0 1dRt  cid19  
+Therefore we need only to consider compact sets A such that for any Q  A
+EQN 0 1  
+Now for any A compact consisting of Q with EQN 0 1   and for any F  CT
+and for any p q  1 1
+q  1 by Holders inequality Chebychevs inequality and
+Lemma 13
+P Rt  A
+ EP he
+ EP he
+ EP he
+pT R t
+By Lemma 15 we have
+lim sup
+t
+0 F stdsi  expcid26
+0 F sdsi1p
+EP he
+pT R t
+ expcid26
+0 F sdsi1q
+log P Rt  A  
+0 F stdsR t
+QAZ
+ expcid26
+QAZ
+F Qdcid27
+0 F stdsR t
+0 F sdsi1q
+F Qdcid27
+QAZ
+F Qd
+F Qdcid27
+Since it holds for any p  1 we get
+lim sup
+t
+For any compact A given Q  A and   0 by Lemma 16 there exists TQ  0
+and FQ  CTQ such that 1
+2  Since the linear
+integral is a continuous functional of Q see the proof of Lemma 6 there exists
+a neighborhood GQ of Q such that
+log P Rt  A   inf
+TQ R FQQd  inf AQ HQ  1
+F Qd
+Q  GQ Since A is compact there exists GQ1      GQ such that A  S
+TQ R FQQd  inf AQ HQ   for all
+F Qd  inf
+HQ  
+j1 GQj 
+1j
+F CT
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+Note that for any A B
+lim sup
+t
+log P Rt  A  B
+ maxcid26lim sup
+t
+log P Rt  A lim sup
+t
+log P Rt  Bcid27 
+j1 Gj
+Thus for A S
+lim sup
+t
+log P Rt  A   inf
+1j
+F CT
+T Z F Qd
+Hence lim supt
+t log P Rt  A   infQA HQ for any compact A
+cid3
+Theorem 18 Upper Bound For any closed set C
+lim sup
+t
+log P Rt  C   inf
+Proof For any closed set C and compact An which is dened in Lemma 25 we
+lim sup
+t
+log P Rt  C
+ maxcid26lim sup
+t
+log P Rt  C  An lim sup
+t
+log P Rt  Anccid27 
+Since C  An is compact by Lemma 17
+lim sup
+log P Rt  C  An   inf
+QCAn
+HQ   inf
+t
+Furthermore by Lemma 24 we have
+t
+t
+lim sup
+ lim sup
+ max
+log P Rt  Anc
+log P 
+j jj
+Rt 
+log P cid18 1
+N 01jstds  jcid19 
+maxcid26 lim sup
+log P cid18 1
+N 01j2stds  1jg1jcid19 
+log P cid18 1
+N 0 1N 01stds  mcid19cid27  
+as n   Hence we have
+lim sup
+lim sup
+lim sup
+t
+t
+t
+t
+log P Rt  C   inf
+cid3
+LINGJIONG ZHU
+4 Superexponential Estimates
+In order to get the full large deviation principle we need the upper bound in-
+equality valid for any closed set instead of for any compact set which requires some
+superexponential estimates
+Lemma 19 For any q  0
+EP heq R t
+0 htsdNsi  EP heR t
+lim sup
+t
+log EP heq R t
+0 htsdNsi  0
+0 e2qhts 1P0 s hs dsi12
+0 e2qhts 1dsi12
+ EP heCh0Nt R t
+0 e2qhs  1ds  L1 since h  L1 Therefore
+log EP heq R t
+0 htsdNsi  c
+Note that R t
+0 e2qhts  1ds R t
+lim sup
+t
+where c  0 as   0 Since it holds for any  we get the desired result
+Lemma 20 For any q  0 and T  0
+cid3
+lim sup
+t
+Therefore for any   0
+log EP heqN ttT i  0
+lim sup
+t
+log P  N t t  T   t  
+Proof By Holders inequality
+EP heqN ttT i  EP hee2q1 R tT
+P0 s hs dsi12
+2 e2q 1CT  EP hee2q1h0N ttT e2q1 R t
+2 e2q 1CT  EP he2e2q1h0N ttT i14
+0 htsdNsi14
+2 e2q 1CT  EP he2e2q1 R t
+he2e2q1 R t
+Choose   q2e2q  1h01 Then
+EP heqN ttT i34
+By Lemma 19 we get the desired result
+0 htsdNsi12
+0 htsdNsi14
+cid3
+Lemma 21 We have the following superexponential estimates
+i For any   0
+lim sup
+lim sup
+t
+log Pcid18 1
+N 02sds  cid19  
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+ii For any   0
+lim sup
+M
+lim sup
+t
+iii For any   0
+lim sup
+lim sup
+
+t
+Proof i Let us dene
+log P cid18 1
+N 01M sds  cid19  
+log P cid18 1
+N 0 1N 01sds  cid19  
+N0 t Z t
+s dNs
+s dNs
+N 0 t Z t
+Then N 0 t  N0 t  N0 t and N0 t has compensator R t
+and N0 t has compensator R t
+0 ss ds Notice that
+N 02  N 02   N 01
+0 ss ds
+It is clear that N is dominated by the usual Poisson process with rate  By
+Lemma 22
+lim sup
+lim sup
+t
+On the other hand
+log P cid18 1
+N 02sds 
+2cid19  
+ N 01sds 
+ N ss1ds
+Ns s  ds
+ Z t
+N0 sds 
+ N 0 t  N t t  
+N0 sds
+By Lemma 20 we have
+lim sup
+t
+log P cid18 1
+N t t   
+4cid19  
+for any   0 Hence
+lim sup
+lim sup
+t
+log P cid18 1
+N t t   
+4cid19  
+Finally for some positive h to be chosen later
+P cid18 1
+N0 t 
+4cid19  Eheh N 0ti eth4
+ Ehee2h 1 R t
+0 ss dsi12
+eth4
+Let f z  z
+the denition of s and abusing the notation a little bit we see that s  Zs
+z  Then f z   as z   Let Zs P 0s hs   Then by
+LINGJIONG ZHU
+Since  is increasing its inverse function 1 exists and 1   as   
+We have
+Ehee2h 1 R t
+0 ss dsi12
+ Ecid20ee2h 1 R t
+ Ee
+e2h 1 R t
+0 ZsZs 1 dscid2112
+z f 1 z
+0 Zs
+f Zs 
+h 
+Then h   as    and
+It is clear that lim inf z f 1z   Choose
+f 1z  1cid21 
+logcid20 inf
+e2h 1 R t
+z f 1 z
+0 Zs
+z
+f Zs 
+0 Zsdsi12
+0 P 0s hs dsi12
+ EheR t
+ EheR t
+ EhekhkL1 Nti12
+4cid19  
+N0 t 
+lim sup
+
+lim sup
+lim sup
+t
+log P cid18 1
+ii It is easy to see that iii implies ii
+iii Observe rst that
+N s s  1N ss1  Ns s  1N ss1 
+ Ns s  1 N ss1 
+N ss1 
+ N ss1 
+For the rst term notice that N is dominated by a usual Poisson process with
+rate  Thus by Lemma 23
+424 lim sup
+lim sup
+
+t
+log P cid18 1
+Ns s  1N ss1 
+ds 
+4cid19  
+For the second term Ns s  1 N ss1 
+2  Ns s  1 and
+By Lemma 20
+Ns s  1ds  N0 t  N t t  1
+lim sup
+t
+log P cid18 1
+N t t  1 
+8cid19  
+and by the same argument as in i
+lim sup
+
+lim sup
+lim sup
+
+t
+log P cid18 1
+N0 t 
+8cid19  
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+For the third term notice that
+N ss1 
+ds Z t
+N s s  1N ss1 
+ds
+We can get the same superexponential estimate as before Finally for the fourth
+ N ss1 
+ds Z t
+Ns s  1ds
+We can get the same superexponential estimate as before
+cid3
+Lemma 22 Assume Nt is a usual Poisson process with constant rate  Then
+for any   0
+lim sup
+lim sup
+t
+log Pcid18 1
+N ss2ds  cid19  
+Proof Let f    1
+h N 02 where h is to be chosen later By Jensens
+inequality and stationarity and independence of increments of Poisson process we
+ R 
+0 Pt
+ePt
+j0 f sjdsi
+j0 f sjds
+ f sdsi  Ehe
+ E 1
+ Z 
+ EhePt
+j0 f ji
+ Ehef it1
+ne1h1  e  e  e  eot1
+ M e1h22  1t1
+for some M   0 Choose h 
+log1  Thus
+lim sup
+t
+for some M  0 Therefore by Chebychevs inequality
+ f sdsi  M   1t1  eMt
+htZ t
+N ss2ds 
+log Pcid18 1
+hcid19  M 
+which holds for any   0 Letting   0 we get the desired result
+Lemma 23 Assume Nt is a usual Poisson process with constant rate  Then
+for any   0
+cid3
+lim sup
+lim sup
+
+t
+log P cid18 1
+N 0 1N 01sds  cid19  
+LINGJIONG ZHU
+Proof Let h be some function of  to be chosen later Following the same
+argument as in the proof of Lemma 22 we have
+eht
+N 0 1N 01sds  htcid19
+0 N 01N 01sdsi eht
+Pcid18hZ t
+ Eheh R t
+ EhehN 01N 01it1
+PN 0 1   
+1  C1
+n1  C2ehloglogot1
+kt1
+ehklogklogkkt1
+ehke k
+eht
+eht
+eht
+cid3
+Choosing h  log12 will do the work
+The following Lemma 24 provides us the superexponential estimates that we
+need These superexponential estimates have basically been done in Lemma 21
+The dierence is that in the statement in Lemma 21 we used  and in Lemma 24 it
+is changed to t which is what we needed Lemma 24 has three statements Part i
+says if you start with a sequence of simple point processes the limiting point process
+may not be simple but that has probability that is superexponentially small Part
+ii is the usual superexponential we would expect if MS were equipped with
+weak topology But since we are using a strengthened weak topology with the
+convergence of rst moment as well we will also need Part iii
+Lemma 24 We have the following superexponential estimates
+t
+lim sup
+lim sup
+N 02stds  gcid19  
+i For some g  0 as   0
+log Pcid18 1
+ii For some M   0 as M  
+log Pcid18 1
+iii For some m  0 as   
+log P cid18 1
+N 0 1N 01stds  mcid19  
+N 01M stds  M cid19  
+lim sup
+M
+lim sup
+lim sup
+lim sup
+
+t
+t
+Proof We can replace the  in the statement of Lemma 21 by g M  and m
+by a standard analysis argument We can also replace the  in Lemma 21 by t
+here since
+N 02stds Z t
+cid12cid12cid12cid12
+N 01M stds Z t
+cid12cid12cid12cid12
+N 02sdscid12cid12cid12cid12
+N 01M sdscid12cid12cid12cid12
+ 2
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+N 0 1N 01stds Z t
+N s s  1ds Z t
+cid12cid12cid12cid12
+ N t  1 t  1  N t  1 t  1t
+ N t  1 t  1  N t  1 t  N 0 1
+N 0 1N 01sdscid12cid12cid12cid12
+N s s  1tds
+By Lemma 20 we have the superexponential estimate for any   0
+lim sup
+t
+log P cid18 1
+t N t  1 t  1  N t  1 t  N 0 1  cid19  
+cid3
+Lemma 25 For any  M  0   0 dene
+A  Q  MS  QN 0   2  g 
+AM  Q  MS  QN 0 1  M   M  
+N 0 1dQ  m 
+A Q  MS ZN 01
+where M   0 as M   m  0 as    and g  0 as   0 Let
+AM  A  AM  A and
+j jj
+Then An is compact
+Proof Observe that for   0
+445 K 
+  N kk  1  k  N k  1 k  k
+are relatively compact sets in  Let K be the closure of K which is then
+compact
+For any Q  An QN 0 1  M   M  for any M  n We can choose  big
+enough and an increasing sequence k such that 1  n and  P
+k1 k  0
+LINGJIONG ZHU
+as    uniformly for Q  An
+Qcid16K
+N kk  1  k  N k  1 k  k
+ccid17  QK c
+ Q  
+QN k  1k    QN k  1 k  k
+k  0
+QN 0 1  k
+as    Therefore An is tight in the weak topology and by Prokhorov theorem
+An is precompact in the weak topology In other words for any sequence in An
+there exists a subsequence say Qn such that Qn  Q weakly as n   for
+some Q By the denition of An Qn are uniformly integrable which implies that
+R N 0 1dQn R N 0 1dQ as n   It is also easy to see that An is closed by
+j jj is closed That implies that Q  An Finally we need to
+checking that each A 1
+check that Q is a simple point process Let Ij  j  1 j We have for any
+Q  An
+t  k k  N t t  2
+Q t  N t t  2  Q  
+k1 0
+jk1
+Xjk1
+m mn2kg
+m mn
+    Ij  2
+Q  Ij  2
+Hence An is precompact in our topology Since An is closed it is compact
+cid3
+5 Concluding Remarks
+In this paper we obtained a process-level large deviation principle for a wide
+class of simple point processes ie nonlinear Hawkes process Indeed the methods
+and ideas should apply to some other simple point processes as well and we should
+expect to get the same expression for the rate function HQ For HQ   it
+PROCESS-LEVEL LDP FOR NONLINEAR HAWKES POINT PROCESSES
+should satisfy
+HQ ZZ 1
+ s   s  log   s
+ s  sdsQd
+where  s is the intensity of the underlying simple point process Now it would
+be interesting to ask for what conditions for a simple point process would guarantee
+the process-level large deviation principle that we obtained in our paper First we
+have to assume that  t is predictable and progressively measurable Second
+from the proof of the upper bound in our paper the key assumption we used
+about nonlinear Hawkes processes was that limz
+z  0 That is crucial to
+guarantee the superexponential estimates we needed for the upper bound If for a
+simple point process we have  t  F N t  for some sublinear function F 
+we would expect the superexponential estimates still works for the upper bound
+Third it is not enough to have  t  F N t  for sublinear F  to get the
+full large deviation principle The reason is that in the proof of lower bound in
+particular in Lemma 9 we need to use the fact that if  t has memory the
+memory will decay to zero eventually over time For nonlinear Hawkes process
+0 htdt   which is crucial in the
+proof of Lemma 9 Indeed for any simple point process P  if you want to dene
+P 
+ the probability measure conditional on the past history  to make sense
+of it you have to have some regularities to ensure that the memory of the history
+will decay to zero eventually over time From this perspective nonlinear Hawkes
+processes form a rich and ideal class for which the process-level large deviation
+principle holds
+this is guaranteed by the assumption that R 
+Acknowledgements
+The author is enormously grateful to his advisor Professor S R S Varadhan
+for suggesting this topic and for his superb guidance understanding patience
+and generosity The author also wishes to thank an anonymous referee for helpful
+suggestions The author is supported by NSF grant DMS-0904701 DARPA grant
+and MacCracken Fellowship at NYU
+References
+1 E Bacry S Delattre M Homann and J F Muzy Scaling limits for Hawkes processes and
+application to nancial statistics Preprint 2011
+2 C Bordenave and G L Torrisi Large Deviations of Poisson Cluster Processes Stochastic
+Models 23 2007 593-625
+3 P Bremaud and L Massoulie Stability of nonlinear Hawkes processes Annals of Probability
+24 1996 1563-1588
+4 D J Daley and D Vere-Jones An Introduction to the Theory of Point Processes 1st Edition
+Springer-Verlag New York 1988
+5 A Dembo and O Zeitouni Large Deviations Techniques and Applications 2nd Edition
+Springer New York 1998
+6 M D Donsker and S R S Varadhan Asymptotic evaluation of certain Markov process
+expectations for large time IV Communications of Pure and Applied Mathematics 36 1983
+183-212
+7 J Grandell Point processes and random measures Advances in Applied Probability 9 1977
+502-526
+8 A G Hawkes Spectra of some self-exciting and mutually exciting point processes Biometrika
+58 1971 83-90
+9 T Liniger Multivariate Hawkes processes PhD thesis ETH 2009
+LINGJIONG ZHU
+10 R S Lipster and A N Shiryaev Statistics of Random Processes II Applications 2nd Edi-
+tion Springer 2001
+11 G Stabile and G L Torrisi Risk processes with non-stationary Hawkes arrivals Methodol
+Comput Appl Prob 12 2010 415-429
+12 S R S Varadhan Special invited paper large deviations Annals of Probability 36 2008
+397-419
+13 S R S Varadhan Large Deviations and Applications SIAM 1984
+14 L Zhu Large deviations for Markovian nonlinear Hawkes processes to appear in Annals of
+Applied Probability
+15 L Zhu Central limit theorem for nonlinear Hawkes processes Journal of Applied Probability
+50 2013 760-771
+Courant Institute of Mathematical Sciences
+New York University
+251 Mercer Street
+New York NY-10012
+United States of America
+E-mail address lingcimsnyuedu

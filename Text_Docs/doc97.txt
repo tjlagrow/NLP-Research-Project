@@ -1,1474 +1,272 @@
-Inference of RNA Polymerase II Transcription Dynamics from
-Chromatin Immunoprecipitation Time Course Data
-Ciira wa Maina1 Antti Honkela2 Filomena Matarese3 Korbinian Grote4 Hendrik G Stunnenberg 3
-George Reid5 Neil D Lawrence6 Magnus Rattray7
-1 Department of Electrical and Electronic Engineering Dedan Kimathi University of
-Technology Nyeri Kenya
-2 Helsinki Institute for Information Technology HIIT Department of Computer Science
-University of Helsinki Helsinki Finland
-3 Nijmegen Centre for Molecular Life Sciences Radboud University Nijmegen NL
-4 Genomatix Software GmbH Muenchen Germany
-5 Institute for Molecular Biology Mainz Germany
-6 Department of Computer Science University of Sheeld Sheeld UK
-7 Faculty of Life Sciences University of Manchester Manchester UK
- E-mail cwamainadekutgmailcommagnusrattraymanchesteracuk
-nlawrencesheeldacuk
-Abstract
-Gene transcription mediated by RNA polymerase II pol-II is a key step in gene expression The
-dynamics of pol-II moving along the transcribed region inuence the rate and timing of gene expression
-In this work we present a probabilistic model of transcription dynamics which is tted to pol-II occupancy
-time course data measured using ChIP-Seq The model can be used to estimate transcription speed and
-to infer the temporal pol-II activity prole at the gene promoter Model parameters are estimated
-using either maximum likelihood estimation or via Bayesian inference using Markov chain Monte Carlo
-sampling The Bayesian approach provides condence intervals for parameter estimates and allows the
-use of priors that capture domain knowledge eg the expected range of transcription speeds based on
-previous experiments The model describes the movement of pol-II down the gene body and can be used
-to identify the time of induction for transcriptionally engaged genes By clustering the inferred promoter
-activity time proles we are able to determine which genes respond quickly to stimuli and group genes
-that share activity proles and may therefore be co-regulated We apply our methodology to biological
-data obtained using ChIP-seq to measure pol-II occupancy genome-wide when MCF-7 human breast
-cancer cells are treated with estradiol E2 The transcription speeds we obtain agree with those obtained
-previously for smaller numbers of genes with the advantage that our approach can be applied genome-
-wide We validate the biological signicance of the pol-II promoter activity clusters by investigating
-cluster-specic transcription factor binding patterns and determining canonical pathway enrichment We
-nd that rapidly induced genes are enriched for both estrogen receptor alpha ER and FOXA1 binding
-in their proximal promoter regions
-Author Summary
-Cells express proteins in response to changes in their environment so as to maintain normal function
-An initial step in the expression of proteins is transcription which is mediated by RNA polymerase II
-pol-II To understand changes in transcription arising due to stimuli it is useful to model the dynamics
-of transcription We present a probabilistic model of pol-II transcription dynamics that can be used
-to compute RNA transcription speed and infer the temporal pol-II activity at the gene promoter The
-inferred promoter activity prole is used to determine genes that are responding in a coordinated manner
-to stimuli and are therefore potentially co-regulated Model parameters are inferred using data from high-
-throughput sequencing assays such as ChIP-Seq and GRO-Seq and can therefore be applied genome-wide
-in an unbiased manner We apply the method to pol-II ChIP-Seq time course data from breast cancer
-cells stimulated by estradiol in order to uncover the dynamics of early response genes in this system
-Introduction
-Transcription mediated by RNA polymerase II pol-II is an essential process in the expression of protein-
-coding genes in eukaryotes Transcription is dependent upon a number of sequential and dynamic events
-such as recruitment of pol-II to the transcriptional start site activation of pol-II through phosphorylation
-of its C-terminal domain elongation of the nascent transcript through the transcribed region and termi-
-nation 1 Each of these steps may be rate-limiting and can therefore aect the level of gene expression
-In this manuscript we describe a simple probabilistic model of transcription whose parameters can be
-inferred using time-series data such as pol-II ChIP-Seq data 2 or nascent transcript measurement by
-GRO-Seq that reports markers of transcriptional activity 3 This model can be used to identify tran-
-scriptionally engaged genes estimate their transcription rates and infer transcriptional activity adjacent
-to the promoter The transcriptional dynamics of estrogen responsive genes in a breast cancer cell line
-were described by tting this model to pol-II ChIP-seq time course datasets
-Chromatin immunoprecipitation in conjunction with massively parallel sequencing ChIP-seq eval-
-uates interactions between proteins and DNA and for example can be used to monitor the presence of
-pol-II on DNA Estimating the amount of pol-II associated with a transcribed gene provides a measure
-of transcriptional activity 2 Sequential measurement of pol-II occupancy on genes released from tran-
-scriptional blockade for example in response to stimuli reveal a wave of transcription moving through
-the body of the responding transcript
-A number of studies have attempted to determine the rate of transcription through modelling the
-dynamics of pol-II Darzacq et al t a mechanistic model of pol-II transcription to nascent RNA data at
-a single locus and obtained a transcription speed of 43 kilobases per minute 4 Wada et al activated
-transcription of genes greater than 100 kbp in length and estimated the transcription speeds using a
-model that measures an intronic RNA signal through taking advantage of co-transcriptional splicing
-They obtain an average transcription rate of 31 kbp min1 5 Singh and Padget 2009 reversibly
-inhibit transcription to determine the transcription rate of 9 genes all of which were greater than 100 kbp
-which had an average transcription rate of 379 kbp min1 6 The data used in these studies have good
-temporal resolution eg samples every 75 min in 5 and reliably allow tting of mathematical models or
-the direct measurement of transcription speed however only for a limited set of long genes In contrast
-high throughput data sets such as ChIP-Seq can be used to uncover transcription dynamics genome-wide
-but typically have much lower temporal resolution motivating the development of alternative modelling
-approaches that report genome-wide transcription rates
-One way around the low temporal resolution of typical high-throughput time course data is to employ
-a non-parametric model of the biological signals of interest In many cases we expect these signals to
-vary continuously and smoothly in time when averaged over a cell population and a Gaussian process
-model provides a convenient non-parametric model in such cases 7 Gaussian processes have recently
-found applications in a range of biological system models 811
-Here we present a Gaussian process model of transcription dynamics which can be tted to genome-
-wide pol-II occupancy data measured using ChIP-Seq The model describes the movement of pol-II
-through the gene body and combines a exible model of promoter-proximal pol-II activity with a reliable
-estimate of transcription speed By identifying genes which t the model well we provide a useful method
-to identify actively transcribed genes The model does not assume a constant transcription speed and
-can therefore identify variable rates of transcription for example due to transcriptional pausing Model
-parameters are inferred using either maximum likelihood ML estimation or via Bayesian inference using
-Markov chain Monte Carlo MCMC sampling The Bayesian approach provides condence intervals for
-parameter estimates and can incoporate priors that capture domain knowledge eg the expected range
-of transcription speeds based on previous experiments
-We t our model to a pol-II ChIP-Seq time course dataset from MCF7 breast cancer cells stimulated
-with estradiol The model is used to identify the set of transcriptionally engaged genes and estimate their
-mean transcription rate and transcriptional activity near the promoter By clustering promoter activity
-proles potential co-regulated groups of genes are identied particularly those that respond rapidly to
-estrogen signalling Subsequent characterisation of transcription factor TF binding sites in proximity
-to the promoters of genes within clusters provides a means of classifying groups of promoters that are
-responsive to the binding of specic combinations of TFs Additionally publically available ChIP-Seq
-datasets of TF proles from the same system were used to identify cluster-specic patterns in TF-binding
-The rates of transcription estimated by our model are consistent with the literature 4 5 but with the
-advantage that our method allows the computation of transcription speeds genome-wide
-Our methodology has a number of advantages We do not require data with high temporal resolution
-making it feasible to model transcriptional dynamics genome-wide using ChIP-Seq or GRO-Seq time
-course data We infer transcription rates for all genes in an unbiased manner and by using Bayesian
-parameter estimation we are able to associate our transcription rate estimates with condence intervals
-Our model is non-parametric and therefore does not make very strong assumptions about the temporal
-changes in transcriptional activity Fitting the model genome-wide allows us to identify and lter out
-transcripts where pol-II does not travel down the gene body This provides a principled method to
-identify responsive genes in particular early acting estrogen responsive genes in the specic application
-considered here Since our model does not enforce a uniform transcription speed over the entire gene
-body we can take into account phenomena such as pol-II pausing which would result in a non-uniform
-transcription speed We also use this model to infer the promoter activity of transcriptionally engaged
-genes to identify co-regulated gene modules downstream of estrogen signalling
-Methods
-Visualizing pol-II ChIP-seq reads mapped to transcriptional units at multiple time points following the
-addition of estradiol to MCF7 cells reveals the motion of pol-II through the gene body of estrogen re-
-sponsive genes see Figure 1 Computing the average pol-II occupancy over successive gene segments
-describes the motion of the transcription wave Thereafter tting a model capable of smoothly interpo-
-lating between observed time points and by determining the time taken for pol-II to move from one gene
-segment to the next determines if pol-II is transcriptionally engaged on a given transcript and the speed
-at which it is moving through this transcriptional unit We use a convolved Gaussian process to model
-the relationship between the pol-II signal at dierent regions of the gene and across time Model pa-
-rameters are determined using maximum likelihood ML or Bayesian inference via Markov chain Monte
-Carlo MCMC to determine genes of interest and moreover in the case of MCMC determine condence
-intervals for our parameter estimates
-Convolved Gaussian Process Model
-A Gaussian process GP is a distribution over the space of functions This distribution is completely
-specied by a mean function mt and a covariance function kt tcid48 A function f t is said to be drawn
-from a Gaussian process GPmt kt tcid48 if f t at any nite collection of points has a multivariate
-Gaussian distribution with mean vector and covariance matrix specied by mt and kt tcid48 respectively
-GPs provide a powerful framework for non-parametric regression 7 If a function is assumed to be drawn
-from a GP with known mean and covariance function we can infer the function value and associated
-uncertainty at unobserved locations given noise-corrupted observations GPs have recently been applied
-in modelling biological systems eg modelling protein concentrations as latent variables in dierential
-equation models of transcriptional regulation 8 9 and modelling spatial gene expression 11
-Figure 1 Pol-II ChIP-seq data for the TIPARP gene shows a transcription wave moving down the
-gene The transcription dynamics model captures this motion and allows us to estimate transcription
-speeds In this case the gene is divided into 5 segments and we estimate the speed to be approxiamtely
-2 kilobases per minute Figure A shows the raw ChIP-seq reads at dierent times between 0 and 320
-min The top panel of Figure B shows the inferred promoter activity prole The next ve panels show
-the inferred proles for the ve gene segments corresponding to 0  20     80  100 of the gene
-By clustering these promoter activity proles as shown in Figure C we are able to group genes into
-clusters that are likely to be co-regulated and in particular we identify the clusters that respond most
-rapidly to estrogen signalling
-Here we introduce a novel application of GPs to modelling the spatio-temporal dynamics of pol-II
-1 E2 responsive genes2 Transcription speeds                        Promoter Activity Clusters3 Promoter activity profilesCAB80100608040602040  0205
-occupancy during transcription Convolved GPs allow the modelling of correlations between multiple
-coupled data sources
-In our case these data sources are the pol-II occupancy over time collected at
-dierent locations along the transcribed region of a gene Modelling the data as a convolved process
-borrows information from these dierent data sources in estimating the model parameters and inferring
-the underlying signal in the data Also we nd that convolved GPs are necessary to account for changes
-in the shapes of signals observed at dierent regions of the gene In linear systems theory the output
-yt of a linear time-invariant system whose impulse response is ht is given by the convolution of the
-input xt and ht that is yt cid82 
- h xt  d  If dierent sets of observations are believed to be
-related they can be modeled as the outputs of dierent linear systems in response to a single input If
-this input is modeled as a GP then it will form a joint GP together with all the outputs and data from
-one output stream will be useful in inferring the rest 1220 In our case incorporating the data from
-multiple spatially separated regions of the genes allows us to infer an underlying function that links all
-these regions This proves useful as a summary of the transcription dynamics of the gene and we show
-that it provides useful insights into potential coregulation
-Model Description
-In order to capture the movement of the transcription wave through transcriptional units we divide each
-gene into I segments and compute time series of pol-II occupancy for each of the segments Due to the
-low temporal resolution characteristic of high-throughput datasets the time series between measurements
-must be inferred To this end we model the pol-II occupancy yit in each segment i  1     I as the
-convolution of a latent process f t which is shared by all segments and a possibly delayed smoothing
-kernel ki  Di corrupted by an independent white Gaussian noise process it with zero mean and
-variance 2
-i 15 16 That is
-yit  i
-f t   ki  Did  it
-cid90 
-where i is a scale factor and Di is the delay of each segment The latent process f t is modeled as
-a random function drawn from a GP with zero mean and a squared exponential covariance function
-dened in Equation 4 below The smoothing kernel is assumed to be Gaussian that is
-cid32
-cid33
-ki  
-2cid96i
-  2
-2cid962
-The estimated delay Di of each smoothing kernel models the amount of time it takes the transcription
-wave to reach the corresponding gene segment This is used to estimate the transcription speed Bio-
-logically the latent function can be thought of as modeling activity at the promoter while the smoothing
-kernel accounts for diusion of the transcription wave This diusion phenomenon is observed when time
-series of pol-II occupancy over dierent sections of a gene are plotted with the transcription wave seen
-to spread out see Figure 4 This phenomenon may be due to an initially synchronized cell population
-becoming less synchronized over time resulting in broadening of the pol-II occupancy distribution over
-time The parameter cid96i captures the amount of spread observed at the ith segment It also serves as
-a measure of the loss of synchrony between the cells of the population when the transcription wave is
-observed at the ith segment
-Using equation 1 we can compute the covariance between the pol-II occupancy at various segments
-of the gene We have
-covyit yjtcid48  ij
-cid90 
-cid90 
-kf t   tcid48  cid48ki  Dikjcid48  Djd dcid48  2
-i ijttcid48
-Equation 3 can be evaluated in closed form using the fact that the product of two Gaussians yields an
-un-normalized Gaussian 7 Exploiting this fact we get
-kf t tcid48  2
-covyit yjtcid48  ij
-cid113
-f cid96f
-cid962
-f  cid962
-i  cid962
-Similarly
-covf t yitcid48  i
-f cid96fcid113
-cid962
-f  cid962
-cid32
-2cid962
- t  tcid482
-cid32
-cid33
- tcid48  t  Di  Dj2
-i  cid962
-cid33
-cid32
-f  cid962
-2cid962
- tcid48  t  Di2
-f  cid962
-2cid962
-cid33
-i ijttcid48
-Parameter Estimation and Inference
-Let yi  yi1     yiN cid62 be a vector of observations of pol-II occupancy over the ith gene segment and
-let Y  ycid62
-I cid62 be a vector formed by concatenating all the observations for a single gene N is
-the number of observation time points and I is the number of gene segments so for a single gene Y is a
-vector of length N I We have
-1      ycid62
-
-pf  Y  N f  Y 0 K
-Kf f Kf y1
-Ky1f Ky1y1
-   Kf yI
-   Ky1yI
-   KyIyI
-
-and   f  cid96f i Di cid96i iI
-i1 are the parameters of our model which will be tted on a gene by gene
-basis The elements of K are computed using equations 4 5 and 6 By marginalizing over the latent
-function f  we obtain the marginal likelihood pY Maximum likelihood estimates of the parameters
- are readily obtained by maximizing the log marginal likelihood using gradient-based optimisation
-For a fully Bayesian approach we take advantage of the fact that the parameters are positive and
-bounded We transform the parameters using a logit transform and work with unconstrained variables
-We place a Gaussian prior over the parameters in the transformed domain and draw samples from the
-posterior using the Hamiltonian Monte Carlo HMC algorithm 21 A more detailed description of the
-priors is included in the supplementary material
-Code to implement the method is freely available as a Python package PyPol-II which can be
-downloaded from httpsgithubcomciiramPyPolII
-Estimation of Average Transcription Speed
-When tting the model we x D1  0 to ensure identiability The average transcription speed is
-computed by assuming that the value of Di is an indicator of how long it takes the transcription wave
-to reach the corresponding gene segment That is D2 is the amount of time it takes to transcribe 20
-of the gene D3 40 etc To obtain condence intervals on the delay estimates MCMC was performed
-to get samples of the parameters
-To compute the average transcription speed we plot the position along the gene in base pairs bp
-versus the delay in minutes and compute a linear regression through the origin The slope of the regression
-line gives us the transcriptional speed Each sample of the parameters provides a set of delay estimates
-from which we obtain a speed estimate
-Alternative Methods for Time Delay Inference
-A key component of our method involves the estimation of delay between time series observed at dierent
-segments of the gene The study of time delay between related time series has received attention from
-a number of researchers for a long time 22 The application areas range from signal processing to
-astronomy 23 The classic approach to time delay estimation involves computing the cross-correlation
-between the related time series and determining the value of delay for which this function is maximised
-Consider two signals y1t and y2t given by
-y1t  f t  n1t
-y2t  f t  D  n2t
-where n1t and n2t are uncorrelated noise processes The cross-correlation function is given by
-Ry1y2   Ey1ty2t    where E denotes the expectation operator The value of  that max-
-imises Ry1y2  yields an estimate of the delay D When the signals are sampled at N equally spaced
-time points t0     tN1 with spacing T between samples the discrete time equivalent of Ry1y2  is
-readily estimated Let y1n  y1nT  the discrete cross-correlation is estimated as
-Ry1y2 kT  
-y1ny2n  k
-N1kcid88
-The delay is estimated by nding the value of k for which Ry1y2kT  is maximised The corresponding
-delay estimate is kT  However this approach doesnt work well when the time series are unevenly sampled
-as is the case in several astronomical and biological studies A number of techniques have been developed
-to handle unevenly sampled time series including the discrete correlation function DCF 24 and the
-more recent kernel based approaches 2526 The DCF is computed as follows for all i j  0     N 1
-the time dierences ij  titj are binned into discrete bins of size   The DCF at  is given by 2425
-DCF   
-S 
-ijS 
-y1i  y1y2j  y2
- 2
- 2
-cid88
-cid113
-and 2
-variances
-and 2
-S   i jij        
-are the variances of the observation streams while 2
-In the kernel based approach of 25 the underlying function f t of equation 9 is modelled as the
-sum of a xed number of kernels centered at the observation times That is
-and 2
-are observation error
-N1cid88
-cid32
-f t 
-iKci t
- t  ci2
-cid33
-Kci t  exp
-The value of D that minimises the estimation error is the delay estimate Our implementation follows
-that presented in 25 where we assumed a xed kernel width This kernel width is determined by leave
-one out cross-validation
-Benchmark Data
-We used synthetic data and previously published experimental data to assess our novel methods perfor-
-mance To generate the synthetic data the underlying function f t of equation 9 was given as a sum
-of Gaussian kernels That is
-cid32
-Ncid88
-cid33
- t  ci2
-f t 
-i exp
-N was xed at 20 and the observation interval t  0 10 i i and ci were generated at random
-with i  0 1 i  05 15 and ci  25 5 A random delay D  1 25 was used to generate
-the observations which were corrupted by additive Gaussian noise with n  0001 To determine the
-eect of number of observations on the quality of inference we compute the Median Normalised Square
-Error MNSE of the estimated delay
-as a function of the number of observations for 50 random
-realisations of the the signals We also investigated the eect of distorting the shape of the observed
-signals by introducing convolution
-In real signals the restriction that the shape remains unchanged
-sometimes leads to poor results The parameters of the smoothing kernel in equation 1 were generated
-at random with i  0 1 and cid96i  0625 25
-cid107D Dcid1072
-cid107Dcid1072
-To assess performance of our method on a well characterised real-world dataset we obtained a dataset
-from Singh and Padgett 6 where the delay in appearance of pre-mRNA signal at exon-intron junctions
-was used to compute estimates of transcription speed for 9 genes To generate the data transcription
-was reversibly inhibited in vivo using 56-dichlorobenzimidazole 1-beta-D-ribofuranoside DRB and the
-pre-mRNA measured after the inhibitor was removed As veried by the authors the kinetics of pol-II
-and pre-mRNA are similar hence we expect good performance on this dataset to indicate applicability of
-our method to pol-II ChIP-seq data
-pol-II ChIP-Seq Data
-To demonstrate an application to pol-II ChIP-Seq data we apply our model to investigate the tran-
-scriptional response to Estrogen Receptor signalling ChIP-seq was used to measure pol-II occupancy
-genome-wide when MCF-7 breast cancer cells are treated with estradiol E2 Cells were put in estradiol
-free media for three days This is dened media devoid of phenol red which is estrogenic containing 2
-charcoal stripped foetal calf serum The charcoal absorbs estradiol but not other essential serum compo-
-nents such as growth factors This results in basal levels of transcription from E2 dependent genes The
-cells are then incubated with E2 containing media which results in the stimulation of estrogen responsive
-genes The measurements were taken at logarithmically spaced time points 0 5 10 20  320 minutes
-after E2 stimulation
-Raw reads were mapped onto the human genome reference sequence NCBI build37 using the Geno-
-matix Mining Station software version 321 The mapping software on the Mining Station is an index
-based mapper that uses a shortest unique subword index generated from the reference sequence to identify
-possible read positions A subsequent alignment step is then used to get the highest-scoring matches
-according to the parameters used We used a minimum alignment quality threshold of 92 for mapping
-and trimmed 2 basepairs from the ends of the reads to account for deterioration in read quality at the
-3 end The software generates separate output les for uniquely mapped reads and reads that have
-multiple matches with equal score We only used the uniquely mapped reads On average about 66 of
-all reads could be mapped uniquely The data are available from the NCBI Gene Expression Omnibus
-under accession number GSE44800
-Time series of pol-II occupancy over various segments of genes were computed in reads per million
-RPM 27 using BEDtools 28 29 The genes were divided into 200bp bins and the RPM computed for
-each bin The occupancy in a particular gene segment was the mean RPM of the bins in that segment
-Here the gene is divided into ve segments each representing 20 of the gene
-Results
-Assessment on Benchmark Data
-We rst applied our methodology to synthetic data in order to compare its performance to other methods
-We investigated the performance of ve methods namely cross-correlation Corr DCF the kernel ap-
-proach of 25 Kern a GP approach with no convolution GP-NoConv and the convolved GP approach
-developed in this paper GP-Conv Tables 1 and 2 show the MNSE for the dierent delay estimation
-methods as a function of the number of observations for synthetic data without convolution and with
-convolution respectively Note that the kernel and DCF methods require an estimate of the noise variance
-and in this simulation study we provide the algorithms with the true value but that would not be known
-in practice We see that when no convolution is introduced the kernel method performs well but is
-outperfomed by both GP methods When convolution is introduced the kernel method appears to break
-down and as expected the GP-Conv outperforms the other techniques
-We next applied the model to pre-mRNA data from Singh and Padgett 6 where the delay in ap-
-pearance of pre-mRNA signal at exon-intron junctions was used to compute estimates of transcription
-speed for 9 genes Figure 2 shows the pre-mRNA signal for the SLC9A9 gene the same data shown in
-Figure 4d of 6 The delays read from these plots were used in 6 to determine transcription speeds
-Figure 3 shows the t obtained using the kernel method GP-NoConv and GP-Conv respectively Table
-3 shows the delays read o the plots as well as values obtained using the ve delay estimation algorithms
-for dierent regions of the nine genes presented in 6 In each row the delay estimate with the lowest
-normalised square error is highlighted Table 4 shows the MNSE for the ve delay estimation algorithms
-for all the genes We see that the convolved GP method developed in this paper outperforms the other
-techniques This method has the added advantage of inferring a latent function which links all the ob-
-servations and which can be used for downstream analysis Also when analysis is genome-wide reading
-delays o individual plots is not feasible and furthermore when the sampling intervals are irregularly
-spaced assigning delays manually would be error prone These results serve to justify the use of the
-convolved GP method introduced in this paper
-Number of
-Observations Corr DCF Kern 25 GP-NoConv GP-Conv
-016e-3
-00076e-3
-00018e-3
-017e-3
-0012e-3
-00014e-3
-Table 1 MNSE as a function of the number of observations with no convolution
-Application to Estrogen Response ChIP-Seq Data
-We applied our method to a ChIP-Seq time-course dataset measuring pol-II occupancy genome-wide
-when MCF-7 cells are treated with estradiol E2 For our initial experiment we considered 3064 genes
-which exhibit signicant increase of pol-II occupancy between 0 and 40 minutes after E2 treatment These
-genes were determined by counting the number of pol-II tags on the annotated genes in the RefSeq hg19
-assembly at 0 and 40 minutes after E2 treatment and computing the log2 ratio of these counts We keep
-Number of
-Observations Corr DCF Kern 25 GP-NoConv GP-Conv
-0053e-3
-00057e-3
-00021e-3
-0011e-3
-17000e-3
-16000e-3
-17000e-3
-23000e-3
-016e-3
-0098e-3
-0018e-3
-0028e-3
-Table 2 MNSE as a function of the number of observations with convolution
-Figure 2 Pre-mRNA espression at exon-intron junctions for the SLC9A9 gene
-those genes where this quantity is greater than one standard deviation above the mean For these 3064
-genes we ltered out genes less than 1000bp in length and computed model ts using the ChIP-seq time
-series data for the remaining 2623 genes The estimation of the parameters f  cid96f i Di cid96i i5
-i1 for
-a given gene was performed using maximum likelihood with D1 xed at zero f  1 and the values i
-constrained to be equal Intuitively one would expect the values of delay Di5
-i1 to be non-decreasing
-We therefore keep only those genes where this natural ordering is preserved for further analysis We also
-discard genes with cid96f  10 and cid96f  200 since these are generally seen to be poor ts Small values
-of cid96f arise when the data is best modelled as a noise process while large values model constant proles
-which are not interesting in our analysis This left us with 383 genes which we consider a conservative
-set of genes where there is evidence of engaged transcription and where the model parameters can be
-condently estimated To rank these genes we compared the log marginal likelihood of the model t
-to that obtained if we assume independence between the segments which is equivalent to setting the
-o-diagonal blocks in equation 8 to the zero matrix
-Figure 4 shows the inferred pol-II time prole and histogram of the samples of the delay parameters for
-three of the top 10 genes found to t the model well We note that a relatively small number of activated
-050100150200250Time post-DRB min00020406081012141618Pre-mRNA expressionEx1-In1In15-Ex16Gene
-Utrophin
-Utrophin
-Utrophin
-Utrophin
-Utrophin
-CTNNBL1
-Ex1-Ex2
-Ex2-Ex50
-Ex50-Ex51
-Ex51-Ex74
-Ex1-Ex74
-Ex1-Ex5
-Ex5-Ex40
-Ex1-Ex40
-Ex1-Ex2
-Ex2-Ex3
-Ex1-Ex29
-Ex1-Ex20
-Ex1-Ex16
-Ex1-Ex20
-Ex1-Ex16
-min 6
-Corr DCF Kern
-NoConv Conv
-Table 3 Transcription time estimates for dierent delay estimation algorithms using the pre-mRNA
-data from 6 When sampling times are uneven cross-correlation results are omitted In each row the
-delay estimate with the lowest normalised square error is highlighted
-Corr DCF Kern 25 GP-NoConv GP-Conv
-MNSE 0115
-Table 4 MNSE for the 5 delay estimation algorithms for all the genes using pre-mRNA data
-genes t the model well This is primarily because for shorter genes the pol-II occupancy quickly rises
-over the whole gene such that the temporal resolution of the data cannot capture the wave as it traverses
-the gene body With a closer or more evenly spaced time course we would expect a good t for a greater
-proportion of activated genes
-Figure 5a shows the linear regression plots using the delay samples for the TIPARP gene Figure
-5b shows the histogram of speed samples from which we can compute the condence interval for the
-speed estimate The 95 condence interval is indicated in Figure 5b by the red triangle markers cf
-Table 5 Table 5 shows the average transcription speeds for the top 10 genes computed using the samples
-of the delay parameters Figure 6 shows a box plot of the average transcription speeds computed using
-the samples of the delay parameters for these genes
-The advantage of tting each of the delay parameters independently instead of enforcing a linear
-relationship is that it allows us to take into account phenomena such as pol-II pausing and provides a
-means to lter genes where the values of estimated delay are not naturally ordered Visual inspection
-of the inferred time series of the top ranked genes is consistent with a transcription wave traversing
-the gene The transcription wave is especially evident in the longer genes MYH9 and RAB10 This
-motivates a closer look at long genes Table 6 shows the average transcription speeds computed using
-the samples of the delay parameters for the 23 long genes found to t the pol-II dynamics model well
-Grouping these genes according to the magnitude of the median transcription speed allows us to compare
-our results to those presented previously From Table 6 we see that 12 52 of these genes have average
-transcription speeds between 2 and 4 kb per minute a range that includes speeds previously reported in
-the literature 5 6
-Length bp
-25 50 975
-Table 5 Transcription speed in kilobases per minute for the top ten genes that t the transcription
-model well We use a Bayesian MCMC method for parameter estimation which provides the posterior
-distribution of the transcription speed We show the 25 50 and 975 percentiles of the posterior
-distribution
-ARHGEF10L
-EPB41L1
-EPS15L1
-KIAA0232
-Length bp
-25 50 975
-Table 6 Transcription speed in kilobases per minute for long genes between 100 and 300 kilobases long
-Clustering of Promoter Activity Proles
-The inferred latent functions for each gene model the pol-II activity adjacent to the promoter Clustering
-these proles and examining the average proles of each cluster allows us to visualise the general trends
-and also classify genes according to the immediacy and nature of the response This provides an alter-
-native to clustering based on mRNA abundance data from microarray or RNA-Seq experiments which
-is regulated both by mRNA production and degradation processes The production of mRNA may be
-delayed relative to the actual activation of transcription at the promoter causing genes which are actu-
-ally triggered at the same time to show dierent rates of mRNA production Dierences in degradation
-rate can also inuence mRNA abundance proles It may therefore be dicult to distinguish early and
-delayed transcriptional regulation from mRNA abundance data
-To classify the proles we sample the mean of the latent function f t in equation 1 and use
-PUMA-CLUST 30 to cluster the genes PUMA-CLUST has the advantage of taking into account the
-uncertainty of the latent function when clustering the proles This uncertainty is computed from the
-posterior covariance of f t
-The 383 genes found to t the model well were grouped into 12 clusters Figure 7 with the optimal
-number of clusters determined by the Bayesian Information Criterion To determine the speed of the
-response in each cluster we compute the peak time of the mean prole for each cluster see Table 7 We
-used the Genomatix Pathway System GePS to look for enriched canonical pathways p-value  001
-in each cluster supplementary material Table 14 and performed a Gene Ontology GO analysis of
-the clusters using the DAVID tool 31 32 supplementary material Tables 15-17 showing that clusters
-are enriched for a number of dierent GO categories The GO analysis identied early peaking clusters
-such as 2 4 and 10 as enriched for nucleotide binding proteins consistent with many early genes being
-involved in downstream transcriptional regulation The clustering of the pair of genes JAK1 and JAK2
-in cluster 10 which has a prominent early peak suggests that the response of both genes to E2 is rapid
-and coordinated Since these genes are known to act together in several biological pathways such as
-the IL-6 signaling pathway and the IFN gamma signaling pathway their appearance in the same cluster
-suggests that the clustering is likely to reveal other biologically signicant relationships
-A closer look at the inferred pol-II promoter proles of some examples in cluster 10 the earliest
-peaking cluster and the corresponding inferred pol-II proles over the last 20 of the genes reveals the
-possible inuence of gene length on mRNA production and how clustering the inferred promoter proles
-can account for this inuence and uncover potential co-regulation Figure 8 shows the inferred promoter
-proles and the inferred pol-II proles over the last 20 for three genes CLN8 BRI3BP and JAK2 in
-cluster 10 Figure 9 shows the corresponding raw ChIP-seq reads The lengths of the genes to the nearest
-kilobase are 23 32 and 143 kb respectively We see that despite the last segment proles peaking at
-dierent times the promoter proles peak at approximately the same time The dierence in peak time
-over the nal segment of the gene is most likely due to the length of the genes and accounts for the amount
-of time the pol-II takes to move down the gene Such dierences would mask potential co-regulation if
-we attempted to cluster genes based on their mRNA proles
-In Hah et al
-3 GRO-seq was used to measure pol-II occupancy genome-wide when MCF-7 cells are
-treated with estradiol E2 at four time points 0 10 40 and 160 min after E2 treatment In addition
-steady state levels of mRNA for 54 genes were measured using RT-qPCR at ve time points 0 10 40
-160 and 320 min after E2 treatment These data show a delay of between 1-3hr between peaks in the
-pol-II occupancy at the 5 end of a gene and peaks in the mRNA steady state 3 Figure S4 These
-data include the mRNA measurement for 20 genes whose corresponding GRO-seq data peak is at 40
-minutes after E2 treatment Six of these genes namely CASP7 FHL2 GREB1 ITPK1 NRIP1 WWC1
-are found to t our pol-II model well with ChIP-seq data Table 8 shows the peak time of the inferred
-promoter prole Tp the peak time of the inferred pol-II prole over the last 20 of the gene Tlast the
-GRO-seq peak time as well as the mRNA peak time For the GRO-seq and mRNA peak times we show
-the peak times from Hah et al 3 Figure S4 which are limited to the nite set of sampling times We see
-that all mRNA peaks occur after Tlast The large value of Tlast for WWC1 which is a long gene  180 kb
-in length corresponds to a late peak in mRNA at 320 minutes This shows that the parameters obtained
-by our model are biologically plausible Based solely on the GRO-seq data these genes were grouped
-together in 3 since they show a peak at 40min However our modeling reveals a greater diversity in
-the nature of responses In fact the six genes appear in three dierent early response promoter prole
-clusters see Table 8
-In the supplementary material we compare the clustering obtained from the inferred promoter proles
-to that obtained if the time series of the raw ChIP-seq reads are clustered and show that our model has
-the potential to uncover relationships which may be missed if we only consider the raw ChIP-seq reads
-Cluster Peak Time min
-Table 7 Cluster peak time
-Cluster
-T20 GRO-seq Peak mRNA Peak
-Table 8 The peak time of the inferred promoter prole Tp the peak time of the inferred pol-II prole
-over the last 20 of the gene T20 the GRO-seq peak time as well as the mRNA peak time from
-3 Figure S4
-Transcription factor binding
-We investigated the TF peaks in a 40 kbp region around the gene transcription start site for all genes in
-each cluster using ChIP-seq data for a number of TFs measured under similar experimental conditions ie
-MCF-7 breast cancer cells treated with E2 in the cistrome database httpcistromeorg In earlier
-work on the estrogen interactome Fullwood et al 33 suggest that most long range interactions between
-TF binding sites and gene enhancers are limited to a range of about 20kb We therefore investigate the
-region from -20kb to 20kb relative to the TSS results for other regions around the TSS ranging from 1
-to 100 kb are shown in the supplementary material Tables 21 -24 Table 9 shows the number of genes
-with TF binding peaks for each cluster for 7 TFs namely ER 2 FoxA1 34 c-Fos 35 c-Jun 35
-c-MYC 36 SRC-3 37 TRIM24 38 We found that the TFs RAD21 39 CTCF 39 and STAG1 39
-are ubiquitously bound and not useful in uncovering cluster-specic TF binding We investigate the
-statistical signicance of the proportions of genes in each cluster with TF peaks in a 40kb neighborhood
-of the TSS by comparing the observed proportions to those we would expect in clusters of the same size
-drawn at random from the set of all genes In Table 9 statistically signicant p-value  005 proportions
-are indicated in red larger than expected and green lower than expected For p-values less than 001
-the associated p-values are indicated in parentheses according to the following scale  p  00001
-p  0001p  001
-Interestingly clusters 1 2 4 and 10 which show an early peak in the mean promoter prole are
-all enriched for ER and FOXA1 These clusters with the exception of cluster 4 were also found to be
-enriched for the ER motif near the promoter The enrichment of both ER and FOXA1 in these clusters
-is in line with conclusions drawn in Hurtado et al 40 where it was suggested FOXA1 mediates ER
-binding We also investigated the overlap of the binding sites for ER and FOXA1 both in the 151 genes
-belonging to these clusters and genome-wide using the peaks obtained from 2 ER and 34 FOXA1
-and reported in the cistrome database We investigated the 40kb region -20kbp to 20kbp relative to the
-TSS Table 10 shows the number of ER and FOXA1 peaks and the overlap Two peaks are said to
-overlap if they have at least one base pair in common We see that when we consider the rapid response
-genes in clusters 1 2 4 and 10 the percentage of overlap increases to 16 35220 whereas the overlap
-is 9 95611056 when we consider all genes The signicance associated with this elevated overlap is
-p0004 given the null hypothesis of a random gene list of the same size results for other regions around
-the TSS ranging from 1 to 100 kb are shown in the supplementary material Tables 25 -28 Taken
-together the results in Tables 9 and 10 identify genes that respond to E2 with clusters 1 2 4 and 10
-most likely to contain the earliest estrogen responsive genes
-Cluster
-10 38
-11 13
-12 37
-27 
-30 
-9 
-14 
-11 
-11 
-36 
-29 
-Table 9 Analysis of transcription factor binding in 40kbp regions of genes in gene clusters obtained
-from inferred promoter activity proles The number in parentheses in the rst column is the cluster
-size For each TF we show the number of genes with peaks Statistically signicant proportions p-value
- 005 are indicated in red larger than expected For p-values less than 001 the associated p-values
-are indicated in parentheses according to the following scale  p  00001 p  0001p  001
- of ER peaks  of FOXA1 peaks ER and FOXA1 overlap
-Clusters 1 2 4 and 10 151
-All genes  20000
-220 112
-86 44
-35 0004
-Table 10 Overlap of ER and FOXA1 binding in a 40 kb region around the TSS The numbers in
-parentheses in the rst column are the number of genes In each TF peak column we show the
-expected number of peaks in a set of random random genes of the same size in parentheses In the
-overlap column the associated p-value is shown in parentheses
-Discussion
-In this work we have presented a methodology for modelling transcription dynamics and employed it
-to determine the transcriptional response of breast cancer cells to estradiol To capture the movement
-of pol-II down the gene body we model the observed pol-II occupancy time proles over dierent gene
-segments as the delayed response of linear systems to the same input The input is assumed to be
-drawn from a Gaussian process which models the pol-II activity adjacent to the gene promoter Given
-observations from high-throughput data such as pol-II ChIP-Seq data we are able to infer this input
-function and estimate the pol-II activity at the promoter This allows us to dierentiate transcriptionally
-engaged pol-II from pol-II paused at the promoter and yields good estimates of transcriptional activity
-In addition to estimating the transcriptional activity at the promoter inferring the pol-II occupancy
-time proles over dierent gene segments allows us to compute the transcription speed We expect the
-delay parameters of dierent gene segments to be non-decreasing and this provides a natural way to
-determine genes that are being actively transcribed in response to E2
-Clustering the inferred promoter activity proles allows us to investigate the nature of the response
-and group genes that are likely to be co-regulated We found that the four clusters signicantly enriched
-for both ER and FOXA1 binding within 40kb according to public ChIP-Seq data were those that showed
-the earliest peak in pol-II activity at the promoter ER and FOXA1 ChIP peaks in the neighbourhood
-of these genes were also more likely to be overlapping than the average for ChIP-identied binding events
-of these TFs genome-wide This observation provides some support for the previously proposed role of
-FOXA1 as a mediator of early transcriptional response in estrogen signalling These results also show that
-our method can help regulatory network inference The inferred promoter activity proles pinpoint the
-times of transcriptional activation very accurately without confounding transcriptional delays As genes
-with similar inferred promoter activity proles are likely to have similar TF binding proles they are
-likely to be co-regulated as well The promoter proles should therefore lead to more accurate predictions
-of regulator-target relationships using time-course-based methods eg 9 than using expression time
-course data
-As well as modelling transcriptional speed and transcriptional activity proles the proposed modelling
-approach may have other useful applications For example recent research has uncovered a link between
-transcription dynamics and alternative splicing 41 It is believed that aberrant splicing can cause disease
-and a number of studies have tried to understand the mechanisms of alternative splicing 42 The
-proposed model can potentially be used to identify transcriptional pausing events and such results could
-be usefully combined with inference of splice variation from RNA-Seq datasets from the same system
-Also with the increasing availability of high-throughput sequencing data exploring multiple layered views
-of the transcription process and its regulation the convolved modelling approach developed here has the
-potential to be usefully applied to more complex coupled spatio-temporal datasets
-Acknowledgments
-We thank Nancy Bretschneider for running the mappings to generate the bed-les for this publication
-We thank Dr Jarnail Singh and Dr Richard A Padgett for making data from their paper available
-Figure 3 Fits for the SLC9A9 gene using the kernel method a and the two GP methods
-GP NoConv b and GP Conv c In the GP case we show the 95 condence interval using dashed
-lines In regions with no observations the uncertainty is large
-050100150200250Ex1-In1050100150200250Time minIn15-Ex16Ex1-In1050100150200250Time minIn15-Ex16ftEx1-In1050100150200250Time minIn15-Ex1619
-Figure 4 Inferred pol-II time proles obtained for three of the top ten genes using ChIP-seq data
-The top panel of each gure shows the inferred distribution of the latent funtion f t The next ve
-panels show the inferred proles for the ve gene segments corresponding to 0  20     80  100
-of the gene The gures on the right are the delay histograms
-Pol-II activity over different segments of the MYH9 gene 0-2020-4040-6060-80050100150200250300350Time min80-100D2D3D40510152025303540D5Histogram of Delay parameters for the MYH9 geneHistogram of Delay parameters for the MYH9 geneHistogram of Delay parameters for the MYH9 geneHistogram of Delay parameters for the MYH9 genePol-II activity over different segments of the TIPARP gene 0-2020-4040-6060-80050100150200250300350Time min80-100D2D3D4051015202530D5Histogram of Delay parameters for the TIPARP geneHistogram of Delay parameters for the TIPARP geneHistogram of Delay parameters for the TIPARP geneHistogram of Delay parameters for the TIPARP genePol-II activity over different segments of the RAB10 gene 0-2020-4040-6060-80050100150200250300350Time min80-100D2D3D4020406080100D5Histogram of Delay parameters for the RAB10 geneHistogram of Delay parameters for the RAB10 geneHistogram of Delay parameters for the RAB10 geneHistogram of Delay parameters for the RAB10 gene20
-Figure 5 Linear regression plots using the delay samples for the TIPARP gene a and the histogram
-of speed samples b The 95 condence interval is indicated in a by the dashed red lines with the
-median represented by the solid red line In b the 95 condence interval is indicated by the red
-triangle markers cf Table 5
-Figure 6 Box plot of speed estimates for the top ten genes found to t the transcription model well
-051015202530Time min05000100001500020000250003000035000Position bpPosition along gene vs Time min for the TIPARP gene121416182022242628Transcription speed kb per min010203040506070Histogram of transcription speed samples for the TIPARP geneTPM1WDR1TIPARPRHEBMYH9ACTN1PDLIM7ATP2A2RAB10AKAP1Gene0510152025Transcription Speed kbpmin21
-Figure 7 Clusters of promoter activity proles The mean prole in each cluster is shown by the bold
-Cluster 1Cluster 2Cluster 3Cluster 4Cluster 5Cluster 6Cluster 7Cluster 8Cluster 904080160320Cluster 1004080160320Time minCluster 1104080160320Cluster 1222
-Figure 8 Inferred promoter proles and pol-II activity over the nal 20 of the gene for three genes
-in cluster 10
-020406080100120140160Time minInferred promoter activity for the CLN8 gene Peak Time 21 min020406080100120140160Time minInferred Pol-II activity over the last 20 of the CLN8 gene Peak Time 30 min020406080100120140160Time minInferred promoter activity for the BRI3BP gene Peak Time 24 min020406080100120140160Time minInferred Pol-II activity over the last 20 of the BRI3BP gene Peak Time 40 min020406080100120140160Time minInferred promoter activity for the JAK2 gene Peak Time 23 min020406080100120140160Time minInferred Pol-II activity over the last 20 of the JAK2 gene Peak Time 78 min23
-Figure 9 ChIP-seq reads for three genes in cluster 10 CLN8 BRI3BP and JAK2
-chr81715000172000017250001730000CLN80 min20 -0 10 min20 -0 40 min20 -0 80 min20 -0 160 min20 -0 chr12125485000125490000125495000125500000125505000125510000BRI3BP0 min20 -0 10 min20 -0 40 min20 -0 80 min20 -0 160 min20 -0 chr950500005100000JAK20 min40 -0 10 min40 -0 40 min40 -0 80 min40 -0 160 min40 -0 Supplementary information
-i1 are positive and bounded In the experiments we use
-The parameters   f  cid96f i Di cid96i iI
-the bounds shown in Table 11 with D1 xed at zero f  1 and the values i tied to single value To
-determine the delay bounds we assume that the value of Di is an indicator of how long it takes the
-transcription wave to reach the corresponding gene segment That is D2 is the amount of time it takes
-to transcribe 20 of the gene D3 40 etc We obtain the length L of the gene from the hg19 annotation
-and use values of maximum and minimum expected speed smin and smax respectively to compute the
-delay bound For example
-and Dmax
-We use smin  50 bp min1 and smax  50 kbp min1 These large bounds allow unbiased estimation
-of transcription speed Recent work on individual cells suggests speeds as high as 50kb per minute are
-possible 43
-We transform the parameters using a logit transform and work with unconstrained variables For a
-parameter    with corresponding minimum and maximum bounds min and max respectively we
-compute the transfromed variable 
-cid16   min
-max  
-cid17
-  log
-We place a Gaussian prior over the parameters in the transformed domain and draw samples from the
-posterior using the Hamiltonian Monte Carlo HMC algorithm 21 We have
-  N 0 
-With    2 we obtain an approximately uniform prior in the untransformed domain yielding an
-uninformative prior
-Parameter
-Minimum
-cid96f
-cid96f
-02i1L
-Maximum
-320 min
-02i1L
-320 min
-Table 11 Parameter bounds
-To initialise the parameters for gradient optimisation the length scales cid96f and cid96i are initilised at
-random from 10 20 30 40 80 i and i are drawn from U0 1 with the value of i multiplied by 100
-to avoid local minima that would under-estimate the variance The delays are inilialised at random with
-the more realistic speed bounds smin500 bp per min and smax  5kb per min when an ensemble of cells
-is considered The parameters are then freely optimised with the bounds given in Table 11
-Parameter gradients
-To obtain ML estimates of the parameters we maximise the log marginal likelihood To do this we require
-the gradients of the covariance function wrt the parameters The gradients wrt i and i are straight
-forward Here we give the expressions for the gradients of covyit yjtcid48  Kyy wrt cid96f  cid96i and Di We
-cid32
-cid32
-2cid962
-f  cid962
-cid33
- tcid48  t  Di  Dj2
-cid33
-i  cid962
- tcid48  t  Di  Dj2
-i  cid962
-cid32
-f  cid962
-2cid962
-2cid962
-f  cid962
- tcid48  t  Di  Dj2
-cid32
-cid33
-i  cid962
- tcid48  t  Di  Dj2
-cid32
-cid33
-i  cid962
- tcid48  t  Di  Dj2
-i  cid962
-f  cid962
-f  cid962
-2cid962
-2cid962
-cid33
-tcid48  t  Di  Dj2
-cid962
-f  cid962
-i  cid962
-cid96itcid48  t  Di  Dj2
-cid962
-f  cid962
-i  cid962
-tcid48  t  Di  Dj
-cid962
-f  cid962
-i  cid962
-cid96f
- ij
- ij
-i  cid962
-f cid962
-i  cid962
-f  cid962
-f cid96f
-cid962
-f  cid962
-i  cid962
-cid962
-cid113
-cid96i
-cid113
-cid113
- ij
- ij
-cid962
-f cid96f cid96i
-i  cid962
-f  cid962
-f cid96f
-cid962
-f  cid962
-i  cid962
- ij
-f cid96f
-cid962
-f  cid962
-i  cid962
-To obtain gradient wrt the transformed parameters given by equation 14 we employ the chain rule
-expmax  min
-1  exp2
-Canonical Pathway and Gene Ontology Analysis
-To determine the biological signicance of the 383 genes found to t the pol-II dynamics model well we
-used the Genomatix Pathway System GePS to look for enriched canonical pathways and gene ontology
-categories Table 12 shows the signicant canonical pathways p-value  005 and the observed genes
-It is interesting to note that the pair of genes JAK1 and JAK2 are responsible for a large number of
-the signicant canonical pathways These genes have previously been suggested as potential drug targets
-in breast cancer see for example 44 The enrichment of the FOXA1 transcriptional network provides
-further conrmation that our model identies biologically relevant genes In recent work Hurtado et
-al 40 showed that FOXA1 inuences the interaction of ER and chromatin and therefore inuences
-the response of breast cancer cells to E2 Genes in the FOXA1 canonical network found to t the pol-II
-model well include NRIP1 which is believed to be a direct E2 target that mediates the repression of ER
-target genes later in the time course 45 46 Table 13 shows the top 20 signicant gene ontology terms
-p-value  005 for molecular function
-Table 14 shows the signicant canonical pathways p-value  001 and the observed genes in each
-of the 12 promoter prole clusters We also perform a gene ontology analysis of the 12 promoter prole
-clusters using the DAVID tool from the NIH 31 32 The enriched gene ontology categories p-value
- 005 are shown in Table 15 for molecular function Table 16 for biological processes and Table 17
-for cellular components
-Canonical pathway
-IL-6 signaling pathwayJAK1 JAK2 STAT3
-IFN gamma signaling pathway
-JAK1 JAK2
-JAK1 JAK2
-Proteasome complex
-PSME1 PSMA4 PSMB5 PSMA2
-IL-3 signaling pathwayJAK1 JAK2 STAT5
-Stat3 signaling pathway
-JAK1 JAK2
-JAK1 JAK2
-FOXA1 transcription factor network
-AP1B1 NDUFV3 NRIP1 SHH
-PDGFR-alpha signaling pathway
-JAK1 PDGFB SHB
-Hypoxia and p53 in the cardiovascular system
-FHL2 HIF1A GADD45A
-LIF signaling pathway
-IL-5 signaling pathway
-p53 signaling pathway
-IL-10 anti-inammatory signaling pathway
-AndrogenReceptor
-Integrin signaling pathway
-Erythropoietin mediated
-neuroprotection through NF-KB
-PDGFR-beta signaling pathway
-Mechanisms of transcriptional
-repression by dna methylation
-Hypoxia-inducible factor in
-the cardivascular system
-JAK1 JAK2
-JAK1 JAK2
-TIMP3 GADD45A
-JAK1 BLVRB
-SPDEF FHL2 STUB1
-NCOR2 NRIP1
-CSK ACTN1 NOLC1
-HIF1A JAK2
-ACTR2 HCK CSK
-PDGFB CTTN JAK2
-RBBP7 MBD1
-HIF1A LDHA
-Table 12 Signicant canonical pathways p-value  005 for the 383 genes found to t the pol-II
-dynamics model well
-Molecular function
-Structural constituent of ribosome
-RNA binding
-Methyl-CpG binding
-Protein binding
-Structural molecule activity
-Nucleic acid binding
-rRNA binding
-Non-membrane spanning protein tyrosine kinase activity
-Ribosomal small subunit binding
-Pseudouridine synthase activity
-S100 alpha binding
-Growth hormone receptor binding
-Isomerase activity
-Glucocorticoid receptor binding
-Translation factor activity nucleic acid binding
-NF-kappaB binding
-Threonine-type peptidase activity
-Threonine-type endopeptidase activity
-Intramolecular transferase activity
-Table 13 Top 20 signicant gene ontology terms p-value  005 for the 383 genes found to t the
-pol-II dynamics model well
-Canonical pathway
-PDGFR-beta signaling pathway
-PDGFB ACTR2 HCK
-Nuclear receptors coordinate the activities
-NCOR2 TAF5
-of chromatin remodeling complexes and coactivators
-to facilitate initiation of transcription in carcinoma cells
-Proteasome complex
-Antigen processing and presentation
-PSMB5 PSME1
-Cluster
-10 38
-Role of ErbB2 in signal transduction and oncology
-IL6-mediated signaling events
-JAK STAT MolecularVariation 2
-11 13
-12 37
-Table 14 Pathway analysis of clusters from inferred promoter activity proles The number in
-parentheses in column 1 is the cluster size
-IFN gamma signaling pathway
-IL-6 signaling pathway
-IL-3 signaling pathway
-Stat3 signaling pathway
-LIF signaling pathway
-IL-5 signaling pathway
-PDGFR-alpha signaling pathway
-IL27-mediated signaling events
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-SHB JAK1
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-JAK2 JAK1
-Cluster
-1 37 GO0008092 Cytoskeletal protein binding
-GO TERM
-GO0003779 Actin binding
-GO0005085 Guanyl-nucleotide exchange factor activity
-2 47 GO0003723 RNA binding
-4 29 GO0003723 RNA binding
-transcription regulator activity
-GO0030528
-GO0003677 DNA binding
-GO0003700 Transcription factor activity
-6 40 GO0003735
-7 24 GO0003735
-GO0005198
-GO0003723 RNA binding
-Structural constituent of ribosome
-Structural constituent of ribosome
-Structural molecule activity
-9 26 GO0043021 Ribonucleoprotein binding
-10 38 GO0005131 Growth hormone receptor binding
-GO0051427 Hormone receptor binding
-GO0032553 Ribonucleotide binding
-GO0032555 Purine ribonucleotide binding
-GO0017076 Purine nucleotide binding
-GO0005525 GTP binding
-GO0019001 Guanyl nucleotide binding
-GO0032561 Guanyl ribonucleotide binding
-GO0004713 Protein tyrosine kinase activity
-11 13
-12 37 GO0003735
-GO0005198
-GO0003723 RNA binding
-Structural constituent of ribosome
-Structural molecule activity
-Table 15 Enriched gene ontology categories for molecular function p-value  005 of clusters from
-inferred promoter activity proles The number in parentheses in column 1 is the cluster size
-Cluster
-1 37 GO0030036 Actin cytoskeleton organization
-GO TERM
-GO0030029 Actin lament-based process
-GO0007010 Cytoskeleton organization
-GO0007517 Muscle organ development
-GO0001503 Ossication
-GO0001501
-GO0060348 Bone development
-GO0060537 Muscle tissue development
-GO0051496 Positive regulation of stress ber formation
-GO0007167 Enzyme linked receptor protein signaling pathway
-GO0045935 Positive regulation of nucleobase
-Skeletal system development
-nucleoside nucleotide and nucleic acid metabolic process
-GO0032233 Positive regulation of actin lament bundle formation
-GO0051173 Positive regulation of nitrogen compound metabolic process
-GO0010557 Positive regulation of macromolecule biosynthetic process
-GO0031328 Positive regulation of cellular biosynthetic process
-GO0009891 Positive regulation of biosynthetic process
-GO0051492 Regulation of stress ber formation
-GO0048008 Platelet-derived growth factor receptor signaling pathway
-GO0032231 Regulation of actin lament bundle formation
-GO0055010 Ventricular cardiac muscle morphogenesis
-GO0055008 Cardiac muscle tissue morphogenesis
-GO0060415 Muscle tissue morphogenesis
-2 47 GO0051272 Positive regulation of cell motion
-GO0043085 Positive regulation of catalytic activity
-GO0044093 Positive regulation of molecular function
-3 18 GO0006364
-GO0016072
-rRNA processing
-rRNA metabolic process
-4 29 GO0010558 Negative regulation of macromolecule biosynthetic process
-GO0031327 Negative regulation of cellular biosynthetic process
-GO0006350 Transcription
-GO0009890 Negative regulation of biosynthetic process
-GO0010605 Negative regulation of macromolecule metabolic process
-GO0016481 Negative regulation of transcription
-GO0010629 Negative regulation of gene expression
-GO0045934 Negative regulation of nucleobase
-nucleoside nucleotide and nucleic acid metabolic process
-GO0051172 Negative regulation of nitrogen compound metabolic process
-6 40 GO0048147 Negative regulation of broblast proliferation
-GO0022613 Ribonucleoprotein complex biogenesis
-7 24 GO0019941 Modication-dependent protein catabolic process
-GO0043632 Modication-dependent macromolecule catabolic process
-GO0051603 Proteolysis involved in cellular protein catabolic process
-GO0044257 Cellular protein catabolic process
-GO0030163 Protein catabolic process
-GO0006412 Translation
-GO0043161 Proteasomal ubiquitin-dependent protein catabolic process
-GO0010498 Proteasomal protein catabolic process
-GO0044265 Cellular macromolecule catabolic process
-GO0009057 Macromolecule catabolic process
-GO0006508 Proteolysis
-GO0006511 Ubiquitin-dependent protein catabolic process
-8 47 GO0042273 Ribosomal large subunit biogenesis
-GO0006396 RNA processing
-GO0006400
-tRNA modication
-9 26 GO0043086 Negative regulation of catalytic activity
-10 38 GO0007242
-Intracellular signaling cascade
-GO0015031 Protein transport
-GO0045184 Establishment of protein localization
-GO0008104 Protein localization
-GO0001525 Angiogenesis
-GO0010876 Lipid localization
-11 13
-12 37 GO0006412 Translation
-GO0006414 Translational elongation
-GO0051168 Nuclear export
-GO0042274 Ribosomal small subunit biogenesis
-GO0000278 Mitotic cell cycle
-GO0006974 Response to DNA damage stimulus
-GO0006913 Nucleocytoplasmic transport
-GO0051169 Nuclear transport
-GO0022613 Ribonucleoprotein complex biogenesis
-Table 16 Enriched gene ontology categories for biological processes p-value  005 of clusters from
-inferred promoter activity proles The number in parentheses in column 1 is the cluster size
-Cluster
-1 37 GO0015629 Actin cytoskeleton
-GO TERM
-Intracellular non-membrane-bounded organelle
-Sarcomere
-GO0005856 Cytoskeleton
-GO0043228 Non-membrane-bounded organelle
-GO0043232
-GO0030017
-GO0030016 Myobril
-GO0044449 Contractile ber part
-GO0043292 Contractile ber
-GO0001725
-Stress ber
-4 29 GO0016604 Nuclear body
-GO0005654 Nucleoplasm
-GO0030529 Ribonucleoprotein complex
-GO0044451 Nucleoplasm part
-GO0031981 Nuclear lumen
-GO0022625 Cytosolic large ribosomal subunit
-5 27 GO0030529 Ribonucleoprotein complex
-GO0005732
-GO0043232
-GO0043228 Non-membrane-bounded organelle
-Small nucleolar ribonucleoprotein complex
-Intracellular non-membrane-bounded organelle
-6 40 GO0044429 Mitochondrial part
-Intracellular organelle lumen
-GO0070013
-GO0043233 Organelle lumen
-GO0031974 Membrane-enclosed lumen
-GO0005743 Mitochondrial inner membrane
-GO0019866 Organelle inner membrane
-GO0044455 Mitochondrial membrane part
-GO0033279 Ribosomal subunit
-GO0031966 Mitochondrial membrane
-GO0005739 Mitochondrion
-GO0005740 Mitochondrial envelope
-GO0005840 Ribosome
-7 24 GO0005840 Ribosome
-GO0033279 Ribosomal subunit
-GO0030529 Ribonucleoprotein complex
-GO0000313 Organellar ribosome
-GO0005761 Mitochondrial ribosome
-8 47 GO0031981 Nuclear lumen
-Intracellular organelle lumen
-GO0005730 Nucleolus
-GO0070013
-GO0043233 Organelle lumen
-GO0031974 Membrane-enclosed lumen
-GO0030529 Ribonucleoprotein complex
-9 26 GO0031981 Nuclear lumen
-10 38 GO0009898
-Internal side of plasma membrane
-GO0044459 Plasma membrane part
-11 13 GO0022625 Cytosolic large ribosomal subunit
-GO0015934 Large ribosomal subunit
-GO0022626 Cytosolic ribosome
-12 37 GO0005840 Ribosome
-Intracellular non-membrane-bounded organelle
-GO0033279 Ribosomal subunit
-GO0030529 Ribonucleoprotein complex
-GO0043232
-GO0043228 Non-membrane-bounded organelle
-GO0044445 Cytosolic part
-GO0005761 Mitochondrial ribosome
-GO0000313 Organellar ribosome
-GO0015935
-Small ribosomal subunit
-GO0015934 Large ribosomal subunit
-GO0031980 Mitochondrial lumen
-GO0005759 Mitochondrial matrix
-GO0022626 Cytosolic ribosome
-GO0005829 Cytosol
-GO0070013
-GO0043233 Organelle lumen
-GO0031974 Membrane-enclosed lumen
-GO0005739 Mitochondrion
-GO0000315 Organellar large ribosomal subunit
-GO0005762 Mitochondrial large ribosomal subunit
-Intracellular organelle lumen
-Table 17 Enriched gene ontology categories for cellular components p-value  005 of clusters from
-inferred promoter activity proles The number in parentheses in column 1 is the cluster size
-Clustering the raw ChIP-Seq reads
-Pol-II occupancy in the proximal promoter region -250 bp to 750 bp relative to the transcription start
-site TSS was computed in RPM for the 383 genes and the time series grouped into 12 clusters The
-clusters are shown in Figure 10 Table 18 shows the signicant canonical pathways p-value  001 and
-the observed genes in each of the 12 clusters We nd that in this case JAK1 and JAK2 appear in
-dierent clusters which have dient temporal proles This may be due to the noisy nature of the data
-and the inclusion of paused pol-II in the proximal region time series Our model which has the potential to
-uncover the signal due to pol-II that is engaged in transcription could be useful in uncovering relationships
-which may be missed if we only consider the raw ChIP-seq reads
-Transcription Factor Binding
-Tullai et al 47 investigated genes that are co-regulated by shared transcription factor binding sites
-TFBS In particular they found certain TFBS were enriched in the promoters of early response genes
-We therefore investigated whether the promoters of genes in the dierent promoter prole clusters are
-enriched for dierent TFs We use Pscan 48 to look for enriched TF motifs among those available in
-JASPAR 49 The proximal promoter region -450 bp to 50 bp relative to the TSS of the genes in each
-Figure 10 Clusters of promoter activity proles derived directly from the raw ChIP-seq reads The
-mean prole in each cluster is shown by the bold line
-Canonical pathway
-Transcriptional activation of dbpB from mRNA
-Hypoxia and p53 in the cardiovascular system
-GADD45A HIF1A
-Cluster
-10 49
-11 29
-Generation of amyloid b-peptide by ps1
-PDGFR-alpha signaling pathway
-IFN gamma signaling pathway
-IL-6 signaling pathway
-IL-10 signaling pathway
-Proteasome complex
-TPO signaling pathway
-Glypican 3 network
-SHB JAK1
-PSME1 PSMB5 PSMA4
-Sonic hedgehog receptor ptc1 regulates cell cycle
-12 19 Hypoxia-inducible factor in the cardivascular system
-Fibrinolysis pathway
-Table 18 Pathway analysis of clusters from raw ChIP-seq reads in the proximal promoter region
--250bp to 750bp from the TSS The number in parentheses in column 1 is the cluster size
-cluster was analyzed Table 19 shows signiantly enriched TFBS in each cluster p-value  005 Shown
-Cluster 1Cluster 2Cluster 3Cluster 4Cluster 5Cluster 6Cluster 7Cluster 8Cluster 904080160320Cluster 1004080160320Time minCluster 1104080160320Cluster 12are TFs whose binding sites are over-represented in at least 5 clusters The estrogen response element
-ERE is enriched in ve clusters 1 2 5 6 and 10 indicating that our modelling identies estrogen
-responsive regions The clusters containing an ERE have mean promoter activity proles with distinct
-early peaks followed by decrease in activity which suggests transient activity Additionally clusters 1 2
-and 10 have relatively early peaks
-HIF1AARNT cid88 cid88 - cid88 cid88 cid88 cid88 -
-ArntAhr
-Cluster
-cid88 cid88 cid88 cid88 cid88 - cid88 cid88 cid88 - cid88 cid88
-cid88 cid88 - cid88 cid88 -
-- cid88 cid88 cid88 cid88 cid88
-- cid88 cid88 cid88 cid88 - cid88
-cid88 cid88 - cid88 -
-cid88 -
-- cid88 cid88 - cid88 cid88 cid88 - cid88 cid88
-- cid88 cid88 -
-cid88 - cid88 cid88 cid88 - cid88 cid88 cid88 -
-- cid88
-- cid88 cid88 cid88 - cid88
-cid88 cid88 - cid88 -
-cid88 cid88 - cid88 - cid88 - cid88 - cid88 -
-- cid88 cid88 -
-cid88 -
-- cid88 - cid88 cid88 -
-- cid88 cid88 -
-cid88 -
-- cid88 - cid88 cid88 -
-cid88 cid88 - cid88 -
-- cid88 - cid88
-- cid88 cid88 -
-cid88 cid88 -
-- cid88 -
-- cid88 cid88 - cid88 -
-- cid88 - cid88 -
-Table 19 Signicantly over-represented p-value  005 transcription factor binding sites in the
-promoter prole clusters We use Pscan to look for enriched TF motifs among those available in
-JASPAR The proximal promoter region -450 bp to 50 bp relative to the TSS of the genes in each
-cluster was analyzed
-Next we investigated the EREs in the genes belonging to the 5 clusters enriched for the ERE motif
-For each promoter sequence the best sequence match to the ERE position frequency matrix PFM in
-JASPAR MA01122 was determined We keep those sequences with a matrix score greater than the
-mean score for matches found in the promoter sequences over the whole genome For the ERE PFM
-this value is 073 when we consider the region -450 bp to 50 bp relative to the TSS We used these
-sequences to determine the consensus ERE motif in this group of genes To determine the consensus
-sequence we report a single nucleotide for a given position if the nucleotide has a frequency greater
-than 50 and a frequency twice as large as the next nucleotide We obtain a consensus sequence of
-5-GGnCACCCTGnCC-3 where n is any nucleotide and an average matrix score of 077 The sequence
-is visualised in Figure 11 A The sequence of the ERE is known and given as 5-GGTCAnnnTGACC-
-3 5051 The sequence corresponding to the PFM MA01122 is visualised in Figure 11 B We see that
-the ERE motif we obtain agrees well with the known motif
-Table 20 shows the EREs in each of the 5 clusters visualised using WebLogo We also show the
-consensus sequence and the average matrix score To determine the consensus sequence we report a
-single nucleotide for a given position if the nucleotide has a frequency greater than 50 and a frequency
-twice as large as the next nucleotide We see that there is some diversity in the motifs correspoding to
-dierent clusters but the consensus sequences agree with the known motif Dierences appear at at most
-3 positions with the consensus sequence for cluster 10 diering at only two positions We see that for the
-half site TGACC the A does not appear in the consensus sequence in all the clusters
-Figure 11 Consensus sequence of regions matching the ERE motif in the promoter prole clusters
-enriched for the ERE motif A and the Estrogen Response Element B
-Cluster
-ERE Motif
-Consensus sequence
-Average Matrix
-GnnCACCCTGnCCC
-GGnnACCCTGnCCn
-GGnnAnCCTGnCCn
-GGnnACCnTGnCCn
-GGnCACCCTGnCCn
-Table 20 Analysis of the ERE in promoter regions of gene clusters obtained from inferred promoter
-activity proles The EREs in each of the 5 clusters are visualised using WebLogo
-httpweblogoberkeleyedu The consensus sequence is shown from postion 7 which corresponds to
-the known ERE motif The average matrix score is computed using the sequence matrix scores from
-Transcription factor binding
-Determining the TFBS motifs enriched in each cluster provides a way to determine the inuence of TFs
-on transcription As a complementary approach we also investigated the TF peaks in regions ranging
-from 1 to 100 kb around the gene transcription start site for all genes in each cluster using ChIP-seq
-weblogoberkeleyedu012bits51CAGT2TCG3TGC4TAGC5GC6TAG7CTAG8CAG9CGT10AGC11GA12TAGC13TGAC14ATGC15GCAT16ACG17GCA18GTC19TAC20ATC3weblogoberkeleyedu012bits51GC23TACG4GTC5TGAC6CTGA7CATG8ACG9ACTG10GC11CTA12GTC13TGC14AGTC15ACGT16TACG17TGAC18TGC19TGAC20GTC3weblogoberkeleyedu012bits5123TGC4AGTC5GAC6TCGA7AG8TCAG910GC11TGCA12GTC13TAGC14TGC15CAT16CG17GTCA18TGC19TC20TC3weblogoberkeleyedu012bits51CAG2G3TGC4GC5GAC6CGTA7ATG8ATCG9T10TGC11TCA12TGC13ATC14TAGC15CT16CG17TAC18GTC19TAC20GTC3weblogoberkeleyedu012bits51TGC23TGC4GTC5AGC6CAG7TAG8TCG9CTG10GC11TGA12TGAC13TGAC14TAGC15GCAT16TCG17GCA18AGTC19TAC20GTC337
-data for a number of TFs measured under similar experimental conditions ie MCF-7 breast cancer
-cells treated with E2 in the cistrome database httpcistromeorg
-Tables 21 to 24 show the number of genes with TF binding peaks for regions around the TSS ranging
-from 1 to 100 kb for each cluster for 7 TFs namely ER 2 FoxA1 34 c-Fos 35 c-Jun 35 c-MYC 36
-SRC-3 37 TRIM24 38 In the tables statistically signicant p-value  005 proportions are indicated
-in red larger than expected and green lower than expected with associated p-values in parentheses
-These p-values are obtained empirically by drawing 1e6 samples from a hypergeometric distribution
-We investigated the overlap of the binding sites for ER and FOXA1 both in the 151 genes belonging
-to the rapid response genes in clusters 1 2 4 and 10 and genome-wide using the peaks obtained from 2
-ER and 34 FOXA1 and reported in the cistrome database We investigated regions around the
-TSS ranging from 2 to 100 kb Tables 25-28 show the number of ER and FOXA1 peaks and the overlap
-The statistical signicance is determined by comparing the overlap in random gene lists of the same size
-Cluster
-10 38
-11 13
-12 37
-c-JUN MYC
-SRC-3 TRIM24
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-11 
-Table 21 Analysis of transcription factor binding in 1kbp regions of genes in gene clusters obtained
-from inferred promoter activity proles The number in parentheses in the rst column is the cluster
-size For each TF we show the number of genes with peaks Statistically signicant proportions p-value
- 005 are indicated in red larger than expected For p-values less than 001 the associated p-values
-are indicated in parentheses according to the following scale  p  00001 p  0001p  001
-Cluster
-10 38
-11 13
-12 37
-c-JUN MYC
-SRC-3 TRIM24
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-14 
-0 
-6 
-19 
-Table 22 Analysis of transcription factor binding in 2kbp regions
-Cluster
-10 38
-11 13
-12 37
-22 
-26 
-0 
-c-JUN MYC
-8 
-30 
-28 
-34 
-9 
-0 
-10 
-Table 23 Analysis of transcription factor binding in 20kbp regions
-SRC-3 TRIM24
-43 
-Cluster
-10 38
-11 13
-12 37
-29 
-42 
-26 
-12 
-27 
-c-JUN MYC
-11 
-Table 24 Analysis of transcription factor binding in 100kbp regions
- of ER peaks  of FOXA1 peaks ER and FOXA1 overlap
-Clusters 1 2 4 and 10 151
-All genes  20000
-28 12
-7 0042
-Table 25 Overlap of ER and FOXA1 binding in a 1 kb region around the TSS The numbers in
-parentheses in the rst column are the number of genes In each TF peak column we show the
-expected number of peaks in a set of random random genes of the same size in parentheses In the
-overlap column the associated p-value is shown in parentheses
- of ER peaks  of FOXA1 peaks ER and FOXA1 overlap
-Clusters 1 2 4 and 10 151
-All genes  20000
-36 17
-8 0038
-Table 26 Overlap of ER and FOXA1 binding in a 2 kb region around the TSS
- of ER peaks  of FOXA1 peaks ER and FOXA1 overlap
-Clusters 1 2 4 and 10 151
-All genes  20000
-125 63
-44 26
-19 0045
-Table 27 Overlap of ER and FOXA1 binding in a 20 kb region around the TSS
- of ER peaks  of FOXA1 peaks ER and FOXA1 overlap
-Clusters 1 2 4 and 10 151
-All genes  20000
-488 254
-171 100
-66 0006
-Table 28 Overlap of ER and FOXA1 binding in a 100 kb region around the TSS
+Almost Certain Escape from Black Holes
+Seth Lloyd
+MIT Mechanical Engineering
+Abstract Recent models of the black-hole nal state suggest that quantum information
+can escape from a black hole by a process akin to teleportation These models require a
+specic nal state and restrictions on the interaction between the collapsing matter and the
+incoming Hawking radiation for quantum information to escape This paper investigates
+escape from black holes for arbitrary nal states and for generic interactions between matter
+and Hawking radiation Classical information including the result of any computation
+performed by the matter inside the hole escapes from the hole with certainty Quantum
+information escapes with delity  832 only half a bit of quantum information is lost
+on average independent of the number of bits that escape from the hole
+It has been proposed that black holes could function as quantum computers 1-2
+the computational capacity of black holes can be calculated in terms of their mass and
+lifetime 1-3 In order to function as a useful computer however a black hole must permit
+information to escape as the black hole evaporates Recently Horowitz and Maldacena
+proposed a model of black hole evaporation that imposes a nal state boundary condition
+at the black-hole singularity 4 The result is a nonlinear time evolution for the quantum
+states in and outside of the black hole which permits quantum information to escape
+from the black hole by a process akin to teleportation Because it allows information to
+escape such a model naturally allows the black hole to function as a computer whose
+output is written in the outgoing Hawking radiation produced during evaporation as
+envisioned in 1 The Horowitz-Maldacena model requires a specic nal state which
+is perfectly entangled between the matter that formed the black hole and the incoming
+Hawking radiation Whether or not quantum gravity supports such a nal state remains
+to be seen In addition even with the proper nal state interactions between the incoming
+Hawking radiation and the collapsing matter can spoil the unitary nature of the black-hole
+evaporation 5 destroying some or all of the quantum information inside the hole 6-7
+The purpose of this paper is to examine the robustness of the escape of quantum
+information during black hole evaporation in nal state projection models In particular
+I show that for projection onto any nal state at the singularity independent of the
+exact details of quantum gravity and for almost all interactions between the matter and
+incoming Hawking radiation properly encoded classical information escapes from the hole
+with certainty Of the quantum information that escapes from the hole only one half a
+qubit is lost on average regardless of the number of bits of quantum information in the
+hole to begin with More precisely the state of the matter that formed the hole is preserved
+under black hole evaporation with a delity of f  832  85 This is the delity of
+escape of the entire state of the collapsing matter individual quantum bits escape with
+a delity that approaches one as the number of bits in the hole becomes large Since
+the delity is above the threshold for the use of quantum-error correcting codes properly
+encoded quantum information can escape from the hole with delity arbitrarily close to 1
+The Horowitz-Maldacena model 4 is described concisely in 5 Black holes evapo-
+rate by absorbing negative-energy incoming Hawking radiation and by emitting positive-
+energy outgoing Hawking radiation Let the dimension of the Hilbert space for the
+collapsing matter inside the black hole be N  In the ordinary semi-classical treatment of
+black-hole evaporation the incoming and outgoing Hawking radiation is in the maximally
+entangled state
+iinout 
+Xj1 jiin  jiout
+where jiin is an orthonormal basis for the Hilbert space Hin of the incoming Hawking
+radiation and jiout is an orthonormal basis for the Hilbert space Hout of the outgoing
+Hawking radiation
+Let imatterin  Hmatter  Hin be the nal state onto which the collapsing matter
+together with the incoming Hawking radiation is projected at the singularity Horowitz
+and Maldacena postulated a form for this state of
+imatterin 
+Skimatter  kiin
+where S is a unitary transformation acting on the matter states alone The usual analysis
+of quantum teleportation shows that for states of this form the transformation from the
+state of the collapsing matter to the state of the outgoing Hawking radiation is
+T  matterinhiinout  SN
+The factor 1N reects the fact that if this were conventional teleportation then this
+particular nal state would occur only with probability 1N 2
+In nal-state projection
+however only one nal state can occur accordingly the nal transformation from col-
+lapsing matter to outgoing Hawking radiation is renormalized and the net result is the
+unitary transformation S
+In the H-M model nal-state projection leads to a unitary
+transformation between collapsing matter and the outgoing Hawking radiation
+Comparing nal-state projection to conventional teleportation we see that the main
+dierence is that nal-state projection mandates a single outcome while teleportation
+allows N 2 outcomes In teleportation log2 N 2 bits must be sent from the input of the
+teleporter to its output in order to reconstruct the input state In nal-state projection
+log2 1  0 bits must be sent from inside the black hole to outside the black hole to
+reconstruct the input state
+Final state projection is an intrinsically nonlinear process and shares the virtues and
+vices of other proposals for nonlinear quantum mechanical processes Escape of quantum
+information from black holes via nal state projection is similar to the use of nonlinear
+quantum mechanics to provide superluminal communication as described and rejected
+in 8-10 to violate the second law of thermodynamics 11 or to solve NP-complete prob-
+lems 12 Such nonlinear quantum eects have been investigated experimentally under
+non-Planckian conditions and ruled out to a high degree of accuracy 13-16 6-7 pro-
+poses similar tests of such nonlinear quantum eects in a normal environment In fact
+the nonlinearity that arises from projection onto a state is a particularly powerful type
+capable of allowing superluminal communication and time travel if it occurs under normal
+conditions Indeed this nonlinearity must allow information to propagate over spacelike
+intervals if the information is to escape from a black hole Because it occurs at a singularity
+beyond an event horizon however nal state projection does not obviously allow causal
+paradoxes such as time travel
+Despite its somewhat dubious provenance nonlinear quantum mechanics including
+nal state projection might hold sway in extreme Planckian regimes such as the black-hole
+singularity At any rate in the absence of a full theory of quantum gravity we are certainly
+free to postulate such an eect and to investigate its consequences
+Even in the presence of nal-state projection without further assurances that go
+beyond the H-M model the escape of quantum information from a black hole is by no means
+certain Gottesman and Preskill 5 point out that if the incoming Hawking radiation
+interacts with the collapsing matter within the black hole as is likely then the H-M
+model no longer preserves quantum information In particular let the interaction between
+incoming Hawking radiation and matter be given by a unitary transformation U  The
+transformation between the state of the collapsing matter and the state of the outgoing
+Hawking radiation is then
+T  matterinhUiinout
+Gottesman and Preskill note that if all U s are allowed T can be any matrix satisfying
+Pmn hmTni2  1 including transformations that completely destroy the quantum
+information in the matter leading to purely thermal Hawking radiation
+In general if
+the state Uimatterin is not perfectly entangled then some quantum information in the
+matter is lost
+For the purposes of using a black hole as a quantum computer the key question is
+how much quantum information is lost on average due to such interactions Ill now show
+that for any nal state not just the special H-M states and for almost any U  classical
+information escapes from the hole with certainty and quantum information escapes from
+the hole with delity  832  85 Essentially all but half a qubit of the quantum
+information escapes This delity holds in the limit N  1 and is independent of the
+exact number of bits escaping from the hole
+it is the delity of escape for the entire
+state of the collapsing matter Individual quantum bits inside the hole escape with higher
+delity In the limit N  1 individual quantum bits escape from the hole with delity
+arbitrarily close to 1
+Let imatterin be any nal state including a product state and let U be a random
+unitary transformation on the matter and incoming Hawking radiation selected according
+to the Haar measure The Haar measure is the unique measure over U n that is invariant
+with respect to unitary transformation In particular the nal state could be the as yet
+unknown correct nal state specied by the as yet unknown correct theory of quantum
+gravity Because U is selected according to the Haar measure the state
+imatterin  Uimatterin
+is a random pure state of the matter and incoming Hawking radiation ie a pure state
+selected according to the uniform measure on the sphere in N 2 dimensions That is it is
+a random state selected according to the Hilbert-Schmidt measure The random nature of
+U implies that the escape of quantum information from a black hole does not depend on
+details of the nal state
+Because imatterin is random it is not perfectly entangled As a result black hole
+evaporation will not preserve all the quantum information in the collapsing matter But
+by the same token because imatterin is random it is almost perfectly entangled for
+In particular a typical random state is within one half a qubit of maximum
+large N 
+entanglement
+More precisely a random state in Hmatter  Hin can be written in Schmidt form as
+imatterin  X
+i
+matter  i
+The distribution of the Schmidt coecients  for random states is known 17-19 A
+random state is almost perfectly entangled 20-21 the average entropy of entanglement
+P 2
+ log2 2
+  is within one half bit of its maximum possible value log2 N  It is the high
+entanglement of random states that leads to the escape of information from the hole
+We now can calculate the average delity with which a state for the collapsing matter
+elds
+imatter  X
+i
+is transferred to the outgoing Hawking radiation
+First look at what happens to the information inside the hole under nal state pro-
+jection Action of U on i together with the incoming Hawking radiation followed by
+projection onto the nal state imatterin yields a transformation from the matter to the
+outgoing Hawking radiation
+The unnormalized state of the outgoing Hawking radiation is
+T  matterinhiinout
+iout 
+N X
+i
+where i
+out is a basis for the Hilbert space of outgoing Hawking radiation related to the
+basis i
+matter for the Hilbert space for the collapsing matter via a unitary transformation
+T  Because the normalization of this state depends in a nonlinear fashion on the  this
+is a nonlinear transformation of the input state of the matter
+Now that we know what happens to quantum states under nal state projection we
+can determine what happens to the information inside the hole Start by looking at the
+escape of classical information from the hole If this information is encoded in the states
+i
+matter then the perfect correlation embodied in the Schmidt decomposition combined
+with the nonlinear eect of the nal state projection implies that all classical information
+escapes from the hole down to the last bit Interestingly the complete escape of classical
+information from the hole does not depend on the precise distribution of the Schmidt
+coecients 
+it only requires that they all be non-zero which occurs with probability
+equal to 1 Properly encoded classical information escapes from the hole with certainty
+Now look at how quantum information escapes from the hole Comparing the nor-
+malized outgoing state of the Hawking radiation with T  times the state of the collapsing
+matter we obtain
+outhT imatter2  N X
+22
+Since a typical state has 2  1N  the state of the collapsing matter is transferred to
+the state of the outgoing Hawking radiation with a delity
+f  
+N X
+2
+This approximate result can be conrmed using standard treatments of teleportation
+with imperfectly entangled states 22 The maximum mean teleportation delity attain-
+able using imperfectly entangled states with Schmidt coecients  is
+N  1cid201 cid0X
+2cid21
+This delity is attained for the standard teleportation protocols Because escape from a
+black hole via nal state projection is equivalent to teleportation with a xed measurement
+outcome this is also the mean delity for escape from a black hole
+The techniques of 19 now allow us to estimate the value of f  for N  1 we have
+i  N
+3252cid01  O
+cid1 
+As a result for N  1 we have
+f  cid0
+3cid12
+ 85 
+Quantum information escapes from the hole with delity  85 Note that in this estimate
+we are approximating hcid0P 2i by hcid0P i2 in the limit that N  1
+This delity is the delity for escape of the entire state of the collapsing matter The
+delity of escape of individual quantum bits is higher and approaches 1 asymptotically as
+N becomes large Because the escape delity lies above the threshold required for quantum
+error correction 23 suitably encoded quantum information escapes from the black hole
+with delity arbitrarily close to 1 Given nal-state projection escape from a black hole
+is almost certain
+Note that in the above demonstration of almost certain escape from a black hole via
+nal state projection relies on a random interaction between the collapsing matter and the
+incoming Hawking radiation As only a nite proper time exists for interaction between the
+matter and the incoming Hawking radiation this interaction is not truly random What is
+important for the escape of the quantum information is not true randomness however but
+entanglement We have recently demonstrated both theoretically and experimentally that
+pseudorandom states and transformations implemented by quantum logic circuits with
+O2n gates for n  log2 N qubits exhibit the same Schmidt coecient statistics as true
+random states and transformations 24 Accordingly we may reasonably hope that the
+nal state projection whatever it is is suciently entangled to give high delity transfer
+of the state of the matter within the hole to the state of the outgoing Hawking radiation
+The results of this paper suggest that if black holes evaporate via nal state projection
+they might make good quantum computers The delity of transfer of quantum information
+is better than what is required for robust quantum computation Indeed if all one wants is
+a YesNo answer from the computation ie a classical bit then the black hole can deliver
+the answer with certainty
+Note however that for information to escape from the hole under the nal state
+projection model the time evolution apart from the nal projection must remain unitary
+as the densities of matter and energy approach the Planck scale near the singularity That
+is the strategy for escaping from a black hole presented here assumes that the only source
+of nonlinearity is the nal state projection Even if the time evolution apart from the
+projection is unitary a person outside the hole must know the exact interaction that
+occurred between the collapsing matter and the incoming Hawking radiation in order
+to reconstruct the information escaping from the hole Final state projection will have to
+await experimental and theoretical conrmation before black holes can be used as quantum
+computers It would be premature to jump into a black hole just now
+ slloydmitedu
+Acknowledgements The author would like to thank A Hosoya for bringing this issue to
+his attention
 References
-1 Hager GL McNally JG Misteli T 2009 Transcription dynamics Mol Cell 35 741-753
-2 Welboren WJ van Driel MA Janssen-Megens EM van Heeringen SJ Sweep FCGJ et al 2009
-ChIP-Seq of ER and RNA polymerase II denes genes dierentially responding to ligands The
-EMBO Journal 28 14181428
-3 Hah N Danko CG Core L Waterfall JJ Siepel A et al 2011 A rapid extensive and transient
-transcriptional response to estrogen signaling in breast cancer cells Cell 145 622634
-4 Darzacq X Shav-Tal Y de Turris V Brody Y Shenoy SM et al 2007 In vivo dynamics of RNA
-polymerase II transcription Nature structural  molecular biology 14 796806
-5 Wada Y Ohta Y Xu M Tsutsumi S Minami T et al 2009 A wave of nascent transcription on
-activated human genes Proceedings of the National Academy of Sciences 106 18357-18361
-6 Singh J Padgett RA 2009 Rates of in situ transcription and splicing in large human genes Nature
-Structural  Molecular Biology 16 11281133
-7 Rasmussen CE Williams C 2006 Gaussian Processes for Machine Learning MIT Press URL
-httpwwwgaussianprocessorggpml
-8 Gao P Honkela A Rattray M Lawrence ND 2008 Gaussian process modelling of latent chemical
-species Applications to inferring transcription factor activities Bioinformatics 24 i70i75
-9 Honkela A Girardot C Gustafson EH Liu YH Furlong EEM et al 2010 Model-based method for
-transcription factor target identication with limited data Proceedings of the National Academy
-of Sciences 107 7793-7798
-10 Kalaitzis AA Lawrence ND 2011 A simple approach to ranking dierentially expressed gene
-expression time courses through Gaussian process regression BMC Bioinformatics 12
-11 Liu W Niranjan M 2012 Gaussian process modelling for bicoid mrna regulation in spatio-temporal
-bicoid prole Bioinformatics 28 366372
-12 Higdon DM 2002 Space and space-time modelling using process convolutions In Anderson C
-Barnett V Chatwin P El-Shaarawi A editors Quantitative methods for current environmental
-issues pp 3756
-13 Higdon D 2001 Space and Space-Time Modeling Using Process Convolutions Technical report
-Institute of Statistics and Decision Sciences Duke University URL httpciteseerxistpsu
-eduviewdocsummarydoi1011265356
-14 Higdon DM 1998 A process-convolution approach to modeling temperatures in the north atlantic
-ocean Journal of Ecological and Environmental Statistics 5 173-190
-15 Boyle P Frean M 2005 Dependent Gaussian processes In In Advances in Neural Information
-Processing Systems 17 MIT Press pp 217224
-16 Alvarez M Lawrence ND 2008 Sparse Convolved Gaussian Processes for Multi-output Regression
-In NIPS pp 5764 URL httpbooksnipsccpapersfilesnips21NIPS20080170pdf
-17 Alvarez M Rosasco L Lawrence ND 2012 Kernels for vector-valued functions A review Foun-
-dations and Trends in Machine Learning 4 195266
-18 Alvarez MA Lawrence ND 2011 Computationally ecient convolved multiple output Gaussian
-processes Journal of Machine Learning Research 12 14251466
-19 Ver Hoef JM Barry RP 1998 Constructing and tting models for cokriging and multivariable
-spatial prediction Journal of Statistical Plannig and Inference 69 275-294
-20 Calder CA Cressie NAC 2007 Some topics in convolution-based spatial modeling In Proceedings
-of the 56th Session of the International Statistics Institute
-21 Neal RM 2011 MCMC using Hamiltonian dynamics In S Brooks A Gelman G Jones and X-L
-Meng editor Handbook of Markov Chain Monte Carlo Chapman and HallCRC
-22 Knapp C Carter GC 1976 The generalized correlation method for estimation of time delay IEEE
-Transactions on Acoustics Speech and Signal Processing 24 320-327
-23 Haarsma DB Hewitt JN Lehar J Burke BF 1999 The Radio Wavelength Time Delay of Gravi-
-tational Lens 0957561 The Astrophysical Journal 510 6470
-24 Edelson RA Krolik JH 1988 The discrete correlation function - A new method for analyzing
-unevenly sampled variability data The Astrophysical Journal 333 646-659
-25 Cuevas-Tello JC Tino P Raychaudhury S 2006 How accurate are the time delay estimates in
-gravitational lensing Astronomy and Astrophysics 454 695-706
-26 Harva M Raychaudhury S 2008 Bayesian estimation of time delays between unevenly sampled
-signals Neurocomputing 72 32-38
-27 Pepke S Wold B Mortazavi A 2009 Computation for ChIP-seq and RNA-seq studies Nature
-Methods 6 S2232
-28 Quinlan AR Hall IM 2010 BEDTools a exible suite of utilities for comparing genomic features
-Bioinformatics 26 841842
-29 Dale R Pedersen B Quinlan A 2011 Pybedtools a exible python library for manipulating
-genomic datasets and annotations Bioinformatics 
-30 Pearson R Liu X Sanguinetti G Milo M Lawrence N et al 2009 Puma a Bioconductor package
-for propagating uncertainty in microarray analysis BMC Bioinformatics 10 211
-31 Huang DW Sherman BT Lempicki RA 2008 Systematic and integrative analysis of large gene
-lists using DAVID bioinformatics resources Nat Protocols 4 4457
-32 Huang DW Sherman BT Lempicki RA 2009 Bioinformatics enrichment tools paths toward the
-comprehensive functional analysis of large gene lists Nucleic Acids Research 37 113
-33 Fullwood MJ Liu MH Pan YF Liu J Xu H et al 2009 An oestrogen-receptor--bound human
-chromatin interactome Nature 462 5864
-34 Lupien M Eeckhoute J Meyer CA Wang Q Zhang Y et al 2008 FoxA1 translates epigenetic
-signatures into enhancer-driven lineage-specic transcription Cell 132 958970
-35 Joseph R Orlov YL Huss M Sun W Kong SLL et al 2010 Integrative model of genomic factors
-for determining binding site selection by estrogen receptor  Molecular systems biology 6 456
-36 Hua S Kittler R White KP 2009 Genomic antagonism between retinoic acid and estrogen sig-
-naling in breast cancer Cell 137 12591271
-37 Lanz RB Bulynko Y Malovannaya A Labhart P Wang L et al 2010 Global Characterization
-of Transcriptional Impact of the SRC-3 Coregulator Molecular Endocrinology 24 859-872
-38 Tsai WW Wang Z Yiu TT Akdemir KC Xia W et al 2010 TRIM24 links a non-canonical
-histone signature to breast cancer Nature 468 927932
-39 Schmidt D Schwalie PC Ross-Innes CS Hurtado A Brown GD et al 2010 A CTCF-independent
-role for cohesin in tissue-specic transcription Genome research 20 578588
-40 Hurtado A Holmes KA Ross-Innes CS Schmidt D Carroll JS 2011 FOXA1 is a key determinant
-of estrogen receptor function and endocrine response Nature Genetics 43 2733
-41 Shukla S Kavak E Gregory M Imashimizu M Shutinoski B et al 2011 CTCF-promoted RNA
-polymerase II pausing links DNA methylation to splicing Nature 479 7479
-42 Tazi J Bakkour N Stamm S 2009 Alternative splicing and disease Biochimica et Biophysica
-Acta 1792 1426
-43 Maiuri P Knezevich A De Marco A Mazza D Kula A et al 2011 Fast transcription rates of
-RNA polymerase II in human cells EMBO Rep 
-44 The Cancer Genome Atlas Network 2012 Comprehensive molecular portraits of human breast
-tumours Nature 490 6170
-45 Carroll JS Meyer CA Song J Li W Geistlinger TR et al 2006 Genome-wide analysis of estrogen
-receptor binding sites Nature Genetics 38 12891297
-46 Jagannathan V Robinson-Rechavi M 2011 Meta-analysis of estrogen response in MCF-7 dis-
-tinguishes early target genes involved in signaling and cell proliferation from later target genes
-involved in cell cycle and DNA repair BMC Syst Biol 5 138
-47 Tullai JW Schaer ME Mullenbrock S Sholder G Kasif S et al 2007 Immediate-early and
-delayed primary response genes are distinct in function and genomic architecture J Biol Chem
-282 23981-95
-48 Zambelli F Pesole G Pavesi G 2009 Pscan nding over-represented transcription factor binding
-site motifs in sequences from co-regulated or co-expressed genes Nucleic Acids Research 37 247-
-49 Sandelin A Alkema W Engstrom P Wasserman WW Lenhard B 2004 JASPAR an openaccess
-database for eukaryotic transcription factor binding proles Nucleic Acids Research 32 D91D94
-50 Klinge CM 2001 Estrogen receptor interaction with estrogen response elements Nucleic Acids
-Research 29 2905-2919
-51 Welboren WJ Stunnenberg HG Sweep FCGJ Span PN 2007 Identifying estrogen receptor target
-genes Molecular oncology 1 138143
+1 S Lloyd Nature 406 1047-1054 2000
+2 S Lloyd Phys Rev Lett 88 23 art no 237901 2002
+3 YJ Ng Phys Rev Lett 86 2001 2946-2949 Erratum-ibid 88 2002 139902
+4 GT Horowitz and J Maldacena The Black-Hole Final State hep-th0310281
+5 D Gottesman and J Preskill Comment on The black hole nal state  hep-
+th0311269
+6 U Yurtsever and G Hockney Causality entanglement and quantum evolution beyond
+Cauchy horizons quant-ph0312160
+7 U Yurtsever and G Hockney Signaling and the Black Hole Final State quant-
+ph0402060
+8 S Weinberg Phys Rev Lett 62 485 1989
+9 J Polchinksi Phys Rev Lett 66 pg 397 1991
+10 N Gisin Phys Lett A 113 p 1 1990
+11 A Peres Phys Rev Lett 63 1114 1989
+12 D Abrams and S Lloyd Phys Rev Lett 81 3992-3995 1998
+13 PK Majumder et alPhys Rev Lett 65 2931 1990
+14 RL Walsworth et al Phys Rev Lett 64 2599 1990
+15 TE Chupp and RJ Hoare Phys Rev Lett 64 2261 1990
+16 JJ Bollinger DJ Heinzen WM Itano SL Gilbert DJ Wineland Phys Rev
+Lett 63 1031 1989
+17 E Lubkin J Math Phys 19 1028 1978
+18 S Lloyd and H Pagels Ann Phys 188 186 1988
+19 H-J Sommers and K Zyczkowski Statistical properties of random density matrices
+quant-ph0405031
+20 DN Page Phys Rev Lett 71 1291 1993
+21 S Sen Average entropy of a subsystem hep-th9601132
+22 K Baraszek Phys Rev A62 024301 2000 quant-ph0002088
+23 MA Nielsen and IL Chuang Quantum Computation and Quantum Information
+Cambridge University Press 2003
+24 J Emerson YS Weinstein M Saraceno S Lloyd D Cory Science 302 2098 2003

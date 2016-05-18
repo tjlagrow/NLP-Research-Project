@@ -1,822 +1,267 @@
-Model for Diversity Analysis of Antigen Receptor Repertoires
-Grzegorz A Rempala Michacid32l Seweryn and Leszek Ignatowicz
-February 24 2010
-Abstract
-In modern molecular biology one of the most common ways of studying a vertebrate immune system
-is to statistically compare the counts of sequenced antigen receptor clones either immunoglobulins or
-T-cell receptors derived from various tissues under dierent experimental or clinical conditions The
-problem is dicult and does not t readily into the standard statistical framework of contingency tables
-primarily due to serious under-sampling of the receptor populations This under-sampling is caused on
-one hand by the extreme diversity of antigen receptor repertoires maintained by the immune system
-and on the other by the high cost and labor intensity of the receptor data collection process In most of
-the recent immunological literature the dierences across antigen receptor populations are examined via
-non-parametric statistical measures of species overlap and diversity borrowed from ecological studies
-While this approach is robust in a wide range of situations it seems to provide little insight into the
-underlying clonal size distribution and the overall mechanism dierentiating the receptor populations
-As a possible alternative the current paper presents a parametric method which adjusts for the data
-under-sampling as well as provides a unifying approach to simultaneous comparison of multiple receptor
-groups by means of the modern statistical tools of unsupervised learning The parametric model is based
-on a exible multivariate Poisson-lognormal distribution and is seen to be a natural generalization of the
-univariate Poisson-lognormal models used in ecological studies of biodiversity patterns The procedure
-for evaluating models t is described along with the public domain software developed to perform the
-necessary diagnostics The model-driven analysis is seen to compare favorably vis a vis traditional
-methods when applied to the data from T-cell receptors in transgenic mice populations
-Keywords T-cells antigen receptors computational immunology species diversity estimation Poisson
-abundance models Lognormal distribution dissimilarity measure dendrogram mutual information
-2010 AMS Subject Classication 62P10 92B05
- Corresponding author Department of Biostatistics and the Cancer Center Medical College of Georgia Augusta GA
-30912 E-mailgrempalamcgedu
- Wydziacid32l Matematyki Universytet cid32Lodzki cid32Lodz Poland E-mail msewerymathunilodzpl
- Department of Medicine Center for Biotechnology and Genomic Medicine Medical College of Georgia E-mail ligna-
-towiczmcgedu
-Introduction
-The major feature of the adaptive immune system is its capacity to generate clones of B and T-cells that
-are able to recognize and neutralize specic antigens Both cell types recognize antigens by a special
-class of surface molecules called B- and T-cell receptors The methodology developed in this paper will
-apply to both types of receptors for the sake of clarity and simplicity we describe the background and
-the overall problem in terms of T-cell receptors For a general introduction to the molecular biology of
-the immune system we refer interested reader to eg Janeway 2005
-A single T-cell receptor TCR is composed of two chains  and  that are formed during T-
-cell dierentiation Both chains are formed by rearrangements of genetic segments V and J for
-TCR chain and V D and J for TCR chain Since there are a number of segments of each
-type in the genomic DNA  a great number of dierent  and  chains are generated This chain
-diversity is further increased by the recombination process when individual nucleotides might be added
-or deleted at the junctional sites The region containing these highly variable junctions is the third of
-three complementarity-determining regions CDRs that are seen crystallographically to contact antigen
-The sources of TCR diversity are thus naturally broken down hierarchically into gene segment family
-library segment within family CDR3 length and CDR3 nucleotide diversity Both combinatorial
-and insertional re-arrangements result in the huge TCR repertoire ensuring that immune system has a
-potential to recognize a large number of antigens For instance it is estimated that in mice the number
-of dierent TCRs that can be formed exceeds 1015 Davis and Bjorkman 1988 Casrouge et al 2000
-For humans it is estimated that over 1018 dierent TCRs can be produced and the number of dierent
-TCR species TCR richness in a human at any given time has been estimated to exceed 107 Arstila
-et al 1999 Naylor et al 2005 This clonal diversity of TCR populations makes them particularly
-challenging objects to analyze statistically
-In what follows we are concerned with the statistical analysis of the diversity of TCR repertoire
-samples obtained from various subsets of T-cells as counts of dierent TCR clones These T-cell subsets
-are generally dened based on the expression of cell surface markers leading to dierent functions in the
-immune response For example naive T-cells are dened as cells that did not encounter an antigen in
-their lifetime while memory T-cells are cells that previously responded to an antigenic stimulation and
-underwent clonal expansion The frequency of individual T-cell clones in normal individuals is very low
-However once a naive T-cell expressing appropriate TCR encounters antigen it becomes activated and
-expands forming multiple clone cells Thus the analysis of TCR repertoire clonal size distribution has
-become a crucial element in many studies aimed at better understanding the evolution of the immune
-responses in vaccinated individuals or patients suering from autoimmune diseases or cancer cf eg
-Butz and Bevan 1998 The clonal size estimates has been recently applied to quantify dierences in
-TCR repertoires of normal and infected individuals and to help determine which T-cell clones persisted
-as memory T-cells McHeyzer-Williams et al 1999 Sebzda et al 1999 Busch and Pamer 1999 Savage
-et al 1999 The comparisons of the diversity of TCR repertoires has been also used to determine the
-origin of T-cells and to study heterogeneity of memory T-cells Sallusto et al 1999 2004 For the
-purpose of the current paper under the term clonal diversity we will understand both the TCRs
-clonal size distribution abundance pattern as well as their richness number of dierent TCRs
-There are several statistical approaches to assess T-cell diversity based on the TCR clones counts
-For instance in the non-parametric approach Simpsons diversity and Shannons entropy indices have
-been applied to measure the diversity of collected samples Ferreira et al 2009 Venturi et al 2008
-However such indexes are typically just summary statistics and due to frequent data under-sampling
-provide only limited information about the true diversities of the populations Another approach seen
-in immunological studies relies on modeling diversity parametrically assuming that all clonotypes are
-equally represented in the repertoire Barth et al 1985 Behlke et al 1985 The advantage of this
-homogenous model is its computational and conceptual simplicity which contributes to its wide use
-in analyzing TCR data eg Casrouge et al 2000 Hsieh et al 2004 2006 Pacholczyk et al 2007
-2006 However this simple model is called into question by the empirical evidence see eg Naumov
-et al 2003 Pewe et al 2004 suggesting heavy right tails of the clonal size distributions To account
-for this heterogeneity the homogenous model has been expanded with a variety of mixture models
-typically under the assumption of the Poisson-distribution of the TCR clones These so-called Poisson
-abundance mixture models Chao 2006 assume that each TCR variant ie each clone family is sampled
-according to the Poisson distribution with a specic sampling rate itself varying according to a prescribed
-parametric mixing distribution eg exponential gamma or lognormal Ord and Whitmore 1986
-Sepulveda et al 2009 Bulmer 1974 A recent detailed comparative study of Sepulveda et al 2009
-identied one of such models the Poisson-lognormal mixture PLN as particularly well suited for
-modeling clonal diversity The special appeal of the PLN is in that it may be naturally extended to
-multivariate setting allowing therefore for the simultaneous analysis of abundance patterns of several
-repertoires Engen et al 2002 In particular the bivariate extension of the PLN model may be used to
-derive a class of pairwise dissimilarity measures between repertoires and to construct tree-based hierarchy
-relating various TCR repertoires
-The purpose of this article is to describe a new general approach to analyzing and comparing TCR-
-type data arriving from multiple repertoires The approach we develop here relies on the TCR reper-
-toires dissimilarities analysis where the appropriate tree-distance measures are derived under a simple
-easily testable and interpretable model of clonal abundance based on the parametric bivariate Poisson-
-lognormal distribution BPLN By means of examples derived from real TCR data we argue that
-under BPLN both the moment-based and the information-based parametric measures of dissimilarity
-yield consistent and biologically meaningful results The paper is organized as follows
-In the next
-section Section 2 we give a brief overview of the Poisson abundance models both in univariate and
-multivariate bivariate settings In Section 3 we discuss one popular method for deriving dissimilarity
-measures which is particularly relevant for TCR data studies and provide the formal denitions of the
-four dierent measures considered in the paper In Section 4 we present the application of our method
-to TCR data obtained from the populations of naive and so-called regulatory T-cell receptors in healthy
-and immune-decient mice This data set was described in detail and analyzed by dierent methods in
-Pacholczyk et al 2006 We re-analyze it using clustering algorithms derived under both non-parametric
-and BPLN models and compare the results In Section 5 we provide a concise summary of our ndings
-and oer some concluding remarks Some elementary derivations related to the entropy function are
-provided for readers convenience in the appendix
-2 Poisson Models of Abundance
-Poisson abundance models arrive naturally in the biodiversity studies if we assume see eg Chao 2006
-that the species sampling is done by a continuous type of eort ie data is recorded as arriving from
-a mixture of Poisson processes in time interval from 0 to T in what follows we take T  1 This type
-of model approach can be traced back to Fisher Corbet and Williams Fisher et al 1943 Consider M
-species labeled from 1 to M  Individuals of the i-th species arrive in the sample according to a Poisson
-process with a discovery rate i If the detectability of individuals can be assumed to be equal across
-all species which is typically a case in TCR repertoires analysis then the rates can be interpreted as
-distribution with class total n and class probabilities given by relative frequencies icid80M
-species abundances Nayak 1991 In this sampling scheme the sample size n the number of individuals
-observed in the experiment is a random variable Since the conditional frequencies follow a multinomial
-k1 k many
-estimators are shared in both the continuous-type Poisson models and the discrete-type multinomial
-models where n is assumed to be a constant We note here that in case of antigen receptors data the
-constant n is sometimes known eg DNA sequencing data and sometimes not known eg spectratype
-data see Kepler et al 2005 In the latter case the prior distributional form of n is typically assumed
-and the posterior model is investigated based on the Bayesian tools see eg Rodrigues et al 2001
-Lewins and Joanes 1984 Barger and Bunge 2008 Solow 1994  Since the present paper is motivated
-by the singlecell DNA sequencing data we are assuming throughout that n is known The extension
-of our model to unknown n along the lines of Rodrigues et al 2001 is reasonably straightforward but
-not pursued here
-21 Univariate mixture models
-Since it has been generally accepted that the antigen receptor clonal size distributions have heavy right
-tails to adjust for the over-dispersion the species rates 1 2     M  are typically modeled as a
-random sample from a mixing distribution with density f   where  is a low-dimensional vector
-of parameters Following the famous paper by Fisher and his colleagues Fisher et al 1943 many
-researchers have adopted a gamma density as a mixing model Other parametric models include among
-others the log-normal Bulmer 1974 inverse-Gaussian Ord and Whitmore 1986 and generalized
-inverse-Gaussian Sichel 1997 distributions as well as many others Sepulveda et al 2009 An obvious
-advantage of such parametric models is that the inference problem reduces to estimating only a few
-relatively low-dimensional parameters for which the traditional estimation procedures can be typically
-applied For any mixture density f   dene pk k  0 1    as the probability that any TCR
-species is observed k times in the sample that is
-kek f  d
-k  0 1    
+Entropy of the Information Retrieved from Black Holes
+Laura Mersini-Houghton
+Department of Physics and Astronomy UNC-Chapel Hill NC 27599-3255 USA
+Dated November 17 2015
+The retrieval of black hole information was recently presented in two interesting propos-
+als in the Hawking Radiation conference a revised version by G t Hooft of a proposal he
+initially suggested 20 years ago and a new proposal by S Hawking Both proposals address
+the problem of black hole information loss at the classical level and derive an expression for
+the scattering matrix The former uses gravitation back reaction of incoming particles that
+imprints its information on the outgoing modes The latter uses supertranslation symmetry
+of horizons to relate a phase delay of the outgoing wave packet compared to their incom-
+ing wave partners The difculty in both proposals is that the entropy obtained from them
+appears to be innite
+By including quantum effects into the Hawking and t Hoofts proposals I show that
+a subtlety arising from the inescapable measurement process the Quantum Zeno Effect
+not only tames divergences but it actually recovers the correct 14 of the area Bekenstein-
+Hawking entropy law of black holes
+PACS numbers 9880Qc 1125Wx
+INTRODUCTION
+The mystery of black hole information loss was recently addressed by S Hawkings new pro-
+posal 2 presented at the Hawking Radiation conference I organized in Sweden and by G t
+Hoofts diagonalized brick wall model 1 Although the two models differ in their approaches
+they both treat the black hole information retrieval problem classically SHawking proposes the
+surface of the black hole to be like a hologram and uses supertranslation symmetry from the BMS
+group to gain information about the phase delay of a wavepacket scattered from the horizon 2 G
+mersiniphysicsuncedu
+t Hooft uses the gravitational barrier to postulate an imaginary surface near the horizon a brick
+wall from which incoming waves scatter off as if bouncing from an invisible hard wall 1 and
+the outgoing modes contain the information of near horizon scattering in their phase
+Both models aim to extrapolate a scattering matrix relating the in and out going waves While
+successfully constructing the Smatrix elements both models run into a serious difculty the
+black hole entropy diverges which implies an innite number of microstates The phase delay for
+the outgoing wavepackets in both proposals depends on momenta and the transverse coordinates
+The divergence at the classical level is to be expected since the number of modes being scattered is
+unbound and their energies are unbound becoming worse near the horizon due to blueshifting
+These lead to a quadratic divergence in the transverse momenta as well as a logarithmic divergence
+Achieving an S matrix description to relate the incoming and outgoing wavepackets makes
+these proposals the most promising solution to a 45 years old outstanding problem So it is
+reasonable to consider these models seriously and hope that when quantum effects are incorporated
+in the two proposals the entropy of the black hole derived from them will recover the celebrated
+Bekenstein-Hawking entropy area lawA remaining alternative to the information loss puzzle is
+that singularities and event horizons may not exist as considered in 3 a question that will soon
+be settled observationally by the Event Horizon Tracer EHT
+The main emphasis in both models 1 2 is on the information encapsulated in the phase of the
+outgoing wavepackets about the incoming modes scattered near the horizon
+Here I am interested in the quantum aspects of the problem specically an additional subtlety
+related to quantum measurement When the scattering is treated at the quantum level then the set
+of incoming and outgoing modes are inevitably subjected to measurement processes by the black
+holes occuring during their scattering off or near the horizon Let us consider the black hole with
+mass M as a classical measuring device a detector watching over that is performing random
+measurements onto the incoming quantum modes to determine their state The frequency of mea-
+surement depends on the frequency of the wavepacket If we ignore the effect of measurement
+then the evolution of the scattered modes is given in 1 2
+For the sake of illustrating the effect of measurement I will consider the t Hooft model 1 as
+a working example since the details of the S Hawkings proposal 2 presented at the Hawking
+Radiation conference are not yet available to the public However without loss of generality the
+effect of measurement on the entropy and probability discussed here in the context of 1 would
+apply in the same manner to model for information retrieval of 2
+II ENTROPY OF THE INFORMATION RETRIEVED AND QUANTUM ZENO EFFECT
+A G t Hoofts Brick Wall model
+Lets briey review the key ndings and notation of 1 needed for the next section The reader
+is referred to the original papers 1 for the model and for the steps of derivation of formulas used
+The transverse coordinates  are denoted by x and the longitudinal ones by z  1
+zt
+The at metric is written in terms of u   xz The author of 1 showed that if a particle A for
+example with a momentum p  00 p0 travels through a reference point 0000 it will
+induce a shift along the p direction to some test particle B sitting at  x00 by displacing it to
+a new position  x4GpLog x
+C 0 where G is Newtons constant and C a constant Note that
+the shift depends on the transverse coordinates One can think of this effect as the shock wave of
+the fast moving particle A being produced near the horizon hits particle B and displaces it by the
+above amount
+In 1 a scattering matrix is derived by using the shift of the outgoing modes that a particle going
+in to the black hole induces then generalizing it to a distribution of in and outgoing particles from
+which the in  and out  states of the black hole with the added inout particles are constructed
+ outSin  out0Sin0  e4iGcid82 d2 xLog xcid48 xCpout  xcid48 pin x
+In this expression 21 p
+out x describe the total momentum distribution on the horizon of
+in and out going particles
+Using Rindler coordinates  after diagonalizing for the scattered modes 1 a hard wall
+boundary condition is imposed at   0 where the mode bounces This boundary condition gives
+a relation between the in and the outgoing mode that bounced off the wall at location 0 near
+the horizonThe relation between the diagonalized Fourier transformed in and out going modes i
+becomes
+ikout  AikeikLogikin
+where k is the Fourier parameter Aik the coefcient and   8G
+l2  where l is the transverse
+momenta The exchange of the transverse momentum l is assumed to be small and ignored The
+system is now placed in a box with size 1  12Log cid39 LogM2 and the boundary conditions
+in the box provide the energy levels kn by
+n  kn1  0 cid39 knLog 12Log 12Logk  1
+From here assuming the size of the box is large and ignoring the transverse momentum the
+density matrix or partition function in this classical picture becomes
+Z  eF  stateseEn cid39 knekn 
+2Log  Log   Log
+Here   8M is the Hawking inverse temperature  is the Euler Gamma coefcient Log is
+roughly the size of the box taken to recover Hawking radiation at innity  cid39 M2 and the reason
+for the sum over states being cid39 rather than equal to the sum over the energy levels kn is due to the
+transverse momentum not being included in the above sum
+B Black Hole Entropy in the context of the Quantum Zeno Effect
+Each mode with an energy level kn will have a 2 j  1 degeneracy due to angular momen-
+tum j that needs to be summed So the sum over states would normally include a  j j j  1
+Equivalently in the continuum limit we need to integrate with respect to the transverse momenta l
+Then Eq 24 contains a double integralcid82 ldl and the integral over kn in  The problem is that the
+integration over the transverse momentum l makes the expression quadratically divergent besides
+the logarithmic divergence coming from the Log already present in Eq24
+An ingoing particle will continue its typical infalling trajectory into a black hole while the
+bounce at the horizon or the hard wall refers only to the information carried by the outgoing
+mode as emphasized in 1 Therefore both the hologram and brick wall models allow us to
+continue alternate between a description of Hawking radiation as vacuum pair creation of entan-
+gled particles in the exterior of the black hole or the alternative description of Hawking radiation
+as a tunneling process 4 which is useful for illustrating the quantum effects here Seen as a
+tunneling process black hole radiance is obtained either by outgoing positive energy particles tun-
+neling outside the gravitational barrier or as a pair creation outside the black hole with the negative
+energy particle in the pair tunneling into the black hole We are dealing at the quantum level with
+unstable quantum systems since particles can tunnel in or out the gravitational potential
+We would now like to show that with the measurement process the black hole performs on the
+in and out going modes high energy modes are trapped while low energy ones decohere What
+this means in the tunneling view is the tunneling lifetime of the high energy particles becomes
+very long due to their frequent measurement by the black hole These pairs keep returning to their
+intial state every time they are monitored So quantum entaglement of the high energy pair is
+preserved but the particle carrying the entanglement information cannot tunnel out to contribute
+to Hawking radiation
+To proceed let us start with the basics Assume we start with a coherent incoming wavepacket
+The scattering matrix element connecting the in and out going states and its survival probability
+are related up to a factor
+Pinout cid39   outSin  2
+Since we are interested on the quantum aspect of scattering we have to take into account
+the monitoring of the incoming and outgoing modes by the black hole near the bounce point
+Let us take a black hole with mass M as a classical detector monitoring the quantum particles
+The random measurement the black hole performs on these modes is inevitable and its frequency
+depends on the frequency of the mode as explained above The measurement gives rise to the
+quantum Zeno effect QZE a fact well known in literature 5 straightforward to derive and
+conrmed experimentally for a variety of quantum systems  for conning tunneling potentials
+similar to the one here see 6 and other types of potentials see 7 and references therein
+QZE leads to three regimes short time frequent measurement intermediate time and long
+time measurement The regime is determined by the frequency of measurements compared to the
+Zeno dened below For example modes with inverse frequencies that are shorter than the Zeno
+time fall under short time measurement behaviour but modes with inverse frequencies that are
+much longer than the Zeno time fall under the long time measurement regime and so on A short
+time expansion of the probability with the QZE included leads to a modication of the exponential
+tunneling probability by a quadratic behaviour in time
+Pt cid39 1 2
+ 2
+cid39 e
+Here z is the Zeno time The Fourier transform of 26 gives the characteristic function ie the
+probability weights for each mode in momentum space Due to the relation of the probability to
+scattering given by Eq25 the scattering matrix in Eq21 also needs to be modied by multiplying
+it with the square root of Eq27 for the QZE to be taken into account
+The intermediate time regime allows for the typical exponential tunneling decay and the long
+term regime modies the exponential with a power law tail
+The regime is determined by the Zeno time for example the short time measurements are the
+ones performed during time intervals less the Z  If we denote by Hint the interaction Hamiltonian
+of the detector with the quantum particles in our case the interaction of the black hole hard wall
+intin 
+with the in and out going particles then the Zeno time can be calculated from 2
+Both models we are interested in here 1 2 consider the scattering surface from which the
+incoming modes bounce as a hard wall located at R cid39 2M or near   0 Then the interaction
+of the black hole hard wall with these modes can well be approximated by the hard sphere
+potential It follows that in the hard sphere approximation the Zeno time becomes z cid39 M Then
+the characteristic function obtained from Eq 26 results in probability weights for each mode
+kl that is modied by the QZE quadratic factor given below
+z  inH2
+pkl cid39 M2eM2l2k2
+with l the transverse momenta and k the longitudinal momenta The frequency of measurement
+is determined by the frequency of the particles  in the sense that their monitoring by the black
+ For massless particles 2  k2  l2 and since z cid39 M then a short
+hole occurs during a time  cid39 1
+time regime for the massless modes is valid for those modes with   M1
+Incorporating the QZE modication to probability of Eq 27 that arises from the black hole
+measurement in the density matrix of Eq24 is now straightforward as shown next
+Our goal is to estimate the entropy by including the effect of measurement in the density matrix
+and summing over all states including the transverse momenta l in the continuum limit It follows
+that 24 now reads
+Z  eF  stateseEn pkl 
+which yields the following expression for the density matrix with   8M the inverse Hawking
+ldlekM2eM2l2k2
+temperature
+cid90
 cid90 
-we have Efk  M pk Setting D cid80
-pk 
-Denoting by fk k  1 2     n the number of receptor species observed exactly k-times in the sample
-k fk the likelihood function for M and  can be written as
-LM fk 
-M  Dcid81
-k1fk
-p0MDcid89
-pkfk 
-The unconditional MLEs for M and  and their asymptotic variances are obtained based on the above
-likelihood which as we can see depends on the data only through the observed values of fk The
-likelihood can be factored as
-LM fk  LbM DLcfk D
-where LbM D is a likelihood with respect to D a binomial M 1p0 variable and Lcfk D
-is a conditional multinomial likelihood with respect to fk k  1 with cell total D and zero-truncated
-cell probabilities pk1  p0 k  1 ie
-Lcfk D 
-Dcid81
-k1fk
-cid21fk
-cid20 pk
-1  p0
-cid89
-The MLE obtained from this likelihood can be regarded as a conditional empirical Bayes estimator
-if we think of the mixing distribution as a prior distribution having unknown parameters that must be
-estimated See eg Rodrigues et al 2001 for further reference
-22 Extension to bivariate models
-As we shall see in the next section it is of interest to also consider multivariate models of abundance
-For the purpose of our discussions below we focus on the bivariate models but the modications for
-higher dimensions are rather straightforward For simplicity assume that we have the same M species in
-both populations In direct analogy with the notation of the previous section dene now pk l to be
-the probability that any TCR species ie a TCR clone is present k times in the sample from the rst
-population repertoire and l times in the sample from the second one Let fkl be the empirical count
-kl0 fkl assuming f00  0 Let f 1 2  be the bivariate mixture distribution
-and set now D cid80
-The likelihood formulae from previous section extends to the bivariate case as
-M  Dcid81
-kl0fkl
-p0 0MD cid89
-kl0
-pk lfkl 
-LM fkl 
-cid90 
-pk l 
-1e1l
-2e2 k l f 1 2 d1d2
-k l  0 1    
-Note that as before Efkl  M pk l The likelihood function for M and  can be again factored as
-LM fkl  LbM DLcfkl D
-where in obvious analogy with 22 LbM D is now a likelihood with respect to D a binomial
-variable with parameters M 1  p0 0 and Lcfkl D is a conditional multinomial likelihood
-with respect to fkl k  l  0 with cell total D and the bivariate zero-truncated cell probabilities
-pk l1  p0 0kl k  l  0 ie
-Lcfkl D 
-Dcid81
-kl0 fkl
-cid20 pk l
-1  p0 0
-cid89
-cid21fkl
-3 Diversity Analysis and Clustering
-When studying evolution of TCR species it is of interest to compare their diversity by which we mean
-herein cf Section 1 the clonal size distribution pk and the species number M  Such repertoire
-diversity comparisons are of great interest for instance in clinical studies where the quantities of interest
-are the divergences of multiple observed TCR repertoires from some control or asymptotic one The
-individual repertoires of antigen receptors can be then characterized in terms of their divergence from
-the control Chen et al 2003 Komatsu et al 2009 Pacholczyk et al 2007 2006 Under our denition
-the TCR repertoire diversity is completely determined by the parameters M  This agrees with
-the original concept of species diversity known from the eld of ecology where the term itself relates
-both to the number of species richness and to their apportionment within the sequence evenness
-or equitability see Sheldon 1969 A sensible method of comparing diversity of multiple repertoires
-simultaneously is based on a concept of pairwise diversity dissimilarity measure and the hierarchical
-clustering induced by it The hierarchical clustering which we discuss in more detail below is one of
-many modern methods of analyzing patterns in high-dimensional data on the grounds of the so-called
-unsupervised statistical learning theory cf eg Hastie et al 2001 a very dynamically developing area
-of modern statistics
-31 Diversity dissimilarity measures
-Assume that the overall similarity between a pair of TCR repertoires with respective clonal abundance
-distributions p and q is quantied by some non-negative function Qp q referred to as the similarity index
-or similarity measure Since typically the samples from the joined distribution frequency of abundance
-are not available in data collected from TCR repertoires some of the crude similarity indices are based
-simply on the joined TCR species presenceabsence data ie the number of TCR species shared by two
-samples and the number of species unique to each of them see discussion in Legendre and Legendre
-1998 Examples of such indices are the classical Jaccard index and the closely related Srensen index
-the two oldest and most widely used similarity indices in ecological biodiversity studies Magurran 2005
-One of the advantages of the Poisson mixture model described in the previous section is that it allows
-for dening meaningful indices incorporating pairwise comparisons of the TCR species based on joined
-distribution of abundance As representative examples of such indices we consider here the Morisita-
-Horn index DM H  Magurran 2005 the mutual information criterion DM I  which is a special case of
-a Kullback-Leibler divergence see eg Koski 2001 and the overlap index DOV  introduced by Smith
-et al 1996 All of these indices give rise to the corresponding measures of dissimilarity concentrated on
-the unit interval with the perfect correlation or complete overlap between the frequency distributions
-yielding the value zero Indeed they are all seen as special cases of the following general construction
-For any bivariate probability distribution p with corresponding marginal distributions p1
-and p2
-consider a similarity index Qp1
-  p2
-  satisfying
-with the right bound attained when p1
-measure of dissimilarity between the pair p1
-0  Qp1
-  p2
-   Qp1
-  p2
-  p2
-  p1
-   Qp2
-  p2
-  Then the corresponding normalized Q-induced
-  may be dened as
-  p2
-   1 
-  p1
-  p2
-To obtain the Morisita-Horn dissimilarity index DM H  we take in 32 Q  QM H
-2Qp1
-  p2
-   Qp2
-cid88
-k l pk l
-kl1
-QM H p1
-  p2
-    cid88
-kl0
-which obviously satises 31 for any non-negative random variables A closely related correlation-based
-dissimilarity index D is obtained when we take Q  Q with
-Qp1
-  p2
-kl pk l
-where k  km1s1 and l  lm2s2 and mi and si are respectively mean and standard deviation
-of pi
-  i  1 2 In this case the inequality 31 simply asserts that 0  Q  1
-A popular dissimilarity measure which we shall denote here by DOV is obtained by averaging con-
-ditional probabilities of individual receptor species presence in both samples given its presence in one
-The measure was introduced by Smith et al 1996 to quantify overlap between repertoires and is
-obtained by taking the following similarity index
-QOV p1
-  p2
-kl0 pk l
-k0 p1
-l0 p2
-Finally in order to obtain the mutual information dissimilarity index DM I  we take in 32 Q 
-which again trivially satises 31
-QM I where
-QM I p1
-  p2
-pk l log
-pk l
- k p2
-The fact that the above function satises 31 is shown in the appendix Note that all the above
-similarity indices QM H QQOV and QM I and thus also their corresponding dissimilarity measures
-depend on the underlying mixing distribution parameters  but not explicitly on the species number M 
-This is desirable since the quantity M is typically unknown and dicult to estimate due to often very
-severe undersampling of the TCR repertoires cf eg Sepulveda et al 2009 In the parametric setting
-considered here if needed the value of M may be estimated a-posteriori by either of the estimates
-cid80
+cid20
+Log 1
+Log 1
+cid21
 cid32
-1cid80
+cid18
+Z  eF 
+4M2 e
+Merf
+cid34
+cid19
+cid18 
+1F100
 cid32
-cid88
-kl0
-cid33
-1cid80
-cid33
-M1  D1  p0 0
-cid88
-kl0kl0
-fklpk l
-whose close numerical agreement usually indicates a robust t of the bivariate parametric mixture
-model Note that M2 is simply a parametric version of the Horvitz-Thompson estimator Horvitz and
-Thompson 1952
-32 Hierarchical clustering
-For a given pairwise dissimilarity measure D of TCR repertoires it is a standard unsupervised statis-
-tical learning approach to simultaneously compare N repertoires in terms of D by means of building
-hierarchical clusters which are graphically represented by dendrogarms or tree diagrams In such hi-
-erarchical clustering procedure the TCR data are not partitioned into a particular cluster in a single
-step instead as a name suggests a hierarchical structure is produced in which the clusters at each
-level of the hierarchy are created by merging clusters at the next lower level The main advantage of
-hierarchical clustering approach lies in the fact that no cluster number needs to be specied in advance
-Hierarchical clustering is performed via either agglomerative methods which proceed by series of fusions
-of the N objects into groups or divisive methods which separate objects successively into ner group-
-ings Agglomerative techniques are more commonly used and this is the method we consider below for
-TCR repertoires For a general introduction to clustering and unsupervised learning interested reader
-is referred to chapter 14 in the popular monograph Hastie et al 2001
-33 Poisson-lognormal model
-Whereas there are many possible models of parametric bivariate mixture the recent studies in Engen
-et al 2002 and Sepulveda et al 2009 seem to indicate that lognormal mixing distributions may be
-often an appropriate choice for TCR repertoires modeling In that spirit we consider herein a bivariate
-model based on log-binormal variates Under the assumption of random sampling the number of
-individuals sampled from a given receptor species with abundance  is Poisson distributed with mean 
-If we assume that ln  is normally distributed with mean  and variance 2 among species then the vector
-of individuals sampled from all M species constitutes a sample from the Poisson lognormal distribution
-with parameters    2 where  and 2 are the mean and variance of the log abundances The
-corresponding mass function is of the general form 21 and may be written as
-cid90 
-where  is a standard normal density function and
-pk  2 
-gk  uudu
-gk  u 
-expuk  k  eu
-k  0
-is the re-parametrized Poisson distribution Similarly when we consider pairs of counts of individual
-receptors from two dierent repertoires we may think of them as a random sample of size M  from the
-bivariate Poisson-lognormal distribution BPLN with probability mass function given as in 23 That
-is we assume that the log abundances among species have the binormal distribution with parameters
-1 2 1 2  For a general detailed description of the multivariate Poisson distributions see Aitchi-
-son and Ho 1989 Let u v  denote the normal bivariate density with correlation coecient  zero
-means and unite variances The distribution of BPLN is given in terms of the bivariate probability mass
-function pk l  pk l 1 2 2
-cid90 
-2  for k l  0 where
-cid90 
-pk l 1 2 2
-2  
-gk1 1 ugl2 2 vu v du dv
-From the above formula it follows in particular that both marginals of BPLN are the univariate Poisson-
-lognormal distributions 39 with respective parameters i 2
-i  i  1 2 Since M is usually unknown
-when tting the model we only consider the number of individuals for the observed receptor species and
-thus the distribution of the number of observed individual receptors follows the zero-truncated BPLN
-distribution with probability mass function
-pk l 1 2 2
-1  p0 0 1 2 2
-The maximum-likelihood estimators MLEs of the parameters of this distribution were discussed
-eg in Bulmer 1974 and more recently in Karlis 2003 and Engen et al 2002 The latter approach
-is conveniently implemented in the freely available R package poilog R Development Core Team 2009
-which we have used in the current paper to perform all the necessary parameter tting In our setting
-the model parameters were calculated from the multinomial conditional likelihood function 24 where
-the truncated probability quantity pk l1  p0 0 is given by 311
-Under the assumed BPLN model the measures of dissimilarity may be computed either directly or
-by Monte-Carlo approximations Denoting the means of the BPLN marginals by
-i  1 2
-the moment-based dissimilarity measures DM H and D are given by
-i  expi  2
-DM H  1 
-212 exp12
-1  21  2 exp2
-cid11211  1exp2
-11  1 exp2
-212 exp12  1
-1  1cid11221  2exp2
-2  1
-D  1 
-where in 314 the quantities
-i1  iexp2
-i   1
-i  1 2
-are seen to be the marginal variances of the BPLN distribution The formulae 313-314 provide
-for a convenient way of estimating the dissimilarities DM H and D from the data simply by replacing
-the unknown distribution parameters by their sample estimates calculated via maximum likelihood for
-instance by using the numerical algorithms implemented in the poilog R-package
-Unfortunately due to the fact that the mass function 310 is not available in a closed form there are
-no similar formulae for the indices DM I DOV  These indices are typically approximated by the Monte-
-Carlo-based bootstrap procedures which are also used to derive condence intervals and standard errors
-of the parameter estimates in the model The general justication for such derivations is provided
-eg in Gill et al 2009 and Rempala and Szatzschneider 2004 The reader is referred to Efron and
-Tibshirani 1997 for a general introduction to the theory and practice of statistical bootstrap which
-is the computational technique we rely upon heavily in our modeling approach and the data analysis
-described below
-4 Application to TCR Repertoire Data
-In this section we illustrate the parametric inference on T-cell receptor data based on BPLN model
-and the associated pairwise dissimilarity measures by analyzing diversity of the repertoires of T-cell
-receptors derived from two types of genetically-engineered TCR-mini mice the wild type with
-genetically restricted TCR repertoire and unaltered repertoire of self antigens bound to class II MHC
-and the Ep B63VJEp mice that in addition to restricted TCR repertoire also express only single
-covalently linked to MHC Ep peptide Pacholczyk et al 2006
-41 Data description and processing
-The description of the transgenic TCRmini mice modications was already detailed in the recent
-work Pacholczyk et al 2007 Herein we mention only briey that the TCRmini mice is a new
-generation of TCR transgenic mouse where all T-cells express one pre-specied TCR chain specically
-the chain V14D2J26 and the unique TCR mini-locus This mini-locus allows only for restricted
-rearrangements of a single V29 segment to one of the two J J26 and J2 segments These mice
-have no other loci that encode TCR chains and therefore their entire diversity of TCRs is derived from
-the articially introduced TCR mini locus resulting in greatly altered TCRs abundance
-For the purpose of testing our statistical model two subpopulations of CD4 T-cells ie T-cells
-expressing a surface marker CD4 were collected representing respectively regulatory TR and naive
-TN T-cells where the TR cells are dened as those expressing the additional marker Foxp3
-addition these two subpopulations of CD4 T-cells were isolated either from 1 the peripheral lymph
-nodes or 2 from the thymus giving us a total of eight TCR populations diering by the animal type
-TN1 TR1 TN2 TR2 TN1 TR1 TN2 TR2
-Up -331
-Table 1 Maximum likelihood estimates of the means and variances of the Ep TCR-restricted and Wt
-wild-type mice repertoires along with bias corrected 95 condence bounds generated via parametric
-bootstrap
-T-cell type and tissue location In the thymus gross of CD4 T-cells undergo development and in the
-lymph nodes CD4 T-cells are retained unless activated by specic antigen and therefore two markedly
-dierent patterns of clonal abundance in these organs are generally expected Additionally because in
-the Ep mice express only single class II MHCpeptide complex the diversity of CDR3 region of TCR
-chain is drastically reduced in comparison with TCR-mini wild mice For these reasons the dataset is
-uniquely suitable for testing the BPLN model
-The TCR data from both types of mice was collected as follows for more details on a similar
-data harvesting procedure see also eg Warren et al 2009 Freeman et al 2009 Using specic
-uorescent reagents populations of T-cells from dierent organs were separated into individual wells on
-96-well plates and amplied in their unique CDR3 regions of their TCR chain using single-cell RT-
-PCR see eg Kuczma et al 2009 Following this amplication the CDR3 regions were sequenced and
-analyzed providing the distribution of these regions in native subpopulations of T-lymphocytes This
-type of procedure has been widely considered to be one of the most reliable methods to harvest T-cell
-repertoires Luczynski et al 2007 Single T-cells can be separated from cell suspension or be isolated
-from tissue sections Both the  and the  chains can be amplied and sequenced to provide unambiguous
-identication of T-cell clones This method avoids the problems of skewed PCR amplication and varying
-TCR mRNA expression in dierent cells Its obvious drawback is the under-sampling issue alluded to
-already in Section 1 a very large number of cells need to be analyzed to ensure detection of rare clones
-and to provide a global representation of the T-cell repertoire We note that with the availability of
-the next generation sequencing technology Wong et al 2007 the large number of single cell RT-PCR
-could be replaced with the high throughput PCR from heterogeneous population of T-cells However
-at its current stage the technology is not yet recommended for repertoires analysis due to diculties of
-matching specic TCR and TCR chains when amplied simultaneously In addition there is also a
-high risk of counts bias due to the skewed amplication process in high throughput data which tends to
-over-express the most dominant DNA sequences and under-express or even remove the rare ones
-42 Analysis under BPLN model
-In order to assess the usefulness of a proposed parametric method of TCR data modeling we have rst
-generated the BPLN model-based estimates of the dissimilarity matrix for the eight TCR repertoires
-using separately each of the four dissimilarity measures D of the general form 32 described in Section 3
-1 2
-For the moment-based dissimilarities DM H and D we have used the explicit formulae 313 and 314
-whereas for the remaining two measures DOV and DM I we have directly approximated the quantities
-pk l 1 2 2
-2  given by 310 and subsequently used the parametric bootstrap procedure to
-produce the empirical approximations of dissimilarities In all cases the BPLN distribution parameters
-were estimated by the maximum likelihood estimators MLEs computed by maximizing the conditional
-multinomial likelihood function 24 based on the zero-truncated probabilities 311 In principle one
-could use the conditional likelihood of multivariate Poisson-lognormal distribution directly to estimate
-all of the parameters simultaneously however due to the complicated form of the resulting mixture
-probabilities we have deemed that approach to be too unreliable numerically On the other hand the
-iterative bivariate model tting tting one BPLN model at a time conditionally on the remaining
-repertoires and iterating until convergence was seen to be a reasonable fast and numerically stable
-procedure yielding a set of estimates consistent with marginally MLE-tted parameters regardless of
-the order in which conditioning was performed
-The results of the conditional MLE procedure are partially summarized in Table 1 where the estimates
-of the  and 2 parameters for Poisson-lognormal abundance distributions for the eight repertoires are
-reported along with the corresponding condence intervals obtained via the parametric bootstrap bias-
-corrected percentile method see eg Rempala and Szatzschneider 2004 for details on bootstrap-based
-interval estimation Note that the parameters  and 2 are related to the marginal estimates of means
-and variances of the Poisson-lognormal variates by the formulae 312 and 315 respectively In order
-to conserve space the estimates of the BPLN correlation coecients are not shown as they are similar
-in relative values to the moment-based dissimilarities summarized below in Figure 2 We note that
-the marginal values of the repertoire-specic parameters in both types of repertoires wild-type and
-Ep were found to be of similar magnitude with estimated values of  parameters between -45 and
--29 and 2 parameters between 13 and 2 Overall the numerical values of the parameters indicated
-smaller Poisson-lognormal means for the restricted-repertoire mice as compared with the wild-type
-Additionally the naive T-cell repertoires generally seemed to have smaller means and larger variances
-of the mixing log-normal distributions then the regulatory T-cell repertoires
-The goodness of t statistics were calculated for the bivariate marginal t via the bootstrap distri-
-bution of the conditional likelihood statistic 24 In all cases the dierences between the bivariate data
-and tted models were not-signicant all p-values 05 as measured by the bootstrap tests indicating
-reasonable good t of the parametric distributions to the zero-truncated abundance data In addition
-to the goodness-of-t testing we have also performed qualitative comparisons of BPLN model versus
-data via smoothed heat-map plots Anderes et al 2009 One example of such comparison is provided in
-Figure 1 where the smoothed heat-map illustrates both true and model-generated bivariate abundance
-distributions of wild-type receptor repertoires naive TCRs from lymph nodes and regulatory TCRs
-from thymus ie Wt TN1 and Wt TR2
-One of the major advantages of the parametric BPLN model is that in many practical situations of
-interest it produces across a number of commonly used dissimilarity indices of the form 32 hierarchical
-clustering models which are consistent in terms of the nal clusters composition That is unlike in the
-non-parametric analysis for many TCR datasets the choice of the dissimilarity measure D is largely
-irrelevant when modeling repertoires with BPLN model This is not surprising since our interpretation
-of the dissimilarity measure is that it accounts for dierences in diversity  M  between pairs of
-repertoires Under the condition which is often satised see Table 1 that 1  2 and 1  2 one
-may show that in the BPLN model the dissimilarity is a monotone function of the parameter  and
-hence measures the correlation between repertoires This is indeed the case for all indices D discussed
-in Section 3 above
-The results of hierarchical clustering analysis of the eight mice TCR repertoires under DM H and DM I
-are presented in Figure 2 The gures left panels top and bottom show the dendrograms obtained
-by agglomerative hierarchical clustering with a complete link function using DM H top and DM I bot-
-tom as the dissimilarity measures Both dendrograms indicate a very good relative agreement of the
-cluster hierarchical structure and the correct nal classication of the eight repertoires in terms of the
-experimental condition restricted vs wild-type as well as the repertoire type naive or regulatory and
-tissue type thymus vs lymph nodes Almost identical dendrograms not shown were also produced by
-applying the remaining two measures discussed namely D and DOV  The central panels in Figure 2
-illustrate the bootstrap approximations to the distribution of the Frobenius distance see eg Golub
-and Van Loan 1996 for more on matrix distances of the dissimilarity matrix DM H i j top and
-DM I i j bottom 1  i j  8 with 95 condence bound marked with vertical lines The right
-panels show the dendrograms corresponding to the dissimilarity matrices at the upper bound of the
-corresponding 95 condence intervals ie right vertical lines of the central panels The fact that the
-left and right dendrograms in top and bottom panels have identical relative hierarchies indicates strong
-robustness of the hierarchical clustering against the uctuations of both DM H and DM I  The similar
-robustness was also true for D and DOV  This agreement between the dissimilarity matrices entries
-generated under BPLN model using four dierent dissimilarity measures DM H  D DM I and DOV is
-further illustrated in Figure 3 where the pairwise loess regressions Cleveland and Devlin 1988 of the
-entries of the dissimilarity measures on each other are presented indicating their monotone relationship
-almost a linear one between the rst three measures As already indicated such agreement should be
-expected if the data closely follows the BPLN model
-As our nal analysis for BPLN model we have also computed the species richness estimates 37
-and 38 for each pair of repertoires ie each in the total of 28 comparisons and averaged the result to
-obtain a pooled estimator of the ratio DM which was found to be 09 with the 95 condence interval
-of 06 11 These values suggest a much more severe under-sampling of the TCR populations then
-the traditional non-parametric estimator of Good 1953 given by f1D  25 where now f1 and D are
-computed from pooled repertoire data
-43 Analysis under non-parametric model
-In order to further examine the results of our parametric hierarchical clustering analysis of the TCR
-repertoires we have also performed the more traditional non-parametric hierarchical clustering analysis
-of the repertoires in which we have estimated the values of the two dissimilarity measures DM H and DM I
-with the non-parametric estimates based directly on the sample data Note that DM H is particularly
-convenient to analyze non-parametricaly as it only requires the relative estimates of the mixed and
-marginal moments of order two which may be calculated directly from the observed zero-truncated
-joined abundance For that reason the parametric and non-parametric measures DM H may be directly
-compared with each other On the other hand the information-based measure DM I may be estimated
-by means of a recently popularized Chao-Shen estimator Chao and Shen 2003 which in a manner
-similar to the ACE and Horwitz-Thomson estimates see eg Chao 2006 attempts to adjust explicitly
-for the fact of only observing the truncated joined distribution
-The result of the direct comparison between all the pairwise estimated DM H values under the BPLN
-and the non-parametric models is presented as a scatter plot with tted loess trend-line in Figure 4 The
-plot follows a linear trend indicative of a very close agreement between non-parametric and parametric
-DM H values for our TCR data This apparent almost linear relationship between the dissimilarities
-estimated under the two measures is also conrmed by the dendrogram computed under non-parametric
-DM H top panel in Figure 5 which gives a stable set of hierarchical clusters almost identical to those
-obtained under BPLN model top panel in Figure 2
-In contrast to the parametric case we found that the non-parametric analogue of the mutual in-
-formation MI dissimilarity 36 based on the coverage adjusted Chao-Shen entropy estimator Vu
-et al 2007 did not agree with the non-parametric Morisita-Horn MH dissimilarity and consequently
-yielded a very dierent and biologically uninterpretable TCR clustering which lacked separation between
-the wild-type and Ep mice These dierences between non-parametric MH and MI measures may be
-clearly seen in the two top panels of Figure 5 where also the lack of stability of the MI-dissimilarity
-is clearly manifested by the large dierence between dendrograms within the 95 condence bound
-induced by the Frobenius norm of the MI-dissimilarity matrix Note that this is not the case for the
-MH dissimilarity which appears quite stable
-The lowest third panel of Figure 5 illustrates a dierent non-parametric dissimilarity analysis we have
-performed based on the coverage adjusted estimated values of the Shannon entropy function for the
-eight repertoires see eg Vu et al 2007 and formula A1 in the appendix The pairwise dissimilarities
-were computed as absolute dierences between the estimated entropy values Such linear comparisons
-of the diversity measures across repertoires are often appropriate when the repertoires are assumed to
-have similar abundance patterns see eg Sepulveda et al 2009 However as we may see from the
-plots for our datasets the entropy-based clustering turned out to be only partially satisfactory as the
-entropy measure was only able to clearly separate two repertoires derived from the wild-type regulatory
-cells but not the remaining ones Overall it appears that for our dataset the entropy based clustering
-both via MI and the Shannon entropy performed poorly whereas the MH clustering was satisfactory and
-comparable in fact almost identical with our parametric results These large dierences seems to be
-at least partially due to the fact that unlike the MH dissimilarity estimate the non-parametric entropy
-estimates are adjusting for the zero-truncation of the observed distribution and these adjustments in
-our particular dataset seem to uctuate widely from repertoire to repertoire
-5 Summary and Discussion
-We have presented a simple bivariate-Poisson-lognormal parametric model for tting and analyzing TCR
-repertoires data which may be regarded as a natural multivariate extension of a Poisson abundance model
-with lognormal mixing distribution which has been applied in TCR modeling perviously As seen from
-our example of analyzing TCR naive and regulatory repertoires in the wild-type and TCR-restricted Ep
-mice the model provides for a robust and consistent t to the TCR data allowing for a very detailed
-yet relatively simple comparison of multiple repertoires for instance by means of dissimilarity analysis
-and hierarchical clustering We show that in our TCR dataset under the parametric model the four
-popular dissimilarity indices i Morista-Horn and ii correlation indices iii mutual information and
-iv the overlap dissimilarities are monotone functions of each other leading therefore to the same
-biologically meaningful clustering of the repertoires In contrast when applying to the same data the
-non-parametric estimates of dissimilarities the clusterings are seen to behave erratically and are highly
-dependent on the particular choices of measures with some of them egthe mutual information yielding
-biologically implausible clustering
-Our parametric analysis suggests that in a typical experiment based on harvesting sequences from
-single-cell TCRs the overall under-sampling of the TCR population is much higher than in the macro-
-scopic biodiversity studies for which many of the statistical tools of species abundance comparison were
-originally developed This and the apparent lack of agreement between the non-parametric dissimilarity
-measures when applied to our relatively simple dataset seem to indicate that many commonly used
-non-parametric biodiversity statistics may perform poorly when applied to severely under-sampled TCR
-repertoires The advantage of the parametric approach and in particular the model proposed here is that
-even with very severe data under-sampling it allows for the proper adjustment for the missing abundance
-information and estimation of the full set of repertoires features The statistical package poilog available
-from CRAN archive httpcranr-projectorg makes the tting of our model particularly con-
-venient by providing numerical algorithms for the parameters estimation via the maximum likelihood
-Further studies and a larger number of TCR datasets with more sequences are needed in order to more
-comprehensively evaluate the BPLN model and test its ability to discriminate between TCR repertoires
-in a biologically meaningful way
-A Appendix Mutual Information Bounds
-The fact that the bounds 31 hold for the dissimilarity index 36 follows from the general properties
-of the Shannon entropy function which is dened see eg Koski 2001 for any discrete random vector
-X with probability distribution px as
-px log px
-with the summation is taken over x values for which px  0 Extending the denition of the index
-36 to any pair of discrete real random variables X Y with joined distribution px y and marginals
-px py we dene their mutual information as
-M IX Y  
-px y log
-HX  cid88
-cid88
- cid88
-cid18 px y
-px log px cid88
-pxpy
+cid33cid0lnM2cid1 
+cid114 2
+M2cid0 2lnM2  ln4M2cid1cid19cid21
+cid18
+cid18
+cid114 2
 cid19
- HX  HY   HX Y 
-cid18 pxpy
-cid19
-px y
-cid88
-px y
-M IX Y   0
-HX Y   HX
-Due to the elementary inequality logx  x  1 valid for any x  0 we have that
-cid88
-M IX Y  
-px y log
-and therefore
-cid88
-px y log px y
-py log py 
-cid18 pxpy
-px y
-cid19
- cid88
-pxpy  1  0
-Note that M IX X  HX and therefore due to symmetry and A2 to argue upper bound in 31
-it suces to show that
-This follows easily since
-HX Y   HX 
-cid88
-px y log px y cid88
-px log px  cid88
-cid18 px y
-cid19
-px y log
-The bounds 31 for M IX Y  follow now from A3A4 and A2 The measure and 36 is of
-course a special case of M IX Y 
-References
-Aitchison J and Ho C 1989 The multivariate poisson-log normal distribution Biometrika 764643
-Anderes E Stein M Minin V OBrien J Seregin A Marron B Tablar A Fujita A Sato J
-Kojima K et al 2009 Local likelihood estimation of local parameters for nonstationary random
-elds Arxiv preprint arXiv09110047
-Arstila T P Casrouge A Baron V Even J Kanellopoulos J and Kourilsky P 1999 A direct
-estimate of the human alphabeta t cell receptor diversity Science 286544195861
-Barger K and Bunge J 2008 Bayesian estimation of the number of species using noninformative
-priors Biometrical Journal 50610641076
-Barth R K Kim B S Lan N C Hunkapiller T Sobieck N Winoto A Gershenfeld H Okada
-C Hansburg D and Weissman I L 1985 The murine t-cell receptor uses a limited repertoire of
-expressed v beta gene segments Nature 316602851723
-Behlke M A Spinella D G Chou H S Sha W Hartl D L and Loh D Y 1985 T-cell receptor
-beta-chain expression dependence on relatively few variable region genes Science 229471356670
-Bulmer M 1974 On tting the poisson lognormal distribution to species abundance data Biometrics
-30101110
-Busch D H and Pamer E G 1999 T cell anity maturation by selective expansion during infection
-J Exp Med 189470110
-Butz E A and Bevan M J 1998 Massive expansion of antigen-specic cd8 t cells during an acute
-virus infection Immunity 8216775
-Casrouge A Beaudoing E Dalle S Pannetier C Kanellopoulos J and Kourilsky P 2000 Size
-estimate of the alpha beta tcr repertoire of naive mouse splenocytes J Immunol 1641157827
-Chao A 2006 Species richness estimation In Balakrishnan N Read C and Vidakovic B editors
-Encyclopedia of Statistical Sciences Wiley New York
-Chao A and Shen T 2003 Nonparametric estimation of shannons index of diversity when there are
-unseen species in sample Environmental and Ecological Statistics 104429443
-Chen W Jin W Hardegen N Lei K-J Li L Marinos N McGrady G and Wahl S M 2003
-Conversion of peripheral cd4cd25- naive t cells to cd4cd25 regulatory t cells by tgf-beta induction
-of transcription factor foxp3 J Exp Med 19812187586
-Cleveland W and Devlin S 1988 Locally weighted regression an approach to regression analysis
-by local tting Journal of the American Statistical Association 83403596610
-Davis M M and Bjorkman P J 1988 T-cell antigen receptor genes and T-cell recognition Nature
-3346181395402
-Efron B and Tibshirani R 1997 An introduction to the bootstrap Chapman  Hall
-Engen S Lande R Walla T and DeVries P 2002 Analyzing spatial structure of communities
-using the two-dimensional poisson lognormal species abundance model The American Naturalist
-16016073
-Ferreira C Singh Y Furmanski A L Wong F S Garden O A and Dyson J 2009 Non-obese
-diabetic mice select a low-diversity repertoire of natural regulatory t cells Proc Natl Acad Sci U S
-A 1062083205
-Fisher R A Corbet A S and Williams C B 1943 The relation between the number of species and
-the number of individuals in a random sample of an animal population Journal of Animal Ecology
-124258
-Freeman J D Warren R L Webb J R Nelson B H and Holt R A 2009 Proling the T-cell
-receptor beta-chain repertoire by massively parallel sequencing Genome Res
-Gill R Rempala G and Czajkowski M 2009 Condence estimation via the parametric bootstrap
-in logistic joinpoint regression Journal of Statistical Planning and Inference
-Golub G and Van Loan C 1996 Matrix computations Johns Hopkins Univ Pr
-Good I 1953 The population frequencies of species and the estimation of population parameters
-Biometrika 403237264
-Hastie T Tibshirani R and Friedman J 2001 Elements of Statistical Learning Data Min-
-ingInference and Prediction Springer-Verlag New York
-Horvitz D and Thompson D 1952 A generalization of sampling without replacement from a nite
-universe Journal of the American Statistical Association 47260663685
-Hsieh C-S Liang Y Tyznik A J Self S G Liggitt D and Rudensky A Y 2004 Recognition
-of the peripheral self by naturally arising cd25 cd4 t cell receptors Immunity 212267  277
-Hsieh C-S Zheng Y Liang Y Fontenot J D and Rudensky A Y 2006 An intersection between
-the self-reactive regulatory and nonregulatory t cell receptor repertoires Nat Immunol 7440110
-Janeway C 2005 Immunobiology The Immune System in Health And Disease Garland Science New
-York 6th edition
-Karlis D 2003 An em algorithm for multivariate poisson distribution and related models Journal
-of Applied Statistics 3016377
-Kepler T B He M Tomfohr J K Devlin B H Sarzotti M and Markert M L 2005 Statistical
-analysis of antigen receptor spectratype data Bioinformatics 21163394400
-Komatsu N Mariotti-Ferrandiz M E Wang Y Malissen B Waldmann H and Hori S 2009
-Heterogeneity of natural foxp3 t cells a committed regulatory T-cell lineage and an uncommitted
-minor population retaining plasticity Proc Natl Acad Sci U S A 106619038
-Koski T 2001 Hidden Markov models for bioinformatics Springer
-Kuczma M Pawlikowska I Kopij M Podolsky R Rempala G A and Kraj P 2009 Tcr
-repertoire and foxp3 expression dene functionally distinct subsets of cd4 regulatory t cells J
-Immunol 1835311829
-Legendre P and Legendre L 1998 Numerical ecology volume 20 of Developments in Environmental
-Modelling Elsevier Science BV Amsterdam english edition Translated and revised from the second
-French 1984 edition
-Lewins W and Joanes D 1984 Bayesian-estimation of the number of species Biometrics 402323
-Luczynski W Stasiak-Barmuta A Piszcz J Ilendo E Kowalczuk O and Krawczuk-Rybak M
-2007 B-cell chronic lymphocytic leukemia-derived dendritic cells stimulate allogeneic t-cell response
-and express chemokines involved in t-cell migration Neoplasma 546527535
-Magurran A E 2005 Biological diversity Current Biology 154R1168
-McHeyzer-Williams L J Panus J F Mikszta J A and McHeyzer-Williams M G 1999 Evolu-
-tion of antigen-specic t cell receptors in vivo preimmune and antigen-driven selection of preferred
-complementarity-determining region 3 cdr3 motifs J Exp Med 18911182338
-Naumov Y N Naumova E N Hogan K T Selin L K and Gorski J 2003 A fractal clonotype
-distribution in the cd8 memory t cell repertoire could optimize potential for immune responses J
-Immunol 170839944001
-Nayak T 1991 Estimating the number of component processes of a superimposed process Biometrika
-7817581
-Naylor K Li G Vallejo A N Lee W-W Koetz K Bryl E Witkowski J Fulbright J Weyand
-C M and Goronzy J J 2005 The Inuence of Age on T Cell Generation and TCR Diversity J
-Immunol 1741174467452
-Ord J K and Whitmore G A 1986 The poisson-inverse gaussian distribution as a model for species
-abundance Commun Statist-Theory Methods 15853871
-Pacholczyk R Ignatowicz H Kraj P and Ignatowicz L 2006 Origin and t cell receptor diversity
-of foxp3cd4cd25 t cells Immunity 25224959
-Pacholczyk R Kern J Singh N Iwashima M Kraj P and Ignatowicz L 2007 Nonself-antigens
-are the cognate specicities of foxp3 regulatory t cells Immunity 273493504
-Pewe L L Netland J M Heard S B and Perlman S 2004 Very diverse cd8 t cell clonotypic
-responses after virus infections J Immunol 172531516
-R Development Core Team 2009 R A Language and Environment for Statistical Computing R
-Foundation for Statistical Computing Vienna Austria
-Rempala G A and Szatzschneider K 2004 Bootstrapping parametric models of mortality Scand
-Actuar J 15378
-Rodrigues J Milan L and Leite J 2001 Hierarchical bayesian estimation for the number of species
-Biometrical Journal 436737746
-Sallusto F Geginat J and Lanzavecchia A 2004 Central memory and eector memory t cell
-subsets function generation and maintenance Annu Rev Immunol 2274563
-Sallusto F Lenig D Forster R Lipp M and Lanzavecchia A 1999 Two subsets of memory t
-lymphocytes with distinct homing potentials and eector functions Nature 401675470812
-Savage P A Boniface J J and Davis M M 1999 A kinetic basis for t cell receptor repertoire
-selection during an immune response Immunity 10448592
-Sebzda E Mariathasan S Ohteki T Jones R Bachmann M F and Ohashi P S 1999 Selection
-of the t cell repertoire Annu Rev Immunol 1782974
-Sepulveda N Paulino C D and Carneiro J 2009 Estimation of t-cell repertoire diversity and
-clonal size distribution by poisson abundance models J Immunol Methods
-Sheldon A 1969 Equitability indices dependence on the species count Ecology 503466467
-Sichel H 1997 Modelling species-abundance frequencies and species-individual functions with the
-generalized inverse gaussian-poisson distribution South African Statistical Journal 3111337
-Smith W Solow A and Preston P 1996 An estimator of species overlap using a modied beta-
-binomial model Biometrics 52414721477
-Solow A 1994 On the bayesian-estimation of the number of species in a community Ecology
-75721392142
-Venturi V Kedzierska K Tanaka M M Turner S J Doherty P C and Davenport M P 2008
-Method for assessing the similarity between subsets of the t cell receptor repertoire J Immunol
-Methods 3291-26780
-Vu V Q Yu B and Kass R E 2007 Coverage-adjusted entropy estimation Statistics In Medicine
-262140394060
-Warren R L Nelson B H and Holt R A 2009 Proling model T-cell metagenomes with short
-reads Sequence analysis Proling model T-cell metagenomes with short reads 254
-Wong J Mathis D and Benoist C 2007 Tcr-based lineage tracing no evidence for conversion of
-conventional into regulatory t cells in response to a natural self-antigen in pancreatic islets J Exp
-Med 204920392045
-Figure 1 Model generated vs observed pairs of frequency data Left panel kernel-density-
-smoothed heatmap of joined frequency data of lymph nodes naive x-axis and thymus regulatory y-axis
-TCR repertoires in wild mice WtTN1 and WtTR2  Right panel kernel-density-smoothed heatmap
-for the same-size sample simulated from the distribution of BPLN random variable tted to the data
-Increased brightness indicates higher frequency
-Figure 2 Repertoire dendrograms and their condence bounds obtained under BPLN model
-Dendrograms for hierarchical clustering and their corresponding condence intervals obtained using ag-
-glomerative clustering and a complete link for eight repertoires of naive and regulatory TCRs derived
-from 1 the lymph nodes and 2 thymus in wild type and TCR mini miceTop panel left cluster-
-ing using Morisita-Horn dissimilarity measure DM H given by 33 middle bootstrap estimate of the
-95 condence interval of the Phrobenius norm of the DM H dissimilarity matrix right dendrogram
-corresponding to the upper bound of the 95 CI DM H dissimilarity matrix Bottom panel hierarchical
-clustering according to the parametric mutual information dissimilarity measure DM I given by 36
-EpTR1EpTR2EpTN1EpTN2WtTN1WtTN2WtTR1WtTR200020406081000020406000510152025EpTN1EpTN2EpTR1EpTR2WtTN1WtTN2WtTR1WtTR20204060810EpTR1EpTR2EpTN1EpTN2WtTN1WtTN2WtTR1WtTR208008509009510000500000501001502002468EpTR1EpTR2EpTN1EpTN2WtTN1WtTN2WtTR1WtTR2088092096100Figure 3 Pairwise comparison of dissimilarities under BPLN model Lower triangular panels
-pairwise dissimilarities plots obtained under BPLN models tted to mice data for the four dierent D
-measures discussed in Section 31 Local loess regression curves were added to the plots for better
-readability Upper triangular panels R2 values for the corresponding linear regressions
-Figure 4 Morisita-Horn DM H  dissimilarities under parametric and non-parametric models
-Scatter plot along with the local loess regression curve for pairwise dissimilarities between eight repertoires
-computed under parametric x-axis and non-parametric y-axis models using Morisita-Horn index as given
-by 33 In the non-parametric case the joined probabilities pk l are estimated by the corresponding
-joined frequencies
-Figure 5 Repertoire dendrograms and their condence bounds under non-parametric mea-
-sures of dissimilarity Dendrograms under various dissimilarity measures obtained from the non-
-parametric analogue of the model 311 using agglomerative clustering and the complete link
-three panel rows the most left dendrograms were obtained using the point estimates of the dissimilarity
-matrix calculated from the data whereas the most right ones were obtained using upper 95 condence
-bound on the Frobenius norm distribution of the dissimilarity matrix The corresponding bootstrap es-
-timate of the entire norm distribution is provided in the middle plot as a density estimator with 95
-bounds marked with vertical lines Top panels hierarchical clusters based on the nonparametric version of
-the Morisita-Horn dissimilarity index 33 Middle panels clusters based on the non-parametric version
-of the mutual information dissimilarity 36 Bottom panels clusters based on the values of the Shannon
-entropy function with no direct pairwise comparisons
-EpTR1EpTR2EpTN1EpTN2WtTN1WtTN2WtTR1WtTR20204060810 00020406081012140005101520EpTR1EpTR2EpTN1EpTN2WtTN1WtTN2WtTR1WtTR20204060810EpTR2EpTN1WtTN2EpTR1WtTR1EpTN2WtTN1WtTR2050055060065070 00010203040123456WtTN1EpTR1WtTR1EpTN2WtTR2EpTR2EpTN1WtTN2050055060065070WtTR1WtTR2EpTN1EpTR1EpTN2WtTN2EpTR2WtTN100040812012340001020304050607WtTR1WtTR2EpTN1WtTN2EpTR1EpTN2EpTR2WtTN100051015
+1F100
+ 2
+cid19cid19
+Equipped with the result in Eq29 we proceed to estimate the entropy S from it
+S  U V U 
+where V  F 1F1abx is the hypergeometric function and erf x the error function The
+result for the entropy when the QZE measurement effect is taken into account in the 1 2 models
+is shown in Fig1
+FIG 1 The red color is the derived entropy of the Brick Wall model of 1 with the Quantum Zeno Effect
+included The blue color plot is the Bekenstein Hawking entropy law of black holes shown for comparison
+Scid614M220406080M10002000300040005000SDerivedEntropyredvsBekensteincid45HawkingScid614M2blueIII REMARKS
+Although easy to obtain from Eq 29 and 210 the entropy expression is algebraically te-
+dious so instead we show the plot of S in Fig1 using Mathematica in order to compare it to the
+Bekenstein-Hawking entropy area law plotted in the same gure It can be seen that the black
+hole entropy is quite close to the Bekenstein-Hawking entropy The reason for the resemblance is
+that the high momenta modes are trapped by the black hole monitoring thus their contribution to
+the entropy is highly dampened
+Physically both models collect the information about the vacuum pairs entanglement in the
+Hawking radiation With the QZE included this process is modied The high energy pairs are
+stuck in their initial quantum entangled state their frequent measurement halts decoherence pro-
+tects their entanglement so information can not be carried away by an outgoing particle and these
+pairs not contribute signicantly to Hawking radiation As an aside the QZE seems to provide a
+natural mechanism for addressing the transplanckian problem of black holes On the other hand
+the lower energy pairs with wavelengths of order M or longer undergo a different dynamics their
+initial pair entanglement is destroyed information about their infalling partner is carried away
+by the outgoing partner in the pair by the mechanisms proposed in 1 2 Thus modes with
+wavelengths of order M or longer provide the dominant contribution to the entropy and Hawking
+radiation The loss of entanglement in the lower energy pairs is due to their infrequent monitoring
+by the black hole which triggers decoherence
+The overall result is a mixed state of mainly lower energy particles of wavelengths of order
+M or so seen as thermal radiation away from the black hole but which transferred their near the
+horizon information onto Hawking radiation Black hole monitoring plays an insignicant effect
+on these wavepackets due to the fact that their measurement is not frequent occuring at times of
+order or larger than M These modes follow the nearly normal scattering and evolution described
+in 2  with the only consequence being a memory loss of their initial entanglement as the
+result of the measurement process Their contribution provides the dominant channel for Hawking
+radiation
+We should emphasize that if we start say with coherent incoming wavepackets it is not surpris-
+ing that due to QZE we end up with an incoherent contribution added to the coherent states another
+way of stating that the outgoing wavepackets are in a mixed state while unitarity for the whole sys-
+tem of quantum particle pairs and the black hole is not violated as is clear from the derivation here
+Information about the whole system is not lost but the nite number of microstates Fig1 is due
+to the QZE of measurement
+1 G t Hooft arXiv150901695 gr-qc G t Hooft Nucl Phys B Proc Suppl43 1995 G t Hooft
+Nucl Phys B 256 727 1985 G t HooftJ Mod Phys A114623 1996
+2 S W Hawking Talk delivered at the conference Hawking Radiation Stockholm Aug25 2015
+arXiv150901147 hep-th J Polchinsky arXiv150508108
+3 S W Hawking arXiv14015761 hep-th L Mersini-Houghton arXiv14091837 hep-th L Mersini-
+Houghton Phys Lett B 738 61 2014 arXiv14061525 hep-th
+4 M K Parikh and F Wilczek Phys Rev Lett 85 5042 2000 doi101103PhysRevLett855042 hep-
+th9907001
+5 P Facchi V Gorini G Marmo S Pascazio and G Sudarshan Phys Lett A 275 12 2000
+doi101016S0375-96010000566-1 B Misra and E C G Sudarshan J Math Phys 18 756
+1977 doi1010631523304 C B Chiu E C G Sudarshan and B Misra Phys Rev D 16 520
+1977 doi101103PhysRevD16520 P Facchi G Marmo and S Pascazio J Phys Conf Ser
+196 012017 2009 doi1010881742-65961961012017 arXiv07114280 quant-ph P Facchi
+G Marmo S Pascazio A Scardicchio and G Sudarshan J Optics B 6 S492 2004 A P Balachan-
+dran and S M Roy Int J Mod Phys A 17 4007 2002 doi101142S0217751X0201056X quant-
+ph0102019 W M Itano D J Heinzen J J Bollinger and D J Wineland Phys Rev A 41 2295
+1990 doi101103PhysRevA412295 A Peres Am J Phys 48 931 1980 doi101119112204
+J J Halliwell and J M Yearsley Phys Rev D 86 024016 2012 doi101103PhysRevD86024016
+arXiv12053773 gr-qc
+6 Wilkinson S R Baruch C F Fischer M C Madison K W Morrow P R Niu Q Sundaram B
+Raizan M G Nature 387 5751997
+7 Y S Patil S Chakram M Vengalattore Phys Rev Lett 115 140402 2015 C Presilla R Onofrio
+and U Tambini Annals Phys 248 95 1996 doi101006aphy19960052 cond-mat9603182
