@@ -54,8 +54,8 @@ def wordcloud_make(text, discipline, image_name):
     plt.show()
 
 def searching():
-    for filename in os.listdir(os.path.join("Text_Docs")):
-        with open(os.path.join("Text_Docs", filename)) as text:
+    for filename in os.listdir(os.path.join("nlp_data", "nlp_Text_Docs")):
+        with open(os.path.join("nlp_data", "nlp_Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
             mod_raw = []
@@ -85,7 +85,6 @@ def searching():
             print(fdist.most_common(20))
             with open("ngram-intermediate.txt", "a") as outputty:
                 outputty.write('\n'.join('{} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14]) for x in clean))
-
 
             for word in interesting_words:
                 print(word)
@@ -127,7 +126,7 @@ def noun_parsing():
                     output.write("{}\n".format(entry[0]))
         with open("wordcloud.txt", "r") as input:
             text = input.read()
-            wordcloud_make(text, "nlp_out", "helix.png")
+            wordcloud_make(text, "nlp", "speaking.png")
         print(nounsDic)
         with open("Final.txt", "a") as file:
                 file.write("{}{}".format(nounsDic, "\n"))
