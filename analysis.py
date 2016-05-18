@@ -54,8 +54,8 @@ def wordcloud_make(text, discipline, image_name):
     plt.show()
 
 def searching():
-    for filename in os.listdir(os.path.join("nlp_data", "nlp_Text_Docs")):
-        with open(os.path.join("nlp_data", "nlp_Text_Docs", filename)) as text:
+    for filename in os.listdir(os.path.join("Text_Docs")):
+        with open(os.path.join("Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
             mod_raw = []
