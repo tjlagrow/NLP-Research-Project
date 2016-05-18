@@ -1,0 +1,505 @@
+Distilled Single Cell Genome Sequencing and De Novo
+Assembly for Sparse Microbial Communities
+Zeinab Taghavi1 Narjes S Movahedi1 Sorin Draghici12 and Hamidreza Chitsaz1
+1Department of Computer Science Wayne State University Detroit MI 48202
+2Department of Obstetrics and Gynecology Wayne State University Detroit MI 48202
+May 24 2013
+Abstract
+Identication of every single genome present in a microbial sample is an important and
+challenging task with crucial applications It is challenging because there are typically millions
+of cells in a microbial sample the vast majority of which elude cultivation The most accurate
+method to date is exhaustive single cell sequencing using multiple displacement amplication
+which is simply intractable for a large number of cells However there is hope for breaking this
+barrier as the number of dierent cell types with distinct genome sequences is usually much
+smaller than the number of cells
+Here we present a novel divide and conquer method to sequence and de novo assemble
+all distinct genomes present in a microbial sample with a sequencing cost and computational
+complexity proportional to the number of genome types rather than the number of cells The
+method is implemented in a tool called Squeezambler We evaluated Squeezambler on simulated
+data The proposed divide and conquer method successfully reduces the cost of sequencing in
+comparison with the nave exhaustive approach
+Availability Squeezambler and datasets are available under
+httpcompbiocswayneedusoftwaresqueezambler
+Introduction
+Critical applications including the Human Microbiome Project Methe et al 2012 biothreat
+detection and combating antibiotic resistant pathogens necessitate identication of all distinct
+genome sequences in a bacterial sample When prior knowledge is available about which organ-
+isms may be present in the sample ow cytometry and 16S rRNA gene sequencing may be used
+However metagenomics is usually used for analyzing the genomics of relatively abundant microbes
+when no prior knowledge is given Metagenomics consists in the study of the variation of species
+in a complex microbial sample Since the vast majority of environmental bacteria elude cultiva-
+tion metagenomics investigates microbial communities by sequencing sampled genome fragments
+To whom correspondence should be addressed
+ztaghaviwayneedu
+nargeswayneedu
+sorinwayneedu
+chitsazwayneedu
+A11 cid22 A12
+A12 cid22 A11
+A31 cid22 A34
+A33 cid22 A34
+Figure 1 The divide and conquer algorithm for an example with 10 cells and 3 distinct genomes
+shown in dierent colors Each row corresponds to one sequencing round The number of barcodes
+in each round is the number of blue boxes in the corresponding row
+without the need for culturing Such a heterogeneous pool of sequencing reads can also be assem-
+bled to yield a superposition of highly abundant genomes in the sample Treangen et al 2013
+There are two problems with metagenomics i the resulting assembly contains multiple genomes
+superimposed and ii only highly abundant genomes survive the sampling process
+Advances in DNA amplication technology have enabled whole genome sequencing directly
+from individual cells without requiring growth in culture Single cell sequencing methods have en-
+abled investigation of novel uncultured microbes Kvist et al 2007 Mussmann et al 2007 These
+culture-independent single cell studies are a powerful alternative to metagenomics studies Genomic
+sequencing from single bacterial genomes was rst demonstrated with cells isolated by ow cytom-
+etry Raghunathan et al 2005 using multiple displacement amplication MDA Dean et al
+2002 2001 Hosono et al 2003 MDA is now the preferred method for whole genome amplica-
+tion from single cells Lasken 2007 Ishoey et al 2008 The rst attempt to assemble a complete
+bacterial genome from one cell Zhang et al 2006 further explored the challenges of assembly from
+amplied DNA including amplication bias and chimeric DNA rearrangements Amplication bias
+results in orders of magnitude dierence in coverage Raghunathan et al 2005 and absence of
+coverage in some regions Chimera formation occurs during the DNA branching process by which
+the 29 DNA polymerase generates DNA amplication in MDA Lasken and Stockwell 2007 Sub-
+sequent studies continued to improve single cell assemblies Marcy et al 2007 Podar et al 2007
+Hongoh et al 2008 Rodrigue et al 2009 Woyke et al 2009 A nearly full potential of single cell
+genome assembly has recently been realized by the work of Chitsaz et al 2011 followed by those
+of Bankevich et al 2012 and Peng et al 2012
+Due to recent progress in single cell DNA amplication techniques and de novo assembly al-
+gorithms the genomes of all bacterial species in a sample can be captured one cell at a time
+However there are often millions of cells per sample in which case the nave deep sequencing of
+every cell becomes prohibitively costly Moreover it is expected that deep sequencing of every cell
+is often not necessary as the majority of biologically important samples are sparse in the sense that
+many cells are biological replicates Compressed Candes and Tao 2005 2006 Donoho 2006 and
+distilled adaptive sampling-and-renement sensing methods Haupt et al 2011 Wei and Hero
+2012 have been proposed in the last decade to exploit sparsity for reducing the cost of sens-
+ing and reconstructing signals in various spaces ranging from Banach spaces to Boolean algebras
+Erlich et al 2010 Stobbe and Krause 2012 Inspired by those advances we give an algorithm
+in this paper that exploits sample sparsity to reduce the cost of sequencing without compromising
+the accuracy of identication of all distinct genomes even the ones that are minimally represented
+in the sample
+2 Approach
+A nave approach to solve the problem which we call single cell co-assembly strategy is to amplify
+the genome of each cell barcode them individually pool them sequence in one sequencing run
+and demultiplex based on the barcode In this approach each cell should be isolated and its DNA
+extracted and amplied using multiple displacement amplication Although there is currently
+no high throughput device to perform these processes one could envision automated microuidic
+devices that will be capable of high throughput separation DNA extraction amplication and
+barcoding of single cells in the near future The output sequencing reads could then be co-assembled
+using our tool HyDA Movahedi et al 2012 In HyDA the read dataset of each cell is assigned a
+unique color All the colors are co-assembled in one colored de Bruijn graph This approach requires
+enough unique barcodes to tag the fragments of each cell Also barcodes attached to each fragment
+are sequenced which imposes additional sequencing cost Fabrication of so many unique barcodes
+becomes prohibitively expensive for a large number of cells and therefore this nave approach will
+not work
+The number of distinct genomes in a microbial community is often much less than the number
+of cells For example Qin et al 2010 estimated the number of detected distinct species in the
+human gut to be in the order of 1000 while the number of microbial cells in a human body
+most of which reside in the gut is in the order of 100 trillion We call this eect the sparsity
+of distinct genomes in a sizable microbial population The nave approach does not exploit the
+sparsity to reduce the cost of sequencing Here we proposed to exploit the spareness by adopting
+a divide and conquer strategy to reduce the amount of required barcodes and sequencing After
+isolation of each cell and extraction of the DNA every DNA is amplied and stored separately
+eg in a microuidic droplet The main idea is to sample the amplied DNAs adaptively which is
+essentially allocating sequencing and barcoding resources dynamically over the course of multiple
+sensing iterations Initially the algorithm has one group of cells which is the entire sample In each
+iteration each group is divided into two equally-sized subgroups A small amount of DNA from
+each cell in a subgroup is sampled pooled and sequenced In practice one barcode per subgroup
+is used to multiplex and demultiplex the sequencing in one run The amount of sampling from each
+cell is computed based on the results of previous iterations This is called resource allocation and
+is similar to the one proposed by Haupt et al 2011 and Wei and Hero 2012 The resulting read
+datasets one per subgroup are then co-assembled and compared using HyDA to decide pairwise
+subsumption of subgroups The cells in those subgroups that are subsumed by other subgroups
+even in previous iterations are eliminated from further analysis This procedure is continued until
+each remaining group contains only one cell The resulting non-redundant single element groups
+capture all of the distinct genome sequences
+3 Methods
+Although distinct genomes are often identied as dierent species there are numerous cases where
+distinct genomes are categorized as varied instances of the same species or even the same strain
+Instead of identication of strains and species which are currently phenotypic notions the goal
+of our approach is to nd all distinct genomes in a sample We dene two genome sequences to
+be distinct if the ratio of their dierences over the whole genome size is above a threshold That
+threshold is input by the user and controls a trade-o between sensitivity and specicity
+Co-assembly and comparison of multiple input read datasets lie at the core of both approaches
+we take in this paper While there are assembly tools for single cell genomic data such as SPAdes
+Bankevich et al 2012 and IDBA-UD Peng et al 2012 and also co-assembly tools for normal
+multicell genomic data such as Cortex Iqbal et al 2012 we use HyDA which is the only tool to
+date that has both functionalities Movahedi et al 2012 However the novel ideas proposed here
+can also be implemented using other assemblers For the sake of completeness HyDA algorithm is
+summarized in the following
+31 Co-assembly Algorithm
+311 Construction and Condensation of the Colored De Bruijn Graph
+The colored de Bruijn graph a variation of the standard de Bruijn graph is a combinatorial
+structure that can be used to assemble a number of input read datasets each represented by a
+color superimposed on a single de Bruin graph Iqbal et al 2012 The output of such assembly
+methods is a number of assembled sequences contigs and the corresponding average multiplicity
+in each color Our de Bruijn graph of the input reads is stored in a hashed collection of splay
+trees whose vertices are k-mers with an array of multiplicity counts one entry per color in- and
+out-edges and internal ags A 1-in 1-out chain of k-mers is condensed into an equivalent long
+sequence which is called a unitig A maximal unitig which cannot be extended further due to
+a branch in the graph is a contig Note that in HyDA our condensation is solely based on the
+topology of the graph without any attention to the colored multiplicities Ignoring multiplicities
+for condensation is purposefully done and constitutes the feature that allows the assembler to deal
+with black out regions in single cell multiple displacement amplication Chitsaz et al 2011
+Contigs with low coverage are often caused by sequencing error The low coverage contig
+removal process is iterated with an increased cuto in each round In each iteration those contigs
+whose maximum coverage over all colors is less than the cuto are eliminated and the remaining
+graph is recondensed This causes some contigs to merge into larger ones with recomputed average
+coverages This process is similar to Velvet-SCs low coverage contig removal but instead of
+considering one average coverage per contig HyDA considers the maximum of average coverages
+for all the colors of each contig Chitsaz et al 2011 In this case only those contigs that have
+low coverage in all colors are considered erroneous and removed Another possible approach is to
+eliminate those contigs for which the mean of average coverages for all colors is less than the cuto
+However if we were to follow this approach a contig that is well covered in one color but is poorly
+covered or absent in hundreds of colors would be lost since the mean would dilute the eect of
+coverage in one color among hundreds of colors This approach would not work for us here because
+our goal is to be able to preserve rare contigs
+312 Redundancy Removal
+To remove redundant genomes we dene a relation that is reminiscent of subset relation on the set of
+contigs for each color Note that our goal here is to remove redundant genomes which are collections
+of contigs rather than to remove individually redundant contigs Let A  a1 a2     ar be the
+set of remaining contigs after iterative error removal Let Mjai denote the average coverage of
+contig ai in color j for 1  i  r and 1  j  s where s is the number of colors Pick   0 and let
+Aj  ai  A  Mjai    A be the set of contigs for each color j The parameter  determines
+the trade-o between specicity and sensitivity We chose   0 in this study but a non-zero 
+might be needed if there are erroneous or contaminant k-mers in one color that also occur in the
+true genomic sequence of another color
+We dene D Ai Aj   R on the set F  A1 A2     As as
+D Ai Aj   
+kAiAjk
+in which AiAj  a  Aia  Aj and k  k denotes the total assembly size We dene
+Ai cid22 Aj i 0  D Ai Aj
+in which   0 Particularly cid220 becomes the subset relation and can be used to detect and remove
+redundant collections of contigs ie
+those that are subsumed by a larger collection However
+in reality the mathematical subset relation is not adequate as there are various types of noise
+including sequencing errors intrastrain variations such as SNPs and indels contaminations added
+in the amplication and sequencing process and lack of coverage in some regions caused by the
+MDA Hence the denition of subset should be loosened by choosing a small but nonzero value
+for   Beside  the value of  gives a trade-o between specicity and sensitivity of recognizing
+distinct genomes If  is small the algorithm detects two equivalent genomes as distinct and if
+ is large distinct genomes are declared equivalent To see how  is chosen refer to Sections 32
+and 42 The results are shown in Table 3 Finally we compute a non-redundant set of assemblies
+E  Ai1  Ai2     Ait  F such that for every distinct pair 1  a b  t Aia 6cid22 Aib and
+Aib 6cid22 Aia
+32 Divide and Conquer Strategy Exploiting Sparsity
+Let n be the number of cells in the sample and denote the cells by Si i  1     n Our algorithm
+aims to assemble all of the distinct genomes and identify at least one cell per distinct genome To
+reach this goal our algorithm iteratively pools samples of amplicons from dierent cells tags each
+pool with a unique barcode mixes the barcoded pools and has the result sequenced The objective
+is to minimize the total number of bases required to be sequenced as well as the number of dierent
+barcodes needed
+In the rst iteration we divide the n cells S1     Sn into two sets
+I11  S1     Sn2
+I12  Sn21     Sn
+Our algorithm samples equal amount of amplicons from each cell in I11 and I12 The amplicons in
+each set are pooled and tagged by two distinct barcodes The barcoded amplicons are sequenced
+to reach a desired number of base pairs This number is an input parameter of our algorithm
+We dene the total number of base pairs sequenced from I1i to be b1i for i  1 2 The two
+NCBI ID
+NC 0046631 Bacteroides thetaiotaomicron VPI-5482 chromosome
+NC 0096141 Bacteroides vulgatus ATCC 8482 chromosome
+NC 0096151 Parabacteroides distasonis ATCC 8503 chromosome
+NC 0085321
+NC 0167761 Bacteroides fragilis 638R
+FP9290461
+FP9290511
+FP9290531
+FP9290551
+Faecalibacterium prausnitzii SL33
+Ruminococcus bromii L2-63
+Ruminococcus sp SR15
+Ruminococcus torques L2-14
+Streptococcus thermophilus LMD-9
+Table 1 The 9 chosen species for our simulation
+Ref Status
+complete
+complete
+complete
+complete
+complete
+Size bps No of Cells
+read datasets are co-assembled by HyDA using two colors The result is two sets of contigs for each
+color A11 and A12 We calculate D1A11 A12 and D1 A12 A11 as dened in 1 in which
+1    maxj I1j  is an input parameter and    is the set cardinality We choose  to be the
+maximum allowable dierence between the assembly of two single cells from the same strain Based
+on these values we decide if the relations A11 cid221 A12 and A12 cid221 A11 hold If A11 is a subset
+of A12 then all of the distinct genomes in I11 are present in I12 therefore the cells in I11 do not
+need further sampling This applies to I12 too if A12 is a subset of A11 If both relations hold
+one of I11 or I12 is eliminated arbitrarily from further analysis Each remaining set I1 is divided
+into two subsets for analysis in the second iteration Fig 1 depicts an example of 10 cells with 3
+distinct genomes shown in dierent colors
+The same splitting process occurs in the subsequent iterations Assume Ii1     Iimi are the
+remaining sets in iteration i Each set Iij is sampled to produce bij base pairs barcoded uniquely
+pooled and sequenced All of the new sequence datasets and those obtained in all previous iterations
+are co-assembled In the co-assembly the previous datasets help to improve the assembly of the new
+ones The resulting contig set of Iij is denoted by Aij For all j k  1    mi the relations Aij cid22i
+Aik are evaluated where i is a threshold whose calculation will be explained below The cells in
+those Iij whose assemblies are subsumed will be removed from further analysis All the remaining
+ones are partitioned into two disjoint subsets Denote the new subsets by Ii11     Ii1mi1 Note
+that in iteration i mi unique barcodes are needed Therefore
+m  max
+is the maximum number of barcodes required for the entire algorithm
+Parameters bij play a key role in the algorithm We propose an adaptive calculation of bij to
+minimize without losing accuracy the total base pairs sequenced
+Assume Iij is a set that is created by dividing the set Ii1k in iteration i  1 into two We are
+motivated to choose the total number of sequenced base pairs from cells in Iij to be proportional
+to the total assembly size kAi1kk ie
+where c is an input parameter indicating the estimated average coverage of each iteration We say
+Aij are accurate enough if the partial order relation cid22i can be assessed accurately If c is large
+bij  c  kAi1kk
+and the assembly of iteration i  1 is accurate enough then in iteration i adequate base pairs are
+sequenced to allow an accurate enough assembly of set Iij
+Another factor that aects accuracy of the assessment of these relations is the choice of i
+The threshold i in the ith iteration is used to detect cells with similar genomes in spite of small
+dierences in their assemblies We propose to use the following threshold
+max1jmi Iij
+Recall that  is the maximum allowable dierence between the assembly of two single cells with
+similar genome sequences To account for the worst possible case it is assumed that there are Iij
+distinct genomes in each group Iij Therefore max1jmi Iij captures the maximum number
+of distinct genomes in Iij from any Iik With these assumptions i is a conservative threshold
+This threshold will guarantee that two distinct genomes are detected but it has the possibility
+of detecting similar genomes as distinct In the last iteration of the algorithm when every group
+consists of one cell the threshold is   Note that the number of iterations which is the number of
+sequencing rounds is always log2 n
+Implementation
+We implemented our algorithm in a tool called Squeezambler 10 in C Our tool and datasets
+are available under httpcompbiocswayneedusoftwaresqueezambler
+4 Results
+Since we did not have access to real data we tested our algorithm using simulated data We
+used our tool MDAsim 10 Taghavi and Draghici 2012 to simulate 100 multiple displacement
+amplication processes one process per cell from 9 distinct genomes The output of MDAsim 10
+was fed into an Illumina read generator ART Huang et al 2012 to generate Illumina reads with
+realistic errors from the simulated amplicons The set of generated reads for each cell were treated
+like a microuidic droplet from which samples without replacement are extracted in each iteration
+of Squeezambler 10 We assume that MDA products are contamination free which requires a
+contaminant free automated microuidic cell sorting amplication and sampling device
+41 Datasets
+Totally 115 MDAs were simulated from 9 distinct genomes chosen from the list of species found
+in a gut metagenomics study Qin et al 2010 that have a complete or draft reference genome
+Recall that we are simulating MDA from a reference genome therefore we needed a reference
+genome for the chosen species Table 1 summarizes the NCBI ID name size reference status
+complete or draft and the number of cells we have simulated The number of cells is approximately
+proportional to the abundance mean of the corresponding species in Qin et al 2010 We ran
+MDAsim 10 with a diverse set of parameters one for each cell to capture the diverse nature of
+MDA coverage bias ART an Illumina read generator was then deployed to generate 100 bps
+Illumina reads from the simulated amplicons The amplication gain of MDAsim 10 was 300
+and that of ART was 8 from which 18 were selected randomly to obtain a total gain of 300
+We assembled the dataset of each cell individually with HyDA 10 and the resulting assemblies
+have between 01 and 42 missing reference bases measured by Gage Salzberg et al 2012
+which is similar to the real world situation with a successful MDA reaction Chitsaz et al 2011
+We made an error prole that matches the error statistics of Illumina HiSeq 2000 for ART Using
+our prole ART injects on average 1 error into the reads because of which we need to eliminate
+erroneous contigs in the assembler HyDA 10 and also its predecessor Velvet-SC have an iterative
+algorithm to remove low coverage contigs which is explained in Section 311 In each iteration
+Squeezambler 10 provides HyDA 10 with a coverage cuto as a percentage of the mean coverage
+of each color That percentage is constant in all iterations
+We designed three collections of cells the statistics of which are summarized in Table 2 In the
+rst collection there are 62 cells with 6 distinct genomes In this collection we put 22 dierent MDA
+results from NC 0046631 and 22 from FP9290511 to play the role of highly abundant genomes in a
+sample as well as 1 from NC 0167761 and 2 from NC 0085321 to represent low abundance genomes
+in the same sample In the rst collection the number of distinct genomes is approximately one
+tenth of the number of cells but with a wide range of abundances The second collection is the
+sparsest collection among the three where the number of distinct genomes is approximately one
+twentieth of the number of cells The third collection is the most diverse of the three where the
+number of distinct genomes is approximately one sixteenth of the number of cells
+Table 2 Our simulation setups i 62 cells 6 species ii 97 cells 5 species and iii 112 cells 7
+species
+NCBI ID
+NC 0046631
+NC 0096141
+NC 0096151
+NC 0085321
+NC 0167761
+FP9290461
+FP9290511
+FP9290531
+FP9290551
+62 cells 6 species
+Abundance 
+97 cells 5 species
+112 cells 7 species
+42 Simulation Results
+We ran Squeezambler 10 for the three collections described above the results of which are sum-
+marized in Table 3 Most of the Squeezambler 10 parameters were the same for all three collec-
+tions The assembly inclusion threshold constant per cell was chosen   02 which means at most
+20 of the assembly can vary among multiple instances of the same genome Taking into account
+the genomic sequence loss caused by the MDA sampling of the amplicons and sequencing errors
+20 is a reasonable choice This is not an optimized value and is chosen based on the authors
+intuition We chose  conservatively in this work so that distinct genomes are not lost but some
+equivalent genomes are detected as distinct Finding the optimal value for  needs a thorough
+study which is beyond the scope of this paper
+The k-mer size for HyDA 10 was chosen to be k  55 which is a common choice for the chosen
+Illumina error prole Chitsaz et al 2011 The coverage cuto as a percentage of the coverage
+mean was chosen to be 100 and the minimum contig length was 100 bps for HyDA 10 The
+coverage mean is estimated based on the assembly size in the rst iteration which is often larger
+than the actual genome size due to a myriad of erroneous low coverage k-mers This causes the
+initially estimated coverage mean to be a small fraction of the nal coverage mean after error
+removal
+Table 3 Squeezambler 10 results for the three setups summarized in Table 2 For some methods
+we report the results for two dierent values of initial sequencing coverage per cell
+Sequencing
+Iterations
+per Cell in the
+Sequencing Barcodes
+1st Iteration
+Predicted
+Distinct
+Genomes
+single cell co-assembly
+divide and conquer
+single cell co-assembly
+single cell co-assembly
+divide and conquer
+divide and conquer
+single cell co-assembly
+single cell co-assembly
+divide and conquer
+62 cells
+6 distinct
+genomes
+97 cells
+5 distinct
+genomes
+112 cells
+7 distinct
+genomes
+b1j I1j 
+b in 4
+m in 3
+Squeezambler 10 has an option to choose the number of initial groups in the rst iteration
+g If g is chosen to be equal to the number of cells then Squeezambler 10 simulates the single
+cell co-assembly of all the cells If g  2 then Squeezambler 10 simulates the divide and conquer
+algorithm described in Section 32 Although experimenting with dierent g values may improve
+the results we do not have data for it
+Before any sequencing is done the algorithm has no idea about the genome sizes various distinct
+genomes and abundance of each genome Therefore an unbiased algorithm has to sequence from
+each cell exactly the same amount right in the 1st iteration That amount in our algorithm denoted
+by b1jI1j  is an input parameter to Squeezambler 10 which was chosen to be between 1 Mbps
+and 63 Mbps as reported in the third column of Table 3 In our setup the size of the 9 distinct
+genomes varies between 18 Mbps and 63 Mbps see Table 1 Therefore 1 Mbps sequencing
+provides between 16 and 12 coverage and 63 Mbps sequencing provides between 10 and
+35 coverage
+The input parameter c which controls the amount of sequencing in subsequent rounds was
+chosen to be c  10 which means 10 expected coverage from each genome in each collection We
+observed that in practice 10 coverage of each distinct genome provides sucient information for
+reliable evaluation of cid22 This is consistent with the Lander and Waterman 1988 analysis in which
+the statistics of gaps and contigs in terms of coverage is characterized Based on that analysis 10
+coverage yields the entire genome without gap with high probability
+Our divide and conquer algorithm exhibits signicant improvement in maximum barcodes and
+in most cases the total number of base pairs sequenced over the single cell co-assembly method
+For the 97 cells 5 distinct genomes collection our divide and conquer algorithm requires only 29
+Gbps sequencing and 10 barcodes in comparison to 30 Gbps sequencing and 97 barcodes consumed
+by the single cell co-assembly method Similarly for the 62 cells 6 distinct genomes collection our
+divide and conquer algorithm requires only 30 Gbps sequencing and 10 barcodes in comparison to
+39 Gbps sequencing and 62 barcodes required by the single cell co-assembly method Even though
+for the 112 cells 7 distinct genomes collection our divide and conquer algorithm outperforms single
+cell co-assembly in terms of the number of barcodes by 33 vs 112 it requires 71 Gbps sequencing
+which is more than that used by single cell co-assembly 35 Gbps
+In all of our experiments all distinct genomes were correctly detected Therefore our results
+exhibit ultimate sensitivity However in some experiments multiple cells with similar genomes
+were identied as distinct which is not an issue for our problem because based on the results of
+Squeezambler 10 those cells that are identied as with distinct genomes can be deeply sequenced
+and assembled afterwards For the 62 cells 6 distinct genomes collection the number of detected
+distinct genomes was between 6 and 8 For the 97 cells 5 distinct genomes collection that number
+was between 5 and 11 and for the 112 cells 7 distinct genomes collection that was between 7 and
+14 This specicity is reported in the sixth column of Table 3 Note that the number of sequencing
+rounds iterations for single cell co-assembly is always 1 and for divide and conquer with g  2
+it is log2 n
+Due to the computational intensity of MDAsim 10 HyDA 10 and Squeezambler 10 we
+report our results for only small examples in order to provide a proof of concept We also chose
+our parameters conservatively and without optimization so that we do not compromise accuracy
+Moreover our examples have in the order of 100 cells and 6 distinct genomes whereas real world
+samples are much sparser as the number of cells may be in the order of billions and the number of
+distinct genomes at most in the order of thousands Therefore we expect the reduction in the total
+sequencing and maximum barcodes to be higher for real world applications than what we report
+in this paper
+5 Conclusion
+We presented an adaptive divide and conquer algorithm for distilled sequencing and de novo as-
+sembly of distinct genomes in a bacterial community eg human gut microbiome Samples derived
+from such communities are often sparse in the sense that the number of distinct genomes is much
+less than the number of cells Our algorithm exploits sparsity to decrease the amount of sequencing
+and the number of multiplexing barcodes needed for single cell sequencing and de novo assembly
+We implemented our algorithm in a tool which we call Squeezambler and performed simulation
+experiments to demonstrate its power Our results show that i the number of required barcodes
+with our divide and conquer algorithm is less than that required by the nave approach and that
+ii the amount of sequencing needed remains the same or decreases Due to the computational
+intensity of the problem only small examples with low sparsity were studied in this work Real
+world samples are much sparser  1000 species in  1014 cells than the examples here  5 species
+in  100 cells Also the parameters used to run our tool were chosen conservatively and without
+optimization Therefore we expect the improvement of our algorithm to be higher than what we
+reported in this paper in real world situations Squeezambler 10 identies all distinct genomes
+in the sample which are candidates for dierent strainsspecies Those cells that are identied
+as having distinct genomes need to be subsequently deeply sequenced and assembled in order to
+obtain a more detailed assembly
+Acknowledgement
+This work has been partially supported by the following grants NIH RO1 DK089167 NIH STTR
+R42GM087013 and NSF DBI-0965741 to SD Any opinions ndings and conclusions or rec-
+ommendations expressed in this material are those of the authors and do not necessarily represent
+the views of any of the funding agencies
+References
+Bankevich A et al 2012 SPAdes A New Genome Assembly Algorithm and Its Applications
+to Single-Cell Sequencing J Comput Biol 195 455477
+Candes E and Tao T 2005 Decoding by linear programming IEEE Transactions on Informa-
+tion Theory 5112 42034215
+Candes E and Tao T 2006 Near-optimal signal recovery from random projections Universal
+encoding strategies IEEE Transactions on Information Theory 5212 54065425
+Chitsaz H et al 2011 Ecient de novo assembly of single-cell bacterial genomes from short-read
+data sets Nature Biotech 2910 915921
+Dean F B et al 2001 Rapid amplication of plasmid and phage DNA using Phi 29 DNA
+polymerase and multiply-primed rolling circle amplication Genome Res 11 10951099
+Dean F B et al 2002 Comprehensive human genome amplication using multiple displacement
+amplication Proc Natl Acad Sci USA 99 52615266
+Donoho D 2006 Compressed sensing Information Theory IEEE Transactions on 524 1289
+1306
+Erlich Y et al 2010 Compressed genotyping Information Theory IEEE Transactions on
+562 706 723
+Haupt J et al 2011 Distilled sensing Adaptive sampling for sparse detection and estimation
+IEEE Transactions on Information Theory 579 62226235
+Hongoh Y et al 2008 Complete genome of the uncultured Termite Group 1 bacteria in a single
+host protist cell Proc Natl Acad Sci USA 105 55555560
+Hosono S et al 2003 Unbiased whole-genome amplication directly from clinical samples
+Genome Res 13 954964
+Huang W et al 2012 ART a next-generation sequencing read simulator Bioinformatics
+284 593594
+Iqbal Z et al 2012 De novo assembly and genotyping of variants using colored de bruijn graphs
+Nat Genetics 44 226  232
+Ishoey T et al 2008 Genomic sequencing of single microbial cells from environmental samples
+Curr Opin Microbiol 11 198204
+Kvist T et al 2007 Specic single-cell isolation and genomic amplication of uncultured
+microorganisms Appl Microbiol Biotechnol 74 926935
+Lander E S and Waterman M S 1988 Genomic mapping by ngerprinting random clones a
+mathematical analysis Genomics 2 231239
+Lasken R S 2007 Single-cell genomic sequencing using Multiple Displacement Amplication
+Curr Opin Microbiol 10 510516
+Lasken R S and Stockwell T B 2007 Mechanism of chimera formation during the Multiple
+Displacement Amplication reaction BMC Biotechnol 7 19
+Marcy Y et al 2007 Dissecting biological dark matter with single-cell genetic analysis of rare
+and uncultivated TM7 microbes from the human mouth Proc Natl Acad Sci USA 104
+1188911894
+Methe B A et al 2012 A framework for human microbiome research Nature 4867402
+215221
+Movahedi N S et al 2012 De novo co-assembly of bacterial genomes from multiple single cells
+In IEEE Conference on Bioinformatics and Biomedicine pages 561565
+Mussmann M et al 2007 Insights into the genome of large sulfur bacteria revealed by analysis
+of single laments PLoS Biol 5 e230
+Peng Y et al 2012 IDBA-UD a de novo assembler for single-cell and metagenomic sequencing
+data with highly uneven depth Bioinformatics 2811 14201428
+Podar M et al 2007 Targeted access to the genomes of low-abundance organisms in complex
+microbial communities Appl Environ Microbiol 73 32053214
+Qin J et al 2010 A human gut microbial gene catalogue established by metagenomic sequenc-
+ing Nature 4647285 5965
+Raghunathan A et al 2005 Genomic DNA amplication from a single bacterium Appl
+Environ Microbiol 71 33423347
+Rodrigue S et al 2009 Whole genome amplication and de novo assembly of single bacterial
+cells PLoS ONE  4 e6864
+Salzberg S L et al 2012 GAGE A critical evaluation of genome assemblies and assembly
+algorithms Genome Res 223 557567
+Stobbe P and Krause A 2012 Learning fourier sparse set functions Journal of Machine
+Learning Research - Proceedings Track  22 11251133
+Taghavi Z and Draghici S 2012 Mdasim A multiple displacement amplication simulator In
+IEEE Conference on Bioinformatics and Biomedicine pages 575578
+Treangen T J et al 2013 MetAMOS a modular and open source metagenomic assembly and
+analysis pipeline Genome Biol 141 R2
+Wei D and Hero A 2012 Multistage adaptive estimation of sparse signals In IEEE Statistical
+Signal Processing Workshop SSP pages 153156
+Woyke T et al 2009 Assembling the marine metagenome one cell at a time PLoS ONE  4
+Zhang K et al 2006 Sequencing genomes from single cells by polymerase cloning Nat Biotech-
+nol 24 680686
