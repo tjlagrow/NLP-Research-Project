@@ -54,8 +54,8 @@ def wordcloud_make(text, discipline, image_name):
     plt.show()
 
 def searching():
-    for filename in os.listdir(os.path.join("Text_Docs")):
-        with open(os.path.join("Text_Docs", filename)) as text:
+    for filename in os.listdir(os.path.join("galaxy_data", "galaxt_evolution_Text_Docs")):
+        with open(os.path.join("galaxy_data", "galaxt_evolution_Text_Docs", filename)) as text:
             print(filename)
             raw = text.read()
             mod_raw = []
@@ -80,21 +80,22 @@ def searching():
             for bigram in keys:
                 if bigram[6] in interesting_words or bigram[5] in interesting_words or bigram[7] in interesting_words:
                     clean.append(bigram)
-            print("Ngrams")
-            print(clean)
-            print(fdist.most_common(20))
+            #print("Ngrams")
+            #print(clean)
+            #print(fdist.most_common(20))
             with open("ngram-intermediate.txt", "a") as outputty:
                 outputty.write('\n'.join('{} {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14]) for x in clean))
 
             for word in interesting_words:
-                print(word)
-                print(text.concordance(word))
-                print()
-                print("Common Context")
-                print(text.similar(word))
+                #print(word)
+                #print(text.concordance(word))
+                #print()
+                #print("Common Context")
+                #print(text.similar(word))
+                pass
 
 
-            print(text.collocations())
+            #print(text.collocations())
 
             # Add Position in Sentence tags, making it a list of tuples
             text = nltk.pos_tag(text)
@@ -103,7 +104,7 @@ def searching():
             tag_fd = nltk.FreqDist(tag for (word, tag) in text)
             fd = nltk.FreqDist(word for (word, tag) in text)
             #print(tag_fd.tabulate())
-            print("\n\n")
+            #print("\n\n")
             #print(fd.tabulate())
             # print(text[1024:1062])
 
@@ -121,13 +122,14 @@ def noun_parsing():
                 nounFile.write("{}{}".format(np, "\n"))
         nounsDic = Counter(nouns)
         with open("wordcloud.txt", "a") as output:
+            print(nounsDic)
             for entry in nounsDic.most_common():
                 for i in range(entry[1]):
                     output.write("{}\n".format(entry[0]))
         with open("wordcloud.txt", "r") as input:
             text = input.read()
             wordcloud_make(text, "hawkes", "black-hawk.png")
-        print(nounsDic)
+        #print(nounsDic)
         with open("Final.txt", "a") as file:
                 file.write("{}{}".format(nounsDic, "\n"))
 
