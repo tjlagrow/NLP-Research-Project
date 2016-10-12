@@ -9,9 +9,6 @@ information in
 
 """
 
-import peewee
-
-
 def setup_database():
     database = peewee.SqliteDatabase("nlp.db", threadlocals=True)
     database.connect()

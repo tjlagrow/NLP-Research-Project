@@ -25,7 +25,7 @@ import sys
 import urllib
 import feedparser
 
-links_file = open('links_for_pdfs.txt', 'w')
+links_file = open('links_for_pdfs.txt', 'a+')
 
 # Base api query url
 base_url = 'http://export.arxiv.org/api/query?';
